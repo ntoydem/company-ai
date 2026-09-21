@@ -1,6 +1,6 @@
 # Phase 0.1 Raporu — İskelet + ADR'ler
 
-**Tarih:** 21.09.2026  **Model:** Claude Fable 5.1  **Tag:** phase-0-1  **Commit:** 875a71e
+**Tarih:** 21.09.2026  **Model:** Claude Fable 5.1  **Tag:** phase-0-1  **Commit:** 0df3cc0 (`git rev-list -n1 phase-0-1`)
 
 ## 1. Kabul kriterleri
 | # | Kriter (PHASES.md'den kelimesi kelimesine) | Durum | Kanıt (test adı / komut / çıktı) |
