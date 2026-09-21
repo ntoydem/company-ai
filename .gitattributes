@@ -1,0 +1,12 @@
+# Normalize line endings to LF for all text files (scripts must run on Linux VM)
+* text=auto eol=lf
+*.sh text eol=lf
+Makefile text eol=lf
+
+# Binary assets
+*.pdf binary
+*.xlsx binary
+*.xlsm binary
+*.png binary
+*.jpg binary
+*.jpeg binary

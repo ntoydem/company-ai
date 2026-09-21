@@ -70,7 +70,7 @@ Audit log = kim, ne zaman, ne sordu, hangi kaynaklar kullanıldı; yalnızca adm
 - Geliştirme: Proxmox üzerindeki `company-ai-dev` VM'inde (Ubuntu 24.04, Docker + Compose plugin). Naci PC'den SSH ile bağlanır; Claude Code bu VM'de çalışır. Repo `~/company-ai`.
 - Prod: aynı VM'in Phase 16'da alınan temiz klonu (`company-ai-prod`); orada yalnızca `git clone` + `.env` + `make up`.
 - Bu yüzden: veri kökü `DATA_ROOT` env değişkeni (dev: `./data`, prod: `/srv/company-ai`); compose'da sabit `/srv/...` yolu yazma. Tüm script'ler `bash`, LF satır sonu. Host'a özel ayar yok; dev'de çalışan prod'da da çalışmalı.
-- RAM: dev VM başlangıçta 6 GB. Temel servisler (postgres, backend, ocr-worker, caddy) buna sığar. `embed` servisi `--profile full` altında; VM 16 GB olunca `make up-full`.
+- RAM: dev VM 16 GB. Temel servisler (postgres, backend, ocr-worker, caddy) 6 GB'a sığar. `embed` servisi `--profile full` altında; Adım 0 boyunca açılmaz, Phase 3.4'te `make up-full`.
 - Tüm host portları `.env`'den (`CADDY_PORT=8080`).
 
 ## Repo düzeni

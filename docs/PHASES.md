@@ -7,7 +7,7 @@ Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 ## Durum
 | Phase | Ad | Durum | Tag | Rapor |
 |---|---|---|---|---|
-| 0.1 | İskelet + ADR'ler | bekliyor | – | – |
+| 0.1 | İskelet + ADR'ler | tamamlandı | phase-0-1 | [PHASE_0_1_REPORT](reports/PHASE_0_1_REPORT.md) |
 | 0.2 | Belge hattı (upload → OCR → sayfa → chunk → FTS) | bekliyor | – | – |
 | 0.3 | LLM + soru-cevap + sayfa kaynaklı cevap (T0) | bekliyor | – | – |
 | 1.1 | Auth + kullanıcılar | bekliyor | – | – |

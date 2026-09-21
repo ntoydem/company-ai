@@ -1,0 +1,12 @@
+# Placeholder until Phase 3.3. LAN, plain HTTP (no TLS in V0).
+:80 {
+	handle /api/* {
+		reverse_proxy backend:8000
+	}
+	handle /health {
+		reverse_proxy backend:8000
+	}
+	handle {
+		respond "Company AI arayüzü Phase 3.3'te eklenecek." 200
+	}
+}
