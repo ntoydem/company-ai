@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     # Phase 1.1
     jwt_secret: SecretStr | None = None
 
-    # Phase 0.3 — read here so .env is validated early; not used yet.
+    # Phase 0.3 (ADR-009)
     llm_provider: Literal["openai_compatible", "anthropic"] = "openai_compatible"
     llm_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai/"
     llm_api_key: SecretStr | None = None
@@ -37,6 +37,8 @@ class Settings(BaseSettings):
     llm_model_answer: str = "gemini-3.8-flash"
     llm_timeout_s: int = 60
     llm_max_output_tokens: int = 2048
+    # Thinking budget stays low (SPEC_01 §5); Gemini maps this to `thinking_level`.
+    llm_reasoning_effort: Literal["minimal", "low", "medium", "high"] = "low"
     anthropic_api_key: SecretStr | None = None
 
     # Phase 3.4

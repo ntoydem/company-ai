@@ -29,7 +29,10 @@ def search_fts(
 
     Matches against both the `turkish` (stemmed) and `simple` (unstemmed) tsvector
     columns via `websearch_to_tsquery` — tolerant of stray punctuation, ANDs terms like a
-    normal search box — and ranks by whichever config matched best.
+    normal search box — and ranks by whichever config matched best. Cover-density ranking
+    (`ts_rank_cd`) rewards chunks where several distinct query terms occur close together,
+    which is what an OR query (ADR-020) needs: the clause stating the covenant outranks a
+    cover page that merely lists the same words.
     """
     allowed = list(allowed_ids)
     if not allowed:
@@ -38,8 +41,8 @@ def search_fts(
     turkish_query = func.websearch_to_tsquery("turkish", query)
     simple_query = func.websearch_to_tsquery("simple", query)
     rank = func.greatest(
-        func.ts_rank(DocumentChunk.tsv_turkish, turkish_query),
-        func.ts_rank(DocumentChunk.tsv_simple, simple_query),
+        func.ts_rank_cd(DocumentChunk.tsv_turkish, turkish_query),
+        func.ts_rank_cd(DocumentChunk.tsv_simple, simple_query),
     ).label("rank")
 
     stmt = (

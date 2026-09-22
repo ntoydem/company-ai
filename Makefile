@@ -10,8 +10,8 @@ BACKEND_PORT := $(shell grep -E '^BACKEND_PORT=' $(ENV_FILE) 2>/dev/null | cut -
 BACKEND_PORT := $(or $(BACKEND_PORT),8000)
 SVC ?=
 
-.PHONY: help env-check dirs up up-full down ps logs build test lint format migrate migration \
-        seed-admin psql shell seed reset-demo eval backup restore clean
+.PHONY: help env-check dirs up up-full down ps logs build test test-llm lint format prompt-doc \
+        migrate migration seed-admin psql shell seed reset-demo eval backup restore clean
 
 help: ## Bu listeyi göster
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -51,9 +51,22 @@ test: dirs ## pytest: backend, sonra şema doğrulaması, sonra ocr-worker. make
 	$(COMPOSE) run --rm -T ocr-worker \
 		sh -c 'export DATABASE_URL="$$TEST_DATABASE_URL"; pytest -q $(ARGS)'
 
-lint: env-check ## ruff + mypy (backend), ruff (ocr-worker)
+test-llm: dirs ## canlı LLM testleri (gerçek Gemini; LLM_API_KEY gerekir). make test-llm MODEL=gemini-3.5-flash
+	$(COMPOSE) run --rm -T -e LLM_LIVE_TESTS=1 $(if $(MODEL),-e LLM_MODEL_ANSWER=$(MODEL)) backend \
+		sh -c 'export DATABASE_URL="$$TEST_DATABASE_URL"; python -m app.cli wait-for-db --timeout 60 && pytest -q -s -m live_llm tests/live $(ARGS)'
+
+lint: env-check ## ruff + mypy (backend), ruff (ocr-worker), prompt dokümanı güncel mi
 	$(COMPOSE) run --rm -T --no-deps backend sh -c 'ruff check . && ruff format --check . && mypy'
 	$(COMPOSE) run --rm -T --no-deps ocr-worker sh -c 'ruff check . && ruff format --check .'
+	@$(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-answer-prompt 2>/dev/null \
+		| diff -q - <(sed -n '/^```text$$/,/^```$$/{//!p}' docs/prompts/ANSWER_SYSTEM_PROMPT.md) >/dev/null \
+		|| { echo "docs/prompts/ANSWER_SYSTEM_PROMPT.md güncel değil: make prompt-doc"; exit 1; }
+
+prompt-doc: env-check ## /api/ask sistem promptunu docs/prompts/ANSWER_SYSTEM_PROMPT.md'ye yaz
+	@{ printf '%s\n\n' '# Cevap sistem promptu (Phase 0.3)'; \
+	   printf '%s\n\n' 'Kaynak: `backend/app/services/answer_prompt.py::SYSTEM_PROMPT`. Bu dosya yalnızca gözden geçirme kopyasıdır; `make lint` ikisinin aynı olduğunu doğrular. Değişiklik Python sabitinde yapılır, sonra `make prompt-doc` çalıştırılır.'; \
+	   echo '```text'; $(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-answer-prompt 2>/dev/null; echo '```'; } \
+	   > docs/prompts/ANSWER_SYSTEM_PROMPT.md && echo "yazıldı: docs/prompts/ANSWER_SYSTEM_PROMPT.md"
 
 format: env-check ## ruff format + autofix (backend + ocr-worker)
 	$(COMPOSE) run --rm -T --no-deps backend sh -c 'ruff format . && ruff check --fix .'

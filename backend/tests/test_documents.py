@@ -1,4 +1,5 @@
 import uuid
+from datetime import date
 
 from fastapi.testclient import TestClient
 from sqlalchemy import select
@@ -21,6 +22,7 @@ def _upload(
     document_type: str = "facility_agreement",
     document_date: str = "2023-06-01",
     counterparty: str = "PQR Bank",
+    **extra: str,
 ):
     return client.post(
         "/api/documents/upload",
@@ -30,6 +32,7 @@ def _upload(
             "document_type": document_type,
             "document_date": document_date,
             "counterparty": counterparty,
+            **extra,
         },
     )
 
@@ -111,3 +114,44 @@ def test_get_document_status_returns_fields(client: TestClient, admin_user: User
 def test_get_document_status_404_for_unknown_id(client: TestClient, admin_user: User) -> None:
     response = client.get(f"/api/documents/{uuid.uuid4()}/status")
     assert response.status_code == 404
+
+
+def test_upload_with_supersedes_links_the_chain(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    facility = _upload(client, status="executed", effective_date="2023-06-01").json()
+    facility_id = uuid.UUID(facility["id"])
+    response = _upload(
+        client,
+        title="Amendment 01",
+        document_date="2025-03-15",
+        status="executed",
+        effective_date="2025-03-15",
+        version="1",
+        supersedes_document_id=str(facility_id),
+    )
+    assert response.status_code == 201
+    amendment = db_session.get(Document, uuid.UUID(response.json()["id"]))
+    facility = db_session.get(Document, facility_id)
+    assert amendment is not None and facility is not None
+    assert amendment.supersedes_document_id == facility_id
+    assert amendment.effective_date == date(2025, 3, 15)
+    assert facility.superseded_by_document_id == amendment.id
+    assert facility.status.value == "executed"  # unchanged (Phase 0.3 decision)
+
+
+def test_upload_supersedes_already_superseded_is_409(client: TestClient, admin_user: User) -> None:
+    facility_id = _upload(client).json()["id"]
+    assert _upload(client, title="Amd 1", supersedes_document_id=facility_id).status_code == 201
+    response = _upload(client, title="Amd 1 again", supersedes_document_id=facility_id)
+    assert response.status_code == 409
+    assert response.json()["detail"] == "Belge zaten başka bir belge tarafından güncellenmiş."
+
+
+def test_upload_supersedes_unknown_document_is_404(client: TestClient, admin_user: User) -> None:
+    response = _upload(client, supersedes_document_id=str(uuid.uuid4()))
+    assert response.status_code == 404
+
+
+def test_upload_version_must_be_positive(client: TestClient, admin_user: User) -> None:
+    assert _upload(client, version="0").status_code == 422

@@ -51,6 +51,15 @@ def cmd_assert_pipeline_schema() -> int:
     return 0
 
 
+def cmd_print_answer_prompt() -> int:
+    """Print the `/api/ask` system prompt (source of truth) so `make prompt-doc` can mirror
+    it into docs/prompts/ANSWER_SYSTEM_PROMPT.md and `make lint` can diff the two."""
+    from app.services.answer_prompt import SYSTEM_PROMPT
+
+    print(SYSTEM_PROMPT)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="app.cli")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -60,6 +69,7 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser(
         "assert-pipeline-schema", help="fail if the Phase 0.2 pipeline tables are missing"
     )
+    sub.add_parser("print-answer-prompt", help="print the /api/ask system prompt")
     args = parser.parse_args(argv)
 
     setup_logging(get_settings().log_level)
@@ -69,6 +79,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_seed_admin()
     if args.command == "assert-pipeline-schema":
         return cmd_assert_pipeline_schema()
+    if args.command == "print-answer-prompt":
+        return cmd_print_answer_prompt()
     return 2
 
 

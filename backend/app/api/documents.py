@@ -35,6 +35,7 @@ _MAGIC_BYTES: dict[bytes, str] = {
 UNSUPPORTED_FILE_TYPE_MESSAGE = "Desteklenmeyen dosya türü."
 FILE_TOO_LARGE_MESSAGE = "Dosya çok büyük."
 DOCUMENT_NOT_FOUND_MESSAGE = "Belge bulunamadı."
+ALREADY_SUPERSEDED_MESSAGE = "Belge zaten başka bir belge tarafından güncellenmiş."
 
 
 def _detect_extension(header: bytes) -> str | None:
@@ -62,11 +63,30 @@ def upload_document(
     document_date: Annotated[date, Form()],
     counterparty: Annotated[str, Form()],
     status: Annotated[DocumentStatus, Form()] = DocumentStatus.draft,
+    effective_date: Annotated[date | None, Form()] = None,
+    version: Annotated[int, Form(ge=1)] = 1,
+    supersedes_document_id: Annotated[uuid.UUID | None, Form()] = None,
 ) -> DocumentUploadResponse:
     content = _read_within_limit(file.file, settings.max_upload_size_mb * 1024 * 1024)
     extension = _detect_extension(content)
     if extension is None:
         raise HTTPException(415, UNSUPPORTED_FILE_TYPE_MESSAGE)
+
+    # Version chain (ADR-012): the predecessor must be visible to the user (ADR-004) and
+    # not already superseded (chains are linear, DOMAIN_MODEL §6). Checked before the
+    # file is stored so a rejected upload leaves nothing on disk.
+    predecessor = None
+    if supersedes_document_id is not None:
+        allowed = allowed_document_ids(
+            current_user, AuthorizationScope(), SqlDocumentIdsProvider(session)
+        )
+        if supersedes_document_id not in allowed:
+            raise HTTPException(404, DOCUMENT_NOT_FOUND_MESSAGE)
+        predecessor = document_repo.get(session, supersedes_document_id)
+        if predecessor is None:
+            raise HTTPException(404, DOCUMENT_NOT_FOUND_MESSAGE)
+        if predecessor.superseded_by_document_id is not None:
+            raise HTTPException(409, ALREADY_SUPERSEDED_MESSAGE)
 
     document_id = uuid.uuid4()
     store = LocalFileSystemStore(settings.documents_dir)
@@ -84,7 +104,12 @@ def upload_document(
         tags=[],
         storage_path=relative_path,
         uploaded_by_id=current_user.id,
+        effective_date=effective_date,
+        version=version,
+        supersedes_document_id=supersedes_document_id,
     )
+    if predecessor is not None:
+        document_repo.mark_superseded(session, older=predecessor, newer=document)
     session.commit()
     log.info(
         "document uploaded",

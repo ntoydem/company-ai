@@ -8,11 +8,14 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core.request_id import REQUEST_ID_HEADER, get_request_id
+from app.services.llm import LLMError, LLMNotConfiguredError
 
 log = logging.getLogger(__name__)
 
 GENERIC_ERROR_MESSAGE = "Beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin."
 VALIDATION_ERROR_MESSAGE = "İstek geçersiz."
+LLM_UNAVAILABLE_MESSAGE = "Yapay zeka servisi geçici olarak kullanılamıyor."
+LLM_NOT_CONFIGURED_MESSAGE = "Yapay zeka servisi yapılandırılmamış."
 
 
 def _response(status_code: int, detail: object) -> JSONResponse:
@@ -34,6 +37,20 @@ async def validation_exception_handler(_: Request, exc: Exception) -> JSONRespon
     return _response(422, {"message": VALIDATION_ERROR_MESSAGE, "errors": exc.errors()})
 
 
+async def llm_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """LLM failures degrade only `/api/ask` (SPEC_06 §8); detail goes to the log, never to
+    the user."""
+    assert isinstance(exc, LLMError)
+    if isinstance(exc, LLMNotConfiguredError):
+        log.warning("llm not configured", extra={"path": request.url.path, "error": str(exc)})
+        return _response(503, LLM_NOT_CONFIGURED_MESSAGE)
+    log.error(
+        "llm call failed",
+        extra={"path": request.url.path, "error_type": type(exc).__name__, "error": str(exc)},
+    )
+    return _response(503, LLM_UNAVAILABLE_MESSAGE)
+
+
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     log.exception(
         "unhandled exception",
@@ -45,4 +62,5 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
 def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(StarletteHTTPException, http_exception_handler)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
+    app.add_exception_handler(LLMError, llm_exception_handler)
     app.add_exception_handler(Exception, unhandled_exception_handler)

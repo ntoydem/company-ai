@@ -50,3 +50,10 @@ def test_exception_is_included_in_log_not_in_message() -> None:
     payload = json.loads(JsonFormatter().format(record))
     assert "ValueError: boom" in payload["exception"]
     assert payload["message"] == "failed"
+
+
+def test_token_counters_are_not_masked() -> None:
+    """`tokens_in` / `tokens_out` are LLM usage counters (ADR-009), not secrets."""
+    line = JsonFormatter().format(_record("llm call", {"tokens_in": 10, "tokens_out": 5}))
+    payload = json.loads(line)
+    assert payload["tokens_in"] == 10 and payload["tokens_out"] == 5

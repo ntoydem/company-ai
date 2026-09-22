@@ -14,6 +14,7 @@ dependencies = [
     "argon2-cffi>=23.1",
     "pgvector>=0.3",
     "python-multipart>=0.0.9",
+    "openai>=3.17,<4",
 ]
 
 [dependency-groups]
@@ -51,5 +52,6 @@ files = ["app"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = "-ra"
+addopts = "-ra -m 'not live_llm'"
+markers = ["live_llm: calls the real LLM (make test-llm); excluded from make test"]
 filterwarnings = ["error::DeprecationWarning:app.*"]

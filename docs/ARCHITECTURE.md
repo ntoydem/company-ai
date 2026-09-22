@@ -69,9 +69,10 @@ Status values: `accepted` | `superseded by ADR-xxx`. Phase column = when the dec
 **Status:** accepted · **Phase:** 0.3
 - `LLMClient` protocol with `OpenAICompatibleClient` (openai SDK + `base_url`; default Gemini at `https://generativelanguage.googleapis.com/v1beta/openai/`) and optional `AnthropicClient`.
 - Two model settings: `LLM_MODEL_CLASSIFY` (cheap, metadata suggestion / routing) and `LLM_MODEL_ANSWER`. Defaults from the official model list at the time of writing: `gemini-3.5-flash-lite`, `gemini-3.8-flash`.
-- Thinking/reasoning kept low (`reasoning_effort`), output tokens capped; token counts in/out logged per call and written to the audit log.
+- Thinking/reasoning kept low (`LLM_REASONING_EFFORT`, default `low`), output tokens capped; token counts in/out logged per call (`llm call` record) and, from Phase 3.4, written to the audit log. Gemini's OpenAI endpoint reports no separate reasoning-token count (`tokens_reasoning` stays null).
 - The LLM receives only allowed chunks (ADR-004), never does arithmetic (ADR-011), and cannot execute code.
 - No LangChain/LlamaIndex: prompts and retrieval are explicit and testable.
+- Phase 0.3 decision: `AnthropicClient` is deferred; `LLM_PROVIDER=anthropic` raises a clear "not configured" error until the Phase 4.3 model decision point. Vendor errors are mapped to an `LLMError` hierarchy; the API answers 503 with a fixed Turkish message and never exposes provider detail.
 
 ## ADR-010 — Question router
 **Status:** accepted · **Phase:** 4.3 (simple version in 0.3 answers DOCUMENT only)
@@ -127,7 +128,7 @@ Status values: `accepted` | `superseded by ADR-xxx`. Phase column = when the dec
 **Status:** accepted · **Phase:** 0.1
 - Standard-library `logging` with a JSON formatter to stdout (no extra library): `ts` (UTC ISO), `level`, `logger`, `message`, `request_id`, plus caller `extra` fields.
 - `X-Request-ID` middleware: accepts a well-formed client id or generates one, stores it in a context variable, returns it in the response header and in every error body.
-- Keys containing `password`, `api_key`, `token`, `secret`, `authorization`, `cookie` are masked in log output regardless of caller.
+- Keys containing `password`, `api_key`, `secret`, `authorization`, `cookie` are masked in log output regardless of caller; `token` is masked as a whole key segment (`llm_token`, `access_token`) so that LLM usage counters (`tokens_in`, `tokens_out`) stay readable (Phase 0.3).
 - Unhandled exceptions → HTTP 500 with a fixed Turkish message; the traceback is logged once with path, method and request id.
 
 ## ADR-018 — Configuration and environments
@@ -143,3 +144,21 @@ Status values: `accepted` | `superseded by ADR-xxx`. Phase column = when the dec
 - Every endpoint has at least one integration test; every service has unit tests with fakes (e.g. `DocumentIdsProvider`).
 - `ruff` (lint + format) and `mypy --strict` on `app/` must be green before a phase closes; frontend adds `eslint` + `tsc` in Phase 3.3.
 - Phase closing ritual (CLAUDE.md): all tests green → docs/README updated → migration present → `docs/reports/PHASE_x_y_REPORT.md` → `docs/PHASES.md` status → commit + tag `phase-x-y`.
+
+## ADR-020 — Search query construction: OR semantics for natural-language questions
+**Status:** accepted · **Phase:** 0.3
+- `websearch_to_tsquery` ANDs terms; a Turkish question ("Ankara RES'in güncel minimum DSCR covenant'ı nedir?") against English contracts therefore matched **zero** chunks (measured on the live DB before Phase 0.3).
+- `app/services/search_query.py::build_search_query()` strips apostrophe suffixes (`RES'in → RES`), drops a small Turkish question-word/particle stoplist and duplicates, and joins the rest with `OR`. Lower-casing and stemming stay in Postgres (`turkish` / `simple`), consistent with indexing.
+- Ranking uses `ts_rank_cd` (cover density): chunks where several distinct query terms occur together outrank cover pages that merely list the words. `search_fts()` and `retrieve()` keep their signatures; the repository never sees question text, only the built query.
+- Consequence (deliberate): a question about a project with no documents (İzmir RES) still retrieves chunks of another project through shared terms ("RES"). Project isolation is then the LLM's rule-2/3 discipline (ADR-021) until the structural `project_id` filter arrives with the `projects` table (Phase 1.2). Phase 4.1's `isolation` eval category must cover exactly this scenario.
+- Embeddings (ADR-007, Phase 3.4) will add semantic recall; this ADR governs the FTS leg only.
+
+## ADR-021 — Answer pipeline: deterministic temporal evaluation, cited sources, no-LLM fallback
+**Status:** accepted · **Phase:** 0.3
+- Order per question (SPEC_02 §9): `allowed_document_ids` → `retrieve()` → load the `supersedes` chains of the retrieved documents (restricted to allowed ids at every hop) → `evaluate_version_chains()` → prompt → LLM → parse citations. Only chunk text from `retrieve()` ever enters the prompt.
+- **Temporal truth is computed in code** (`app/services/version_chain.py`): `is_current` = last chain link in force on `DEMO_TODAY` (effective_date or document_date ≤ today, not expired, not superseded by a hidden document); `is_initial` = first link. The prompt carries these as `Zincir: GÜNCEL / İLK HALKA …` headers, current documents first; the model reads them, never derives them. Old values are relayed as historical, never as wrong (ADR-012).
+- Sources are what the model cites: every source block is labelled `[K<n>]`; the answer must end factual sentences with labels; `parse_citations()` maps labels back to (document, page). Unknown labels are dropped and logged. Plain text + labels was chosen over JSON mode (simpler parsing, no escaping issues with Turkish text).
+- No retrieved chunk → the fixed "bilgi bulamadım" answer is returned **without calling the LLM** (zero tokens). A model reply containing the no-answer sentence is canonicalised to the exact fixed string with `answered=false` and no sources (ADR-014).
+- The response also carries `retrieved_document_ids` (for tests, the Phase 4.1 eval and the Phase 3.4 audit log) and a fixed notice that answers contain no interpretation.
+- Version chains are created at upload time via optional `effective_date` / `version` / `supersedes_document_id` fields; the predecessor must be visible to the uploader and not already superseded (409); its `status` is not changed (Phase 3.2 owns status transitions).
+- `GET /ask` serves a single-file HTML test page from the backend (no Caddy, no build); it stays as a developer page after the real frontend (Phase 3.3).

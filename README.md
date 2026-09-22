@@ -40,6 +40,28 @@ PDF'ler `ocr-worker`'da `ocrmypdf` (tur+eng) ile OCR'lanır; sayfa metni ve ~800
 (`document_pages`/`document_chunks`) full-text search (`turkish` + `simple`) için hazırlanır. Test fixture'ları
 (`seed_data/t0/`) `docker compose run --rm backend python seed_data/t0/generate.py` ile üretilir.
 
+## Soru sorma (Phase 0.3)
+`LLM_API_KEY` `.env`'de dolu olmalı (varsayılan Gemini, OpenAI-uyumlu endpoint; model adları `LLM_MODEL_ANSWER` /
+`LLM_MODEL_CLASSIFY`, thinking bütçesi `LLM_REASONING_EFFORT=low`). Anahtar yoksa yalnızca `/api/ask` 503 döner
+("Yapay zeka servisi yapılandırılmamış."), belge hattı çalışmaya devam eder.
+```bash
+# T0 test belgelerini versiyon zinciriyle yükle (Facility Agreement → Amendment 01):
+bash seed_data/t0/upload.sh
+curl -s -X POST localhost:8000/api/ask -H 'content-type: application/json' \
+  -d '{"question": "Ankara RES'\''in güncel minimum DSCR covenant'\''ı nedir?"}'
+# {"answer":"... 1,20x'tir [K1] ...","answered":true,"sources":[{"ref":"K1","title":"Amendment 01","page_number":3,
+#   "document_date":"2025-03-15","version":1,"status":"executed","is_current":true,...}],"model":"...","tokens_in":..}
+```
+Tek sayfalık test arayüzü: `http://<vm-ip>:8000/ask` (Caddy ve build gerektirmez). Cevaplar Türkçe'dir, her olgu
+cümlesi `[K#]` etiketiyle bir belge+sayfaya bağlanır; kaynak yoksa sabit "…yeterli bilgi bulamadım." cevabı döner ve
+LLM hiç çağrılmaz. "Güncel" / "ilk" ayrımı `supersedes` zinciri ve `DEMO_TODAY` ile kodda hesaplanır (ADR-021).
+Yüklemede zincir kurmak için `effective_date`, `version`, `supersedes_document_id` form alanları opsiyoneldir.
+Sistem promptu `backend/app/services/answer_prompt.py`'dedir; kopyası `docs/prompts/ANSWER_SYSTEM_PROMPT.md`
+(`make prompt-doc` ile yenilenir, `make lint` eşitliği denetler).
+
+Canlı LLM testleri `make test`'in dışındadır: `make test-llm` (ücretsiz katman 5 istek/dk — testler kendini yavaşlatır;
+model saturasyonunda `make test-llm MODEL=gemini-3.5-flash`).
+
 ## Make hedefleri
 | Hedef | Açıklama |
 |---|---|
@@ -69,6 +91,9 @@ docs/         SPEC_0x, PHASES.md, ARCHITECTURE.md (ADR), DOMAIN_MODEL.md, plans/
 - Yalnızca LAN, düz HTTP; HTTPS/Tailscale V0 sonrası.
 - Embedding opsiyonel (`EMBEDDINGS_ENABLED=false` varsayılan); sistem yalnızca full-text + metadata ile çalışır.
 - Consume klasörü, Word/e-posta ingest, SSO yok.
-- Phase 0.2'de belge hattı vardır (upload → OCR → sayfa → chunk → FTS); soru-cevap (`/api/ask`) Phase 0.3.
+- `/api/ask` yalnızca belge sorularını cevaplar (DOCUMENT); Excel/DATA ve MIXED sorgular Adım 4. Proje izolasyonu
+  Phase 1.2'ye kadar yalnızca prompt kuralıyla sağlanır (yapısal `project_id` filtresi `projects` tablosuyla gelir).
+- Gemini ücretsiz katmanı: `gemini-3.8-flash` için 5 istek/dk; yoğunlukta "high demand" 503 dönebilir — `/api/ask`
+  bunu Türkçe 503 mesajıyla iletir, sistem çalışmaya devam eder.
 - `department`/`project_id`/`confidentiality` alanları var ama varsayılan değerde; `allowed_document_ids()`
   hâlâ Adım 0 stub'ı (tüm belgeler) — gerçek yetki kuralları Phase 1.2.

@@ -43,6 +43,9 @@ def create_with_job(
     tags: list[str],
     storage_path: str,
     uploaded_by_id: uuid.UUID | None,
+    effective_date: date | None = None,
+    version: int = 1,
+    supersedes_document_id: uuid.UUID | None = None,
 ) -> Document:
     """Create `documents` + the initial `ingestion_jobs` row together — one is never
     committed without the other (ADR-006)."""
@@ -54,6 +57,9 @@ def create_with_job(
         counterparty=counterparty,
         status=status,
         tags=tags,
+        effective_date=effective_date,
+        version=version,
+        supersedes_document_id=supersedes_document_id,
         source=DocumentSource.web,
         confidentiality=Confidentiality.normal,
         storage_path=storage_path,
@@ -77,3 +83,36 @@ def list_by_ids(session: Session, ids: Iterable[uuid.UUID]) -> list[Document]:
         return []
     stmt = select(Document).where(Document.id.in_(id_list)).order_by(Document.created_at.desc())
     return list(session.scalars(stmt).all())
+
+
+def get_many(session: Session, ids: Iterable[uuid.UUID]) -> list[Document]:
+    id_list = list(ids)
+    if not id_list:
+        return []
+    return list(session.scalars(select(Document).where(Document.id.in_(id_list))).all())
+
+
+def load_with_chains(
+    session: Session, ids: Iterable[uuid.UUID], *, allowed_ids: set[uuid.UUID]
+) -> list[Document]:
+    """`ids` plus every `supersedes` / `superseded_by` chain member reachable from them,
+    restricted to `allowed_ids` at every hop (ADR-004: a link to a document the user may
+    not see is followed by id only, never loaded)."""
+    loaded: dict[uuid.UUID, Document] = {}
+    frontier = {document_id for document_id in ids if document_id in allowed_ids}
+    while frontier:
+        batch = get_many(session, frontier)
+        frontier = set()
+        for document in batch:
+            loaded[document.id] = document
+            for neighbour in (document.supersedes_document_id, document.superseded_by_document_id):
+                if neighbour is not None and neighbour in allowed_ids and neighbour not in loaded:
+                    frontier.add(neighbour)
+    return list(loaded.values())
+
+
+def mark_superseded(session: Session, *, older: Document, newer: Document) -> None:
+    """Close the chain link: `older` is now superseded by `newer`. `older.status` is left
+    untouched (Phase 0.3 decision; status transitions belong to Phase 3.2)."""
+    older.superseded_by_document_id = newer.id
+    session.flush()
