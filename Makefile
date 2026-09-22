@@ -23,8 +23,8 @@ dirs: env-check
 	@mkdir -p "$(DATA_ROOT)/postgres" "$(DATA_ROOT)/documents" "$(DATA_ROOT)/excel" \
 	          "$(DATA_ROOT)/app-data" "$(DATA_ROOT)/backups"
 
-up: dirs ## postgres + backend'i başlat (build dahil) ve /health bekle
-	$(COMPOSE) up -d --build postgres backend
+up: dirs ## postgres + backend + ocr-worker'ı başlat (build dahil) ve /health bekle
+	$(COMPOSE) up -d --build postgres backend ocr-worker
 	BACKEND_PORT=$(BACKEND_PORT) bash scripts/wait_for_services.sh 120
 
 up-full: dirs ## full profil (embed dahil; 16 GB VM)
@@ -32,7 +32,7 @@ up-full: dirs ## full profil (embed dahil; 16 GB VM)
 	BACKEND_PORT=$(BACKEND_PORT) bash scripts/wait_for_services.sh 120
 
 down: env-check ## container'ları durdur (veri kalır)
-	$(COMPOSE) --profile full --profile web --profile ocr down
+	$(COMPOSE) --profile full --profile web down
 
 ps: env-check ## servis durumu
 	$(COMPOSE) ps -a
@@ -43,15 +43,21 @@ logs: env-check ## logları izle (make logs SVC=backend)
 build: env-check ## image'ları build et
 	$(COMPOSE) build
 
-test: dirs ## pytest (company_ai_test DB'de; postgres otomatik başlar). make test ARGS="-k health"
+test: dirs ## pytest: backend, sonra şema doğrulaması, sonra ocr-worker. make test ARGS="-k health"
 	$(COMPOSE) run --rm -T backend \
 		sh -c 'export DATABASE_URL="$$TEST_DATABASE_URL"; python -m app.cli wait-for-db --timeout 60 && pytest -q $(ARGS)'
+	$(COMPOSE) run --rm -T backend \
+		sh -c 'export DATABASE_URL="$$TEST_DATABASE_URL"; python -m app.cli assert-pipeline-schema'
+	$(COMPOSE) run --rm -T ocr-worker \
+		sh -c 'export DATABASE_URL="$$TEST_DATABASE_URL"; pytest -q $(ARGS)'
 
-lint: env-check ## ruff + mypy
+lint: env-check ## ruff + mypy (backend), ruff (ocr-worker)
 	$(COMPOSE) run --rm -T --no-deps backend sh -c 'ruff check . && ruff format --check . && mypy'
+	$(COMPOSE) run --rm -T --no-deps ocr-worker sh -c 'ruff check . && ruff format --check .'
 
-format: env-check ## ruff format + autofix
+format: env-check ## ruff format + autofix (backend + ocr-worker)
 	$(COMPOSE) run --rm -T --no-deps backend sh -c 'ruff format . && ruff check --fix .'
+	$(COMPOSE) run --rm -T --no-deps ocr-worker sh -c 'ruff format . && ruff check --fix .'
 
 migrate: dirs ## alembic upgrade head
 	$(COMPOSE) run --rm -T backend alembic upgrade head
@@ -81,4 +87,4 @@ restore: ## geri yükleme (Phase 5.3)
 	@echo "Henüz uygulanmadı (Phase 5.3)."; exit 1
 
 clean: env-check ## container + image sil; DATA_ROOT'a dokunmaz
-	$(COMPOSE) --profile full --profile web --profile ocr down --rmi local --remove-orphans
+	$(COMPOSE) --profile full --profile web down --rmi local --remove-orphans

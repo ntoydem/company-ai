@@ -19,6 +19,7 @@ __pycache__/
 seed_data/documents/
 seed_data/excel/
 seed_data/evaluation/results/
+seed_data/t0/*.pdf
 
 # Node / frontend
 node_modules/

@@ -43,6 +43,10 @@ class Settings(BaseSettings):
     embeddings_enabled: bool = False
     embed_model_id: str = "BAAI/bge-m3"
 
+    # Phase 0.2
+    max_upload_size_mb: int = 50
+    retrieval_top_k: int = 20
+
     @property
     def documents_dir(self) -> Path:
         return self.app_data_dir / "documents"

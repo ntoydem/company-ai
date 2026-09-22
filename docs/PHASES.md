@@ -1,14 +1,14 @@
 # PHASES — Company AI V0
 
 Altı **adım** (Naci'nin takip birimi) ve altlarında **phase**'ler (Claude Code'un çalışma birimi: bir oturum = bir phase). Sıra değiştirilmez; bir phase'in kabul kriterleri (Abnahmekriterien) sağlanmadan sonraki phase'e geçilmez.
-Model: `O` = Opus, `S` = Sonnet. RAM: aksi yazılmadıkça 6 GB VM yeter.
+Model: `O` = Opus, `S` = Sonnet. RAM: aksi yazılmadıkça 16 GB VM yeter.
 Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 
 ## Durum
 | Phase | Ad | Durum | Tag | Rapor |
 |---|---|---|---|---|
 | 0.1 | İskelet + ADR'ler | tamamlandı | phase-0-1 | [PHASE_0_1_REPORT](reports/PHASE_0_1_REPORT.md) |
-| 0.2 | Belge hattı (upload → OCR → sayfa → chunk → FTS) | bekliyor | – | – |
+| 0.2 | Belge hattı (upload → OCR → sayfa → chunk → FTS) | tamamlandı | phase-0-2 | [PHASE_0_2_REPORT](reports/PHASE_0_2_REPORT.md) |
 | 0.3 | LLM + soru-cevap + sayfa kaynaklı cevap (T0) | bekliyor | – | – |
 | 1.1 | Auth + kullanıcılar | bekliyor | – | – |
 | 1.2 | Departman, rol, proje, yetki | bekliyor | – | – |

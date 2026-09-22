@@ -1,0 +1,32 @@
+[project]
+name = "company-ai-ocr-worker"
+version = "0.1.0"
+description = "Company AI V0 OCR/ingestion worker (ocrmypdf + PyMuPDF)"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "sqlalchemy>=2.0.30",
+    "psycopg[binary]>=3.2",
+    "ocrmypdf>=16.0",
+    "pymupdf>=1.24",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.6",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "N", "W"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["worker", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"

@@ -3,7 +3,7 @@
 Kurumsal doküman + Excel + AI bilgi platformu. Şirket bilgisinin **kaynağını, erişim yetkisini, tarihini,
 versiyonunu ve ilişkilerini** koruyarak AI tarafından güvenilir kullanılmasını sağlar. Basit bir chatbot değildir.
 
-Bu README Phase 0.1 (iskelet) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
+Bu README Phase 0.2 (belge hattı) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
 `docs/PHASES.md`. Mimari kararlar: `docs/ARCHITECTURE.md`. Alan modeli: `docs/DOMAIN_MODEL.md`.
 
 ## Gereksinimler (VM)
@@ -19,10 +19,26 @@ make up                         # postgres + backend build & start, /health bekl
 curl localhost:8000/health      # {"status":"ok","version":"0.1.0","database":"ok"}
 ```
 İlk açılışta backend container'ı sırayla: veritabanını bekler → `alembic upgrade head` → admin kullanıcısını
-oluşturur (`ADMIN_USERNAME` / `ADMIN_PASSWORD`; kullanıcı varsa dokunmaz) → API'yi başlatır.
+oluşturur (`ADMIN_USERNAME` / `ADMIN_PASSWORD`; kullanıcı varsa dokunmaz) → API'yi başlatır. `ocr-worker`
+aynı anda ayağa kalkar ve `ingestion_jobs` kuyruğunu 2 saniyede bir yoklar.
 
 Veri kökü `.env` içindeki `DATA_ROOT` altındadır (dev: `./data`, prod: `/srv/company-ai`):
 `postgres/ documents/ excel/ app-data/ backups/`. Container'ları silmek veri kaybettirmez.
+
+## Belge yükleme (Phase 0.2)
+```bash
+curl -X POST http://localhost:8000/api/documents/upload \
+  -F "file=@sözleşme.pdf;type=application/pdf" \
+  -F "title=Facility Agreement" -F "document_type=facility_agreement" \
+  -F "document_date=2023-06-01" -F "counterparty=PQR Bank" -F "status=executed"
+# {"id":"...","ingestion_status":"uploaded"} — birkaç saniye içinde "ready" olur:
+curl http://localhost:8000/api/documents/<id>/status
+curl http://localhost:8000/api/documents   # yetkili (Adım 0'da: tüm) belgeler
+```
+Kabul edilen türler: pdf/png/jpg (MIME imzasıyla doğrulanır, `.xlsx/.xlsm/.csv` Phase 4.2). Taranmış (görüntü)
+PDF'ler `ocr-worker`'da `ocrmypdf` (tur+eng) ile OCR'lanır; sayfa metni ve ~800 kelimelik chunk'lar
+(`document_pages`/`document_chunks`) full-text search (`turkish` + `simple`) için hazırlanır. Test fixture'ları
+(`seed_data/t0/`) `docker compose run --rm backend python seed_data/t0/generate.py` ile üretilir.
 
 ## Make hedefleri
 | Hedef | Açıklama |
@@ -30,7 +46,7 @@ Veri kökü `.env` içindeki `DATA_ROOT` altındadır (dev: `./data`, prod: `/sr
 | `make up` / `make down` | Servisleri başlat / durdur (veri kalır) |
 | `make up-full` | `embed` dahil (profile `full`, 16 GB) |
 | `make ps`, `make logs SVC=backend` | Durum ve loglar |
-| `make test` | pytest — **önce `make up` gerekir**: test DB (`company_ai_test`) compose içindeki Postgres'tedir |
+| `make test` | pytest: backend → şema doğrulaması → ocr-worker, sırayla; test DB (`company_ai_test`) compose içindeki Postgres'tedir |
 | `make lint` / `make format` | ruff + mypy / otomatik biçimlendirme |
 | `make migrate`, `make migration NAME=...` | Alembic upgrade / yeni migration |
 | `make seed-admin` | Admin kullanıcısını oluştur (yoksa) |
@@ -43,7 +59,7 @@ Caddy gelene kadar (Phase 3.3) doğrudan erişilebilir.
 ## Repo düzeni
 ```
 backend/      FastAPI (app/api, app/services, app/repositories, app/models, app/schemas, app/core), tests/, alembic/
-ocr-worker/   OCR worker (Phase 0.2)
+ocr-worker/   ocrmypdf + PyMuPDF ingestion worker; kendi pyproject/tests'i, backend/app'i import etmez
 infra/        docker-compose.yml, Caddyfile, .env.example, postgres/init, ocr-worker/Dockerfile
 scripts/      wait_for_services.sh (+ ileride seed/backup/restore/eval)
 docs/         SPEC_0x, PHASES.md, ARCHITECTURE.md (ADR), DOMAIN_MODEL.md, plans/, reports/, prompts/
@@ -53,4 +69,6 @@ docs/         SPEC_0x, PHASES.md, ARCHITECTURE.md (ADR), DOMAIN_MODEL.md, plans/
 - Yalnızca LAN, düz HTTP; HTTPS/Tailscale V0 sonrası.
 - Embedding opsiyonel (`EMBEDDINGS_ENABLED=false` varsayılan); sistem yalnızca full-text + metadata ile çalışır.
 - Consume klasörü, Word/e-posta ingest, SSO yok.
-- Phase 0.1'de yalnızca `/health` ve admin kullanıcısı vardır; belge hattı Phase 0.2, soru-cevap Phase 0.3.
+- Phase 0.2'de belge hattı vardır (upload → OCR → sayfa → chunk → FTS); soru-cevap (`/api/ask`) Phase 0.3.
+- `department`/`project_id`/`confidentiality` alanları var ama varsayılan değerde; `allowed_document_ids()`
+  hâlâ Adım 0 stub'ı (tüm belgeler) — gerçek yetki kuralları Phase 1.2.

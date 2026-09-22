@@ -13,6 +13,17 @@ ENV PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
     PATH="/opt/venv/bin:${PATH}"
 
+# WeasyPrint (dev-only: seed_data/t0/generate.py demo-PDF generation, Phase 0.2). Not
+# used at runtime — a candidate to split out of the shared image in Phase 5.4.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libpango-1.0-0 \
+        libpangocairo-1.0-0 \
+        libgdk-pixbuf-2.0-0 \
+        libffi-dev \
+        shared-mime-info \
+        fonts-dejavu-core \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN groupadd --gid "${APP_GID}" app \
     && useradd --uid "${APP_UID}" --gid "${APP_GID}" --create-home --shell /bin/bash app \
     && mkdir -p /app /data/documents /data/excel /data/app-data \

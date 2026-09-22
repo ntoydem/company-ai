@@ -14,6 +14,9 @@ from app.core.config import Settings, get_settings
 from app.core.db import get_engine, get_session_factory
 from app.main import app
 from app.models import Base
+from app.models.user import User
+from app.repositories import user_repo
+from app.services.admin_seed import ensure_admin_user
 
 
 def alembic_config() -> Config:
@@ -54,3 +57,12 @@ def db_session() -> Iterator[Session]:
 def client() -> Iterator[TestClient]:
     with TestClient(app) as test_client:
         yield test_client
+
+
+@pytest.fixture
+def admin_user(db_session: Session, settings: Settings) -> User:
+    """The seeded admin user, created on demand for tests exercising `get_current_user`."""
+    ensure_admin_user(db_session, settings)
+    user = user_repo.get_by_username(db_session, settings.admin_username)
+    assert user is not None
+    return user
