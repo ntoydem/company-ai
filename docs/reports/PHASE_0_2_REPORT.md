@@ -1,6 +1,6 @@
 # Phase 0.2 Raporu — Belge hattı
 
-**Tarih:** 22.09.2026  **Model:** Claude Sonnet 5  **Tag:** phase-0-2  **Commit:** (aşağıda düzeltilecek, `git rev-list -n1 phase-0-2`)
+**Tarih:** 22.09.2026  **Model:** Claude Sonnet 5  **Tag:** phase-0-2  **Commit:** da137e3 (`git rev-list -n1 phase-0-2`)
 
 ## 1. Kabul kriterleri
 | # | Kriter (PHASES.md'den kelimesi kelimesine) | Durum | Kanıt (test adı / komut / çıktı) |
