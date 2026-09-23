@@ -1,6 +1,6 @@
 # İzmir RES — truth ledger (SPEC_05 §3, docs/plans/PHASE_2_1_PLAN.md §1.2)
-# TASLAK: her değer AI_ASSUMPTION. Lisans sonrası alanlar tasarım gereği null (SPEC_03 §1).
-# Tamamlanan/bekleyen adımlar: PARTNER-REVIEW gerekli (SORU 6 — nihai onay ortaktan).
+# ONAYLI (23.09.2026): tüm değerler USER_FACT. Lisans sonrası alanlar tasarım gereği null (SPEC_03 §1).
+# Tamamlanan/bekleyen adımlar ortak tarafından onaylandı (SORU 6).
 meta:
   schema_version: 1
   demo_today: 2026-09-15
@@ -11,19 +11,19 @@ project:
   name: İzmir RES
   stage: development
   spv:
-    name: {value: "DEF İzmir Rüzgar Enerji A.Ş.", tag: AI_ASSUMPTION}
+    name: {value: "DEF İzmir Rüzgar Enerji A.Ş.", tag: USER_FACT}
     shareholders:
-      - {name: {value: "ABC Enerji A.Ş.", tag: AI_ASSUMPTION}, share_pct: {value: 100, tag: AI_ASSUMPTION}}
+      - {name: {value: "ABC Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
   capacity_mw:
-    target: {value: 80, tag: AI_ASSUMPTION, source_doc: DOC-IZM-DEV-001}
+    target: {value: 80, tag: USER_FACT, source_doc: DOC-IZM-DEV-001}
   turbines: null
 
   timeline:
-    development_start:       {date: 2023-02-01, doc: null,            tag: AI_ASSUMPTION}
-    pre_licence_application: {date: 2023-05-10, doc: DOC-IZM-DEV-001, tag: AI_ASSUMPTION}
-    pre_licence:             {date: 2024-01-18, doc: DOC-IZM-DEV-001, tag: AI_ASSUMPTION}
-    land_acquisition_start:  {date: 2024-04-02, doc: DOC-IZM-DEV-002, tag: AI_ASSUMPTION}
-    ced_application:         {date: 2025-03-05, doc: DOC-IZM-DEV-003, tag: AI_ASSUMPTION}
+    development_start:       {date: 2023-02-01, doc: null,            tag: USER_FACT}
+    pre_licence_application: {date: 2023-05-10, doc: DOC-IZM-DEV-001, tag: USER_FACT}
+    pre_licence:             {date: 2024-01-18, doc: DOC-IZM-DEV-001, tag: USER_FACT}
+    land_acquisition_start:  {date: 2024-04-02, doc: DOC-IZM-DEV-002, tag: USER_FACT}
+    ced_application:         {date: 2025-03-05, doc: DOC-IZM-DEV-003, tag: USER_FACT}
     # --- post-licence: null by design ---
     licence: null
     financing_signed: null
@@ -41,21 +41,21 @@ project:
   operations: null
 
   development:
-    ced_status: {value: ongoing, tag: AI_ASSUMPTION, source_doc: DOC-IZM-DEV-003, note: "İDK toplantısı yapıldı, ek bilgi istendi"}
-    # PARTNER-REVIEW gerekli: hangi adımlar tamamlandı sayılacak (SORU 6 taslağı)
+    ced_status: {value: ongoing, tag: USER_FACT, source_doc: DOC-IZM-DEV-003, note: "İDK toplantısı yapıldı, ek bilgi istendi"}
+    # Ortak onayı alındı (SORU 6)
     permits_completed:
-      - {step: "Önlisans", date: 2024-01-18, doc: DOC-IZM-DEV-001, tag: AI_ASSUMPTION}
-      - {step: "Arazi Edinimi", date: 2024-09-30, doc: DOC-IZM-DEV-002, tag: AI_ASSUMPTION, note: "Kısmi — parsellerin çoğunluğu edinildi, kalanlar için süreç devam ediyor"}
+      - {step: "Önlisans", date: 2024-01-18, doc: DOC-IZM-DEV-001, tag: USER_FACT}
+      - {step: "Arazi Edinimi", date: 2024-09-30, doc: DOC-IZM-DEV-002, tag: USER_FACT, note: "Kısmi — parsellerin çoğunluğu edinildi, kalanlar için süreç devam ediyor"}
     pending_steps:
-      - {step: "ÇED", expected: "İDK ek bilgi talebi sonrası nihai karar", tag: AI_ASSUMPTION}
-      - {step: "İmar Kesinleşme", expected: null, tag: AI_ASSUMPTION}
-      - {step: "Kat'i Proje Onayı", expected: null, tag: AI_ASSUMPTION}
-      - {step: "Bağlantı Anlaşması", expected: null, tag: AI_ASSUMPTION}
-      - {step: "Askeri Yasak Yazısı", expected: null, tag: AI_ASSUMPTION}
-      - {step: "TEA Yazısı", expected: null, tag: AI_ASSUMPTION}
-      - {step: "Yapı Ruhsatı", expected: null, tag: AI_ASSUMPTION}
-      - {step: "Üretim Lisansı", expected: null, tag: AI_ASSUMPTION}
-    latest_event: {date: 2026-08-27, doc: DOC-IZM-DEV-003, tag: AI_ASSUMPTION, note: "ÇED İnceleme Değerlendirme Komisyonu toplantısı; ek bilgi/belge talebi"}
+      - {step: "ÇED", expected: "İDK ek bilgi talebi sonrası nihai karar", tag: USER_FACT}
+      - {step: "İmar Kesinleşme", expected: null, tag: USER_FACT}
+      - {step: "Kat'i Proje Onayı", expected: null, tag: USER_FACT}
+      - {step: "Bağlantı Anlaşması", expected: null, tag: USER_FACT}
+      - {step: "Askeri Yasak Yazısı", expected: null, tag: USER_FACT}
+      - {step: "TEA Yazısı", expected: null, tag: USER_FACT}
+      - {step: "Yapı Ruhsatı", expected: null, tag: USER_FACT}
+      - {step: "Üretim Lisansı", expected: null, tag: USER_FACT}
+    latest_event: {date: 2026-08-27, doc: DOC-IZM-DEV-003, tag: USER_FACT, note: "ÇED İnceleme Değerlendirme Komisyonu toplantısı; ek bilgi/belge talebi"}
 
 documents:
   - id: DOC-IZM-DEV-001
@@ -63,9 +63,9 @@ documents:
     subdepartment: enerji_gelistirme
     folder: development
     type: Önlisans
-    name: {value: "İzmir RES Önlisans Belgesi", tag: AI_ASSUMPTION}
-    document_date: {value: 2024-01-18, tag: AI_ASSUMPTION}
-    effective_date: {value: 2024-01-18, tag: AI_ASSUMPTION}
+    name: {value: "İzmir RES Önlisans Belgesi", tag: USER_FACT}
+    document_date: {value: 2024-01-18, tag: USER_FACT}
+    effective_date: {value: 2024-01-18, tag: USER_FACT}
     version: EXECUTED
     status: active
     parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
@@ -77,15 +77,15 @@ documents:
     language: tr
     confidentiality: normal
     generate_in_phase: "3.1"
-    tag: AI_ASSUMPTION
+    tag: USER_FACT
 
   - id: DOC-IZM-DEV-002
     department: enerji_grubu
     subdepartment: enerji_gelistirme
     folder: development
     type: Arazi Edinim Raporu
-    name: {value: "Arazi Edinim Durum Raporu", tag: AI_ASSUMPTION}
-    document_date: {value: 2024-09-30, tag: AI_ASSUMPTION}
+    name: {value: "Arazi Edinim Durum Raporu", tag: USER_FACT}
+    document_date: {value: 2024-09-30, tag: USER_FACT}
     effective_date: null
     version: EXECUTED
     status: active
@@ -98,15 +98,15 @@ documents:
     language: tr
     confidentiality: normal
     generate_in_phase: "3.1"
-    tag: AI_ASSUMPTION
+    tag: USER_FACT
 
   - id: DOC-IZM-DEV-003
     department: enerji_grubu
     subdepartment: enerji_gelistirme
     folder: development
     type: ÇED Durum Yazısı
-    name: {value: "ÇED Süreci Durum Yazısı", tag: AI_ASSUMPTION}
-    document_date: {value: 2026-08-27, tag: AI_ASSUMPTION}
+    name: {value: "ÇED Süreci Durum Yazısı", tag: USER_FACT}
+    document_date: {value: 2026-08-27, tag: USER_FACT}
     effective_date: null
     version: EXECUTED
     status: active
@@ -119,15 +119,15 @@ documents:
     language: tr
     confidentiality: normal
     generate_in_phase: "3.1"
-    tag: AI_ASSUMPTION
+    tag: USER_FACT
 
   - id: DOC-IZM-DEV-004
     department: enerji_grubu
     subdepartment: enerji_gelistirme
     folder: development
     type: Teknik Rapor
-    name: {value: "Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu", tag: AI_ASSUMPTION}
-    document_date: {value: 2025-01-20, tag: AI_ASSUMPTION}
+    name: {value: "Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu", tag: USER_FACT}
+    document_date: {value: 2025-01-20, tag: USER_FACT}
     effective_date: null
     version: EXECUTED
     status: active
@@ -140,4 +140,4 @@ documents:
     language: tr
     confidentiality: normal
     generate_in_phase: "3.1"
-    tag: AI_ASSUMPTION
+    tag: USER_FACT

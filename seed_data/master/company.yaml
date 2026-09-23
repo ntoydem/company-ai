@@ -1,37 +1,37 @@
 # Company-level truth ledger (SPEC_03 §9, docs/plans/PHASE_2_1_PLAN.md §1.3)
-# TASLAK: her değer AI_ASSUMPTION. Tüm isimler kurgusal ve jenerik (SPEC_05 §4).
+# ONAYLI (23.09.2026): tüm değerler USER_FACT. Tüm isimler kurgusal ve jenerik (SPEC_05 §4).
 meta:
   schema_version: 1
   demo_today: 2026-09-15
   currency_note: "Şirket seviyesi; tutar yok."
 
 holding:
-  name: {value: "ABC Enerji A.Ş.", tag: AI_ASSUMPTION}
+  name: {value: "ABC Enerji A.Ş.", tag: USER_FACT}
   role: sponsor/parent
 
 parties:
-  - {name: {value: "ABC Enerji A.Ş.", tag: AI_ASSUMPTION},             role: sponsor,           kind: company}
-  - {name: {value: "DEF Enerji Üretim A.Ş.", tag: AI_ASSUMPTION},      role: spv,               kind: company}
-  - {name: {value: "DEF İzmir Rüzgar Enerji A.Ş.", tag: AI_ASSUMPTION}, role: spv,              kind: company}
-  - {name: {value: "GHI Yatırım A.Ş.", tag: AI_ASSUMPTION},            role: sponsor,           kind: company}
-  - {name: {value: "PQR Bank", tag: AI_ASSUMPTION},                    role: local_bank,        kind: bank}
-  - {name: {value: "VWX Export Credit Agency", tag: AI_ASSUMPTION},    role: eca,               kind: agency}
-  - {name: {value: "JKL İnşaat A.Ş.", tag: AI_ASSUMPTION},             role: epc_contractor,    kind: company}
-  - {name: {value: "XYZ Wind Turbines GmbH", tag: AI_ASSUMPTION},      role: turbine_supplier,  kind: company}
-  - {name: {value: "MNO Teknik Danışmanlık Ltd.", tag: AI_ASSUMPTION}, role: technical_advisor, kind: company}
-  - {name: {value: "STU Sigorta", tag: AI_ASSUMPTION},                 role: insurer,           kind: company}
-  - {name: {value: "KLM Hukuk Bürosu", tag: AI_ASSUMPTION},            role: legal_counsel,     kind: company}
+  - {name: {value: "ABC Enerji A.Ş.", tag: USER_FACT},             role: sponsor,           kind: company}
+  - {name: {value: "DEF Enerji Üretim A.Ş.", tag: USER_FACT},      role: spv,               kind: company}
+  - {name: {value: "DEF İzmir Rüzgar Enerji A.Ş.", tag: USER_FACT}, role: spv,              kind: company}
+  - {name: {value: "GHI Yatırım A.Ş.", tag: USER_FACT},            role: sponsor,           kind: company}
+  - {name: {value: "PQR Bank", tag: USER_FACT},                    role: local_bank,        kind: bank}
+  - {name: {value: "VWX Export Credit Agency", tag: USER_FACT},    role: eca,               kind: agency}
+  - {name: {value: "JKL İnşaat A.Ş.", tag: USER_FACT},             role: epc_contractor,    kind: company}
+  - {name: {value: "XYZ Wind Turbines GmbH", tag: USER_FACT},      role: turbine_supplier,  kind: company}
+  - {name: {value: "MNO Teknik Danışmanlık Ltd.", tag: USER_FACT}, role: technical_advisor, kind: company}
+  - {name: {value: "STU Sigorta", tag: USER_FACT},                 role: insurer,           kind: company}
+  - {name: {value: "KLM Hukuk Bürosu", tag: USER_FACT},            role: legal_counsel,     kind: company}
 
 spvs:
   - project_code: ANK_RES
-    name: {value: "DEF Enerji Üretim A.Ş.", tag: AI_ASSUMPTION}
+    name: {value: "DEF Enerji Üretim A.Ş.", tag: USER_FACT}
     shareholders:
-      - {name: {value: "ABC Enerji A.Ş.", tag: AI_ASSUMPTION}, share_pct: {value: 80, tag: AI_ASSUMPTION}}
-      - {name: {value: "GHI Yatırım A.Ş.", tag: AI_ASSUMPTION}, share_pct: {value: 20, tag: AI_ASSUMPTION}}
+      - {name: {value: "ABC Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 80, tag: USER_FACT}}
+      - {name: {value: "GHI Yatırım A.Ş.", tag: USER_FACT}, share_pct: {value: 20, tag: USER_FACT}}
   - project_code: IZM_RES
-    name: {value: "DEF İzmir Rüzgar Enerji A.Ş.", tag: AI_ASSUMPTION}
+    name: {value: "DEF İzmir Rüzgar Enerji A.Ş.", tag: USER_FACT}
     shareholders:
-      - {name: {value: "ABC Enerji A.Ş.", tag: AI_ASSUMPTION}, share_pct: {value: 100, tag: AI_ASSUMPTION}}
+      - {name: {value: "ABC Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
 
 # Real public institutions may appear in process context (SPEC_03 §9); never impersonated.
 public_institutions: [EPDK, TEİAŞ, "Çevre, Şehircilik ve İklim Değişikliği Bakanlığı", ÇŞB, TEDAŞ, "Enerji ve Tabii Kaynaklar Bakanlığı"]
@@ -60,9 +60,9 @@ documents:
     subdepartment: null
     folder: corporate
     type: Board Resolution
-    name: {value: "Yönetim Kurulu Kararı — Ankara RES Finansman Onayı", tag: AI_ASSUMPTION}
-    document_date: {value: 2021-09-15, tag: AI_ASSUMPTION}
-    effective_date: {value: 2021-09-15, tag: AI_ASSUMPTION}
+    name: {value: "Yönetim Kurulu Kararı — Ankara RES Finansman Onayı", tag: USER_FACT}
+    document_date: {value: 2021-09-15, tag: USER_FACT}
+    effective_date: {value: 2021-09-15, tag: USER_FACT}
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "ABC Enerji A.Ş."]
@@ -74,4 +74,4 @@ documents:
     language: tr
     confidentiality: board
     generate_in_phase: "3.1"
-    tag: AI_ASSUMPTION
+    tag: USER_FACT

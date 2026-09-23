@@ -2,7 +2,7 @@
 
 **Tarih:** 23.09.2026  **Model:** Claude Fable 5.1  **Tag:** phase-2-1  **Commit:** `git rev-list -n1 phase-2-1`
 
-> **ONAY KAPISI (SORU 4 cevabı):** Bu faz **taslak** olarak kapanıyor — ledger'daki 269 değerin tamamı `AI_ASSUMPTION`, hiçbiri `USER_FACT` değil. Onay Naci'nin ve enerji finansı ortağının işidir (§10'daki tablo). **Phase 3.1 (belge üretimi), onaylanan değerlerin `USER_FACT` yapıldığı ayrı bir "ledger onayı" commit'i olmadan başlamaz** (SPEC_05 §2 madde 8–10; README "Truth ledger" bölümü).
+> **ONAY KAPISI (SORU 4 cevabı):** Bu faz `phase-2-1` tag'inde **taslak** olarak kapandı — 269 değerin tamamı `AI_ASSUMPTION`. **Ledger onayı: 23.09.2026** — Naci ve enerji finansı ortağı taslağı **değişiklik olmadan** onayladı (İzmir'in PARTNER-REVIEW satırları dahil); 269 değerin tamamı ayrı bir "ledger onayı" commit'inde (`git log --grep 'ledger onayı'`) `USER_FACT` yapıldı, `make validate-ledger` → `USER_FACT=269 AI_ASSUMPTION=0`, 0 hata. Adım 3.1 kapısı **açık** (SPEC_05 §2 madde 8–10).
 
 ## 1. Kabul kriterleri
 | # | Kriter (PHASES.md'den kelimesi kelimesine) | Durum | Kanıt (test adı / komut / çıktı) |
@@ -50,7 +50,7 @@ Yeni: `seed_data/__init__.py`, `seed_data/generator/{__init__,ledger_schema,vali
 Yok — §10 onay tablosu dışında. (SORU 1–8 uygulandı.)
 
 ## 7. Riskler / sonraki phase için notlar
-- **PARTNER-REVIEW gerekli (SORU 6):** İzmir'de tamamlanmış sayılan adımlar taslakta *Önlisans + Arazi Edinimi (kısmi)*, ÇED devam, kalan 8 adım bekliyor — `izmir_res.yaml` `project.development.permits_completed/pending_steps`. Nihai onay ortaktan; §10'da ayrı işaretli.
+- **PARTNER-REVIEW (SORU 6) — kapandı:** İzmir'de tamamlanmış sayılan adımlar *Önlisans + Arazi Edinimi (kısmi)*, ÇED devam, kalan 8 adım bekliyor — ortak 23.09.2026'da onayladı (`USER_FACT`).
 - Ledger onaylanınca Adım 0'ın geçici T0 seti (`seed_data/t0/`, `tests/live/test_t0_live.py`'deki değerler) Phase 3.1'de kaldırılır; T0 değerleri ledger'ı bağlamaz (plan T11). Bu taslakta DSCR/tenor değerleri T0 ile aynı seçildi (SPEC_05 §3/§9 örnekleriyle uyumlu), ama onayda değişebilir.
 - `key_facts` ve `expected_answer` yolları ledger yeniden düzenlenirse (örn. covenant testi eklenince `[10]` indeksi kayar) kırılır — validator F8/Q4 yakalar; sabit indeks yerine `[-1]` tercih edildi, yalnızca DOC-ANK-FIN-007/OPS-001 sabit indeks kullanıyor.
 - İsim taraması (N1) yalnızca `A.Ş./Ltd./Bank/Sigorta/GmbH/S.A./Inc.` sonekli kalıpları yakalar; soneksiz gerçek isimler (kişi adı vb.) yakalanmaz — Phase 5.1 `validate_dataset.py` "Demo Safety" burada genişletmeli.
@@ -66,7 +66,7 @@ Yok — §10 onay tablosu dışında. (SORU 1–8 uygulandı.)
 - LLM çağrısı yok. Validator tek çalıştırma < 1 sn; `test_validate_ledger.py` 21 test ≈ 10 sn (her test master klasörünü kopyalar).
 
 ## 10. Onay tablosu — `AI_ASSUMPTION` → `USER_FACT`
-Onaylanan satır için YAML'da ilgili `tag`'i `USER_FACT` yapın; değer değişiyorsa yeni değer + `USER_FACT`; sonra `make validate-ledger`. Seriler (aylık üretim, bütçe, kur) dosyada satır satır; burada özet.
+**Durum: tamamı onaylandı, 23.09.2026, değişiklik yok** (☐ kutuları tarihsel kayıt olarak bırakıldı; her satır `USER_FACT`). İzmir'in PARTNER-REVIEW satırları ortak tarafından onaylandı. Seriler (aylık üretim, bütçe, kur) dosyada satır satır; burada özet.
 
 ### 10.1 Şirket (`company.yaml`)
 | Alan | Taslak değer | Onay |

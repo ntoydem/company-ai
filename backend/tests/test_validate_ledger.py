@@ -55,9 +55,11 @@ def test_master_ledger_validates_clean() -> None:
     assert _codes(report) == []
 
 
-def test_master_ledger_is_all_ai_assumption_until_approved() -> None:
+def test_master_ledger_carries_tags() -> None:
+    """Approved values are USER_FACT (ledger onayı, 23.09.2026); anything added later
+    starts as AI_ASSUMPTION — both are counted, neither is forbidden."""
     _, tags = vl.validate(vl.DEFAULT_MASTER, None)
-    assert tags["AI_ASSUMPTION"] > 0
+    assert tags["USER_FACT"] + tags["AI_ASSUMPTION"] > 0
 
 
 # --- kabul kriteri: Ankara zinciri --------------------------------------------------

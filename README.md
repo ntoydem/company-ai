@@ -126,8 +126,10 @@ make validate-ledger     # kronoloji, finans tutarlılığı, İzmir izolasyonu,
 **Onay akışı (ADR-013):** her değer `tag: AI_ASSUMPTION` (Claude taslağı) ya da `tag: USER_FACT` (Naci/ortak onayı)
 taşır. Taslak tamamen `AI_ASSUMPTION` ile teslim edilir; onaylanan değerin tag'i YAML'da `USER_FACT` yapılır (değer
 değişiyorsa yeni değer + `USER_FACT`), `make validate-ledger` tekrar 0 hata vermelidir. **Adım 3 (Phase 3.1, belge
-üretimi) ayrı bir "ledger onayı" commit'i olmadan başlamaz** — onay tablosu `docs/reports/PHASE_2_1_REPORT.md`'de.
-`make lint` de validator'ı çalıştırır; ledger'ı bozan bir düzenleme lint'i kırar.
+üretimi) ayrı bir "ledger onayı" commit'i olmadan başlamaz.** Durum: v1 ledger **23.09.2026'da onaylandı**
+(269/269 `USER_FACT`, "ledger onayı" commit'i); ileride eklenen her yeni değer yine `AI_ASSUMPTION` ile girer ve aynı
+akıştan geçer. Onay tablosu `docs/reports/PHASE_2_1_REPORT.md §10`. `make lint` de validator'ı çalıştırır; ledger'ı
+bozan bir düzenleme lint'i kırar.
 
 ## Make hedefleri
 | Hedef | Açıklama |

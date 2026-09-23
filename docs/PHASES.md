@@ -12,7 +12,7 @@ Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 | 0.3 | LLM + soru-cevap + sayfa kaynaklı cevap (T0) | tamamlandı | phase-0-3 | [PHASE_0_3_REPORT](reports/PHASE_0_3_REPORT.md) |
 | 1.1 | Auth + kullanıcılar | tamamlandı | phase-1-1 | [PHASE_1_1_REPORT](reports/PHASE_1_1_REPORT.md) |
 | 1.2 | Departman, rol, proje, yetki | tamamlandı | phase-1-2 | [PHASE_1_2_REPORT](reports/PHASE_1_2_REPORT.md) |
-| 2.1 | Truth ledger + validator + golden questions v1 | tamamlandı (taslak — ledger onayı bekliyor) | phase-2-1 | [PHASE_2_1_REPORT](reports/PHASE_2_1_REPORT.md) |
+| 2.1 | Truth ledger + validator + golden questions v1 | tamamlandı (ledger onaylandı 23.09.2026) | phase-2-1 | [PHASE_2_1_REPORT](reports/PHASE_2_1_REPORT.md) |
 | 3.1 | 15 demo belge + seed/reset | bekliyor | – | – |
 | 3.2 | AI metadata önerisi + temporal/versiyon mantığı | bekliyor | – | – |
 | 3.3 | Frontend | bekliyor | – | – |

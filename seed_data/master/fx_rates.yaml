@@ -1,5 +1,5 @@
 # Fixed demo FX rates (SPEC_03 §4; docs/plans/PHASE_2_1_PLAN.md §1.4, SORU 3: yearly average + demo_today spot)
-# TASLAK: her değer AI_ASSUMPTION. Kurgusal; gerçek kur değildir. Phase 4.2 workbook'ları bunu kullanır.
+# ONAYLI (23.09.2026): tüm değerler USER_FACT. Kurgusal; gerçek kur değildir. Phase 4.2 workbook'ları bunu kullanır.
 meta:
   schema_version: 1
   demo_today: 2026-09-15
@@ -8,33 +8,33 @@ meta:
 base_note: "Yıllık ortalama (period: YYYY) + demo_today spot (period: 2026-09-15)."
 
 rates:
-  - {pair: EUR/TRY, period: "2018", rate: 5.67, tag: AI_ASSUMPTION}
-  - {pair: USD/TRY, period: "2018", rate: 4.81, tag: AI_ASSUMPTION}
-  - {pair: EUR/USD, period: "2018", rate: 1.1788, tag: AI_ASSUMPTION}
-  - {pair: EUR/TRY, period: "2019", rate: 6.35, tag: AI_ASSUMPTION}
-  - {pair: USD/TRY, period: "2019", rate: 5.67, tag: AI_ASSUMPTION}
-  - {pair: EUR/USD, period: "2019", rate: 1.1199, tag: AI_ASSUMPTION}
-  - {pair: EUR/TRY, period: "2020", rate: 8.03, tag: AI_ASSUMPTION}
-  - {pair: USD/TRY, period: "2020", rate: 7.02, tag: AI_ASSUMPTION}
-  - {pair: EUR/USD, period: "2020", rate: 1.1439, tag: AI_ASSUMPTION}
-  - {pair: EUR/TRY, period: "2021", rate: 10.44, tag: AI_ASSUMPTION}
-  - {pair: USD/TRY, period: "2021", rate: 8.86, tag: AI_ASSUMPTION}
-  - {pair: EUR/USD, period: "2021", rate: 1.1783, tag: AI_ASSUMPTION}
-  - {pair: EUR/TRY, period: "2022", rate: 17.38, tag: AI_ASSUMPTION}
-  - {pair: USD/TRY, period: "2022", rate: 16.55, tag: AI_ASSUMPTION}
-  - {pair: EUR/USD, period: "2022", rate: 1.0501, tag: AI_ASSUMPTION}
-  - {pair: EUR/TRY, period: "2023", rate: 25.76, tag: AI_ASSUMPTION}
-  - {pair: USD/TRY, period: "2023", rate: 23.75, tag: AI_ASSUMPTION}
-  - {pair: EUR/USD, period: "2023", rate: 1.0846, tag: AI_ASSUMPTION}
-  - {pair: EUR/TRY, period: "2024", rate: 35.55, tag: AI_ASSUMPTION}
-  - {pair: USD/TRY, period: "2024", rate: 32.85, tag: AI_ASSUMPTION}
-  - {pair: EUR/USD, period: "2024", rate: 1.0822, tag: AI_ASSUMPTION}
-  - {pair: EUR/TRY, period: "2025", rate: 41.20, tag: AI_ASSUMPTION}
-  - {pair: USD/TRY, period: "2025", rate: 37.90, tag: AI_ASSUMPTION}
-  - {pair: EUR/USD, period: "2025", rate: 1.0871, tag: AI_ASSUMPTION}
-  - {pair: EUR/TRY, period: "2026", rate: 46.80, tag: AI_ASSUMPTION}
-  - {pair: USD/TRY, period: "2026", rate: 43.10, tag: AI_ASSUMPTION}
-  - {pair: EUR/USD, period: "2026", rate: 1.0858, tag: AI_ASSUMPTION}
-  - {pair: EUR/TRY, period: "2026-09-15", rate: 47.35, tag: AI_ASSUMPTION}
-  - {pair: USD/TRY, period: "2026-09-15", rate: 43.60, tag: AI_ASSUMPTION}
-  - {pair: EUR/USD, period: "2026-09-15", rate: 1.0860, tag: AI_ASSUMPTION}
+  - {pair: EUR/TRY, period: "2018", rate: 5.67, tag: USER_FACT}
+  - {pair: USD/TRY, period: "2018", rate: 4.81, tag: USER_FACT}
+  - {pair: EUR/USD, period: "2018", rate: 1.1788, tag: USER_FACT}
+  - {pair: EUR/TRY, period: "2019", rate: 6.35, tag: USER_FACT}
+  - {pair: USD/TRY, period: "2019", rate: 5.67, tag: USER_FACT}
+  - {pair: EUR/USD, period: "2019", rate: 1.1199, tag: USER_FACT}
+  - {pair: EUR/TRY, period: "2020", rate: 8.03, tag: USER_FACT}
+  - {pair: USD/TRY, period: "2020", rate: 7.02, tag: USER_FACT}
+  - {pair: EUR/USD, period: "2020", rate: 1.1439, tag: USER_FACT}
+  - {pair: EUR/TRY, period: "2021", rate: 10.44, tag: USER_FACT}
+  - {pair: USD/TRY, period: "2021", rate: 8.86, tag: USER_FACT}
+  - {pair: EUR/USD, period: "2021", rate: 1.1783, tag: USER_FACT}
+  - {pair: EUR/TRY, period: "2022", rate: 17.38, tag: USER_FACT}
+  - {pair: USD/TRY, period: "2022", rate: 16.55, tag: USER_FACT}
+  - {pair: EUR/USD, period: "2022", rate: 1.0501, tag: USER_FACT}
+  - {pair: EUR/TRY, period: "2023", rate: 25.76, tag: USER_FACT}
+  - {pair: USD/TRY, period: "2023", rate: 23.75, tag: USER_FACT}
+  - {pair: EUR/USD, period: "2023", rate: 1.0846, tag: USER_FACT}
+  - {pair: EUR/TRY, period: "2024", rate: 35.55, tag: USER_FACT}
+  - {pair: USD/TRY, period: "2024", rate: 32.85, tag: USER_FACT}
+  - {pair: EUR/USD, period: "2024", rate: 1.0822, tag: USER_FACT}
+  - {pair: EUR/TRY, period: "2025", rate: 41.20, tag: USER_FACT}
+  - {pair: USD/TRY, period: "2025", rate: 37.90, tag: USER_FACT}
+  - {pair: EUR/USD, period: "2025", rate: 1.0871, tag: USER_FACT}
+  - {pair: EUR/TRY, period: "2026", rate: 46.80, tag: USER_FACT}
+  - {pair: USD/TRY, period: "2026", rate: 43.10, tag: USER_FACT}
+  - {pair: EUR/USD, period: "2026", rate: 1.0858, tag: USER_FACT}
+  - {pair: EUR/TRY, period: "2026-09-15", rate: 47.35, tag: USER_FACT}
+  - {pair: USD/TRY, period: "2026-09-15", rate: 43.60, tag: USER_FACT}
+  - {pair: EUR/USD, period: "2026-09-15", rate: 1.0860, tag: USER_FACT}
