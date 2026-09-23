@@ -25,7 +25,7 @@ from app.services.answer_prompt import NO_ANSWER_TEXT
 from app.services.llm import LLMNotConfiguredError, LLMRateLimitError, LLMRequest
 from tests.department_fixtures import add_user_to_department, make_department
 from tests.fakes import FakeLLMClient
-from tests.t0_fixtures import load_t0_documents
+from tests.ledger_fixtures import ensure_generated_documents, load_ledger_documents
 
 SENTINEL = "SENTINEL-GIZLI-HUKUK-METNI"
 
@@ -139,16 +139,34 @@ def test_no_chunks_means_no_llm_call_and_zero_tokens(
 def test_sources_come_from_citations_with_page_and_chain(
     client: TestClient, db_session: Session, admin_user: User, fake_llm: FakeLLMClient
 ) -> None:
-    facility, amendment = load_t0_documents(db_session)
+    """Kabul kriteri (Phase 3.1 taşıması): sayfa numaraları ve tarihler ledger'ın
+    `manifest.json`'ından okunur, testte hiçbir rakam sabit yazılmaz (plan T9)."""
+    manifest = ensure_generated_documents()
+    by_ref = {e["external_ref"]: e for e in manifest["documents"]}
+    facility_entry, amendment_entry = by_ref["DOC-ANK-FIN-004"], by_ref["DOC-ANK-FIN-005"]
+    documents = load_ledger_documents(db_session, ["DOC-ANK-FIN-004", "DOC-ANK-FIN-005"])
+    facility, amendment = documents["DOC-ANK-FIN-004"], documents["DOC-ANK-FIN-005"]
+
+    facility_page = facility_entry["page_map"]["5. Financial Covenants"]
+    amendment_page = amendment_entry["page_map"]["2. Amendments to the Original Agreement"]
 
     def reply(request: LLMRequest) -> str:
-        """Cite the current document's first label and the Facility Agreement clause page,
-        whatever labels the prompt gave them — plus a label that does not exist."""
-        match = re.search(r"\[(K\d+)\] Belge: Facility Agreement \| .*?Sayfa: 6", request.user)
-        assert match, request.user
+        """Cite the amendment's own covenant-change section and the executed facility's
+        financial-covenants section, whatever labels the prompt gave them — plus a label
+        that does not exist."""
+        match_amendment = re.search(
+            rf"\[(K\d+)\] Belge: {re.escape(amendment.title)} \|.*?Sayfa: {amendment_page}\n",
+            request.user,
+        )
+        match_facility = re.search(
+            rf"\[(K\d+)\] Belge: {re.escape(facility.title)} \|.*?Sayfa: {facility_page}\n",
+            request.user,
+        )
+        assert match_amendment and match_facility, request.user
         return (
-            "Ankara RES'in güncel minimum DSCR covenant'ı 1,20x'tir [K1]. Bu değer Amendment 01 "
-            f"ile önceki 1,25x seviyesinden değiştirilmiştir [{match.group(1)}]. Uydurma [K99]."
+            f"Ankara RES'in güncel minimum DSCR covenant'ı [{match_amendment.group(1)}]'de "
+            f"belirtilmiştir. İlk covenant seviyesi [{match_facility.group(1)}]'de yer "
+            "almaktadır. Uydurma [K99]."
         )
 
     fake_llm.reply_fn = reply
@@ -158,13 +176,13 @@ def test_sources_come_from_citations_with_page_and_chain(
     sources = body["sources"]
     assert isinstance(sources, list) and len(sources) == 2
     first, second = sources
-    assert first["ref"] == "K1"
-    assert first["title"] == "Amendment 01" and first["page_number"] == 3
-    assert first["is_current"] is True and first["supersedes_title"] == "Facility Agreement"
-    assert first["document_date"] == "2025-03-15" and first["version"] == 1
-    assert second["title"] == "Facility Agreement" and second["page_number"] == 6
-    assert second["is_current"] is False and second["superseded_by_title"] == "Amendment 01"
-    assert second["status"] == "executed"
+    assert first["title"] == amendment.title and first["page_number"] == amendment_page
+    assert first["is_current"] is True and first["supersedes_title"] == facility.title
+    assert first["document_date"] == amendment.document_date.isoformat()
+    assert first["version"] == amendment_entry["version_number"]
+    assert second["title"] == facility.title and second["page_number"] == facility_page
+    assert second["is_current"] is False and second["superseded_by_title"] == amendment.title
+    assert second["status"] == "superseded"
     # The prompt carried the chain flags computed in code, current document first.
     prompt = fake_llm.requests[0].user
     assert prompt.index("Zincir: GÜNCEL") < prompt.index("Zincir: İLK HALKA")

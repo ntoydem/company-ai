@@ -1,0 +1,20 @@
+doc_id: DOC-CO-ADM-001
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Karar Gerekçesi
+  paragraphs:
+  - '[[spv_name]] bünyesinde yürütülen yenilenebilir enerji yatırımlarının sürdürülebilirliği
+    açısından stratejik finansman adımlarının atılması zorunluluğu doğmuştur. [[counterparty]]
+    ile yürütülen müzakereler sonucunda, projenin [[document_date]] tarihinde imzalanması
+    öngörülen kredi sözleşmesi ile desteklenmesi planlanmaktadır.'
+  - Şirketimizin [[version_label]] versiyonlu yatırım planları doğrultusunda, [[status_label]]
+    statüsündeki bu finansman süreci kurumsal büyüme hedeflerimizle tam uyum göstermektedir.
+- heading: Alınan Karar
+  paragraphs:
+  - Yönetim kurulu, [[approved_spv]] tarafından sunulan finansal yapılandırma planını
+    oy birliğiyle onaylamıştır. İlgili [[document_no]] sayılı evrakta belirtilen şartların
+    yerine getirilmesi için [[effective_date]] tarihinden itibaren gerekli işlemlerin
+    başlatılması kararlaştırılmıştır.
+  - Bu karar kapsamında [[parties_list]] arasında yapılacak nihai anlaşmaların yürütülmesi
+    hususunda [[title]] yetkilendirilmiştir.

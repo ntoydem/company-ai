@@ -3,7 +3,7 @@
 Kurumsal doküman + Excel + AI bilgi platformu. Şirket bilgisinin **kaynağını, erişim yetkisini, tarihini,
 versiyonunu ve ilişkilerini** koruyarak AI tarafından güvenilir kullanılmasını sağlar. Basit bir chatbot değildir.
 
-Bu README Phase 1.2 (departman, rol, proje, yetki) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
+Bu README Phase 3.1 (15 demo belge + seed/reset) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
 `docs/PHASES.md`. Mimari kararlar: `docs/ARCHITECTURE.md`. Alan modeli: `docs/DOMAIN_MODEL.md`.
 
 ## Gereksinimler (VM)
@@ -88,16 +88,15 @@ curl -b cookies.txt http://localhost:8000/api/documents   # yetkili (Adım 0'da:
 ```
 Kabul edilen türler: pdf/png/jpg (MIME imzasıyla doğrulanır, `.xlsx/.xlsm/.csv` Phase 4.2). Taranmış (görüntü)
 PDF'ler `ocr-worker`'da `ocrmypdf` (tur+eng) ile OCR'lanır; sayfa metni ve ~800 kelimelik chunk'lar
-(`document_pages`/`document_chunks`) full-text search (`turkish` + `simple`) için hazırlanır. Test fixture'ları
-(`seed_data/t0/`) `docker compose run --rm backend python seed_data/t0/generate.py` ile üretilir.
+(`document_pages`/`document_chunks`) full-text search (`turkish` + `simple`) için hazırlanır. Demo belgeler
+manuel upload yerine `make seed` ile yüklenir (bkz. "Demo veri (Phase 3.1)").
 
 ## Soru sorma (Phase 0.3)
 `LLM_API_KEY` `.env`'de dolu olmalı (varsayılan Gemini, OpenAI-uyumlu endpoint; model adları `LLM_MODEL_ANSWER` /
 `LLM_MODEL_CLASSIFY`, thinking bütçesi `LLM_REASONING_EFFORT=low`). Anahtar yoksa yalnızca `/api/ask` 503 döner
 ("Yapay zeka servisi yapılandırılmamış."), belge hattı çalışmaya devam eder.
 ```bash
-# T0 test belgelerini versiyon zinciriyle yükle (Facility Agreement → Amendment 01):
-bash seed_data/t0/upload.sh
+# Demo belgeler yüklüyse (bkz. "Demo veri (Phase 3.1)"), doğrudan soru sorulabilir:
 curl -s -X POST localhost:8000/api/ask -b cookies.txt -H 'content-type: application/json' \
   -d '{"question": "Ankara RES'\''in güncel minimum DSCR covenant'\''ı nedir?"}'
 # {"answer":"... 1,20x'tir [K1] ...","answered":true,"sources":[{"ref":"K1","title":"Amendment 01","page_number":3,
@@ -131,6 +130,30 @@ değişiyorsa yeni değer + `USER_FACT`), `make validate-ledger` tekrar 0 hata v
 akıştan geçer. Onay tablosu `docs/reports/PHASE_2_1_REPORT.md §10`. `make lint` de validator'ı çalıştırır; ledger'ı
 bozan bir düzenleme lint'i kırar.
 
+## Demo veri (Phase 3.1)
+İki demo proje için 15 belge (Ankara RES 10, İzmir RES 4, şirket geneli 1): lisans, Facility Agreement +
+2 amendment (versiyon zinciri), EPC sözleşmesi + tadili, ÇED yazıları, üretim raporu, yönetim kurulu kararı vb.
+Rakam/tarih/isim **yalnızca** `seed_data/master/*.yaml` truth ledger'dan gelir; LLM'e hiçbir zaman gerçek değer
+verilmez — yalnızca `[[placeholder]]` token adları ve doldurulacak bölüm başlıkları. Prose'u (placeholder'lı
+paragraflar) LLM bir kez üretir, `seed_data/generator/prose/*.yaml` olarak `tag: AI_ASSUMPTION` ile commit edilir;
+gerçek değerleri (`generate_documents.py`, LLM çağırmadan) deterministik olarak yerine koyar ve WeasyPrint ile
+PDF'i render eder. Bu yüzden **`make seed` hiçbir zaman LLM çağırmaz** — prod klonu API anahtarı olmadan da
+demo veriyi yükleyebilir.
+
+```bash
+make prose               # yalnızca içerik değiştiğinde: LLM ile prose/*.yaml üretir/günceller, elle commit edilir
+make validate-documents  # prose (P1/P2: sayı/para birimi/gerçek isim sızıntısı yok) + üretilmiş PDF (G1-G6) kontrolü
+make seed                # ledger doğrula → 15 PDF render et → admin/demo kullanıcı/departman/proje → belgeleri yükle
+                          # → ingestion_jobs'ın "ready" olmasını bekle (~40 sn)
+make reset-demo           # yalnızca belgeleri siler (TRUNCATE documents CASCADE + dosyalar); kullanıcı/departman/
+                          # proje korunur; onay ister, `--yes` ile atlanır
+```
+Her belgenin taranmış (görüntüsel, OCR gerektiren) ya da dijital (metin katmanlı) kopyası vardır — gerçek OCR
+hattını da uçtan uca test eder. Üretilen belgelerin manifesti: `seed_data/documents/manifest.json` (sayfa
+haritaları, versiyon zinciri referansları — `app/` bu dosyayı okur, `seed_data.generator` paketini **asla**
+import etmez, ADR-013). Hukuk departmanının 15 belge içinde kendi belgesi yok (ledger'da hukukla ilgili ayrı bir
+doküman planlanmadı); bu bilinen bir boşluktur, bkz. `docs/reports/PHASE_3_1_REPORT.md`.
+
 ## Make hedefleri
 | Hedef | Açıklama |
 |---|---|
@@ -141,8 +164,12 @@ bozan bir düzenleme lint'i kırar.
 | `make lint` / `make format` | ruff + mypy / otomatik biçimlendirme |
 | `make migrate`, `make migration NAME=...` | Alembic upgrade / yeni migration |
 | `make seed-admin`, `make seed-demo-users`, `make seed-demo-departments`, `make seed-demo-projects` | Admin/demo kullanıcı/demo departman+üyelik/demo proje oluştur (yoksa) |
+| `make prose` | LLM ile `seed_data/generator/prose/*.yaml` üret (yalnızca içerik değiştiğinde, elle commit edilir) |
+| `make validate-documents` | Prose (P1/P2) + üretilmiş PDF (G1-G6) doğrulaması; `make lint`'in parçası (`--prose-only`) |
+| `make seed` | 15 demo belgeyi render edip yükler (bkz. "Demo veri (Phase 3.1)"); LLM çağırmaz |
+| `make reset-demo` | Demo belgeleri siler (kullanıcı/departman/proje korunur); `--yes` ile onaysız |
 | `make psql`, `make shell` | Postgres'e psql / backend container'ında bash |
-| `make seed`, `make reset-demo`, `make eval`, `make backup`, `make restore` | Sonraki phase'lerde (şimdilik "henüz uygulanmadı") |
+| `make eval`, `make backup`, `make restore` | Sonraki phase'lerde (şimdilik "henüz uygulanmadı") |
 
 Postgres portu host'a açılmaz; `make psql` kullanın. Backend `BACKEND_PORT` (varsayılan 8000) üzerinden
 Caddy gelene kadar (Phase 3.3) doğrudan erişilebilir.
@@ -152,7 +179,9 @@ Caddy gelene kadar (Phase 3.3) doğrudan erişilebilir.
 backend/      FastAPI (app/api, app/services, app/repositories, app/models, app/schemas, app/core), tests/, alembic/
 ocr-worker/   ocrmypdf + PyMuPDF ingestion worker; kendi pyproject/tests'i, backend/app'i import etmez
 infra/        docker-compose.yml, Caddyfile, .env.example, postgres/init, ocr-worker/Dockerfile
-scripts/      wait_for_services.sh (+ ileride seed/backup/restore/eval)
+seed_data/    master/ (truth ledger), generator/ (prose, template, render, validate — app/ tarafından import edilmez),
+              documents/ (üretilen PDF'ler + manifest.json, git'e girmez), evaluation/ (golden sorular)
+scripts/      wait_for_services.sh, seed_demo.sh, reset_demo.sh (+ ileride backup/restore/eval)
 docs/         SPEC_0x, PHASES.md, ARCHITECTURE.md (ADR), DOMAIN_MODEL.md, plans/, reports/, prompts/
 ```
 

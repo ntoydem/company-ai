@@ -1,0 +1,39 @@
+doc_id: DOC-IZM-DEV-004
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Rüzgar Kaynağı Değerlendirmesi
+  paragraphs:
+  - '[[project_name]] sahasında gerçekleştirilen rüzgar ölçüm çalışmaları, bölgenin
+    potansiyelini ayrıntılı bir şekilde ortaya koymaktadır. Toplanan veriler, [[spv_name]]
+    tarafından kurulan mastlar aracılığıyla güvenilir bir biçimde kaydedilmiştir.'
+  - Elde edilen meteorolojik parametreler, hedeflenen [[target_capacity_mw]] kapasitesine
+    ulaşmak için yeterli akışkan hızlarına sahip olunduğunu göstermektedir. Hakim
+    rüzgar yönü ve süreklilik analizleri, [[counterparty]] ile paylaşılan teknik raporlarda
+    da doğrulanmıştır.
+  - Mevsimsel değişimler ve türbülans oranları, [[status_label]] statüsündeki bu saha
+    için uluslararası standartlara uygun olarak modellenmiştir. Yapılan simülasyonlar,
+    uzun vadeli enerji üretim istikrarını desteklemektedir.
+- heading: Ön Fizibilite Sonuçları
+  paragraphs:
+  - Ön fizibilite aşamasında, [[document_no]] referanslı evrakta belirtilen teknik
+    kriterler titizlikle incelenmiştir. [[parties_list]] mutabakatıyla yürütülen maliyet
+    ve getiri analizleri, yatırımın uygulanabilirliğini kanıtlamıştır.
+  - Altyapı gereksinimleri, şebeke bağlantı noktaları ve arazi mülkiyet durumu [[effective_date]]
+    itibarıyla detaylıca haritalandırılmıştır. [[version_label]] revizyon numarasıyla
+    güncellenen bütçe öngörüleri, projenin ekonomik sürdürülebilirliğini pekiştirmektedir.
+  - Risk matrisi değerlendirmelerinde, olası çevresel ve operasyonel etkenler minimize
+    edilmiştir. [[title]] unvanlı yetkililerin onayladığı bulgular, projenin sonraki
+    aşamalarına geçiş için yeşil ışık yakmıştır.
+- heading: Öneriler
+  paragraphs:
+  - Sahanın geliştirilmesi sürecinde [[document_date]] tarihinde yayımlanan mevzuat
+    değişikliklerinin yakından takip edilmesi kritik önem taşımaktadır. [[spv_name]]
+    organizasyonunun teknik kadrosu, tedarik zinciri planlamasını bu doğrultuda revize
+    etmelidir.
+  - Yatırımın finansmanı ve ortaklık yapıları için [[counterparty]] ile yürütülen
+    müzakerelerin hızlandırılması önerilmektedir. [[project_name]] için uzun vadeli
+    bakım ve işletme stratejilerinin erken safhada kurgulanması verimliliği artıracaktır.
+  - Çevresel Etki Değerlendirme süreçlerinin eksiksiz tamamlanması ve yerel paydaş
+    ilişkilerinin şeffaf yürütülmesi gerekmektedir. [[status_label]] statüsünün korunması
+    adına tüm denetimlerin zamanında yapılması tavsiye olunur.

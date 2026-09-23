@@ -1,0 +1,28 @@
+doc_id: DOC-ANK-FIN-007
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Purpose and Scope
+  paragraphs:
+  - This compliance report is prepared by [[parties_list]] regarding the operational
+    performance of [[project_name]]. The evaluation period covers the relevant financial
+    term referenced under [[document_no]].
+  - The primary objective is to verify adherence to all financial covenants and undertakings
+    agreed upon by [[spv_name]] and [[counterparty]]. All calculations have been performed
+    in accordance with the definitions set forth in the master agreement dated [[document_date]].
+- heading: 2. Compliance Summary
+  paragraphs:
+  - During the review period, [[spv_name]] maintained satisfactory operational performance
+    under the supervision of [[parties_list]]. The current standing of the project
+    is formally classified as [[status_label]].
+  - Financial ratio analysis indicates that the debt service coverage ratio reached
+    [[dscr]]. This performance metric fully satisfies the minimum threshold established
+    in the baseline documentation effective as of [[effective_date]].
+- heading: 3. Outstanding Debt Position
+  paragraphs:
+  - The total liability associated with [[project_name]] has been monitored continuously
+    throughout the reporting cycle by [[counterparty]]. Principal and interest payments
+    were serviced according to the established amortization schedule.
+  - As of the reporting date denoted by [[document_date]], the aggregate outstanding
+    debt stands at [[outstanding_debt]]. No events of default or potential review
+    events have been triggered under the current version [[version_label]].

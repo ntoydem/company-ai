@@ -1,0 +1,60 @@
+{% macro cover(facts, subtitle, banner_lines) %}
+<section class="doc-page cover">
+  <div class="watermark">DEMO</div>
+  <h1>{{ facts.title }}</h1>
+  {% if subtitle %}<h2>{{ subtitle }}</h2>{% endif %}
+  {% for line in banner_lines %}
+  <p class="banner{% if not loop.first %} secondary{% endif %}">{{ line }}</p>
+  {% endfor %}
+  <div class="meta">
+    <dl>
+      <dt>{{ 'Belge No' if facts.language == 'tr' else 'Document No' }}</dt><dd>{{ facts.document_no }}</dd>
+      <dt>{{ 'Versiyon' if facts.language == 'tr' else 'Version' }}</dt><dd>{{ facts.version_label }}</dd>
+      <dt>{{ 'Durum' if facts.language == 'tr' else 'Status' }}</dt><dd>{{ facts.status_label }}</dd>
+      <dt>{{ 'Belge Tarihi' if facts.language == 'tr' else 'Document Date' }}</dt><dd>{{ facts.document_date }}</dd>
+      <dt>{{ 'Yürürlük Tarihi' if facts.language == 'tr' else 'Effective Date' }}</dt><dd>{{ facts.effective_date }}</dd>
+      <dt>{{ 'Taraflar' if facts.language == 'tr' else 'Parties' }}</dt><dd>{{ facts.parties_list }}</dd>
+    </dl>
+  </div>
+</section>
+{% endmacro %}
+
+{% macro revision_history(rows, language) %}
+<h2 class="section-title">{{ 'Revizyon Geçmişi' if language == 'tr' else 'Revision History' }}</h2>
+<table class="data-table">
+  <tr>
+    <th>{{ 'Versiyon' if language == 'tr' else 'Version' }}</th>
+    <th>{{ 'Tarih' if language == 'tr' else 'Date' }}</th>
+    <th>{{ 'Durum' if language == 'tr' else 'Status' }}</th>
+    <th>{{ 'Belge No' if language == 'tr' else 'Document No' }}</th>
+  </tr>
+  {% for row in rows %}
+  <tr><td>{{ row.version }}</td><td>{{ row.date }}</td><td>{{ row.status }}</td><td>{{ row.doc_no }}</td></tr>
+  {% endfor %}
+</table>
+{% endmacro %}
+
+{% macro data_table(headers, rows) %}
+<table class="data-table">
+  <tr>{% for h in headers %}<th>{{ h }}</th>{% endfor %}</tr>
+  {% for row in rows %}
+  <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+  {% endfor %}
+</table>
+{% endmacro %}
+
+{% macro signature_block(roles) %}
+<div class="signature-grid">
+  {% for role in roles %}
+  <div class="signature-box">{{ role }}</div>
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{% macro letterhead(facts, reference_label, subject_label) %}
+<div class="letterhead">
+  {{ reference_label }}: {{ facts.document_no }}<br>
+  {{ subject_label }}<br>
+  {{ facts.document_date }}
+</div>
+{% endmacro %}

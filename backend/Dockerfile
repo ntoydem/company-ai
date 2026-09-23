@@ -13,7 +13,7 @@ ENV PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
     PATH="/opt/venv/bin:${PATH}"
 
-# WeasyPrint (dev-only: seed_data/t0/generate.py demo-PDF generation, Phase 0.2). Not
+# WeasyPrint (dev-only: seed_data/generator demo-PDF generation, Phase 2.1/3.1). Not
 # used at runtime — a candidate to split out of the shared image in Phase 5.4.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libpango-1.0-0 \

@@ -1,0 +1,21 @@
+doc_id: DOC-IZM-DEV-003
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Süreç Durumu
+  paragraphs:
+  - '[[project_name]] projesi kapsamında yürütülen çevresel etki değerlendirmesi çalışmaları,
+    ilgili mevzuat hükümlerine uygun olarak sürdürülmektedir. Bu süreçte [[spv_name]]
+    tarafından sunulan bilgi ve belgeler, ilgili idare tarafından detaylı bir incelemeye
+    tabi tutulmuştur.'
+  - Mevcut aşamada [[ced_status]] durumu geçerliliğini korumakta olup, [[latest_event]]
+    gelişmesi resmi kayıtlarımıza intikal etmiştir. Kurumsal paydaşlarımız ve [[parties_list]]
+    ile yürütülen koordinasyon aralıksız olarak devam etmektedir.
+- heading: Bekleyen Adımlar
+  paragraphs:
+  - Planlanan takvimin aksamadan yürütülmesi amacıyla [[counterparty]] nezdindeki
+    onay süreçlerinin tamamlanması beklenmektedir. [[document_date]] tarihli mutabakat
+    metni çerçevesinde, [[effective_date]] itibarıyla yeni aşamaya geçilmesi öngörülmektedir.
+  - İlgili [[status_label]] güncellemeleri ve [[version_label]] revizyonları tamamlandığında,
+    [[title]] makamına resmi bilgilendirme yapılacaktır. Projenin yasal [[document_no]]
+    numaralı dosyası, tüm paydaşların erişimine açık tutulmaktadır.

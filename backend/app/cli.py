@@ -4,6 +4,7 @@ import argparse
 import logging
 import sys
 import time
+from pathlib import Path
 
 from app.core.config import get_settings
 from app.core.db import database_reachable, get_engine, get_session_factory
@@ -13,8 +14,11 @@ from app.services.demo_departments_seed import (
     ensure_demo_department_memberships,
     ensure_demo_departments,
 )
+from app.services.demo_documents_seed import ensure_demo_documents
 from app.services.demo_projects_seed import ensure_demo_projects
 from app.services.demo_users_seed import ensure_demo_users
+
+DEFAULT_MANIFEST = Path("seed_data/documents/manifest.json")
 
 log = logging.getLogger("app.cli")
 
@@ -76,6 +80,40 @@ def cmd_seed_demo_projects() -> int:
     return 0
 
 
+def cmd_seed_demo_documents(manifest: Path) -> int:
+    with get_session_factory()() as session:
+        results = ensure_demo_documents(session, get_settings(), manifest)
+    log.info(
+        "seed-demo-documents done",
+        extra={
+            "refs": [r.external_ref for r in results],
+            "was_created": [r.created for r in results],
+        },
+    )
+    return 0
+
+
+def cmd_wait_for_documents(timeout: int) -> int:
+    from sqlalchemy import select
+
+    from app.models.document import Document
+
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        with get_session_factory()() as session:
+            rows = session.scalars(select(Document).where(Document.external_ref.is_not(None))).all()
+            failed = [row.external_ref for row in rows if row.ingestion_status.value == "failed"]
+            if failed:
+                log.error("document ingestion failed", extra={"refs": failed})
+                return 1
+            if rows and all(row.ingestion_status.value == "ready" for row in rows):
+                log.info("wait-for-documents: all ready", extra={"count": len(rows)})
+                return 0
+        time.sleep(2)
+    log.error("wait-for-documents: timeout", extra={"timeout_s": timeout})
+    return 1
+
+
 def cmd_assert_pipeline_schema() -> int:
     """Fail if the Phase 0.2 pipeline tables are missing.
 
@@ -116,6 +154,15 @@ def main(argv: list[str] | None = None) -> int:
         help="create the demo departments and demo user memberships if they do not exist",
     )
     sub.add_parser("seed-demo-projects", help="create the demo projects if they do not exist")
+    seed_docs = sub.add_parser(
+        "seed-demo-documents",
+        help="create the demo documents from seed_data/documents/manifest.json",
+    )
+    seed_docs.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
+    wait_docs = sub.add_parser(
+        "wait-for-documents", help="block until every seeded document is ready or one fails"
+    )
+    wait_docs.add_argument("--timeout", type=int, default=600)
     sub.add_parser(
         "assert-pipeline-schema", help="fail if the Phase 0.2 pipeline tables are missing"
     )
@@ -133,6 +180,10 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_seed_demo_departments()
     if args.command == "seed-demo-projects":
         return cmd_seed_demo_projects()
+    if args.command == "seed-demo-documents":
+        return cmd_seed_demo_documents(args.manifest)
+    if args.command == "wait-for-documents":
+        return cmd_wait_for_documents(args.timeout)
     if args.command == "assert-pipeline-schema":
         return cmd_assert_pipeline_schema()
     if args.command == "print-answer-prompt":

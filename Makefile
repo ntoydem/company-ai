@@ -12,6 +12,7 @@ SVC ?=
 
 .PHONY: help env-check dirs up up-full down ps logs build test test-llm lint format prompt-doc validate-ledger \
         migrate migration seed-admin seed-demo-users seed-demo-departments seed-demo-projects \
+        prose validate-documents seed-demo-documents \
         psql shell seed reset-demo eval backup restore clean
 
 help: ## Bu listeyi göster
@@ -63,9 +64,16 @@ lint: env-check ## ruff + mypy (backend), ruff (ocr-worker), prompt dokümanı g
 		| diff -q - <(sed -n '/^```text$$/,/^```$$/{//!p}' docs/prompts/ANSWER_SYSTEM_PROMPT.md) >/dev/null \
 		|| { echo "docs/prompts/ANSWER_SYSTEM_PROMPT.md güncel değil: make prompt-doc"; exit 1; }
 	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_ledger
+	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_documents --prose-only
 
 validate-ledger: env-check ## truth ledger + questions.json doğrulaması (0 hata = exit 0)
 	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_ledger --summary
+
+prose: env-check ## demo belge prose'unu LLM ile üret (BİR KEZ; çıktı commit edilir, `make seed` LLM çağırmaz)
+	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.generate_prose
+
+validate-documents: env-check ## üretilen 15 demo belgenin içeriğini doğrula (banner/isim/izolasyon/facts)
+	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_documents
 
 prompt-doc: env-check ## /api/ask sistem promptunu docs/prompts/ANSWER_SYSTEM_PROMPT.md'ye yaz
 	@{ printf '%s\n\n' '# Cevap sistem promptu (Phase 0.3)'; \
@@ -96,16 +104,20 @@ seed-demo-departments: dirs ## demo departmanlarını + demo kullanıcı üyelik
 seed-demo-projects: dirs ## demo projelerini oluştur (yoksa): Ankara RES, İzmir RES
 	$(COMPOSE) run --rm -T backend python -m app.cli seed-demo-projects
 
+seed-demo-documents: dirs ## demo belgelerini yükle (yoksa; önce `make seed` içindeki generate/validate adımları)
+	$(COMPOSE) run --rm -T backend python -m app.cli seed-demo-documents
+	$(COMPOSE) run --rm -T backend python -m app.cli wait-for-documents --timeout 600
+
 psql: env-check ## postgres'e psql ile bağlan
 	$(COMPOSE) exec postgres sh -c 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
 
 shell: env-check ## backend container'ında bash
 	$(COMPOSE) run --rm backend bash
 
-seed: ## demo veri (Phase 3.1)
-	@echo "Henüz uygulanmadı (Phase 3.1)."; exit 1
-reset-demo: ## demo sıfırlama (Phase 3.1)
-	@echo "Henüz uygulanmadı (Phase 3.1)."; exit 1
+seed: dirs ## demo veri: ledger doğrula -> belge üret -> doğrula -> kullanıcı/departman/proje -> belge yükle -> ready bekle
+	bash scripts/seed_demo.sh
+reset-demo: dirs ## demo belgelerini sıfırla (yalnızca belgeler; kullanıcı/departman/proje korunur)
+	bash scripts/reset_demo.sh
 eval: ## eval runner (Phase 4.1)
 	@echo "Henüz uygulanmadı (Phase 4.1)."; exit 1
 backup: ## yedek (Phase 5.3)

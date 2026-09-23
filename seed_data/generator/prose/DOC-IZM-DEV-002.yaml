@@ -1,0 +1,28 @@
+doc_id: DOC-IZM-DEV-002
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Arazi Edinim Süreci
+  paragraphs:
+  - '[[project_name]] projesi kapsamında yürütülen arazi edinim faaliyetleri, ilgili
+    mevzuat ve [[document_no]] numaralı yönergeye uygun olarak başlatılmıştır. Süreç
+    boyunca [[parties_list]] ile koordinasyon içinde çalışılarak gerekli yasal izinlerin
+    alınması sağlanmıştır.'
+  - Planlanan [[land_acquisition_start]] tarihinde sahadaki çalışmalar hız kazanmış
+    ve [[counterparty]] tarafıyla ön protokoller imzalanmıştır. Bu aşamada [[spv_name]]
+    yönetimi tarafından tüm paydaşların hakları gözetilerek şeffaf bir müzakere ortamı
+    oluşturulmuştur.
+  - Edinilen parsellerin tapu devir işlemleri [[effective_date]] itibarıyla resmen
+    tescil edilmiş ve [[status_label]] kategorisinde arşivlenmiştir. [[version_label]]
+    revizyon numarasıyla güncellenen bu süreç, [[title]] belgesinde detaylıca raporlanmıştır.
+- heading: Güncel Durum
+  paragraphs:
+  - Mevcut aşamada [[project_name]] sahasındaki mülkiyet yapısı tamamen netleşmiş
+    olup [[spv_name]] denetiminde koruma altına alınmıştır. [[counterparty]] ile yürütülen
+    son görüşmeler sonucunda operasyonel riskler minimize edilmiştir.
+  - Saha incelemeleri [[document_date]] tarihinde tamamlanmış ve [[status_label]]
+    seviyesine ulaşıldığı resmi olarak doğrulanmıştır. Tüm idari süreçler [[document_no]]
+    standartlarına uygun olarak başarıyla sonuçlandırılmıştır.
+  - Gelecek döneme ilişkin [[version_label]] planlamaları doğrultusunda, [[parties_list]]
+    iş birliğiyle bakım ve güvenlik önlemleri artırılmıştır. [[title]] gereklilikleri
+    eksiksiz yerine getirilerek süreç sürdürülebilir bir yapıya kavuşturulmuştur.

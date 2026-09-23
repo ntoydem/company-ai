@@ -99,12 +99,13 @@ Status values: `accepted` | `superseded by ADR-xxx`. Phase column = when the dec
 - Timestamps stored as `timestamptz` (UTC); displayed in `Europe/Istanbul`, `DD.MM.YYYY`.
 
 ## ADR-013 — Synthetic truth model
-**Status:** accepted · **Phase:** 2.1
+**Status:** accepted · **Phase:** 2.1, 3.1
 - Every demo number, date and name comes from `seed_data/master/*.yaml` (truth ledger); each value tagged `USER_FACT` or `AI_ASSUMPTION`; nothing is approved until Naci marks it `USER_FACT`.
 - `validate_ledger.py` checks coarse chronology, finance consistency, İzmir post-licence fields empty, currencies, name whitelist. Documents and workbooks are generated only after validation passes.
 - Two AI modes are strictly separated: production Company AI never assumes; the generator (`seed_data/generator/`) fills gaps deliberately and is never imported by the backend.
 - Demo entities are fictional and generic (ABC Enerji A.Ş., PQR Bank …); every document carries a DEMO/FICTIONAL banner.
 - **Phase 2.1 concretization:** the ledger schema is a set of Pydantic v2 models (`seed_data/generator/ledger_schema.py`, `extra="forbid"`); every fact is a `{value, tag}` / `Money{value, currency, tag}` / `Event{date, doc, tag}` mapping or a tagged list record, identity keys stay untagged. `documents[].key_facts` and `questions.json`'s `expected_answer` hold **ledger paths** (`ledger:ankara_res.project…`), never repeated values. Departments are the DB slugs (`finans`, not `finance`). Operating year is anniversary-based. `questions.json` lives at `seed_data/evaluation/`. `make validate-ledger` (also part of `make lint`) must report 0 errors; Phase 3.1 additionally requires a separate "ledger onayı" commit in which Naci flips reviewed values to `USER_FACT`.
+- **Phase 3.1 concretization:** the LLM never sees a fact. Prose is generated **once** (`make prose`) with only `[[token]]` placeholders — the LLM is told the available tokens and forbidden from writing any digit/date/currency/name itself; `generate_documents.py` (deterministic, no LLM) substitutes tokens from `facts.py` and renders via Jinja2/WeasyPrint. Prose is committed to git (`seed_data/generator/prose/*.yaml`, `tag: AI_ASSUMPTION`) so `make seed` on a prod clone needs no LLM/network call. `validate_documents.py` enforces this structurally (no 3+ digit run, no currency token, no un-whitelisted name in prose; banner/isolation/fact-presence checks on the rendered PDFs). `documents.external_ref` (migration `0004`) is the ledger-id seed idempotency key; `app/cli.py seed-demo-documents` reads only `seed_data/documents/manifest.json` (JSON), never the generator's Python.
 
 ## ADR-014 — "No opinion" rule (V0)
 **Status:** accepted · **Phase:** 0.3

@@ -1,0 +1,30 @@
+doc_id: DOC-ANK-DEV-002
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Tadil Gerekçesi
+  paragraphs:
+  - İşbu [[title]] belgesi, [[project_name]] kapsamında gerçekleştirilen teknik revizyonlar
+    neticesinde hazırlanmıştır. Taraflar arasında yapılan mutabakat doğrultusunda,
+    [[counterparty]] ile [[spv_name]] arasında yürütülen süreçlerin güncel koşullara
+    uyarlanması amaçlanmıştır.
+  - '[[document_date]] tarihinde imzalanan ve [[version_label]] statüsünde bulunan
+    ana sözleşme hükümlerinde bazı değişikliklerin yapılması zaruri hale gelmiştir.
+    Bu kapsamda, [[status_label]] seviyesindeki işlemlerin kesintisiz devam etmesi
+    için gerekli idari adımlar atılmıştır.'
+- heading: Güncellenen Kapasite Bilgisi
+  paragraphs:
+  - Yapılan teknik değerlendirmeler sonucunda, üretim tesisinin azami gücü [[capacity_mw]]
+    olarak resmiyet kazanmıştır. İlgili yetkili kurumların onay verdiği bu yeni değer,
+    sistemin operasyonel verimliliğini doğrudan artıracaktır.
+  - '[[parties_list]] tarafından ortaklaşa yürütülen denetimler sonucunda, belirlenen
+    yeni sınırların teknik şartnamelere tam uyumlu olduğu tescil edilmiştir. Bu doğrultuda
+    tesis altyapısı, [[capacity_mw]] kapasiteyle çalışacak şekilde yeniden yapılandırılmıştır.'
+- heading: Yürürlük
+  paragraphs:
+  - İşbu tadil metni, [[effective_date]] tarihi itibarıyla hukuki geçerlilik kazanacak
+    ve taraflar için bağlayıcı olacaktır. Önceki maddelerde yer alıp işbu belgede
+    değiştirilmeyen tüm hükümler aynen yürürlükte kalmaya devam edecektir.
+  - '[[amendment_date]] tarihinde son şekli verilen bu belge, [[document_no]] referans
+    numarası ile kayıt altına alınmıştır. İlgili taraflar, metin içerisinde yer alan
+    tüm yükümlülükleri eksiksiz olarak yerine getirmeyi kabul ve taahhüt eder.'

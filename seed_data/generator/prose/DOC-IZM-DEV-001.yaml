@@ -1,0 +1,21 @@
+doc_id: DOC-IZM-DEV-001
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Önlisans Kapsamı
+  paragraphs:
+  - İşbu belge, [[counterparty]] ile ilgili makamlar arasında akdedilen resmi süreç
+    çerçevesinde [[project_name]] projesine yönelik olarak düzenlenmiştir. Belirtilen
+    [[status_label]] statüsü doğrultusunda, [[spv_name]] unvanlı tüzel kişiliğin hak
+    ve yetkileri güvence altına alınmıştır.
+  - Proje sahasının coğrafi sınırları ve teknik parametreleri ilgili mevzuata uygun
+    olarak tescil edilmiştir. Planlanan [[target_capacity_mw]] hedefine ulaşılması
+    amacıyla gerekli hukuki altyapı hazırlanmıştır.
+- heading: Süreç ve Yükümlülükler
+  paragraphs:
+  - '[[parties_list]] arasında imzalanan mutabakat metni uyarınca, tarafların sorumlulukları
+    açıkça tanımlanmıştır. [[effective_date]] itibarıyla yürürlüğe giren hükümler,
+    tüm paydaşlar açısından bağlayıcı nitelik taşımaktadır.'
+  - '[[pre_licence_date]] tarihinde başlatılan işlemler silsilesi, [[document_date]]
+    tarihli resmi evrak ile teyit edilmiştir. [[document_no]] sayılı kayıt üzerinden
+    takip edilen süreç, [[version_label]] versiyonu ile son şeklini almıştır.'

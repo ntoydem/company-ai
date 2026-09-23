@@ -1,0 +1,40 @@
+doc_id: DOC-ANK-FIN-006
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Background
+  paragraphs:
+  - This amendment agreement is executed by and between [[counterparty]] and the relevant
+    stakeholders under the supervision of [[parties_list]]. The primary objective
+    is to update the terms governing the ongoing venture known as [[project_name]].
+  - Reference is made to the primary document bearing the identifier [[document_no]],
+    dated [[document_date]], which outlines the foundational obligations. The current
+    operational status is designated as [[status_label]], reflecting recent milestones.
+  - Pursuant to the discussions held recently, the parties have agreed to modify certain
+    clauses. These adjustments ensure alignment with the overarching goals of [[spv_name]]
+    without altering the core purpose.
+- heading: 2. Amendments to the Original Agreement
+  paragraphs:
+  - Section [[version_label]] of the primary text is hereby formally modified to reflect
+    the updated [[repayment_profile]]. All stakeholders must adhere strictly to these
+    revised structural parameters.
+  - The provisions concerning the operational timeline have been extended up to [[effective_date]].
+    This adjustment accommodates unforeseen delays while maintaining project momentum.
+  - Any prior understandings that contradict these new provisions are hereby deemed
+    null and void. The specific terminology defined in [[title]] shall govern the
+    interpretation of these changes.
+- heading: 3. Continuing Effect
+  paragraphs:
+  - Except as specifically amended herein, the original terms and conditions shall
+    remain in full force and effect. All prior rights and obligations of [[counterparty]]
+    are hereby ratified and confirmed.
+  - This document shall be read and construed as one with the principal agreement.
+    In the event of any inconsistency, the stipulations of this amendment shall prevail.
+- heading: 4. Governing Law
+  paragraphs:
+  - This amendment and any contractual obligations arising out of it shall be governed
+    by and construed in accordance with the laws of the jurisdiction specified in
+    the primary document.
+  - Any disputes relating to the interpretation or execution of these terms shall
+    be submitted to the exclusive jurisdiction of the competent courts associated
+    with [[parties_list]].

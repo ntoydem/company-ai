@@ -1,0 +1,21 @@
+doc_id: DOC-ANK-OPS-001
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Genel Değerlendirme
+  paragraphs:
+  - '[[project_name]] projesi kapsamında yürütülen [[operating_year]] dönemi faaliyetleri,
+    [[spv_name]] tarafından kurumsal standartlara uygun olarak başarıyla sürdürülmüştür.
+    Raporlama periyodu boyunca tesisin operasyonel durumu [[status_label]] seviyesinde
+    kalmış olup, tüm süreçler belirlenen prosedürlere göre yönetilmiştir.'
+  - '[[counterparty]] ile gerçekleştirilen mutabakatlar çerçevesinde teknik koordinasyon
+    kesintisiz olarak sağlanmıştır. [[parties_list]] arasında imzalanan protokoller
+    doğrultusunda operasyonel hedeflere sorunsuz bir şekilde ulaşılmıştır.'
+- heading: Performans Özeti
+  paragraphs:
+  - İlgili ay içerisinde toplam enerji üretimi [[mwh]] seviyesine ulaşmış ve şebeke
+    aktarım süreçleri kararlılıkla tamamlanmıştır. Tesisin verimlilik oranları teknik
+    beklentileri karşılamış ve periyodik bakımlar zamanında gerçekleştirilmiştir.
+  - '[[document_no]] numaralı bu rapor, [[document_date]] tarihinde [[version_label]]
+    sürümüyle kayıt altına alınmıştır. Faaliyetlerin [[effective_date]] itibarıyla
+    geçerli olan [[title]] standartlarına tam uyum içinde yürütüldüğü tescil edilmiştir.'

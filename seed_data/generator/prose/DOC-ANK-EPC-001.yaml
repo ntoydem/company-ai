@@ -1,0 +1,56 @@
+doc_id: DOC-ANK-EPC-001
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Scope of Works
+  paragraphs:
+  - The contractor shall execute and complete the project known as [[project_name]]
+    in accordance with the specifications set forth in document number [[document_no]].
+    The primary obligations involve engineering, procurement, and construction services
+    delivered directly to [[counterparty]].
+  - All works must be performed under the supervision of [[spv_name]] and shall adhere
+    to the regulatory standards defined on [[document_date]]. The formal agreement
+    becomes fully operational upon reaching the milestone of [[effective_date]].
+  - Contractual duties remain classified under the operational status of [[status_label]].
+    The overarching title for this operational arrangement is officially designated
+    as [[title]].
+- heading: 2. Contract Price and Payment
+  paragraphs:
+  - The total financial compensation for the executed works is fixed at the rate specified
+    as [[epc_contract_price]]. Payment schedules shall be managed in strict coordination
+    with [[parties_list]] to ensure financial transparency.
+  - Disbursements are tied to specific completion phases monitored by [[spv_name]]
+    throughout the lifecycle of the contract. Any adjustment to the financial terms
+    requires prior written consent from [[counterparty]].
+  - Invoices submitted under document reference [[document_no]] must reflect the exact
+    valuation metrics approved on [[document_date]].
+- heading: 3. Programme and Milestones
+  paragraphs:
+  - The contractor is bound by the timeline established to achieve commercial operation
+    by [[cod_expected]]. Progress reports must be submitted periodically to [[counterparty]]
+    and [[spv_name]] for formal review.
+  - Delays in the critical path will be assessed against the baseline schedule set
+    at [[effective_date]]. Failure to meet intermediate targets may alter the projected
+    timeline leading up to [[cod_expected]].
+  - All participating entities listed under [[parties_list]] must agree upon any modification
+    to the execution schedule.
+- heading: 4. Defects Liability and Warranties
+  paragraphs:
+  - The contractor provides comprehensive guarantees for all completed segments of
+    [[project_name]] as outlined in the main agreement. Any structural or operational
+    flaw identified by [[spv_name]] must be rectified promptly.
+  - The warranty period commences immediately after the official verification recorded
+    on [[document_date]]. The responsible parties detailed in [[parties_list]] shall
+    oversee all mandatory maintenance procedures.
+  - Compliance with quality standards is mandatory throughout the liability phase
+    governed by the parameters of [[status_label]].
+- heading: 5. Governing Law
+  paragraphs:
+  - This agreement, associated with version identifier [[version_label]], shall be
+    governed by the legal framework applicable to [[counterparty]]. Any legal interpretation
+    must respect the jurisdictional boundaries defined on [[document_date]].
+  - Disputes arising from the execution of document [[document_no]] will be resolved
+    in accordance with the provisions established by [[spv_name]]. All signatories
+    included in [[parties_list]] accept these jurisdictional terms without exception.
+  - The formal interpretation of this document under the title [[title]] remains bound
+    by the statutory rules effective as of [[effective_date]].

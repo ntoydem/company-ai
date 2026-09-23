@@ -1,0 +1,55 @@
+doc_id: DOC-ANK-FIN-004
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Definitions and Interpretation
+  paragraphs:
+  - This document sets forth the terms regarding the agreement made by [[parties_list]]
+    under reference [[document_no]]. The interpretation of terms herein shall align
+    with the official definitions established for [[project_name]].
+  - References to specific dates shall be governed by [[document_date]] and [[effective_date]].
+    Each party acknowledges the status indicated by [[status_label]] and the corporate
+    structure of [[spv_name]].
+- heading: 2. The Facility
+  paragraphs:
+  - The total financial accommodation provided to [[spv_name]] is structured as [[total_debt]].
+    This structure incorporates specific allocations for [[eca_debt]] and [[local_debt]]
+    as outlined in the financial plan.
+  - The applicable interest rate shall be determined by the baseline index plus [[margin_pct]].
+    Funds shall be disbursed in accordance with the milestones established for [[project_name]].
+- heading: 3. Conditions Precedent
+  paragraphs:
+  - Utilization of the facility remains subject to the satisfaction of conditions
+    precedent by [[counterparty]]. These prerequisites ensure full compliance with
+    the framework of [[project_name]].
+  - Legal opinions and corporate authorizations must be delivered prior to [[effective_date]].
+    Failure to meet these criteria may result in a revision of [[status_label]].
+- heading: 4. Repayment and Prepayment
+  paragraphs:
+  - The repayment schedule shall commence following the expiry of [[grace_months]].
+    The overall tenor of the facility is strictly defined as [[tenor_years]].
+  - Early repayment options are available to [[spv_name]] subject to prior notice
+    given to [[counterparty]]. Any voluntary prepayment shall incur standard administrative
+    review under the agreement.
+- heading: 5. Financial Covenants
+  paragraphs:
+  - The borrower must maintain financial ratios that satisfy the minimum threshold
+    set for [[dscr_covenant]]. Compliance with these metrics will be tested at each
+    reporting period.
+  - Any breach of the specified financial covenants shall constitute an event of default.
+    [[counterparty]] reserves the right to review the facility status upon such occurrence.
+- heading: 6. Representations and Warranties
+  paragraphs:
+  - '[[spv_name]] hereby represents and warrants its legal capacity to enter into
+    [[document_no]]. All information provided regarding [[project_name]] remains accurate
+    and complete.'
+  - These representations are deemed repeated on each drawdown date under the agreement.
+    [[counterparty]] relies upon these statements in maintaining the facility.
+- heading: 7. Governing Law
+  paragraphs:
+  - This agreement and any contractual obligations arising from it shall be governed
+    by applicable law. Jurisdiction is irrevocably granted to the competent courts
+    designated by [[counterparty]].
+  - Disputes arising in connection with [[document_no]] shall be resolved through
+    formal legal channels. The official language of interpretation shall be the language
+    of the governing jurisdiction.

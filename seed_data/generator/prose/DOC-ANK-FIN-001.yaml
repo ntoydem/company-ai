@@ -1,0 +1,43 @@
+doc_id: DOC-ANK-FIN-001
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Definitions and Interpretation
+  paragraphs:
+  - This document constitutes a draft facility agreement for [[project_name]] involving
+    [[counterparty]] and the designated parties. Interpretation of terms shall follow
+    standard financial definitions as outlined in the main registry. Any reference
+    to specific entities shall include their respective successors and permitted assigns.
+  - The agreement references the primary vehicle [[spv_name]] established for the
+    execution of the transaction. All parties must interpret clauses in accordance
+    with the governing law specified herein. Defined terms maintain their capitalized
+    status throughout the entirety of this text.
+- heading: 2. The Facility
+  paragraphs:
+  - The lender agrees to make available a credit facility to [[spv_name]] subject
+    to the terms and conditions set forth in this document. The tenor of the facility
+    is established as [[tenor_years]] from the closing date. Utilization of funds
+    shall strictly support the approved project milestones.
+  - The borrower shall maintain compliance with the financial ratio known as [[dscr_covenant]]
+    throughout the active lifecycle of the credit. Interest rates and repayment schedules
+    are detailed in the subsequent schedules of this agreement. Funds must be drawn
+    in accordance with the operational drawdown mechanism.
+- heading: 3. Conditions Precedent
+  paragraphs:
+  - Disbursement of any loan proceeds remains strictly contingent upon the satisfaction
+    of all conditions precedent set forth by the lender. These preconditions include
+    the delivery of certified corporate resolutions and legal opinions. The effective
+    date of the facility relies on the formal validation of these documents.
+  - '[[counterparty]] must review and approve all compliance certificates prior to
+    the initial drawdown request. Failure to fulfill these requirements within the
+    stipulated timeframe may result in the termination of the facility. No funds shall
+    be released prior to written confirmation of completion.'
+- heading: 4. Status of this Draft
+  paragraphs:
+  - This instrument is identified by document number [[document_no]] and carries the
+    version label [[version_label]]. It is published as of [[document_date]] and reflects
+    the current [[status_label]] of negotiations between all participants.
+  - Recipients must treat this material as confidential and proprietary to the involved
+    parties. No binding legal obligation is created until the final execution and
+    delivery of the definitive agreements. Further revisions may occur without prior
+    formal notice.

@@ -1,0 +1,32 @@
+doc_id: DOC-ANK-EPC-002
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Confirmation of Commercial Operation
+  paragraphs:
+  - This document certifies that the project named [[project_name]], developed by
+    [[spv_name]], has successfully achieved its commercial operation milestone on
+    [[cod_actual]]. All obligations pursuant to the agreement with [[counterparty]]
+    have been thoroughly fulfilled in accordance with the technical specifications.
+  - The facility, boasting a nominal capacity of [[capacity_mw]], has demonstrated
+    full operational readiness during the preliminary evaluation phase. Representatives
+    from [[parties_list]] have reviewed the operational parameters and confirmed compliance
+    with the stipulated regulatory and contractual frameworks.
+  - As of [[effective_date]], the asset is officially transferred to the operational
+    phase under the designation [[document_no]]. This status, classified as [[status_label]],
+    supersedes all previous interim notices and initiates the warranty period outlined
+    in the master agreement.
+- heading: 2. Acceptance Testing Summary
+  paragraphs:
+  - Comprehensive diagnostic evaluations were conducted under the supervision of authorized
+    inspectors to verify the structural and mechanical integrity of the installation.
+    The performance metrics recorded during the trial run consistently met or exceeded
+    the baseline expectations established in [[version_label]].
+  - The committee reviewed the final punch list items on [[document_date]], noting
+    that all minor deficiencies have been fully rectified by the contractor. Consequently,
+    the formal sign-off procedure has been successfully concluded without any outstanding
+    technical reservations.
+  - With the completion of these mandatory protocols, the facility is formally accepted
+    for continuous commercial dispatch. Further documentation regarding maintenance
+    schedules and operational guidelines will be distributed to [[counterparty]] in
+    due course.

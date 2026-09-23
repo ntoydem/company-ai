@@ -111,6 +111,10 @@ class Document(TimestampMixin, Base):
     # No FK yet: document_metadata_suggestions arrives in Phase 3.2.
     ai_suggestion_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, nullable=True)
     page_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # Truth-ledger document id (e.g. "DOC-ANK-FIN-004"), set only by the demo seed
+    # (Phase 3.1); the upload API never sets this. Idempotency key for `make seed` and
+    # the matching anchor for Phase 4.1's eval runner.
+    external_ref: Mapped[str | None] = mapped_column(String(64), nullable=True, unique=True)
 
     def __repr__(self) -> str:
         return f"Document(title={self.title!r}, ingestion_status={self.ingestion_status.value!r})"

@@ -25,6 +25,7 @@ class DocumentListItem(BaseModel):
     ingestion_status: IngestionStatus
     department: str | None
     project_id: UUID | None
+    external_ref: str | None
     created_at: datetime
 
 

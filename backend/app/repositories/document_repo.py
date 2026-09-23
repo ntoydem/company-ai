@@ -59,9 +59,20 @@ def create_with_job(
     effective_date: date | None = None,
     version: int = 1,
     supersedes_document_id: uuid.UUID | None = None,
+    department: str | None = None,
+    subdepartment: str | None = None,
+    project_id: uuid.UUID | None = None,
+    confidentiality: Confidentiality = Confidentiality.normal,
+    source: DocumentSource = DocumentSource.web,
+    related_document_ids: list[uuid.UUID] | None = None,
+    external_ref: str | None = None,
 ) -> Document:
     """Create `documents` + the initial `ingestion_jobs` row together — one is never
-    committed without the other (ADR-006)."""
+    committed without the other (ADR-006). The upload endpoint (Phase 0.2) only ever
+    passes the first block of keyword arguments; `department`/`project_id`/
+    `confidentiality`/`source`/`related_document_ids`/`external_ref` exist for the
+    Phase 3.1 demo seed (and, later, Phase 3.2's metadata-suggestion acceptance flow) —
+    the upload form still does not accept them."""
     document = Document(
         id=document_id,
         title=title,
@@ -73,8 +84,13 @@ def create_with_job(
         effective_date=effective_date,
         version=version,
         supersedes_document_id=supersedes_document_id,
-        source=DocumentSource.web,
-        confidentiality=Confidentiality.normal,
+        department=department,
+        subdepartment=subdepartment,
+        project_id=project_id,
+        source=source,
+        confidentiality=confidentiality,
+        related_document_ids=related_document_ids or [],
+        external_ref=external_ref,
         storage_path=storage_path,
         ingestion_status=IngestionStatus.uploaded,
         uploaded_by_id=uploaded_by_id,
@@ -84,6 +100,10 @@ def create_with_job(
     session.add(IngestionJob(document_id=document.id, status=IngestionJobStatus.queued))
     session.flush()
     return document
+
+
+def get_by_external_ref(session: Session, external_ref: str) -> Document | None:
+    return session.scalar(select(Document).where(Document.external_ref == external_ref))
 
 
 def get(session: Session, document_id: uuid.UUID) -> Document | None:

@@ -1,0 +1,30 @@
+doc_id: DOC-ANK-DEV-001
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Lisans Kapsamı
+  paragraphs:
+  - İşbu belge [[spv_name]] unvanlı tüzel kişiliğe verilmiş olup projeye ilişkin yasal
+    hakları düzenlemektedir. [[project_name]] sahasında yürütülecek faaliyetler [[document_date]]
+    tarihinde onaylanan hükümlere tabidir. Faaliyetlerin [[effective_date]] itibarıyla
+    geçerlilik kazandığı resmen ilan edilmiştir.
+  - İlgili mevzuat çerçevesinde [[counterparty]] kurumunun denetim yetkisi saklı tutulmuştur.
+    Belgeye ait [[document_no]] referansı tüm resmi yazışmalarda kullanılacaktır.
+    Süreç boyunca [[status_label]] statüsüne uygun hareket edilmesi zorunludur.
+- heading: Kapasite ve Teknik Bilgiler
+  paragraphs:
+  - Tesisin toplam kurulu gücü [[capacity_mw]] olarak resmi kayıtlara geçirilmiştir.
+    Üretim altyapısının [[licence_date]] tarihinde yapılan teknik incelemelere uygunluğu
+    onaylanmıştır. Şebeke bağlantı standartları [[version_label]] revizyon numaralı
+    teknik şartnamede belirtilmiştir.
+  - Sistem bileşenlerinin verimlilik oranları [[parties_list]] tarafından sağlanan
+    raporlarla periyodik olarak denetlenecektir. Teknik ekipman değişiklikleri önceden
+    bildirilmek zorundadır.
+- heading: Yükümlülükler
+  paragraphs:
+  - Şirket, [[title]] pozisyonunda görevli yetkililer aracılığıyla tüm yasal sorumlulukları
+    yerine getirmekle yükümlüdür. Çevresel etki değerlendirme raporunda taahhüt edilen
+    hususlara harfiyen uyulması gerekmektedir. Denetimler sırasında gerekli kolaylığın
+    sağlanması esastır.
+  - Mücbir sebepler dışında faaliyetlerin aksatılması yasaktır. İhlal durumunda ilgili
+    mevzuat hükümleri uygulanacaktır.

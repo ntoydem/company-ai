@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% import "blocks.html" as b %}
+{% block content %}
+{{ b.cover(facts, subtitle, banner_lines) }}
+{% if revision_rows %}
+<section class="doc-page">
+  <div class="watermark">DEMO</div>
+  {{ b.revision_history(revision_rows, facts.language) }}
+</section>
+{% endif %}
+{% for section in sections %}
+<section class="doc-page">
+  <div class="watermark">DEMO</div>
+  <h2 class="section-title">{{ section.heading }}</h2>
+  {% for paragraph in section.paragraphs %}
+  <p>{{ paragraph }}</p>
+  {% endfor %}
+  {% if section.table %}
+  {{ b.data_table(section.table.columns, section.table.rows) }}
+  {% endif %}
+</section>
+{% endfor %}
+<section class="doc-page">
+  <div class="watermark">DEMO</div>
+  <h2 class="section-title">{{ 'İmzalar' if facts.language == 'tr' else 'Signatures' }}</h2>
+  {{ b.signature_block(signature_roles) }}
+</section>
+{% endblock %}
