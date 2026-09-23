@@ -17,7 +17,8 @@ from sqlalchemy.orm import Session
 
 from app.core.config import Settings
 from app.models.user import User
-from app.services.answer_prompt import NO_ANSWER_TEXT
+from app.services.answer_prompt import NO_ANSWER_TEXT, NO_REASON_TEXT
+from app.services.search_query import turkish_lower
 from tests.ledger_fixtures import ledger_value, load_ledger_documents
 
 pytestmark = pytest.mark.live_llm
@@ -26,6 +27,7 @@ _TURKISH_CHARS = re.compile(r"[çğıöşüÇĞİÖŞÜ]")
 _ENGLISH_WORDS = re.compile(r"\b(the|is|are|was|were|shall)\b")
 
 _FACILITY_REF, _AMENDMENT_REF = "DOC-ANK-FIN-004", "DOC-ANK-FIN-005"
+_LICENCE_REF, _LICENCE_AMENDMENT_REF = "DOC-ANK-DEV-001", "DOC-ANK-DEV-002"
 
 
 @pytest.fixture(autouse=True)
@@ -59,14 +61,29 @@ def _assert_turkish(answer: str) -> None:
     assert not _ENGLISH_WORDS.search(answer.lower()), answer
 
 
-def _ratio_aliases(value: float) -> tuple[str, str]:
-    comma = f"{value:.2f}".rstrip("0").rstrip(".").replace(".", ",")
-    dot = f"{value:.2f}".rstrip("0").rstrip(".")
-    return f"{comma}x", f"{dot}x"
+def _ratio_aliases(value: float) -> tuple[str, str, str, str]:
+    """Both the exact 2-decimal form `_format_ratio()` actually renders into the source
+    document ("1,20x" — never stripped, see `seed_data/generator/facts.py`) and a
+    trailing-zero-stripped form ("1,2x"), in case the model normalizes it despite rule 7
+    asking it to keep the source's own formatting."""
+    exact = f"{value:.2f}"
+    stripped = exact.rstrip("0").rstrip(".")
+    return (
+        f"{exact.replace('.', ',')}x",
+        f"{exact}x",
+        f"{stripped.replace('.', ',')}x",
+        f"{stripped}x",
+    )
 
 
 def _value_in(answer: str, *aliases: str) -> bool:
     return any(alias in answer for alias in aliases)
+
+
+def _number_aliases(value: float, unit: str) -> tuple[str, str]:
+    text = str(int(value)) if float(value).is_integer() else f"{value:.1f}"
+    comma = text.replace(".", ",")
+    return f"{text} {unit}", f"{comma} {unit}"
 
 
 def test_current_dscr_is_amendment(
@@ -122,3 +139,56 @@ def test_izmir_cod_no_answer(client: TestClient, db_session: Session, admin_user
     assert body["answered"] is False
     assert body["answer"] == NO_ANSWER_TEXT
     assert body["sources"] == []
+
+
+def test_current_tenor_vs_initial_facility_tenor_differ(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    """Phase 3.2 kabul kriteri: "güncel X" ↔ "ilk X" farklı ve doğru — T1 doğrulaması
+    (docs/plans/PHASE_3_2_PLAN.md): ADR-021'in genel zincir mekanizması, DSCR dışında,
+    aynı Facility zincirindeki başka bir alanda (vade/tenor) da doğru çalışıyor. Not:
+    Licence → Licence Amendment 01 çifti bu doğrulama için kullanılamıyor — o iki belge
+    kasıtlı olarak `supersedes` değil `related_document_ids` ile bağlı
+    (`test_licence_amendment_is_related_not_superseding`, Phase 3.1), yani chain tabanlı
+    GÜNCEL/İLK HALKA ayrımına hiç girmiyor; bu Facility zinciri (gerçek `supersedes`
+    ilişkisi) bu yüzden tercih edildi."""
+    load_ledger_documents(db_session, [_FACILITY_REF, _AMENDMENT_REF])
+    initial = ledger_value("ankara_res.project.finance.tenor_years.initial.value")
+    current = ledger_value("ankara_res.project.finance.tenor_years.current.value")
+    assert initial != current
+
+    current_body = _ask(client, "Ankara RES Facility Agreement'ının güncel vadesi kaç yıldır?")
+    initial_body = _ask(client, "Ankara RES Facility Agreement'ının ilk vadesi kaç yıldı?")
+
+    assert current_body["answered"] is True and initial_body["answered"] is True
+    current_answer = str(current_body["answer"])
+    initial_answer = str(initial_body["answer"])
+    assert _value_in(
+        current_answer, *_number_aliases(current, "yıl"), *_number_aliases(current, "years")
+    )
+    assert _value_in(
+        initial_answer, *_number_aliases(initial, "yıl"), *_number_aliases(initial, "years")
+    )
+    assert current_answer != initial_answer
+    _assert_turkish(current_answer)
+    _assert_turkish(initial_answer)
+
+
+def test_why_question_without_stated_reason_returns_fixed_text(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    """Phase 3.2 kabul kriteri: "EBITDA neden düştü?" → yalnızca belgede yazan sebep veya
+    "belirtilmemiş" (kural 6) — T2 doğrulaması: Facility Agreement Amendment 01'in metni
+    DSCR/vade değerlerini *değiştirir* ama *neden* değiştirdiğini hiç açıklamaz (bkz.
+    prose/DOC-ANK-FIN-005.yaml — yalnızca "the parties hereby agree to modify..." der,
+    gerekçe içermez); bu yüzden gerçek bir "neden?" sorusu sabit metni dönmeli. (Not:
+    DOC-ANK-DEV-002/Licence Amendment 01'in kendi "Tadil Gerekçesi" bölümü *vardır* — o
+    belge için aynı soru doğru şekilde o bölümü aktarır, "belirtilmemiş" demez; kural 6
+    her iki dalı da doğru uyguluyor, bu test yalnızca "sebepsiz" dalı kanıtlıyor.)"""
+    load_ledger_documents(db_session, [_FACILITY_REF, _AMENDMENT_REF])
+    body = _ask(client, "Ankara RES'in güncel minimum DSCR covenant'ı neden değiştirildi?")
+    answer = str(body["answer"])
+    assert body["answered"] is True, "kaynak bulundu, yalnızca sebep belirtilmemiş olmalı"
+    # Case-insensitive: a sentence-initial "Belgelerde..." is expected, not a mismatch.
+    assert NO_REASON_TEXT in turkish_lower(answer)
+    _assert_turkish(answer)

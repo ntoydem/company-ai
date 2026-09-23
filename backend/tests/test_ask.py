@@ -6,7 +6,6 @@ from __future__ import annotations
 import logging
 import re
 import uuid
-from collections.abc import Iterator
 from datetime import date
 
 import pytest
@@ -28,16 +27,6 @@ from tests.fakes import FakeLLMClient
 from tests.ledger_fixtures import ensure_generated_documents, load_ledger_documents
 
 SENTINEL = "SENTINEL-GIZLI-HUKUK-METNI"
-
-
-@pytest.fixture
-def fake_llm() -> Iterator[FakeLLMClient]:
-    fake = FakeLLMClient()
-    app.dependency_overrides[get_llm_client] = lambda: fake
-    try:
-        yield fake
-    finally:
-        app.dependency_overrides.pop(get_llm_client, None)
 
 
 def _document(

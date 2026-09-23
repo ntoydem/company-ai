@@ -48,7 +48,7 @@ User ──< AuditLog
 |---|---|---|
 | `user_role` | `admin`, `management`, `employee` | permission tiers (SPEC_02 §5) |
 | `confidentiality` | `normal`, `restricted`, `board` | `employee` sees only `normal` of own departments |
-| `document_status` | `draft`, `executed`, `amended`, `superseded`, `active` | lifecycle of a document, not of the project |
+| `document_status` | `draft`, `executed`, `amended`, `superseded`, `active` | lifecycle of a document, not of the project. `superseded` is set automatically (`mark_superseded`, Phase 3.2) when another document's `supersedes_document_id` points at it; `active` is left alone (operational, not lifecycle) |
 | `ingestion_status` | `uploaded`, `ocr`, `ready`, `failed` | pipeline state |
 | `ingestion_job_status` | `queued`, `running`, `done`, `failed` | queue state |
 | `project_stage` | `development`, `construction`, `operation` | |

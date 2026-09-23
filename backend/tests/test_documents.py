@@ -1,4 +1,5 @@
 import io
+import json
 import uuid
 from datetime import date
 
@@ -7,11 +8,15 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
-from app.models.document import Confidentiality, Document
+from app.models.document import Confidentiality, Document, IngestionStatus
+from app.models.document_metadata_suggestion import DocumentMetadataSuggestion, SuggestionStatus
 from app.models.ingestion_job import IngestionJob, IngestionJobStatus
+from app.models.project import Project
 from app.models.user import User
+from app.repositories import document_metadata_suggestion_repo
 from app.services.document_store import LocalFileSystemStore
 from tests.department_fixtures import add_user_to_department, make_department
+from tests.fakes import FakeLLMClient
 
 FAKE_PDF = b"%PDF-1.4\n%fake-pdf-for-tests\n1 0 obj\n<< >>\nendobj\ntrailer\n<< >>\n%%EOF"
 
@@ -22,8 +27,9 @@ def _document(
     department: str | None = None,
     confidentiality: Confidentiality = Confidentiality.normal,
 ) -> Document:
-    """A `Document` row created directly (not via `/upload`, which doesn't accept
-    `department`/`confidentiality` in this phase — SORU 5, PHASE_1_2_PLAN.md)."""
+    """A `Document` row created directly — shorter than a real `/upload` call for tests
+    that only care about authorization, not the upload endpoint itself (`/upload` accepts
+    `department`/`confidentiality` too since Phase 3.2, see `_upload`)."""
     document = Document(
         title="t",
         document_type="dt",
@@ -102,7 +108,7 @@ def test_upload_creates_document_and_job_row(
     assert document is not None
     assert document.title == "Facility Agreement"
     assert document.uploaded_by_id == admin_user.id
-    # Defaults per PHASES.md Phase 0.2 scope: not accepted from the client yet.
+    # Not sent in this particular request — `department`/`project_id` stay their defaults.
     assert document.department is None
     assert document.project_id is None
     assert document.confidentiality.value == "normal"
@@ -189,7 +195,7 @@ def test_upload_with_supersedes_links_the_chain(
     assert amendment.supersedes_document_id == facility_id
     assert amendment.effective_date == date(2025, 3, 15)
     assert facility.superseded_by_document_id == amendment.id
-    assert facility.status.value == "executed"  # unchanged (Phase 0.3 decision)
+    assert facility.status.value == "superseded"  # Phase 3.2: mark_superseded now transitions this
 
 
 def test_upload_supersedes_already_superseded_is_409(client: TestClient, admin_user: User) -> None:
@@ -207,6 +213,257 @@ def test_upload_supersedes_unknown_document_is_404(client: TestClient, admin_use
 
 def test_upload_version_must_be_positive(client: TestClient, admin_user: User) -> None:
     assert _upload(client, version="0").status_code == 422
+
+
+# --- Phase 3.2: upload form's department/project/confidentiality, AI metadata suggestion ---
+
+
+def _classify_json(**overrides: object) -> str:
+    fields = {
+        "department": {"value": None, "confidence": 0.0},
+        "subdepartment": {"value": None, "confidence": 0.0},
+        "project_code": {"value": None, "confidence": 0.0},
+        "document_type": {"value": "facility_agreement", "confidence": 0.8},
+        "counterparty": {"value": "PQR Bank", "confidence": 0.8},
+        "document_date": {"value": "2023-06-01", "confidence": 0.8},
+        "status": {"value": "executed", "confidence": 0.8},
+        "confidentiality": {"value": "normal", "confidence": 0.8},
+        "tags": {"value": ["facility"], "confidence": 0.6},
+    }
+    fields.update(overrides)
+    return json.dumps(fields)
+
+
+def _make_project(session: Session, *, code: str = "ANK_RES") -> Project:
+    project = Project(name=code, code=code)
+    session.add(project)
+    session.commit()
+    return project
+
+
+def test_upload_with_department_project_and_confidentiality(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    make_department(db_session, slug="finans")
+    project = _make_project(db_session)
+
+    response = _upload(
+        client,
+        department="finans",
+        subdepartment="Muhasebe",
+        project_id=str(project.id),
+        confidentiality="restricted",
+    )
+
+    assert response.status_code == 201
+    document = db_session.get(Document, uuid.UUID(response.json()["id"]))
+    assert document is not None
+    assert document.department == "finans"
+    assert document.subdepartment == "Muhasebe"
+    assert document.project_id == project.id
+    assert document.confidentiality == Confidentiality.restricted
+
+
+def test_upload_unknown_department_returns_422(client: TestClient, admin_user: User) -> None:
+    response = _upload(client, department="hayali_departman")
+    assert response.status_code == 422
+
+
+def test_upload_unknown_project_id_returns_404(client: TestClient, admin_user: User) -> None:
+    response = _upload(client, project_id=str(uuid.uuid4()))
+    assert response.status_code == 404
+
+
+def test_suggest_metadata_requires_admin(
+    client: TestClient, db_session: Session, employee_user: User, fake_llm: FakeLLMClient
+) -> None:
+    document = _document(db_session)
+    response = client.post(f"/api/documents/{document.id}/suggest-metadata")
+    assert response.status_code == 403
+
+
+def test_suggest_metadata_requires_ready_ingestion(
+    client: TestClient, db_session: Session, admin_user: User, fake_llm: FakeLLMClient
+) -> None:
+    document = _document(db_session)  # ingestion_status defaults to "uploaded"
+    response = client.post(f"/api/documents/{document.id}/suggest-metadata")
+    assert response.status_code == 409
+    assert fake_llm.requests == []
+
+
+def test_suggest_metadata_creates_suggestion_with_fields_and_confidence(
+    client: TestClient, db_session: Session, admin_user: User, fake_llm: FakeLLMClient
+) -> None:
+    document = _document(db_session)
+    document.ingestion_status = IngestionStatus.ready
+    db_session.commit()
+    fake_llm.replies = [_classify_json(department={"value": None, "confidence": 0.0})]
+
+    response = client.post(f"/api/documents/{document.id}/suggest-metadata")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "pending"
+    assert body["fields"]["document_type"] == {"value": "facility_agreement", "confidence": 0.8}
+    assert body["document_id"] == str(document.id)
+
+
+def test_suggest_metadata_is_idempotent_while_pending(
+    client: TestClient, db_session: Session, admin_user: User, fake_llm: FakeLLMClient
+) -> None:
+    document = _document(db_session)
+    document.ingestion_status = IngestionStatus.ready
+    db_session.commit()
+    fake_llm.replies = [_classify_json()]
+
+    first = client.post(f"/api/documents/{document.id}/suggest-metadata")
+    second = client.post(f"/api/documents/{document.id}/suggest-metadata")
+
+    assert first.status_code == second.status_code == 200
+    assert first.json()["id"] == second.json()["id"]
+    assert len(fake_llm.requests) == 1  # not reclassified — still `pending`
+
+
+def test_suggest_metadata_regenerates_after_rejection(
+    client: TestClient, db_session: Session, admin_user: User, fake_llm: FakeLLMClient
+) -> None:
+    document = _document(db_session)
+    document.ingestion_status = IngestionStatus.ready
+    db_session.commit()
+    fake_llm.replies = [_classify_json(), _classify_json()]
+
+    client.post(f"/api/documents/{document.id}/suggest-metadata")
+    client.post(f"/api/documents/{document.id}/metadata-suggestion/reject")
+    client.post(f"/api/documents/{document.id}/suggest-metadata")
+
+    assert len(fake_llm.requests) == 2
+
+
+def test_get_metadata_suggestion_404_when_none(client: TestClient, admin_user: User) -> None:
+    document_id = _upload(client).json()["id"]
+    response = client.get(f"/api/documents/{document_id}/metadata-suggestion")
+    assert response.status_code == 404
+
+
+def test_get_metadata_suggestion_visible_to_non_admin_with_document_access(
+    client: TestClient, db_session: Session, employee_user: User, fake_llm: FakeLLMClient
+) -> None:
+    """Viewing a suggestion is not admin-only — only accepting/rejecting one is
+    (SORU 2, docs/plans/PHASE_3_2_PLAN.md)."""
+    finans = make_department(db_session, slug="finans")
+    add_user_to_department(db_session, employee_user, finans)
+    document = _document(db_session, department="finans")
+    document.ingestion_status = IngestionStatus.ready
+    document_metadata_suggestion = _seed_suggestion(db_session, document.id)
+
+    response = client.get(f"/api/documents/{document.id}/metadata-suggestion")
+
+    assert response.status_code == 200
+    assert response.json()["id"] == str(document_metadata_suggestion.id)
+
+
+def _seed_suggestion(session: Session, document_id: uuid.UUID) -> DocumentMetadataSuggestion:
+    suggestion = document_metadata_suggestion_repo.upsert(
+        session,
+        document_id=document_id,
+        model="fake-model",
+        status=SuggestionStatus.pending,
+        fields={"department": {"value": "finans", "confidence": 0.9}},
+    )
+    session.commit()
+    return suggestion
+
+
+def test_apply_metadata_suggestion_requires_admin(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    document = _document(db_session)
+    _seed_suggestion(db_session, document.id)
+    response = client.post(
+        f"/api/documents/{document.id}/metadata-suggestion/apply", json={"department": "finans"}
+    )
+    assert response.status_code == 403
+
+
+def test_apply_metadata_suggestion_writes_only_given_fields(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    make_department(db_session, slug="finans")
+    document = _document(db_session)
+    original_type = document.document_type
+    _seed_suggestion(db_session, document.id)
+
+    response = client.post(
+        f"/api/documents/{document.id}/metadata-suggestion/apply",
+        json={"department": "finans", "confidentiality": "restricted"},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["department"] == "finans"
+    db_session.refresh(document)
+    assert document.confidentiality == Confidentiality.restricted
+    assert document.document_type == original_type  # untouched — not in the request body
+
+
+def test_apply_metadata_suggestion_unknown_department_returns_422(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    document = _document(db_session)
+    _seed_suggestion(db_session, document.id)
+    response = client.post(
+        f"/api/documents/{document.id}/metadata-suggestion/apply",
+        json={"department": "hayali_departman"},
+    )
+    assert response.status_code == 422
+
+
+def test_apply_metadata_suggestion_unknown_project_code_returns_404(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    document = _document(db_session)
+    _seed_suggestion(db_session, document.id)
+    response = client.post(
+        f"/api/documents/{document.id}/metadata-suggestion/apply",
+        json={"project_code": "HAYALI_PRJ"},
+    )
+    assert response.status_code == 404
+
+
+def test_apply_metadata_suggestion_null_mandatory_field_returns_422(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    document = _document(db_session)
+    _seed_suggestion(db_session, document.id)
+    response = client.post(
+        f"/api/documents/{document.id}/metadata-suggestion/apply",
+        json={"confidentiality": None},
+    )
+    assert response.status_code == 422
+
+
+def test_reject_metadata_suggestion_requires_admin(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    document = _document(db_session)
+    _seed_suggestion(db_session, document.id)
+    response = client.post(f"/api/documents/{document.id}/metadata-suggestion/reject")
+    assert response.status_code == 403
+
+
+def test_reject_metadata_suggestion_marks_rejected_and_leaves_document_untouched(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    document = _document(db_session)
+    original_department = document.department
+    _seed_suggestion(db_session, document.id)
+
+    response = client.post(f"/api/documents/{document.id}/metadata-suggestion/reject")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "rejected"
+    db_session.refresh(document)
+    assert document.department == original_department
 
 
 # --- Phase 1.2: role + department membership + confidentiality rules (SPEC_02 §5) ---

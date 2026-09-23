@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import Literal, Protocol
 
 ReasoningEffort = Literal["minimal", "low", "medium", "high"]
+ResponseFormat = Literal["text", "json_object"]
 
 
 @dataclass(frozen=True)
@@ -19,6 +20,10 @@ class LLMRequest:
     max_output_tokens: int
     temperature: float = 0.0
     reasoning_effort: ReasoningEffort = "low"
+    # "json_object" (Phase 3.2, metadata classification): the provider is asked to return
+    # a single JSON object. "/api/ask" never sets this — plain text + [K#] labels stay
+    # simpler to parse and don't need escaping for Turkish text (ADR-021).
+    response_format: ResponseFormat = "text"
 
 
 @dataclass(frozen=True)

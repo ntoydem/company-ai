@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.models.document import Confidentiality, Document, DocumentSource, IngestionStatus
 from app.models.document import DocumentStatus as DocStatus
+from app.models.document_page import DocumentPage
 from app.models.ingestion_job import IngestionJob, IngestionJobStatus
 from app.schemas.authorization import AuthorizationScope
 
@@ -106,6 +107,40 @@ def get_by_external_ref(session: Session, external_ref: str) -> Document | None:
     return session.scalar(select(Document).where(Document.external_ref == external_ref))
 
 
+def list_ids_pending_suggestion(session: Session, *, limit: int) -> list[uuid.UUID]:
+    """`ready` documents with no suggestion attempt yet (`ai_suggestion_id IS NULL`),
+    oldest first (Phase 3.2 metadata-suggestion queue)."""
+    stmt = (
+        select(Document.id)
+        .where(Document.ingestion_status == IngestionStatus.ready)
+        .where(Document.ai_suggestion_id.is_(None))
+        .order_by(Document.created_at)
+        .limit(limit)
+    )
+    return list(session.scalars(stmt).all())
+
+
+def apply_partial_update(session: Session, document: Document, updates: dict[str, object]) -> None:
+    """Writes exactly the given attribute/value pairs to `document` (Phase 3.2 metadata
+    suggestion apply). Validation of each value (department slug, project existence, …)
+    is the caller's job — this function trusts what it is given."""
+    for attribute, value in updates.items():
+        setattr(document, attribute, value)
+    session.flush()
+
+
+def get_leading_page_text(session: Session, document_id: uuid.UUID, *, max_pages: int) -> str:
+    """The first `max_pages` pages' text, joined — enough for cover/summary content
+    without sending an entire document to the classifier (Phase 3.2)."""
+    stmt = (
+        select(DocumentPage.text)
+        .where(DocumentPage.document_id == document_id)
+        .order_by(DocumentPage.page_number)
+        .limit(max_pages)
+    )
+    return "\n\n".join(session.scalars(stmt).all())
+
+
 def get(session: Session, document_id: uuid.UUID) -> Document | None:
     return session.get(Document, document_id)
 
@@ -144,8 +179,14 @@ def load_with_chains(
     return list(loaded.values())
 
 
+_SUPERSEDABLE_STATUSES = frozenset({DocStatus.draft, DocStatus.executed, DocStatus.amended})
+
+
 def mark_superseded(session: Session, *, older: Document, newer: Document) -> None:
-    """Close the chain link: `older` is now superseded by `newer`. `older.status` is left
-    untouched (Phase 0.3 decision; status transitions belong to Phase 3.2)."""
+    """Close the chain link: `older` is now superseded by `newer` (Phase 3.2). `older.status`
+    moves to `superseded` unless it is already `superseded` or `active` — `active` is an
+    operational (not lifecycle) state and is left to whatever process manages it."""
     older.superseded_by_document_id = newer.id
+    if older.status in _SUPERSEDABLE_STATUSES:
+        older.status = DocStatus.superseded
     session.flush()

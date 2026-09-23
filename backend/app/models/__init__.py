@@ -10,6 +10,7 @@ from app.models.document import (
     IngestionStatus,
 )
 from app.models.document_chunk import DocumentChunk
+from app.models.document_metadata_suggestion import DocumentMetadataSuggestion, SuggestionStatus
 from app.models.document_page import DocumentPage
 from app.models.ingestion_job import IngestionJob, IngestionJobStatus
 from app.models.project import Project, ProjectStage
@@ -23,6 +24,7 @@ __all__ = [
     "Department",
     "Document",
     "DocumentChunk",
+    "DocumentMetadataSuggestion",
     "DocumentPage",
     "DocumentSource",
     "DocumentStatus",
@@ -32,6 +34,7 @@ __all__ = [
     "Project",
     "ProjectDepartment",
     "ProjectStage",
+    "SuggestionStatus",
     "User",
     "UserDepartment",
     "UserRole",

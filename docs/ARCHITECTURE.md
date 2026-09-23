@@ -47,11 +47,12 @@ Status values: `accepted` | `superseded by ADR-xxx`. Phase column = when the dec
 - Rationale: swapping storage must not touch services, authorization or retrieval.
 
 ## ADR-006 — Ingestion pipeline and the `ingestion_jobs` queue
-**Status:** accepted · **Phase:** 0.2
+**Status:** accepted · **Phase:** 0.2 (pipeline) · 3.2 (metadata suggestion)
 - Pipeline: upload → `documents(ingestion_status=uploaded)` + job row → `ocr-worker` (ocrmypdf `--language tur+eng --skip-text --rotate-pages --deskew`; png/jpg converted to PDF first) → page text with PyMuPDF → `document_pages` → chunking → `document_chunks` (+FTS, +vector when enabled) → `ready`.
 - The queue is a Postgres table: `ingestion_jobs(status queued|running|done|failed, attempts, error, locked_at, ...)`; the worker polls with `SELECT … FOR UPDATE SKIP LOCKED`, max 3 attempts, then `failed` with a Turkish reason on the document.
 - No Redis/Valkey/Celery: one extra container and one table are enough at this scale, and the queue is backed up with the database.
 - LLM metadata suggestion (Phase 3.2) runs after `ready`; its failure never fails the upload.
+- **Phase 3.2 concretization:** `ingestion_jobs` stays OCR-only (no `job_type` column, YAGNI) — the metadata-suggestion queue is a plain SQL predicate (`ingestion_status=ready AND ai_suggestion_id IS NULL`), not a second job table. Two entry points share `app/services/metadata_suggestion.py::suggest_metadata()`: an admin-only `POST /api/documents/{id}/suggest-metadata` (idempotent while `pending`/`applied`; explicit retry after `failed`/`rejected`) and an in-process `asyncio` background scan (`app/main.py` lifespan, `metadata_suggestion_poll_interval_s`/`_batch_size`) that never starts against a `_test` database, so `make test` never calls the LLM through this path. `document_metadata_suggestions.document_id` is unique (one row per document, overwritten on retry — no suggestion history in V0). `documents.ai_suggestion_id` deliberately carries **no FK** to it: a real one would cycle with that table's own FK back to `documents.id` (SQLAlchemy cannot topologically sort the pair); it is kept in sync by the service only, used purely as an existence flag.
 
 ## ADR-007 — Retrieval: full-text + metadata first, embeddings behind a flag
 **Status:** accepted · **Phase:** 0.2 (FTS) · 3.4 (hybrid)
@@ -75,6 +76,7 @@ Status values: `accepted` | `superseded by ADR-xxx`. Phase column = when the dec
 - The LLM receives only allowed chunks (ADR-004), never does arithmetic (ADR-011), and cannot execute code.
 - No LangChain/LlamaIndex: prompts and retrieval are explicit and testable.
 - Phase 0.3 decision: `AnthropicClient` is deferred; `LLM_PROVIDER=anthropic` raises a clear "not configured" error until the Phase 4.3 model decision point. Vendor errors are mapped to an `LLMError` hierarchy; the API answers 503 with a fixed Turkish message and never exposes provider detail.
+- **Phase 3.2 concretization:** `LLMRequest` gained an optional `response_format: "text" | "json_object"` (default `"text"`, unchanged for `/api/ask`); `OpenAICompatibleClient` passes it through as the OpenAI-typed `ResponseFormatJSONObject` param, omitted (`openai.Omit()`) rather than sent for the default case. Metadata classification (`metadata_suggestion.py`) is the only caller that sets `"json_object"`.
 
 ## ADR-010 — Question router
 **Status:** accepted · **Phase:** 4.3 (simple version in 0.3 answers DOCUMENT only)
@@ -97,6 +99,7 @@ Status values: `accepted` | `superseded by ADR-xxx`. Phase column = when the dec
 - "Current" = last link of the `supersedes` chain effective on `DEMO_TODAY`; "initial/historical" = the specific earlier document. Both are correct answers to different questions; answers name the change ("changed by Amendment 01 from X").
 - `DEMO_TODAY` (env, ISO date) replaces the wall clock for every "current / which operating year" computation.
 - Timestamps stored as `timestamptz` (UTC); displayed in `Europe/Istanbul`, `DD.MM.YYYY`.
+- **Phase 3.2 concretization:** `document_repo.mark_superseded()` now also transitions `older.status` to `superseded` (from `draft`/`executed`/`amended`; left untouched if already `superseded` or `active` — `active` is an operational, not lifecycle, state). The chain-evaluation code itself (`version_chain.py`/`answer_prompt.py`) needed no change — it was already general, not DSCR-specific, since Phase 0.3; this phase's own `test_current_tenor_vs_initial_facility_tenor_differ` (a non-DSCR field on the same real Facility chain) is the first automated proof of that generality. Licence → Licence Amendment 01 cannot exercise this mechanism at all: that pair is deliberately linked via `related_document_ids`, not `supersedes` (Phase 3.1), so it never carries a GÜNCEL/İLK HALKA distinction — a real gap between SPEC_02 §11's illustrative example and Phase 3.1's own document-relationship modelling, left for Phase 4.1/5.1 to reconcile (either re-model the pair as a chain, or drop the illustrative example).
 
 ## ADR-013 — Synthetic truth model
 **Status:** accepted · **Phase:** 2.1, 3.1
@@ -113,6 +116,7 @@ Status values: `accepted` | `superseded by ADR-xxx`. Phase column = when the dec
 - Fixed strings: no source → "Mevcut şirket kaynaklarında bu soruyu güvenilir şekilde cevaplamak için yeterli bilgi bulamadım."; "why?" without a stated reason in the documents → "belgelerde sebep belirtilmemiş".
 - The answer UI states briefly that answers contain no interpretation.
 - Rationale: trust is built on verifiable relay before any reasoning feature is considered.
+- **Phase 3.2 concretization:** live testing surfaced a real ambiguity between this rule and rule 2 ("kaynaklar yetmiyorsa" → the no-source sentence) — a model asked "neden değiştirildi?" about a fact that *is* in the sources (only the cause isn't) sometimes fell back to the generic no-source sentence instead of "belgelerde sebep belirtilmemiş". `answer_prompt.py`'s rule 6 now explicitly says which sentence wins when the topic itself is present but its cause isn't; `backend/tests/live/test_ledger_live.py::test_why_question_without_stated_reason_returns_fixed_text` is the regression test (`make test-llm`).
 
 ## ADR-015 — Security boundaries
 **Status:** accepted · **Phase:** 0.1 onward

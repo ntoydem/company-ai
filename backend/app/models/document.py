@@ -108,7 +108,12 @@ class Document(TimestampMixin, Base):
     uploaded_by_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
-    # No FK yet: document_metadata_suggestions arrives in Phase 3.2.
+    # Deliberately FK-less (Phase 3.2, 0005_document_metadata_suggestions): a real FK to
+    # `document_metadata_suggestions.id` would cycle with that table's own
+    # `document_id -> documents.id` FK. Kept in sync only by
+    # `app/services/metadata_suggestion.py`, used purely as an existence flag
+    # ("has this document had a suggestion attempt yet") — actual lookups always go
+    # through `document_metadata_suggestions.document_id`, never through this column.
     ai_suggestion_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, nullable=True)
     page_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
     # Truth-ledger document id (e.g. "DOC-ANK-FIN-004"), set only by the demo seed

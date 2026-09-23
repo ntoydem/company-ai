@@ -12,8 +12,10 @@ from datetime import date
 
 from sqlalchemy.orm import Session
 
-from app.models.document import Confidentiality, Document
+from app.models.document import Confidentiality, Document, DocumentStatus, IngestionStatus
+from app.models.document_page import DocumentPage
 from app.models.project import Project
+from app.repositories import document_repo
 from app.repositories.document_repo import SqlDocumentIdsProvider
 from app.schemas.authorization import AuthorizationScope
 
@@ -124,3 +126,74 @@ def test_list_document_ids_for_departments_with_none_slugs_covers_every_departme
     )
 
     assert {a.id, b.id} <= result
+
+
+# --- Phase 3.2: mark_superseded status transition, metadata-suggestion queue/apply ---
+
+
+def test_mark_superseded_transitions_lifecycle_statuses_to_superseded(db_session: Session) -> None:
+    for status in (DocumentStatus.draft, DocumentStatus.executed, DocumentStatus.amended):
+        older = _make_document(db_session)
+        older.status = status
+        newer = _make_document(db_session)
+        db_session.commit()
+
+        document_repo.mark_superseded(db_session, older=older, newer=newer)
+
+        assert older.status == DocumentStatus.superseded
+        assert older.superseded_by_document_id == newer.id
+
+
+def test_mark_superseded_leaves_active_status_untouched(db_session: Session) -> None:
+    """`active` is an operational, not lifecycle, state (docs/plans/PHASE_3_2_PLAN.md §6) —
+    a document being superseded on paper doesn't stop being operationally active."""
+    older = _make_document(db_session)
+    older.status = DocumentStatus.active
+    newer = _make_document(db_session)
+    db_session.commit()
+
+    document_repo.mark_superseded(db_session, older=older, newer=newer)
+
+    assert older.status == DocumentStatus.active
+    assert older.superseded_by_document_id == newer.id
+
+
+def test_list_ids_pending_suggestion_only_returns_ready_without_suggestion(
+    db_session: Session,
+) -> None:
+    ready_without_suggestion = _make_document(db_session)
+    ready_without_suggestion.ingestion_status = IngestionStatus.ready
+    ready_with_suggestion = _make_document(db_session)
+    ready_with_suggestion.ingestion_status = IngestionStatus.ready
+    ready_with_suggestion.ai_suggestion_id = uuid.uuid4()
+    not_ready = _make_document(db_session)
+    db_session.commit()
+
+    result = document_repo.list_ids_pending_suggestion(db_session, limit=10)
+
+    assert ready_without_suggestion.id in result
+    assert ready_with_suggestion.id not in result
+    assert not_ready.id not in result
+
+
+def test_get_leading_page_text_joins_first_n_pages_in_order(db_session: Session) -> None:
+    document = _make_document(db_session)
+    db_session.flush()
+    for page_number, text in ((1, "birinci sayfa"), (2, "ikinci sayfa"), (3, "üçüncü sayfa")):
+        db_session.add(DocumentPage(document_id=document.id, page_number=page_number, text=text))
+    db_session.commit()
+
+    result = document_repo.get_leading_page_text(db_session, document.id, max_pages=2)
+
+    assert result == "birinci sayfa\n\nikinci sayfa"
+
+
+def test_apply_partial_update_writes_only_given_fields(db_session: Session) -> None:
+    document = _make_document(db_session, department="finans")
+    db_session.commit()
+    original_title = document.title
+
+    document_repo.apply_partial_update(db_session, document, {"department": "hukuk"})
+
+    assert document.department == "hukuk"
+    assert document.title == original_title

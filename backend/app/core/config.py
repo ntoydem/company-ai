@@ -52,6 +52,12 @@ class Settings(BaseSettings):
     max_upload_size_mb: int = 50
     retrieval_top_k: int = 20
 
+    # Phase 3.2: background metadata-suggestion scan (app/main.py lifespan). Never runs
+    # against a `_test` database (see `_background_enabled` there) — `make test` never
+    # calls the LLM through this path.
+    metadata_suggestion_poll_interval_s: int = 15
+    metadata_suggestion_batch_size: int = 5
+
     @property
     def documents_dir(self) -> Path:
         return self.app_data_dir / "documents"

@@ -11,7 +11,7 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 
 from app.api import deps as deps_module
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, get_llm_client
 from app.core.config import Settings, get_settings
 from app.core.db import get_engine, get_session_factory
 from app.main import app
@@ -20,6 +20,7 @@ from app.models.user import User, UserRole
 from app.repositories import user_repo
 from app.services.admin_seed import ensure_admin_user
 from app.services.security import hash_password
+from tests.fakes import FakeLLMClient
 
 
 def alembic_config() -> Config:
@@ -67,6 +68,18 @@ def db_session() -> Iterator[Session]:
 def client() -> Iterator[TestClient]:
     with TestClient(app) as test_client:
         yield test_client
+
+
+@pytest.fixture
+def fake_llm() -> Iterator[FakeLLMClient]:
+    """Shared by every test hitting an endpoint that depends on `get_llm_client`
+    (`/api/ask`, Phase 3.2's `/suggest-metadata`) — no network, records every request."""
+    fake = FakeLLMClient()
+    app.dependency_overrides[get_llm_client] = lambda: fake
+    try:
+        yield fake
+    finally:
+        app.dependency_overrides.pop(get_llm_client, None)
 
 
 @pytest.fixture

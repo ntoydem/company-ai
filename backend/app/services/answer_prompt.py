@@ -41,7 +41,10 @@ _RULES = [
     'ile önceki <eski değer> seviyesinden değiştirilmiştir." Eski değer yanlış değildir; '
     "tarihsel değerdir.",
     '6. Yorum, tahmin, öneri, projeksiyon veya görüş yazma. "Neden?" sorularında yalnızca '
-    f'belgede yazan sebebi aktar; belgede sebep yoksa "{NO_REASON_TEXT}" yaz.',
+    "belgede yazan sebebi aktar. Sorunun konusu (örn. bir değerin değiştirildiği) "
+    "kaynaklarda geçiyor ama sebebi açıklanmıyorsa, 2. kuraldaki cümleyi DEĞİL, şu cümleyi "
+    f'yaz: "{NO_REASON_TEXT}". 2. kuraldaki cümle yalnızca konunun kendisi kaynaklarda hiç '
+    "geçmiyorsa kullanılır.",
     "7. Kaynaklar İngilizce olsa bile Türkçe cevap ver. Sayıları kaynaktaki biçimde yaz "
     "(örneğin 1,20x), tarihleri GG.AA.YYYY biçiminde yaz. Kısa ve düz yaz; gerekmedikçe "
     "başlık veya madde işareti kullanma.",

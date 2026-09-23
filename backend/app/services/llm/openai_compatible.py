@@ -7,6 +7,7 @@ import time
 
 import httpx2
 import openai
+from openai.types.shared_params import ResponseFormatJSONObject
 
 from app.services.llm.base import (
     LLMAuthError,
@@ -43,6 +44,11 @@ class OpenAICompatibleClient:
 
     def complete(self, request: LLMRequest) -> LLMResponse:
         started = time.perf_counter()
+        # Omitted (not even `{"type": "text"}`) for the default case — keeps the exact
+        # request payload `/api/ask` always sent, unchanged by this Phase 3.2 addition.
+        response_format: ResponseFormatJSONObject | openai.Omit = (
+            {"type": "json_object"} if request.response_format == "json_object" else openai.Omit()
+        )
         try:
             completion = self._client.chat.completions.create(
                 model=request.model,
@@ -53,6 +59,7 @@ class OpenAICompatibleClient:
                 max_completion_tokens=request.max_output_tokens,
                 temperature=request.temperature,
                 reasoning_effort=request.reasoning_effort,
+                response_format=response_format,
             )
         except (openai.AuthenticationError, openai.PermissionDeniedError) as exc:
             raise LLMAuthError(str(exc)) from exc

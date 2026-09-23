@@ -3,7 +3,7 @@
 Kurumsal doküman + Excel + AI bilgi platformu. Şirket bilgisinin **kaynağını, erişim yetkisini, tarihini,
 versiyonunu ve ilişkilerini** koruyarak AI tarafından güvenilir kullanılmasını sağlar. Basit bir chatbot değildir.
 
-Bu README Phase 3.1 (15 demo belge + seed/reset) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
+Bu README Phase 3.2 (AI metadata önerisi + temporal/versiyon mantığı) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
 `docs/PHASES.md`. Mimari kararlar: `docs/ARCHITECTURE.md`. Alan modeli: `docs/DOMAIN_MODEL.md`.
 
 ## Gereksinimler (VM)
@@ -75,13 +75,14 @@ Departmanların CRUD ucu yok (V0'da yalnızca seed); admin'in proje formunda dep
 departmanlarına bağlı (`mali_isler`/`idari_isler` şirket geneli, proje-spesifik değil) — bu bağlantı yalnızca
 organizasyonel/filtreleme amaçlıdır, belge yetkisini etkilemez.
 
-## Belge yükleme (Phase 0.2)
+## Belge yükleme (Phase 0.2, 3.2)
 Tüm `/api/documents/*` ve `/api/ask` istekleri artık giriş yapılmış olmayı gerektirir (yukarıdaki `cookies.txt`).
 ```bash
 curl -X POST http://localhost:8000/api/documents/upload -b cookies.txt \
   -F "file=@sözleşme.pdf;type=application/pdf" \
   -F "title=Facility Agreement" -F "document_type=facility_agreement" \
-  -F "document_date=2023-06-01" -F "counterparty=PQR Bank" -F "status=executed"
+  -F "document_date=2023-06-01" -F "counterparty=PQR Bank" -F "status=executed" \
+  -F "department=finans" -F "confidentiality=normal"   # ikisi de opsiyonel (Phase 3.2)
 # {"id":"...","ingestion_status":"uploaded"} — birkaç saniye içinde "ready" olur:
 curl -b cookies.txt http://localhost:8000/api/documents/<id>/status
 curl -b cookies.txt http://localhost:8000/api/documents   # yetkili (Adım 0'da: tüm) belgeler
@@ -89,7 +90,32 @@ curl -b cookies.txt http://localhost:8000/api/documents   # yetkili (Adım 0'da:
 Kabul edilen türler: pdf/png/jpg (MIME imzasıyla doğrulanır, `.xlsx/.xlsm/.csv` Phase 4.2). Taranmış (görüntü)
 PDF'ler `ocr-worker`'da `ocrmypdf` (tur+eng) ile OCR'lanır; sayfa metni ve ~800 kelimelik chunk'lar
 (`document_pages`/`document_chunks`) full-text search (`turkish` + `simple`) için hazırlanır. Demo belgeler
-manuel upload yerine `make seed` ile yüklenir (bkz. "Demo veri (Phase 3.1)").
+manuel upload yerine `make seed` ile yüklenir (bkz. "Demo veri (Phase 3.1)"). `department` verilirse bilinen
+bir departman slug'ına karşı doğrulanır (422); `project_id` verilirse var olan bir projeye karşı doğrulanır (404).
+`supersedes_document_id` ile bir belge başka birinin yerini aldığında, eskisinin `status`'u otomatik olarak
+`superseded` olur (Phase 3.2).
+
+## AI metadata önerisi (Phase 3.2)
+Belge `ready` olduktan sonra (yukarıdaki `/status` ile takip edilir) `LLM_MODEL_CLASSIFY` ile bir metadata önerisi
+üretilebilir: departman, alt departman, proje kodu, belge türü, muhatap, tarih, durum, gizlilik, etiketler —
+her biri için 0-1 arası bir `confidence`. Öneri ayrı bir tabloda durur; kullanıcı **açıkça** kabul etmeden
+belgenin kendi metadata'sı hiç değişmez (SPEC_02 §4, "kritik alan sessiz overwrite yok").
+```bash
+# Otomatik: backend, ready + önerisiz belgeleri arka planda tarar (15 sn'de bir, 5'li grup halinde).
+# Elle tetiklemek/yeniden denemek için (yalnızca admin):
+curl -X POST http://localhost:8000/api/documents/<id>/suggest-metadata -b admin_cookies.txt
+curl http://localhost:8000/api/documents/<id>/metadata-suggestion -b cookies.txt
+# {"status":"pending","fields":{"department":{"value":"finans","confidence":0.86}, ...}}
+
+# Kabul (yalnızca admin; yalnızca gövdede adı geçen alanlar yazılır):
+curl -X POST http://localhost:8000/api/documents/<id>/metadata-suggestion/apply -b admin_cookies.txt \
+  -H 'content-type: application/json' -d '{"department":"finans","project_code":"ANK_RES"}'
+# Ret (öneriyi reddeder, belgeye dokunmaz; sonra tekrar suggest-metadata çağrılabilir):
+curl -X POST http://localhost:8000/api/documents/<id>/metadata-suggestion/reject -b admin_cookies.txt
+```
+LLM hatası (kota, bağlantı) önerinin `status:"failed"` olmasına yol açar, upload'ı hiçbir zaman bozmaz. Arka plan
+taraması yalnızca `LLM_API_KEY` doluyken ve `_test` veritabanına karşı çalışmıyorken başlar (`make test`
+sırasında hiç çalışmaz).
 
 ## Soru sorma (Phase 0.3)
 `LLM_API_KEY` `.env`'de dolu olmalı (varsayılan Gemini, OpenAI-uyumlu endpoint; model adları `LLM_MODEL_ANSWER` /
@@ -192,10 +218,13 @@ docs/         SPEC_0x, PHASES.md, ARCHITECTURE.md (ADR), DOMAIN_MODEL.md, plans/
 - `/api/ask` yalnızca belge sorularını cevaplar (DOCUMENT); Excel/DATA ve MIXED sorgular Adım 4.
 - Gemini ücretsiz katmanı: `gemini-3.8-flash` için 5 istek/dk; yoğunlukta "high demand" 503 dönebilir — `/api/ask`
   bunu Türkçe 503 mesajıyla iletir, sistem çalışmaya devam eder.
-- `POST /api/documents/upload` hâlâ `department`/`project_id`/`confidentiality` almıyor (AI metadata önerisi
-  Phase 3.2'de geliyor) — bu alanlar bugün yalnızca DB'ye doğrudan yazılarak (seed/test) doldurulabilir.
-  `documents.department` bir FK değil, serbest slug string'idir; yanlış yazılmış bir slug güvenli yönde
-  başarısız olur (belge admin dışında kimseye görünmez) ama sessizce — Phase 3.2'nin doğrulama alması gerekiyor
-  (bkz. `docs/PHASES.md` Phase 3.2 notu).
+- `documents.department` bir FK değil, serbest slug string'idir (upload/apply endpoint'leri bilinen slug'a
+  karşı doğrular, ama DB'ye doğrudan yazılan bir kayıt bunu atlayabilir); yanlış yazılmış bir slug güvenli
+  yönde başarısız olur (belge admin dışında kimseye görünmez) ama sessizce.
 - Departman CRUD ucu yok (V0'da yalnızca seed); proje-departman bağlantısı yalnızca organizasyonel/filtreleme
   amaçlıdır, belge yetkisi her zaman belgenin kendi `department` alanından gelir.
+- AI metadata önerisinde (Phase 3.2) yalnızca tek bir öneri geçmişi tutulur (satır başına belge); geçmiş/analiz
+  Phase 4.1'in eval kapsamına bırakıldı. Licence → Licence Amendment 01 çifti `related_document_ids` ile
+  bağlı, `supersedes` değil (Phase 3.1) — bu yüzden "güncel"/"ilk" zincir mekanizmasına hiç girmiyor; SPEC_02
+  §11'in kapasite örneği bu çift için değil, gerçek bir `supersedes` zinciri (örn. Facility Agreement) için
+  geçerlidir.
