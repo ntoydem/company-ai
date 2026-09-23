@@ -70,7 +70,10 @@ Tanım: Kimin hangi belgeyi görebileceğini belirleyen yapı. Adım 0'daki stub
 ## Phase 1.2 — Departman, rol, proje, yetki `O`
 **Kapsam:** `departments` (ağaç), `user_departments`, `projects` (admin CRUD, aktif/pasif, çoklu departman), roller `admin|management|employee`, `confidentiality normal|restricted|board`. `allowed_document_ids()` gerçek mantıkla dolar (SPEC_02 §5). Belge listesi, indirme, `/api/ask` — hepsi bu fonksiyondan.
 **Kabul kriterleri:**
-1. `enerji` → finans belgesi listede yok, indirme 403, `/api/ask` ile "bilgi bulamadım", audit'te retrieved boş.
+1. `enerji` → finans belgesi listede yok, indirme 403, `/api/ask` ile "bilgi bulamadım". Audit'te
+   `retrieved_document_ids`: yetkisiz sorguda yalnızca kullanıcının erişebildiği (ama alakasız) belgeleri
+   içerebilir; yasak departmanın belgesi asla listede olmaz — `forbidden_sources` kontrolü budur, boş liste değil
+   (bkz. `docs/reports/PHASE_3_1_REPORT.md §7`).
 2. `finans` → legal 403, kendi 200; `yonetim` → hepsi 200; `restricted`/`board` kuralları test edilmiş.
 3. Admin proje CRUD; employee 403.
 4. Yetki servisi birim testleri + endpoint entegrasyon testleri.
