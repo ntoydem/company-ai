@@ -27,7 +27,10 @@ class Settings(BaseSettings):
     admin_password: SecretStr
 
     # Phase 1.1
-    jwt_secret: SecretStr | None = None
+    jwt_secret: SecretStr
+    # Shared password for the four demo accounts (yonetim/finans/hukuk/enerji); they carry
+    # no real access separation until Phase 1.2, so one shared password keeps demos simple.
+    demo_user_password: SecretStr
 
     # Phase 0.3 (ADR-009)
     llm_provider: Literal["openai_compatible", "anthropic"] = "openai_compatible"

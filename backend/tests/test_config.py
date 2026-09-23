@@ -19,6 +19,18 @@ def test_database_url_is_required(monkeypatch: pytest.MonkeyPatch) -> None:
         Settings(_env_file=None)  # type: ignore[call-arg]
 
 
+def test_jwt_secret_is_required(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("JWT_SECRET", raising=False)
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None)  # type: ignore[call-arg]
+
+
+def test_demo_user_password_is_required(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("DEMO_USER_PASSWORD", raising=False)
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None)  # type: ignore[call-arg]
+
+
 def test_secrets_are_not_exposed_in_repr(settings: Settings) -> None:
     plain = settings.admin_password.get_secret_value()
     assert plain

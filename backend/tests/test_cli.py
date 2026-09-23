@@ -6,6 +6,14 @@ import pytest
 from app import cli
 
 
+def test_seed_demo_users_succeeds_and_is_idempotent() -> None:
+    """Exercises the real `log.info(..., extra={...})` call end-to-end — a reserved
+    `LogRecord` attribute name in `extra` (e.g. `created`) raises `KeyError` at log time,
+    which a test only calling `ensure_demo_users` directly would never catch."""
+    assert cli.cmd_seed_demo_users() == 0
+    assert cli.cmd_seed_demo_users() == 0
+
+
 def test_assert_pipeline_schema_succeeds_once_migrated() -> None:
     # The session-scoped `_migrated_test_database` fixture has already run `alembic
     # upgrade head` by the time any test executes, so the pipeline tables exist here.

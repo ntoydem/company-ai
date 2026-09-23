@@ -10,13 +10,16 @@ from sqlalchemy import text
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 
+from app.api import deps as deps_module
+from app.api.deps import get_current_user
 from app.core.config import Settings, get_settings
 from app.core.db import get_engine, get_session_factory
 from app.main import app
 from app.models import Base
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.repositories import user_repo
 from app.services.admin_seed import ensure_admin_user
+from app.services.security import hash_password
 
 
 def alembic_config() -> Config:
@@ -32,6 +35,13 @@ def _migrated_test_database() -> Iterator[None]:
     )
     command.upgrade(alembic_config(), "head")
     yield
+
+
+@pytest.fixture(autouse=True)
+def _reset_login_rate_limiter() -> None:
+    """The login rate limiter is a process-wide in-memory singleton (ADR-015) — without
+    this, failed-login attempts in one test would count towards another test's budget."""
+    deps_module._login_rate_limiter.cache_clear()
 
 
 @pytest.fixture(autouse=True)
@@ -60,9 +70,31 @@ def client() -> Iterator[TestClient]:
 
 
 @pytest.fixture
-def admin_user(db_session: Session, settings: Settings) -> User:
-    """The seeded admin user, created on demand for tests exercising `get_current_user`."""
+def admin_user(db_session: Session, settings: Settings) -> Iterator[User]:
+    """The seeded admin user, authenticated as the current user for the duration of the
+    test via a `get_current_user` override (same pattern as `fake_llm`/`get_llm_client`
+    in test_ask.py). Tests exercising the real login flow itself use `ensure_admin_user`
+    directly instead, so this override can't mask a bug in `/api/auth/login`."""
     ensure_admin_user(db_session, settings)
     user = user_repo.get_by_username(db_session, settings.admin_username)
     assert user is not None
+    app.dependency_overrides[get_current_user] = lambda: user
+    try:
+        yield user
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
+
+
+@pytest.fixture
+def inactive_user(db_session: Session) -> User:
+    """A disabled user, created ad hoc so tests never mutate seeded demo-account state."""
+    user = user_repo.create(
+        db_session,
+        username="devre-disi",
+        password_hash=hash_password("gecerli-sifre"),
+        display_name="Devre Dışı Kullanıcı",
+        role=UserRole.employee,
+    )
+    user.is_active = False
+    db_session.commit()
     return user

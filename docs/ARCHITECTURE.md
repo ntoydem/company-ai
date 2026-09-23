@@ -28,6 +28,7 @@ Status values: `accepted` | `superseded by ADR-xxx`. Phase column = when the dec
 - `users` carries `auth_provider` (`local` only in V0) and `external_id` so SSO/Entra ID can be added later without schema change. No SSO in V0.
 - Initial admin is created idempotently at startup from `ADMIN_USERNAME` / `ADMIN_PASSWORD`; an existing user is never modified by the seed.
 - Login rate limiting (Phase 1.1) protects the single password endpoint.
+- **Phase 1.1 concretization:** JWT via `PyJWT` (HS256, `JWT_SECRET`), cookie name `access_token` (`path=/`, `samesite=lax`, `secure=false` in V0 plain-HTTP LAN, ADR-015). The token's `sub` (user id) and `role` claim are non-authoritative — `get_current_user` re-fetches the `User` row on every request and trusts only the DB's `role`/`is_active`, since there is no refresh/revocation mechanism. Wrong username, wrong password and a disabled account return an identical 401 (no username enumeration). Login rate limit: in-memory, 5 failed attempts/15 min per username and 20/15 min per client IP (no Redis in this stack; single `uvicorn` process makes this sufficient for V0; resets on restart). Demo users `yonetim`/`finans`/`hukuk`/`enerji` are seeded the same idempotent way as admin, sharing one `DEMO_USER_PASSWORD` — they carry only a `role` until Phase 1.2 adds department membership.
 
 ## ADR-004 — Authorization model and the `allowed_document_ids` contract
 **Status:** accepted · **Phase:** 0.1 (contract) · 1.2 (rules)

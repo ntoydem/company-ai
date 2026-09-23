@@ -12,6 +12,7 @@ dependencies = [
     "psycopg[binary]>=3.2",
     "alembic>=1.13",
     "argon2-cffi>=23.1",
+    "pyjwt>=2.9",
     "pgvector>=0.3",
     "python-multipart>=0.0.9",
     "openai>=3.17,<4",

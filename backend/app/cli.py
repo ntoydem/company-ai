@@ -9,6 +9,7 @@ from app.core.config import get_settings
 from app.core.db import database_reachable, get_engine, get_session_factory
 from app.core.logging import setup_logging
 from app.services.admin_seed import ensure_admin_user
+from app.services.demo_users_seed import ensure_demo_users
 
 log = logging.getLogger("app.cli")
 
@@ -29,6 +30,19 @@ def cmd_seed_admin() -> int:
     with get_session_factory()() as session:
         result = ensure_admin_user(session, get_settings())
     log.info("seed-admin done", extra={"username": result.username, "was_created": result.created})
+    return 0
+
+
+def cmd_seed_demo_users() -> int:
+    with get_session_factory()() as session:
+        results = ensure_demo_users(session, get_settings())
+    log.info(
+        "seed-demo-users done",
+        extra={
+            "usernames": [r.username for r in results],
+            "was_created": [r.created for r in results],
+        },
+    )
     return 0
 
 
@@ -66,6 +80,7 @@ def main(argv: list[str] | None = None) -> int:
     wait = sub.add_parser("wait-for-db", help="block until Postgres answers SELECT 1")
     wait.add_argument("--timeout", type=int, default=60)
     sub.add_parser("seed-admin", help="create the admin user if it does not exist")
+    sub.add_parser("seed-demo-users", help="create the demo users if they do not exist")
     sub.add_parser(
         "assert-pipeline-schema", help="fail if the Phase 0.2 pipeline tables are missing"
     )
@@ -77,6 +92,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_wait_for_db(args.timeout)
     if args.command == "seed-admin":
         return cmd_seed_admin()
+    if args.command == "seed-demo-users":
+        return cmd_seed_demo_users()
     if args.command == "assert-pipeline-schema":
         return cmd_assert_pipeline_schema()
     if args.command == "print-answer-prompt":

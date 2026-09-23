@@ -10,7 +10,7 @@ Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 | 0.1 | İskelet + ADR'ler | tamamlandı | phase-0-1 | [PHASE_0_1_REPORT](reports/PHASE_0_1_REPORT.md) |
 | 0.2 | Belge hattı (upload → OCR → sayfa → chunk → FTS) | tamamlandı | phase-0-2 | [PHASE_0_2_REPORT](reports/PHASE_0_2_REPORT.md) |
 | 0.3 | LLM + soru-cevap + sayfa kaynaklı cevap (T0) | tamamlandı | phase-0-3 | [PHASE_0_3_REPORT](reports/PHASE_0_3_REPORT.md) |
-| 1.1 | Auth + kullanıcılar | bekliyor | – | – |
+| 1.1 | Auth + kullanıcılar | tamamlandı | phase-1-1 | [PHASE_1_1_REPORT](reports/PHASE_1_1_REPORT.md) |
 | 1.2 | Departman, rol, proje, yetki | bekliyor | – | – |
 | 2.1 | Truth ledger + validator + golden questions v1 | bekliyor | – | – |
 | 3.1 | 15 demo belge + seed/reset | bekliyor | – | – |

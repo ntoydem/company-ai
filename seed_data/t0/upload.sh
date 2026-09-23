@@ -8,8 +8,12 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 ENV_FILE="${ENV_FILE:-.env}"
 BACKEND_PORT="$(grep -E '^BACKEND_PORT=' "$ENV_FILE" 2>/dev/null | cut -d= -f2- || true)"
+ADMIN_USERNAME="$(grep -E '^ADMIN_USERNAME=' "$ENV_FILE" 2>/dev/null | cut -d= -f2- || true)"
+ADMIN_PASSWORD="$(grep -E '^ADMIN_PASSWORD=' "$ENV_FILE" 2>/dev/null | cut -d= -f2- || true)"
 API="http://localhost:${BACKEND_PORT:-8000}"
 T0="seed_data/t0"
+COOKIE_JAR="$(mktemp)"
+trap 'rm -f "$COOKIE_JAR"' EXIT
 
 if [[ ! -f "$T0/facility_agreement.pdf" || ! -f "$T0/amendment_01.pdf" ]]; then
   echo "T0 PDF'leri üretiliyor..."
@@ -19,10 +23,14 @@ fi
 
 json_field() { sed -n "s/.*\"$1\":\"\([^\"]*\)\".*/\1/p"; }
 
+# Phase 1.1: /api/documents/* now requires a login cookie.
+curl -sf -c "$COOKIE_JAR" -X POST "$API/api/auth/login" -H 'content-type: application/json' \
+  -d "{\"username\":\"${ADMIN_USERNAME:-admin}\",\"password\":\"$ADMIN_PASSWORD\"}" >/dev/null
+
 upload() { # file title document_date effective_date [supersedes_id]
   local extra=()
   [[ -n "${5:-}" ]] && extra=(-F "supersedes_document_id=$5")
-  curl -sf -X POST "$API/api/documents/upload" \
+  curl -sf -b "$COOKIE_JAR" -X POST "$API/api/documents/upload" \
     -F "file=@$1;type=application/pdf" -F "title=$2" -F "document_type=facility_agreement" \
     -F "document_date=$3" -F "effective_date=$4" -F "counterparty=PQR Bank A.Ş." \
     -F "status=executed" -F "version=1" "${extra[@]}" | json_field id
@@ -30,7 +38,7 @@ upload() { # file title document_date effective_date [supersedes_id]
 
 wait_ready() { # id
   for _ in $(seq 1 60); do
-    status="$(curl -sf "$API/api/documents/$1/status" | json_field ingestion_status)"
+    status="$(curl -sf -b "$COOKIE_JAR" "$API/api/documents/$1/status" | json_field ingestion_status)"
     case "$status" in
       ready) return 0 ;;
       failed) echo "belge $1 failed" >&2; return 1 ;;

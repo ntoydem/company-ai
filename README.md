@@ -3,7 +3,7 @@
 Kurumsal doküman + Excel + AI bilgi platformu. Şirket bilgisinin **kaynağını, erişim yetkisini, tarihini,
 versiyonunu ve ilişkilerini** koruyarak AI tarafından güvenilir kullanılmasını sağlar. Basit bir chatbot değildir.
 
-Bu README Phase 0.2 (belge hattı) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
+Bu README Phase 1.1 (auth + kullanıcılar) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
 `docs/PHASES.md`. Mimari kararlar: `docs/ARCHITECTURE.md`. Alan modeli: `docs/DOMAIN_MODEL.md`.
 
 ## Gereksinimler (VM)
@@ -14,26 +14,52 @@ Bu README Phase 0.2 (belge hattı) durumunu anlatır; her phase sonunda güncell
 ## Kurulum
 ```bash
 git clone <repo> company-ai && cd company-ai
-cp infra/.env.example .env      # şifreleri değiştir (POSTGRES_PASSWORD, ADMIN_PASSWORD, JWT_SECRET)
+cp infra/.env.example .env      # şifreleri değiştir (POSTGRES_PASSWORD, ADMIN_PASSWORD, JWT_SECRET, DEMO_USER_PASSWORD)
 make up                         # postgres + backend build & start, /health bekler
 curl localhost:8000/health      # {"status":"ok","version":"0.1.0","database":"ok"}
 ```
 İlk açılışta backend container'ı sırayla: veritabanını bekler → `alembic upgrade head` → admin kullanıcısını
-oluşturur (`ADMIN_USERNAME` / `ADMIN_PASSWORD`; kullanıcı varsa dokunmaz) → API'yi başlatır. `ocr-worker`
+oluşturur (`ADMIN_USERNAME` / `ADMIN_PASSWORD`; kullanıcı varsa dokunmaz) → demo kullanıcılarını oluşturur
+(`DEMO_USER_PASSWORD`, aşağıdaki tablo; var olanlara dokunmaz) → API'yi başlatır. `ocr-worker`
 aynı anda ayağa kalkar ve `ingestion_jobs` kuyruğunu 2 saniyede bir yoklar.
 
 Veri kökü `.env` içindeki `DATA_ROOT` altındadır (dev: `./data`, prod: `/srv/company-ai`):
 `postgres/ documents/ excel/ app-data/ backups/`. Container'ları silmek veri kaybettirmez.
 
-## Belge yükleme (Phase 0.2)
+## Giriş yapma (Phase 1.1)
+JWT, httpOnly cookie'de (`access_token`, 8 saat, `samesite=lax`; V0'da `secure=false` — LAN, düz HTTP).
 ```bash
-curl -X POST http://localhost:8000/api/documents/upload \
+curl -i -X POST http://localhost:8000/api/auth/login \
+  -H 'content-type: application/json' -d '{"username":"admin","password":"<ADMIN_PASSWORD>"}' \
+  -c cookies.txt
+curl -b cookies.txt http://localhost:8000/api/auth/me
+# {"id":"...","username":"admin","display_name":"Yönetici","role":"admin"}
+curl -i -X POST http://localhost:8000/api/auth/logout -b cookies.txt
+```
+Yanlış şifre, bilinmeyen kullanıcı adı ve devre dışı hesap aynı `401` mesajını döner (kullanıcı adı sızdırılmaz).
+Başarısız denemeler sınırlıdır: kullanıcı adı başına 5 / 15 dk, IP başına 20 / 15 dk — aşılınca `429`.
+
+Demo hesapları — hepsi tek `DEMO_USER_PASSWORD` şifresini paylaşır, roller birbirinden farklıdır
+(departman bazlı yetki ayrımı Phase 1.2'de gelir; şimdilik rol tek başına yetkiyi belirlemez):
+
+| Kullanıcı adı | Rol |
+|---|---|
+| `admin` | `admin` (ayrı `ADMIN_PASSWORD`) |
+| `yonetim` | `management` |
+| `finans` | `employee` |
+| `hukuk` | `employee` |
+| `enerji` | `employee` |
+
+## Belge yükleme (Phase 0.2)
+Tüm `/api/documents/*` ve `/api/ask` istekleri artık giriş yapılmış olmayı gerektirir (yukarıdaki `cookies.txt`).
+```bash
+curl -X POST http://localhost:8000/api/documents/upload -b cookies.txt \
   -F "file=@sözleşme.pdf;type=application/pdf" \
   -F "title=Facility Agreement" -F "document_type=facility_agreement" \
   -F "document_date=2023-06-01" -F "counterparty=PQR Bank" -F "status=executed"
 # {"id":"...","ingestion_status":"uploaded"} — birkaç saniye içinde "ready" olur:
-curl http://localhost:8000/api/documents/<id>/status
-curl http://localhost:8000/api/documents   # yetkili (Adım 0'da: tüm) belgeler
+curl -b cookies.txt http://localhost:8000/api/documents/<id>/status
+curl -b cookies.txt http://localhost:8000/api/documents   # yetkili (Adım 0'da: tüm) belgeler
 ```
 Kabul edilen türler: pdf/png/jpg (MIME imzasıyla doğrulanır, `.xlsx/.xlsm/.csv` Phase 4.2). Taranmış (görüntü)
 PDF'ler `ocr-worker`'da `ocrmypdf` (tur+eng) ile OCR'lanır; sayfa metni ve ~800 kelimelik chunk'lar
@@ -47,7 +73,7 @@ PDF'ler `ocr-worker`'da `ocrmypdf` (tur+eng) ile OCR'lanır; sayfa metni ve ~800
 ```bash
 # T0 test belgelerini versiyon zinciriyle yükle (Facility Agreement → Amendment 01):
 bash seed_data/t0/upload.sh
-curl -s -X POST localhost:8000/api/ask -H 'content-type: application/json' \
+curl -s -X POST localhost:8000/api/ask -b cookies.txt -H 'content-type: application/json' \
   -d '{"question": "Ankara RES'\''in güncel minimum DSCR covenant'\''ı nedir?"}'
 # {"answer":"... 1,20x'tir [K1] ...","answered":true,"sources":[{"ref":"K1","title":"Amendment 01","page_number":3,
 #   "document_date":"2025-03-15","version":1,"status":"executed","is_current":true,...}],"model":"...","tokens_in":..}
