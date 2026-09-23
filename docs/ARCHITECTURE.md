@@ -104,6 +104,7 @@ Status values: `accepted` | `superseded by ADR-xxx`. Phase column = when the dec
 - `validate_ledger.py` checks coarse chronology, finance consistency, İzmir post-licence fields empty, currencies, name whitelist. Documents and workbooks are generated only after validation passes.
 - Two AI modes are strictly separated: production Company AI never assumes; the generator (`seed_data/generator/`) fills gaps deliberately and is never imported by the backend.
 - Demo entities are fictional and generic (ABC Enerji A.Ş., PQR Bank …); every document carries a DEMO/FICTIONAL banner.
+- **Phase 2.1 concretization:** the ledger schema is a set of Pydantic v2 models (`seed_data/generator/ledger_schema.py`, `extra="forbid"`); every fact is a `{value, tag}` / `Money{value, currency, tag}` / `Event{date, doc, tag}` mapping or a tagged list record, identity keys stay untagged. `documents[].key_facts` and `questions.json`'s `expected_answer` hold **ledger paths** (`ledger:ankara_res.project…`), never repeated values. Departments are the DB slugs (`finans`, not `finance`). Operating year is anniversary-based. `questions.json` lives at `seed_data/evaluation/`. `make validate-ledger` (also part of `make lint`) must report 0 errors; Phase 3.1 additionally requires a separate "ledger onayı" commit in which Naci flips reviewed values to `USER_FACT`.
 
 ## ADR-014 — "No opinion" rule (V0)
 **Status:** accepted · **Phase:** 0.3

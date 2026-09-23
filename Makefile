@@ -10,7 +10,7 @@ BACKEND_PORT := $(shell grep -E '^BACKEND_PORT=' $(ENV_FILE) 2>/dev/null | cut -
 BACKEND_PORT := $(or $(BACKEND_PORT),8000)
 SVC ?=
 
-.PHONY: help env-check dirs up up-full down ps logs build test test-llm lint format prompt-doc \
+.PHONY: help env-check dirs up up-full down ps logs build test test-llm lint format prompt-doc validate-ledger \
         migrate migration seed-admin seed-demo-users seed-demo-departments seed-demo-projects \
         psql shell seed reset-demo eval backup restore clean
 
@@ -62,6 +62,10 @@ lint: env-check ## ruff + mypy (backend), ruff (ocr-worker), prompt dokümanı g
 	@$(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-answer-prompt 2>/dev/null \
 		| diff -q - <(sed -n '/^```text$$/,/^```$$/{//!p}' docs/prompts/ANSWER_SYSTEM_PROMPT.md) >/dev/null \
 		|| { echo "docs/prompts/ANSWER_SYSTEM_PROMPT.md güncel değil: make prompt-doc"; exit 1; }
+	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_ledger
+
+validate-ledger: env-check ## truth ledger + questions.json doğrulaması (0 hata = exit 0)
+	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_ledger --summary
 
 prompt-doc: env-check ## /api/ask sistem promptunu docs/prompts/ANSWER_SYSTEM_PROMPT.md'ye yaz
 	@{ printf '%s\n\n' '# Cevap sistem promptu (Phase 0.3)'; \

@@ -113,6 +113,22 @@ Sistem promptu `backend/app/services/answer_prompt.py`'dedir; kopyası `docs/pro
 Canlı LLM testleri `make test`'in dışındadır: `make test-llm` (ücretsiz katman 5 istek/dk — testler kendini yavaşlatır;
 model saturasyonunda `make test-llm MODEL=gemini-3.5-flash`).
 
+## Truth ledger (Phase 2.1)
+İki demo projenin **tüm** rakam, tarih ve isimleri tek yerde: `seed_data/master/` — `company.yaml` (kurgusal
+taraflar, SPV'ler, isim whitelist'i), `ankara_res.yaml` (işletmedeki proje: lisans → finansman → inşaat → COD →
+operasyon, Facility zinciri DRAFT→V01→V02→EXECUTED→AMD01→AMD02), `izmir_res.yaml` (development; lisans sonrası
+alanlar tasarım gereği `null`), `fx_rates.yaml` (kurgusal sabit kurlar). Şema: `seed_data/generator/ledger_schema.py`
+(Pydantic). Golden sorular: `seed_data/evaluation/questions.json` (cevaplar rakam değil, `ledger:` yol referansı).
+```bash
+make validate-ledger     # kronoloji, finans tutarlılığı, İzmir izolasyonu, para birimi, isim whitelist, soru kotaları
+# ... 0 error(s), 0 warning(s)  +  tags: USER_FACT=… AI_ASSUMPTION=…
+```
+**Onay akışı (ADR-013):** her değer `tag: AI_ASSUMPTION` (Claude taslağı) ya da `tag: USER_FACT` (Naci/ortak onayı)
+taşır. Taslak tamamen `AI_ASSUMPTION` ile teslim edilir; onaylanan değerin tag'i YAML'da `USER_FACT` yapılır (değer
+değişiyorsa yeni değer + `USER_FACT`), `make validate-ledger` tekrar 0 hata vermelidir. **Adım 3 (Phase 3.1, belge
+üretimi) ayrı bir "ledger onayı" commit'i olmadan başlamaz** — onay tablosu `docs/reports/PHASE_2_1_REPORT.md`'de.
+`make lint` de validator'ı çalıştırır; ledger'ı bozan bir düzenleme lint'i kırar.
+
 ## Make hedefleri
 | Hedef | Açıklama |
 |---|---|

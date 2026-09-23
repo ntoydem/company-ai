@@ -1,0 +1,426 @@
+# Ankara RES — truth ledger (SPEC_05 §3, docs/plans/PHASE_2_1_PLAN.md §1.1)
+# TASLAK: her değer AI_ASSUMPTION. Onaylanan değerin tag'ini USER_FACT yapın; değer
+# değişiyorsa yeni değer + USER_FACT. Kurallar: python -m seed_data.generator.validate_ledger
+meta:
+  schema_version: 1
+  demo_today: 2026-09-15
+  currency_note: "Kredi/capex/EPC EUR; tarife USD; OPEX/bütçe TRY (SPEC_03 §4). Kurlar fx_rates.yaml."
+
+project:
+  code: ANK_RES
+  name: Ankara RES
+  stage: operation
+  spv:
+    name: {value: "DEF Enerji Üretim A.Ş.", tag: AI_ASSUMPTION}
+    shareholders:
+      - {name: {value: "ABC Enerji A.Ş.", tag: AI_ASSUMPTION}, share_pct: {value: 80, tag: AI_ASSUMPTION}}
+      - {name: {value: "GHI Yatırım A.Ş.", tag: AI_ASSUMPTION}, share_pct: {value: 20, tag: AI_ASSUMPTION}}
+  capacity_mw:
+    initial: {value: 48, tag: AI_ASSUMPTION, source_doc: DOC-ANK-DEV-001}
+    current: {value: 60, tag: AI_ASSUMPTION, source_doc: DOC-ANK-DEV-002}
+  turbines:
+    count: {value: 12, tag: AI_ASSUMPTION}
+    model_generic: {value: "5 MW sınıfı kara tipi türbin", tag: AI_ASSUMPTION}
+
+  timeline:
+    development_start:   {date: 2018-03-01, doc: null,            tag: AI_ASSUMPTION}
+    pre_licence:         {date: 2018-11-20, doc: null,            tag: AI_ASSUMPTION}
+    licence:             {date: 2020-06-15, doc: DOC-ANK-DEV-001, tag: AI_ASSUMPTION}
+    licence_amendment:   {date: 2021-02-10, doc: DOC-ANK-DEV-002, tag: AI_ASSUMPTION, note: "Kapasite 48 -> 60 MW"}
+    financing_signed:    {date: 2021-09-30, doc: DOC-ANK-FIN-004, tag: AI_ASSUMPTION}
+    financial_close:     {date: 2021-11-15, doc: null,            tag: AI_ASSUMPTION}
+    epc_signed:          {date: 2021-10-20, doc: DOC-ANK-EPC-001, tag: AI_ASSUMPTION}
+    construction_start:  {date: 2022-01-10, doc: null,            tag: AI_ASSUMPTION}
+    construction_end:    {date: 2023-08-31, doc: null,            tag: AI_ASSUMPTION}
+    commissioning:       {date: 2023-09-20, doc: null,            tag: AI_ASSUMPTION}
+    cod_expected_initial: {date: 2023-06-30, doc: DOC-ANK-EPC-001, tag: AI_ASSUMPTION}
+    cod_actual:          {date: 2023-10-15, doc: DOC-ANK-EPC-002, tag: AI_ASSUMPTION, note: "3. işletme yılı 15.09.2026 itibarıyla"}
+    operation_start:     {date: 2023-10-15, doc: DOC-ANK-EPC-002, tag: AI_ASSUMPTION}
+
+  finance:
+    capex:      {value: 72000000, currency: EUR, tag: AI_ASSUMPTION}
+    equity:     {value: 21600000, currency: EUR, tag: AI_ASSUMPTION}
+    total_debt: {value: 50400000, currency: EUR, tag: AI_ASSUMPTION, source_doc: DOC-ANK-FIN-004}
+    local_debt: {value: 20400000, currency: EUR, tag: AI_ASSUMPTION, source_doc: DOC-ANK-FIN-004}
+    eca_debt:   {value: 30000000, currency: EUR, tag: AI_ASSUMPTION, source_doc: DOC-ANK-FIN-004}
+    lenders:
+      local_bank: {value: "PQR Bank", tag: AI_ASSUMPTION}
+      eca:        {value: "VWX Export Credit Agency", tag: AI_ASSUMPTION}
+    interest:
+      base:       {value: "EURIBOR 6M", tag: AI_ASSUMPTION}
+      margin_pct: {value: 3.25, tag: AI_ASSUMPTION, source_doc: DOC-ANK-FIN-004}
+    tenor_years:
+      initial: {value: 12, tag: AI_ASSUMPTION, source_doc: DOC-ANK-FIN-004}
+      current: {value: 14, tag: AI_ASSUMPTION, source_doc: DOC-ANK-FIN-005}
+      changed_by: DOC-ANK-FIN-005
+    grace_months: {value: 24, tag: AI_ASSUMPTION, source_doc: DOC-ANK-FIN-004}
+    repayment_profile: {value: "Sculpted, semi-annual instalments after grace", tag: AI_ASSUMPTION}
+    dscr_covenant:
+      initial: {value: 1.25, tag: AI_ASSUMPTION, source_doc: DOC-ANK-FIN-004}
+      current: {value: 1.20, tag: AI_ASSUMPTION, source_doc: DOC-ANK-FIN-005}
+      changed_by: DOC-ANK-FIN-005
+    drawdowns:
+      - {date: 2021-12-15, amount: {value: 15000000, currency: EUR, tag: AI_ASSUMPTION}, doc: null, tag: AI_ASSUMPTION}
+      - {date: 2022-06-30, amount: {value: 15000000, currency: EUR, tag: AI_ASSUMPTION}, doc: null, tag: AI_ASSUMPTION}
+      - {date: 2022-12-15, amount: {value: 12000000, currency: EUR, tag: AI_ASSUMPTION}, doc: null, tag: AI_ASSUMPTION}
+      - {date: 2023-06-30, amount: {value: 8400000,  currency: EUR, tag: AI_ASSUMPTION}, doc: null, tag: AI_ASSUMPTION}
+    outstanding_debt_as_of_demo_today: {value: 44100000, currency: EUR, tag: AI_ASSUMPTION, source_doc: DOC-ANK-FIN-007}
+    # Covenant threshold: 1.25 until AMD01 (effective 2025-03-15), 1.20 after. Q4_2024 breach motivates AMD01.
+    covenant_tests:
+      - {period: Q4_2023, dscr: 1.42, result: pass, doc: null,            tag: AI_ASSUMPTION}
+      - {period: Q1_2024, dscr: 1.38, result: pass, doc: null,            tag: AI_ASSUMPTION}
+      - {period: Q2_2024, dscr: 1.31, result: pass, doc: null,            tag: AI_ASSUMPTION}
+      - {period: Q3_2024, dscr: 1.27, result: pass, doc: null,            tag: AI_ASSUMPTION}
+      - {period: Q4_2024, dscr: 1.24, result: fail, doc: null,            tag: AI_ASSUMPTION}
+      - {period: Q1_2025, dscr: 1.23, result: pass, doc: null,            tag: AI_ASSUMPTION}
+      - {period: Q2_2025, dscr: 1.29, result: pass, doc: null,            tag: AI_ASSUMPTION}
+      - {period: Q3_2025, dscr: 1.33, result: pass, doc: null,            tag: AI_ASSUMPTION}
+      - {period: Q4_2025, dscr: 1.36, result: pass, doc: null,            tag: AI_ASSUMPTION}
+      - {period: Q1_2026, dscr: 1.34, result: pass, doc: null,            tag: AI_ASSUMPTION}
+      - {period: Q2_2026, dscr: 1.37, result: pass, doc: DOC-ANK-FIN-007, tag: AI_ASSUMPTION}
+    facility_chain: [DOC-ANK-FIN-001, DOC-ANK-FIN-002, DOC-ANK-FIN-003, DOC-ANK-FIN-004, DOC-ANK-FIN-005, DOC-ANK-FIN-006]
+
+  construction:
+    epc_contractor:   {value: "JKL İnşaat A.Ş.", tag: AI_ASSUMPTION}
+    turbine_supplier: {value: "XYZ Wind Turbines GmbH", tag: AI_ASSUMPTION}
+    epc_contract_price: {value: 41500000, currency: EUR, tag: AI_ASSUMPTION, source_doc: DOC-ANK-EPC-001}
+    epc_contract_current_doc: DOC-ANK-EPC-001
+    change_orders:
+      - {date: 2023-05-12, subject: {value: "COD deferral: grid connection works", tag: AI_ASSUMPTION}, doc: DOC-ANK-EPC-003, tag: AI_ASSUMPTION}
+
+  operations:
+    operating_year_on_demo_today: {value: 3, tag: AI_ASSUMPTION, note: "validator hesaplar (yıldönümü bazlı)"}
+    monthly_production:
+      - {month: "2023-11", mwh: 14344, availability_pct: 98.1, capacity_factor_pct: 33.2, tag: AI_ASSUMPTION}
+      - {month: "2023-12", mwh: 17218, availability_pct: 97.8, capacity_factor_pct: 38.6, tag: AI_ASSUMPTION}
+      - {month: "2024-01", mwh: 16703, availability_pct: 97.0, capacity_factor_pct: 37.4, tag: AI_ASSUMPTION}
+      - {month: "2024-02", mwh: 14312, availability_pct: 96.4, capacity_factor_pct: 34.3, tag: AI_ASSUMPTION}
+      - {month: "2024-03", mwh: 15302, availability_pct: 96.4, capacity_factor_pct: 34.3, tag: AI_ASSUMPTION}
+      - {month: "2024-04", mwh: 13307, availability_pct: 97.0, capacity_factor_pct: 30.8, tag: AI_ASSUMPTION}
+      - {month: "2024-05", mwh: 11748, availability_pct: 97.8, capacity_factor_pct: 26.3, tag: AI_ASSUMPTION}
+      - {month: "2024-06", mwh: 10598, availability_pct: 98.1, capacity_factor_pct: 24.5, tag: AI_ASSUMPTION}
+      - {month: "2024-07", mwh: 12553, availability_pct: 91.4, capacity_factor_pct: 28.1, tag: AI_ASSUMPTION}
+      - {month: "2024-08", mwh: 13983, availability_pct: 97.0, capacity_factor_pct: 31.3, tag: AI_ASSUMPTION}
+      - {month: "2024-09", mwh: 11497, availability_pct: 96.4, capacity_factor_pct: 26.6, tag: AI_ASSUMPTION}
+      - {month: "2024-10", mwh: 13162, availability_pct: 96.4, capacity_factor_pct: 29.5, tag: AI_ASSUMPTION}
+      - {month: "2024-11", mwh: 14754, availability_pct: 97.0, capacity_factor_pct: 34.2, tag: AI_ASSUMPTION}
+      - {month: "2024-12", mwh: 16493, availability_pct: 97.8, capacity_factor_pct: 36.9, tag: AI_ASSUMPTION}
+      - {month: "2025-01", mwh: 16404, availability_pct: 98.1, capacity_factor_pct: 36.7, tag: AI_ASSUMPTION}
+      - {month: "2025-02", mwh: 14759, availability_pct: 97.7, capacity_factor_pct: 36.6, tag: AI_ASSUMPTION}
+      - {month: "2025-03", mwh: 15625, availability_pct: 97.0, capacity_factor_pct: 35.0, tag: AI_ASSUMPTION}
+      - {month: "2025-04", mwh: 12510, availability_pct: 96.4, capacity_factor_pct: 29.0, tag: AI_ASSUMPTION}
+      - {month: "2025-05", mwh: 11570, availability_pct: 96.4, capacity_factor_pct: 25.9, tag: AI_ASSUMPTION}
+      - {month: "2025-06", mwh: 11082, availability_pct: 97.0, capacity_factor_pct: 25.7, tag: AI_ASSUMPTION}
+      - {month: "2025-07", mwh: 13259, availability_pct: 97.8, capacity_factor_pct: 29.7, tag: AI_ASSUMPTION}
+      - {month: "2025-08", mwh: 13417, availability_pct: 98.1, capacity_factor_pct: 30.1, tag: AI_ASSUMPTION}
+      - {month: "2025-09", mwh: 11981, availability_pct: 97.7, capacity_factor_pct: 27.7, tag: AI_ASSUMPTION}
+      - {month: "2025-10", mwh: 13842, availability_pct: 97.0, capacity_factor_pct: 31.0, tag: AI_ASSUMPTION}
+      - {month: "2025-11", mwh: 14113, availability_pct: 96.4, capacity_factor_pct: 32.7, tag: AI_ASSUMPTION}
+      - {month: "2025-12", mwh: 15682, availability_pct: 96.4, capacity_factor_pct: 35.1, tag: AI_ASSUMPTION}
+      - {month: "2026-01", mwh: 17032, availability_pct: 97.1, capacity_factor_pct: 38.2, tag: AI_ASSUMPTION}
+      - {month: "2026-02", mwh: 15108, availability_pct: 97.8, capacity_factor_pct: 37.5, tag: AI_ASSUMPTION}
+      - {month: "2026-03", mwh: 14991, availability_pct: 98.1, capacity_factor_pct: 33.6, tag: AI_ASSUMPTION}
+      - {month: "2026-04", mwh: 12561, availability_pct: 97.7, capacity_factor_pct: 29.1, tag: AI_ASSUMPTION}
+      - {month: "2026-05", mwh: 12304, availability_pct: 96.9, capacity_factor_pct: 27.6, tag: AI_ASSUMPTION}
+      - {month: "2026-06", mwh: 10951, availability_pct: 96.4, capacity_factor_pct: 25.4, tag: AI_ASSUMPTION}
+      - {month: "2026-07", mwh: 12373, availability_pct: 96.4, capacity_factor_pct: 27.7, tag: AI_ASSUMPTION}
+      - {month: "2026-08", mwh: 13538, availability_pct: 97.1, capacity_factor_pct: 30.3, tag: AI_ASSUMPTION}
+    budget_vs_actual:
+      - {period: Q4_2023, budget: {value: 18500000, currency: TRY, tag: AI_ASSUMPTION}, actual: {value: 18500000, currency: TRY, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q1_2024, budget: {value: 26000000, currency: TRY, tag: AI_ASSUMPTION}, actual: {value: 27253000, currency: TRY, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q2_2024, budget: {value: 26000000, currency: TRY, tag: AI_ASSUMPTION}, actual: {value: 26670000, currency: TRY, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q3_2024, budget: {value: 26000000, currency: TRY, tag: AI_ASSUMPTION}, actual: {value: 25106000, currency: TRY, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q4_2024, budget: {value: 26000000, currency: TRY, tag: AI_ASSUMPTION}, actual: {value: 24852000, currency: TRY, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q1_2025, budget: {value: 34500000, currency: TRY, tag: AI_ASSUMPTION}, actual: {value: 34871000, currency: TRY, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q2_2025, budget: {value: 34500000, currency: TRY, tag: AI_ASSUMPTION}, actual: {value: 36222000, currency: TRY, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q3_2025, budget: {value: 34500000, currency: TRY, tag: AI_ASSUMPTION}, actual: {value: 35050000, currency: TRY, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q4_2025, budget: {value: 34500000, currency: TRY, tag: AI_ASSUMPTION}, actual: {value: 33072000, currency: TRY, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q1_2026, budget: {value: 42000000, currency: TRY, tag: AI_ASSUMPTION}, actual: {value: 40400000, currency: TRY, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q2_2026, budget: {value: 42000000, currency: TRY, tag: AI_ASSUMPTION}, actual: {value: 42882000, currency: TRY, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+    incidents:
+      - {date: 2024-07-08, type: {value: "Türbin dişli kutusu arızası (T-07), 11 gün duruş", tag: AI_ASSUMPTION}, doc: null, tag: AI_ASSUMPTION}
+      - {date: 2025-01-22, type: {value: "Şebeke kaynaklı kesinti, 2 gün", tag: AI_ASSUMPTION}, doc: null, tag: AI_ASSUMPTION}
+
+# Master document inventory. generate_in_phase: 3.1 -> Phase 3.1 produces the file; 5.1 -> inventory-only until then.
+documents:
+  - id: DOC-ANK-DEV-001
+    department: enerji_grubu
+    subdepartment: enerji_gelistirme
+    folder: development
+    type: Üretim Lisansı
+    name: {value: "Ankara RES Üretim Lisansı", tag: AI_ASSUMPTION}
+    document_date: {value: 2020-06-15, tag: AI_ASSUMPTION}
+    effective_date: {value: 2020-06-15, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: amended
+    parties: ["DEF Enerji Üretim A.Ş."]
+    key_facts: {capacity_mw: project.capacity_mw.initial.value, licence_date: project.timeline.licence.date}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-DEV-002]
+    source_type: scanned_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "3.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-DEV-002
+    department: enerji_grubu
+    subdepartment: enerji_gelistirme
+    folder: development
+    type: Licence Amendment
+    name: {value: "Licence Amendment 01 (Kapasite Tadili)", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-02-10, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-02-10, tag: AI_ASSUMPTION}
+    version: AMD01
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş."]
+    key_facts: {capacity_mw: project.capacity_mw.current.value, amendment_date: project.timeline.licence_amendment.date}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-DEV-001]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "3.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-FIN-001
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Facility Agreement
+    name: {value: "Facility Agreement — Draft", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-06-15, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: DRAFT
+    status: draft
+    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    key_facts: {dscr_covenant: project.finance.dscr_covenant.initial.value, tenor_years: project.finance.tenor_years.initial.value}
+    supersedes: null
+    superseded_by: DOC-ANK-FIN-002
+    related: []
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "3.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-FIN-002
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Facility Agreement
+    name: {value: "Facility Agreement — V01", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-07-20, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: V01
+    status: superseded
+    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    key_facts: {dscr_covenant: project.finance.dscr_covenant.initial.value, tenor_years: project.finance.tenor_years.initial.value}
+    supersedes: DOC-ANK-FIN-001
+    superseded_by: DOC-ANK-FIN-003
+    related: []
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-FIN-003
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Facility Agreement
+    name: {value: "Facility Agreement — V02", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-08-25, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: V02
+    status: superseded
+    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    key_facts: {dscr_covenant: project.finance.dscr_covenant.initial.value, tenor_years: project.finance.tenor_years.initial.value}
+    supersedes: DOC-ANK-FIN-002
+    superseded_by: DOC-ANK-FIN-004
+    related: []
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-FIN-004
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Facility Agreement
+    name: {value: "Facility Agreement", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-09-30, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-09-30, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: superseded
+    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    key_facts:
+      total_debt: project.finance.total_debt.value
+      local_debt: project.finance.local_debt.value
+      eca_debt: project.finance.eca_debt.value
+      margin_pct: project.finance.interest.margin_pct.value
+      tenor_years: project.finance.tenor_years.initial.value
+      grace_months: project.finance.grace_months.value
+      dscr_covenant: project.finance.dscr_covenant.initial.value
+    supersedes: DOC-ANK-FIN-003
+    superseded_by: DOC-ANK-FIN-005
+    related: [DOC-CO-ADM-001, DOC-ANK-EPC-001]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "3.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-FIN-005
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Facility Agreement
+    name: {value: "Facility Agreement Amendment 01", tag: AI_ASSUMPTION}
+    document_date: {value: 2025-03-15, tag: AI_ASSUMPTION}
+    effective_date: {value: 2025-03-15, tag: AI_ASSUMPTION}
+    version: AMD01
+    status: superseded
+    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    key_facts: {dscr_covenant: project.finance.dscr_covenant.current.value, tenor_years: project.finance.tenor_years.current.value}
+    supersedes: DOC-ANK-FIN-004
+    superseded_by: DOC-ANK-FIN-006
+    related: []
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "3.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-FIN-006
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Facility Agreement
+    name: {value: "Facility Agreement Amendment 02", tag: AI_ASSUMPTION, note: "Finansal olmayan: geri ödeme takvimi eki ve covenant test dönemi tanımı yeniden düzenlendi (SORU 1)"}
+    document_date: {value: 2026-02-20, tag: AI_ASSUMPTION}
+    effective_date: {value: 2026-02-20, tag: AI_ASSUMPTION}
+    version: AMD02
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    key_facts: {repayment_profile: project.finance.repayment_profile.value}
+    supersedes: DOC-ANK-FIN-005
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "3.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-FIN-007
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Covenant Report
+    name: {value: "Covenant Compliance Report Q2 2026", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-07-20, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank"]
+    key_facts:
+      dscr: "project.finance.covenant_tests[10].dscr"
+      outstanding_debt: project.finance.outstanding_debt_as_of_demo_today.value
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-FIN-006]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "3.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-EPC-001
+    department: enerji_grubu
+    subdepartment: enerji_epc_insaat
+    folder: epc
+    type: EPC Contract
+    name: {value: "EPC Contract", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-10-20, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-10-20, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: amended
+    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
+    key_facts: {epc_contract_price: project.construction.epc_contract_price.value, cod_expected: project.timeline.cod_expected_initial.date}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-EPC-003]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "3.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-EPC-002
+    department: enerji_grubu
+    subdepartment: enerji_epc_insaat
+    folder: epc
+    type: COD Documentation
+    name: {value: "Provisional Acceptance & COD Certificate", tag: AI_ASSUMPTION}
+    document_date: {value: 2023-10-15, tag: AI_ASSUMPTION}
+    effective_date: {value: 2023-10-15, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş.", "MNO Teknik Danışmanlık Ltd."]
+    key_facts: {cod_actual: project.timeline.cod_actual.date, capacity_mw: project.capacity_mw.current.value}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-EPC-001]
+    source_type: scanned_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "3.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-EPC-003
+    department: enerji_grubu
+    subdepartment: enerji_epc_insaat
+    folder: epc
+    type: Change Order
+    name: {value: "EPC Change Order 01 (COD Deferral)", tag: AI_ASSUMPTION}
+    document_date: {value: 2023-05-12, tag: AI_ASSUMPTION}
+    effective_date: {value: 2023-05-12, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
+    key_facts: {cod_expected_initial: project.timeline.cod_expected_initial.date, cod_actual: project.timeline.cod_actual.date}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-EPC-001]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-OPS-001
+    department: enerji_grubu
+    subdepartment: enerji_bakim
+    folder: operations
+    type: Production Report
+    name: {value: "Aylık Üretim Raporu — Ağustos 2026", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-09-05, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş."]
+    key_facts: {mwh: "project.operations.monthly_production[33].mwh", operating_year: project.operations.operating_year_on_demo_today.value}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "3.1"
+    tag: AI_ASSUMPTION

@@ -1,0 +1,775 @@
+{
+  "version": 1,
+  "demo_today": "2026-09-15",
+  "questions": [
+    {
+      "id": "ANK-DEV-001",
+      "category": "document",
+      "question": "Ankara RES'in development süreci ne zaman başladı?",
+      "expected_answer": "ledger:ankara_res.project.timeline.development_start.date",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Ankara RES Üretim Lisansı"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "ANK-DEV-002",
+      "category": "document",
+      "question": "Ankara RES üretim lisansı ne zaman alındı?",
+      "expected_answer": "ledger:ankara_res.project.timeline.licence.date",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Ankara RES Üretim Lisansı"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "ANK-DEV-003",
+      "category": "document",
+      "question": "Ankara RES'in güncel kurulu gücü (kapasitesi) nedir?",
+      "expected_answer": "ledger:ankara_res.project.capacity_mw.current.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Licence Amendment 01 (Kapasite Tadili)"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "ANK-DEV-004",
+      "category": "temporal",
+      "question": "Ankara RES'in ilk lisans kapasitesi neydi?",
+      "expected_answer": "ledger:ankara_res.project.capacity_mw.initial.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Ankara RES Üretim Lisansı"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Tarihsel değer doğru cevaptır; güncel kapasiteyle karıştırılmamalı"
+    },
+    {
+      "id": "ANK-DEV-005",
+      "category": "temporal",
+      "question": "Ankara RES'in kapasite tadili (licence amendment) ne zaman yapıldı?",
+      "expected_answer": "ledger:ankara_res.project.timeline.licence_amendment.date",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Licence Amendment 01 (Kapasite Tadili)"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "ANK-FIN-001",
+      "category": "document",
+      "question": "Ankara RES'in financial close tarihi nedir?",
+      "expected_answer": "ledger:ankara_res.project.timeline.financial_close.date",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "ANK-FIN-002",
+      "category": "document",
+      "question": "Ankara RES'in toplam finansman (kredi) tutarı nedir?",
+      "expected_answer": "ledger:ankara_res.project.finance.total_debt.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "ANK-FIN-003",
+      "category": "document",
+      "question": "Ankara RES finansmanında yerli banka kredisi ne kadar?",
+      "expected_answer": "ledger:ankara_res.project.finance.local_debt.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "ANK-FIN-004",
+      "category": "document",
+      "question": "Ankara RES finansmanında ECA kredisi ne kadar?",
+      "expected_answer": "ledger:ankara_res.project.finance.eca_debt.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "ANK-FIN-005",
+      "category": "document",
+      "question": "Ankara RES kredisinin güncel faiz bazı ve marjı nedir?",
+      "expected_answer": "ledger:ankara_res.project.finance.interest.margin_pct.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "Cevap base + margin içermeli"
+    },
+    {
+      "id": "ANK-FIN-006",
+      "category": "temporal",
+      "question": "Ankara RES'in güncel minimum DSCR covenant'ı nedir?",
+      "expected_answer": "ledger:ankara_res.project.finance.dscr_covenant.current.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement Amendment 01"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "ANK-FIN-007",
+      "category": "temporal",
+      "question": "Ankara RES'in ilk (orijinal) DSCR covenant'ı neydi?",
+      "expected_answer": "ledger:ankara_res.project.finance.dscr_covenant.initial.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "İlk değer; güncel değerle karıştırılmamalı"
+    },
+    {
+      "id": "ANK-FIN-008",
+      "category": "temporal",
+      "question": "Ankara RES'in güncel (yürürlükteki) Facility Agreement'ı hangisi?",
+      "expected_answer": "ledger:ankara_res.project.finance.facility_chain[-1]",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement Amendment 02"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "Zincirin son halkası; belge adıyla cevap"
+    },
+    {
+      "id": "ANK-FIN-009",
+      "category": "document",
+      "question": "Ankara RES Facility Agreement'ında kaç amendment var?",
+      "expected_answer": "ledger:ankara_res.project.finance.facility_chain",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement Amendment 01",
+        "Facility Agreement Amendment 02"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "Runner: zincirdeki AMD* halkalarını sayar"
+    },
+    {
+      "id": "ANK-EPC-001",
+      "category": "document",
+      "question": "Ankara RES EPC sözleşme bedeli nedir?",
+      "expected_answer": "ledger:ankara_res.project.construction.epc_contract_price.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "EPC Contract"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "ANK-EPC-002",
+      "category": "document",
+      "question": "Ankara RES'in güncel EPC sözleşmesi hangisi?",
+      "expected_answer": "ledger:ankara_res.project.construction.epc_contract_current_doc",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "EPC Contract"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "ANK-EPC-003",
+      "category": "document",
+      "question": "Ankara RES'in COD (ticari işletme) tarihi nedir?",
+      "expected_answer": "ledger:ankara_res.project.timeline.cod_actual.date",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Provisional Acceptance & COD Certificate"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "ANK-OPS-001",
+      "category": "temporal",
+      "question": "Ankara RES şu anda kaçıncı işletme yılında?",
+      "expected_answer": "ledger:ankara_res.project.operations.operating_year_on_demo_today.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Aylık Üretim Raporu — Ağustos 2026"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "DEMO_TODAY'e göre; gerçek takvime göre değil"
+    },
+    {
+      "id": "ANK-FIN-010",
+      "category": "document",
+      "question": "Ankara RES'in son covenant testi sonucu nedir?",
+      "expected_answer": "ledger:ankara_res.project.finance.covenant_tests[-1].result",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Covenant Compliance Report Q2 2026"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "Dönem + DSCR + pass/fail"
+    },
+    {
+      "id": "ANK-FIN-011",
+      "category": "document",
+      "question": "Ankara RES'in güncel outstanding (kalan) borcu nedir?",
+      "expected_answer": "ledger:ankara_res.project.finance.outstanding_debt_as_of_demo_today.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Covenant Compliance Report Q2 2026"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "ANK-FIN-012",
+      "category": "temporal",
+      "question": "Ankara RES'in DSCR covenant'ı ne zaman ve hangi belgeyle değişti?",
+      "expected_answer": "ledger:ankara_res.project.finance.dscr_covenant.changed_by",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement Amendment 01"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "ANK-FIN-013",
+      "category": "temporal",
+      "question": "Ankara RES kredisinin tenor'u ilk ne kadardı, şimdi ne kadar?",
+      "expected_answer": "ledger:ankara_res.project.finance.tenor_years",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement",
+        "Facility Agreement Amendment 01"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "İki değer birlikte; kaynaklar iki farklı halka"
+    },
+    {
+      "id": "ANK-EPC-004",
+      "category": "temporal",
+      "question": "Ankara RES'in COD'u ilk beklenen tarihe göre sapmış mı? Belgelerde sebep yazıyor mu?",
+      "expected_answer": "ledger:ankara_res.project.construction.change_orders[0].subject.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "EPC Contract",
+        "Provisional Acceptance & COD Certificate"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Kural 6: yalnızca belgede yazan sebep; Change Order belgesi 5.1'de üretilir, 3.1'de sebep bulunamazsa 'belirtilmemiş' kabul"
+    },
+    {
+      "id": "IZM-DEV-001",
+      "category": "document",
+      "question": "İzmir RES projesi hangi aşamada?",
+      "expected_answer": "ledger:izmir_res.project.stage",
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "ÇED Süreci Durum Yazısı"
+      ],
+      "forbidden_sources": [
+        "Ankara RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "IZM-DEV-002",
+      "category": "document",
+      "question": "İzmir RES'in ÇED süreci ne durumda?",
+      "expected_answer": "ledger:izmir_res.project.development.ced_status.value",
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "ÇED Süreci Durum Yazısı"
+      ],
+      "forbidden_sources": [
+        "Ankara RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "IZM-DEV-003",
+      "category": "document",
+      "question": "İzmir RES için ÇED süreci tamamlandı mı?",
+      "expected_answer": "ledger:izmir_res.project.development.ced_status.value",
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "ÇED Süreci Durum Yazısı"
+      ],
+      "forbidden_sources": [
+        "Ankara RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Beklenen: hayır, devam ediyor"
+    },
+    {
+      "id": "IZM-DEV-004",
+      "category": "document",
+      "question": "İzmir RES'in yapı ruhsatı var mı?",
+      "expected_answer": "ledger:izmir_res.project.development.pending_steps",
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "ÇED Süreci Durum Yazısı"
+      ],
+      "forbidden_sources": [
+        "Ankara RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Beklenen: yok, bekleyen adımlar arasında"
+    },
+    {
+      "id": "IZM-DEV-005",
+      "category": "document",
+      "question": "İzmir RES için üretim lisansı alındı mı?",
+      "expected_answer": "ledger:izmir_res.project.timeline.licence",
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "İzmir RES Önlisans Belgesi",
+        "ÇED Süreci Durum Yazısı"
+      ],
+      "forbidden_sources": [
+        "Ankara RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Beklenen: hayır; yalnızca önlisans var"
+    },
+    {
+      "id": "IZM-DEV-006",
+      "category": "document",
+      "question": "İzmir RES'te inşaata başlandı mı?",
+      "expected_answer": "ledger:izmir_res.project.timeline.construction_start",
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "ÇED Süreci Durum Yazısı"
+      ],
+      "forbidden_sources": [
+        "Ankara RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Beklenen: hayır"
+    },
+    {
+      "id": "IZM-DEV-007",
+      "category": "document",
+      "question": "İzmir RES'te hangi süreç adımları tamamlandı?",
+      "expected_answer": "ledger:izmir_res.project.development.permits_completed",
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "İzmir RES Önlisans Belgesi",
+        "Arazi Edinim Durum Raporu"
+      ],
+      "forbidden_sources": [
+        "Ankara RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "IZM-DEV-008",
+      "category": "document",
+      "question": "İzmir RES'te hangi kritik adımlar bekliyor?",
+      "expected_answer": "ledger:izmir_res.project.development.pending_steps",
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "ÇED Süreci Durum Yazısı"
+      ],
+      "forbidden_sources": [
+        "Ankara RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "IZM-DEV-009",
+      "category": "document",
+      "question": "İzmir RES ile ilgili en son gelişme nedir?",
+      "expected_answer": "ledger:izmir_res.project.development.latest_event.date",
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "ÇED Süreci Durum Yazısı"
+      ],
+      "forbidden_sources": [
+        "Ankara RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Tarih + olay"
+    },
+    {
+      "id": "GEN-HAL-001",
+      "category": "hallucination",
+      "question": "İzmir RES'in COD tarihi nedir?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [],
+      "forbidden_sources": [
+        "Ankara RES",
+        "Provisional Acceptance & COD Certificate"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": true,
+      "notes": "İzmir'in COD'u yok; Ankara COD'u aktarılmamalı"
+    },
+    {
+      "id": "GEN-HAL-002",
+      "category": "hallucination",
+      "question": "Ankara RES'in ikinci EPC yüklenicisi kim?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [],
+      "forbidden_sources": [],
+      "ask_as_user": "enerji",
+      "expect_no_answer": true,
+      "notes": "Tek yüklenici var; ikinci uydurulmamalı"
+    },
+    {
+      "id": "GEN-HAL-003",
+      "category": "hallucination",
+      "question": "Bursa RES'in kapasitesi nedir?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": null,
+      "required_sources": [],
+      "forbidden_sources": [
+        "Ankara RES",
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": true,
+      "notes": "Böyle bir proje yok"
+    },
+    {
+      "id": "GEN-HAL-004",
+      "category": "hallucination",
+      "question": "İzmir RES'in kredi faiz oranı nedir?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "finans",
+      "required_sources": [],
+      "forbidden_sources": [
+        "Facility Agreement",
+        "Ankara RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": true,
+      "notes": "İzmir'de finansman yok; Ankara Facility Agreement'ı kullanılmamalı"
+    },
+    {
+      "id": "IZM-ISO-001",
+      "category": "isolation",
+      "question": "İzmir RES'in kapasitesi nedir?",
+      "expected_answer": "ledger:izmir_res.project.capacity_mw.target.value",
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "İzmir RES Önlisans Belgesi",
+        "Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu"
+      ],
+      "forbidden_sources": [
+        "Ankara RES",
+        "Ankara RES Üretim Lisansı",
+        "Licence Amendment 01 (Kapasite Tadili)"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Hedef kapasite; Ankara kapasitesi karışmamalı"
+    },
+    {
+      "id": "ANK-ISO-002",
+      "category": "isolation",
+      "question": "Hangi projenin üretim lisansı var?",
+      "expected_answer": "ledger:ankara_res.project.timeline.licence.date",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Ankara RES Üretim Lisansı"
+      ],
+      "forbidden_sources": [
+        "ÇED Süreci Durum Yazısı"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Yalnızca Ankara; İzmir'in yalnızca önlisansı var"
+    },
+    {
+      "id": "ANK-ISO-003",
+      "category": "isolation",
+      "question": "Hangi projenin finansmanı kapanmış (financial close) durumda?",
+      "expected_answer": "ledger:ankara_res.project.timeline.financial_close.date",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": null
+    },
+    {
+      "id": "IZM-ISO-004",
+      "category": "isolation",
+      "question": "İzmir RES için finansman sözleşmesi imzalandı mı?",
+      "expected_answer": "ledger:izmir_res.project.timeline.financing_signed",
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "finans",
+      "required_sources": [],
+      "forbidden_sources": [
+        "Facility Agreement",
+        "Facility Agreement Amendment 01",
+        "Facility Agreement Amendment 02"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": true,
+      "notes": "finans kullanıcısı Ankara Facility Agreement'ını görebilir; İzmir'e atfetmemeli"
+    },
+    {
+      "id": "ANK-AUT-001",
+      "category": "authorization",
+      "question": "Ankara RES'in güncel minimum DSCR covenant'ı nedir?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [],
+      "forbidden_sources": [
+        "Facility Agreement Amendment 01"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": true,
+      "notes": "enerji finans belgelerini göremez; retrieved_document_ids boş"
+    },
+    {
+      "id": "ANK-AUT-002",
+      "category": "authorization",
+      "question": "Ankara RES'in toplam kredi tutarı nedir?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [],
+      "forbidden_sources": [
+        "Facility Agreement"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": true,
+      "notes": null
+    },
+    {
+      "id": "ANK-AUT-003",
+      "category": "authorization",
+      "question": "Ankara RES'in son covenant testi sonucu nedir?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [],
+      "forbidden_sources": [
+        "Covenant Compliance Report Q2 2026"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": true,
+      "notes": null
+    }
+  ]
+}
