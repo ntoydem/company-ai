@@ -7,6 +7,7 @@ from datetime import date
 from typing import Annotated, BinaryIO
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
@@ -36,6 +37,7 @@ UNSUPPORTED_FILE_TYPE_MESSAGE = "Desteklenmeyen dosya türü."
 FILE_TOO_LARGE_MESSAGE = "Dosya çok büyük."
 DOCUMENT_NOT_FOUND_MESSAGE = "Belge bulunamadı."
 ALREADY_SUPERSEDED_MESSAGE = "Belge zaten başka bir belge tarafından güncellenmiş."
+DOCUMENT_ACCESS_DENIED_MESSAGE = "Bu belgeye erişim yetkiniz yok."
 
 
 def _detect_extension(header: bytes) -> str | None:
@@ -128,6 +130,31 @@ def list_documents(
     scope = AuthorizationScope(department=department, project_id=project_id)
     allowed = allowed_document_ids(current_user, scope, SqlDocumentIdsProvider(session))
     return [DocumentListItem.model_validate(d) for d in document_repo.list_by_ids(session, allowed)]
+
+
+@router.get("/{document_id}/download")
+def download_document(
+    session: Annotated[Session, Depends(get_session)],
+    settings: Annotated[Settings, Depends(get_settings)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    document_id: uuid.UUID,
+) -> FileResponse:
+    """403 rather than the 404 the other endpoints below use for an unauthorized id — the
+    acceptance criterion text asks for 403 here specifically; a deliberate, documented
+    exception to the "hide existence" pattern (docs/plans/PHASE_1_2_PLAN.md T6)."""
+    allowed = allowed_document_ids(
+        current_user, AuthorizationScope(), SqlDocumentIdsProvider(session)
+    )
+    if document_id not in allowed:
+        raise HTTPException(403, DOCUMENT_ACCESS_DENIED_MESSAGE)
+    document = document_repo.get(session, document_id)
+    if document is None:
+        raise HTTPException(404, DOCUMENT_NOT_FOUND_MESSAGE)
+    try:
+        path = LocalFileSystemStore(settings.documents_dir).get_file(document.id, kind="original")
+    except FileNotFoundError:
+        raise HTTPException(404, DOCUMENT_NOT_FOUND_MESSAGE) from None
+    return FileResponse(path, filename=path.name)
 
 
 @router.get("/{document_id}/status", response_model=DocumentStatusResponse)

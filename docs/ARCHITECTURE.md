@@ -37,6 +37,7 @@ Status values: `accepted` | `superseded by ADR-xxx`. Phase column = when the dec
 - Ordering rule for every question: AUTHORIZATION → allowed ids → retrieval → LLM. Listing, download, retrieval and `/api/ask` all start from this set; content outside it never reaches a prompt.
 - Step 0: single admin, stub returns every existing document. Step 1.2: `employee` = `normal` docs of own departments; `management` = all departments, all confidentiality; `admin` = everything. Document permission derives from department, not project.
 - Enforced server-side only; UI hiding is convenience, not security. Any code path bypassing the gate is a bug; tests assert "empty set → empty result".
+- **Phase 1.2 implementation:** `DocumentIdsProvider` gained one method, `list_document_ids_for_departments(department_slugs, confidentiality_levels)` — `AuthorizationScope` itself did not change. `documents.department` stays a denormalized slug string with no FK (existing rows/tests predate the `departments` table); a misspelled or unknown slug fails safe — the document becomes invisible to everyone but admin, never exposed. `documents.project_id` gained an FK to `projects.id`. `departments`/`projects` are seed-only in V0 (no department CRUD); project CRUD is admin-only (`require_admin`, `app/api/deps.py`).
 
 ## ADR-005 — `DocumentStore` interface
 **Status:** accepted · **Phase:** 0.2

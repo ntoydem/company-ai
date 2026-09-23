@@ -1,3 +1,4 @@
+import io
 import uuid
 from datetime import date
 
@@ -5,11 +6,62 @@ from fastapi.testclient import TestClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models.document import Document
+from app.core.config import Settings
+from app.models.document import Confidentiality, Document
 from app.models.ingestion_job import IngestionJob, IngestionJobStatus
 from app.models.user import User
+from app.services.document_store import LocalFileSystemStore
+from tests.department_fixtures import add_user_to_department, make_department
 
 FAKE_PDF = b"%PDF-1.4\n%fake-pdf-for-tests\n1 0 obj\n<< >>\nendobj\ntrailer\n<< >>\n%%EOF"
+
+
+def _document(
+    session: Session,
+    *,
+    department: str | None = None,
+    confidentiality: Confidentiality = Confidentiality.normal,
+) -> Document:
+    """A `Document` row created directly (not via `/upload`, which doesn't accept
+    `department`/`confidentiality` in this phase — SORU 5, PHASE_1_2_PLAN.md)."""
+    document = Document(
+        title="t",
+        document_type="dt",
+        counterparty="c",
+        document_date=date(2023, 1, 1),
+        storage_path=f"{uuid.uuid4()}/original.pdf",
+        department=department,
+        confidentiality=confidentiality,
+    )
+    session.add(document)
+    session.commit()
+    return document
+
+
+def _document_with_file(
+    session: Session,
+    settings: Settings,
+    *,
+    department: str | None,
+    confidentiality: Confidentiality = Confidentiality.normal,
+) -> Document:
+    """Like `_document`, but also writes a real file to disk so `/download` succeeds."""
+    document_id = uuid.uuid4()
+    store = LocalFileSystemStore(settings.documents_dir)
+    stored = store.store(document_id, "original.pdf", io.BytesIO(FAKE_PDF))
+    document = Document(
+        id=document_id,
+        title="t",
+        document_type="dt",
+        counterparty="c",
+        document_date=date(2023, 1, 1),
+        storage_path=str(stored.original_path.relative_to(settings.documents_dir)),
+        department=department,
+        confidentiality=confidentiality,
+    )
+    session.add(document)
+    session.commit()
+    return document
 
 
 def _upload(
@@ -155,3 +207,98 @@ def test_upload_supersedes_unknown_document_is_404(client: TestClient, admin_use
 
 def test_upload_version_must_be_positive(client: TestClient, admin_user: User) -> None:
     assert _upload(client, version="0").status_code == 422
+
+
+# --- Phase 1.2: role + department membership + confidentiality rules (SPEC_02 §5) ---
+
+
+def test_employee_list_excludes_other_department_documents(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    """Kabul kriteri 1: enerji → finans belgesi listede yok."""
+    enerji = make_department(db_session, slug="enerji_grubu")
+    add_user_to_department(db_session, employee_user, enerji)
+    _document(db_session, department="finans")
+    own_doc = _document(db_session, department="enerji_grubu")
+
+    response = client.get("/api/documents")
+
+    assert response.status_code == 200
+    assert [item["id"] for item in response.json()] == [str(own_doc.id)]
+
+
+def test_employee_download_other_department_document_returns_403(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    """Kabul kriteri 1: enerji → finans belgesini indiremez (403)."""
+    enerji = make_department(db_session, slug="enerji_grubu")
+    add_user_to_department(db_session, employee_user, enerji)
+    finans_doc = _document(db_session, department="finans")
+
+    response = client.get(f"/api/documents/{finans_doc.id}/download")
+
+    assert response.status_code == 403
+
+
+def test_finans_cannot_download_hukuk_document(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    """Kabul kriteri 2: finans → legal (hukuk) belgesi 403."""
+    finans = make_department(db_session, slug="finans")
+    add_user_to_department(db_session, employee_user, finans)
+    hukuk_doc = _document(db_session, department="hukuk")
+
+    response = client.get(f"/api/documents/{hukuk_doc.id}/download")
+
+    assert response.status_code == 403
+
+
+def test_finans_can_download_own_department_document(
+    client: TestClient, db_session: Session, settings: Settings, employee_user: User
+) -> None:
+    """Kabul kriteri 2: finans → kendi belgesi 200."""
+    finans = make_department(db_session, slug="finans")
+    add_user_to_department(db_session, employee_user, finans)
+    own_doc = _document_with_file(db_session, settings, department="finans")
+
+    response = client.get(f"/api/documents/{own_doc.id}/download")
+
+    assert response.status_code == 200
+
+
+def test_management_can_download_any_department_and_confidentiality_level(
+    client: TestClient, db_session: Session, settings: Settings, management_user: User
+) -> None:
+    """Kabul kriteri 2: yonetim → hepsi 200 (restricted dahil)."""
+    doc = _document_with_file(
+        db_session, settings, department="hukuk", confidentiality=Confidentiality.restricted
+    )
+
+    response = client.get(f"/api/documents/{doc.id}/download")
+
+    assert response.status_code == 200
+
+
+def test_employee_cannot_download_restricted_document_of_own_department(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    """Kabul kriteri 2: restricted/board kuralı — employee kendi departmanında bile
+    restricted belgeyi göremez."""
+    finans = make_department(db_session, slug="finans")
+    add_user_to_department(db_session, employee_user, finans)
+    restricted_doc = _document(
+        db_session, department="finans", confidentiality=Confidentiality.restricted
+    )
+
+    response = client.get(f"/api/documents/{restricted_doc.id}/download")
+
+    assert response.status_code == 403
+
+
+def test_download_unknown_document_returns_403(client: TestClient, admin_user: User) -> None:
+    """An id that doesn't exist is never in `allowed_document_ids`'s result either, so it
+    is rejected by the same 403 check as a real document the caller can't see — the
+    existence-hiding 404 branch below it is unreachable in practice, kept only as a
+    defensive fallback."""
+    response = client.get(f"/api/documents/{uuid.uuid4()}/download")
+    assert response.status_code == 403

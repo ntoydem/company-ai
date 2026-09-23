@@ -23,6 +23,7 @@ from app.schemas.ask import NO_INTERPRETATION_NOTICE
 from app.services import retrieval as retrieval_module
 from app.services.answer_prompt import NO_ANSWER_TEXT
 from app.services.llm import LLMNotConfiguredError, LLMRateLimitError, LLMRequest
+from tests.department_fixtures import add_user_to_department, make_department
 from tests.fakes import FakeLLMClient
 from tests.t0_fixtures import load_t0_documents
 
@@ -235,3 +236,27 @@ def test_ask_completed_log_carries_token_counts(
     assert record.tokens_in == 123 and record.tokens_out == 45  # type: ignore[attr-defined]
     assert record.model == "fake-model"  # type: ignore[attr-defined]
     assert record.answered is True  # type: ignore[attr-defined]
+
+
+def test_employee_ask_outside_department_returns_no_answer_with_empty_retrieved(
+    client: TestClient,
+    db_session: Session,
+    employee_user: User,
+    fake_llm: FakeLLMClient,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Kabul kriteri 1: enerji → finans belgesiyle ilgili soruya `/api/ask` ile "bilgi
+    bulamadım"; `retrieved_document_ids` boş — bu, `audit_log` tablosu gelene kadar (Phase
+    3.4) audit kanıtı olarak kullanılır (docs/plans/PHASE_1_2_PLAN.md T5)."""
+    enerji = make_department(db_session, slug="enerji_grubu")
+    add_user_to_department(db_session, employee_user, enerji)
+    _document(db_session, title="A", department="finans", text=f"DSCR covenant {SENTINEL}")
+
+    with caplog.at_level(logging.INFO, logger="app.services.ask"):
+        body = _ask(client, "DSCR covenant nedir?")
+
+    assert body["answered"] is False
+    assert body["answer"] == NO_ANSWER_TEXT
+    assert body["retrieved_document_ids"] == []
+    record = next(r for r in caplog.records if r.getMessage() == "ask completed")
+    assert record.retrieved_document_ids == []  # type: ignore[attr-defined]

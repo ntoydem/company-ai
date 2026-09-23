@@ -30,6 +30,19 @@ class SqlDocumentIdsProvider:
             stmt = stmt.where(Document.project_id == scope.project_id)
         return self._session.scalars(stmt).all()
 
+    def list_document_ids_for_departments(
+        self,
+        *,
+        department_slugs: Iterable[str] | None,
+        confidentiality_levels: Iterable[Confidentiality],
+    ) -> Iterable[uuid.UUID]:
+        """Role-based candidate set (Phase 1.2): `department_slugs=None` means every
+        department (`management`); otherwise only those departments' documents."""
+        stmt = select(Document.id).where(Document.confidentiality.in_(list(confidentiality_levels)))
+        if department_slugs is not None:
+            stmt = stmt.where(Document.department.in_(list(department_slugs)))
+        return self._session.scalars(stmt).all()
+
 
 def create_with_job(
     session: Session,

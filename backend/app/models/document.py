@@ -36,8 +36,12 @@ class IngestionStatus(enum.StrEnum):
 
 
 class Document(TimestampMixin, Base):
-    """Master document metadata (SPEC_02 §2). `department`/`project_id` have no FK yet —
-    the `departments`/`projects` tables arrive in Phase 1.2, which also adds the FK."""
+    """Master document metadata (SPEC_02 §2). `department` stays a denormalized slug
+    string with no FK — existing rows/tests predate the `departments` table and use
+    free-text department names; a misspelled slug fails safe by simply making the
+    document invisible to everyone but admin, never by exposing it (see
+    docs/plans/PHASE_1_2_PLAN.md T2). `project_id` has an FK to `projects.id` from
+    Phase 1.2 onward."""
 
     __tablename__ = "documents"
 
@@ -47,7 +51,9 @@ class Document(TimestampMixin, Base):
     title: Mapped[str] = mapped_column(String(255))
     department: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
     subdepartment: Mapped[str | None] = mapped_column(String(128), nullable=True)
-    project_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, nullable=True, index=True)
+    project_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("projects.id", ondelete="SET NULL"), nullable=True, index=True
+    )
     document_type: Mapped[str] = mapped_column(String(64))
     counterparty: Mapped[str] = mapped_column(String(255))
     document_date: Mapped[date] = mapped_column(Date)

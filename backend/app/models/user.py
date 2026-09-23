@@ -2,9 +2,10 @@ import enum
 import uuid
 
 from sqlalchemy import Boolean, Enum, String, Uuid
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
+from app.models.department import Department
 
 
 class UserRole(enum.StrEnum):
@@ -28,6 +29,11 @@ class User(TimestampMixin, Base):
     # SSO readiness (SPEC_02 §7): V0 uses only "local".
     auth_provider: Mapped[str] = mapped_column(String(32), default="local", server_default="local")
     external_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
+    # Membership (SPEC_02 §5, Phase 1.2): grants an `employee` visibility into a
+    # department's `normal` documents. `management`/`admin` don't need rows here — see
+    # app/services/authorization.py.
+    departments: Mapped[list[Department]] = relationship("Department", secondary="user_departments")
 
     def __repr__(self) -> str:  # never include password_hash
         return f"User(username={self.username!r}, role={self.role.value!r})"

@@ -8,8 +8,8 @@ from sqlalchemy.orm import Session
 
 from app.core.config import Settings, get_settings
 from app.core.db import get_session
-from app.core.errors import NOT_AUTHENTICATED_MESSAGE
-from app.models.user import User
+from app.core.errors import NOT_AUTHENTICATED_MESSAGE, NOT_AUTHORIZED_MESSAGE
+from app.models.user import User, UserRole
 from app.repositories import user_repo
 from app.services.llm import LLMClient, build_llm_client
 from app.services.rate_limit import LoginRateLimiter
@@ -31,6 +31,13 @@ def get_current_user(
     if user is None or not user.is_active:
         raise HTTPException(401, NOT_AUTHENTICATED_MESSAGE)
     return user
+
+
+def require_admin(current_user: Annotated[User, Depends(get_current_user)]) -> User:
+    """Gate for admin-only endpoints (Phase 1.2, e.g. project CRUD)."""
+    if current_user.role != UserRole.admin:
+        raise HTTPException(403, NOT_AUTHORIZED_MESSAGE)
+    return current_user
 
 
 @lru_cache

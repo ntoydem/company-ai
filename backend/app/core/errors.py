@@ -17,6 +17,7 @@ VALIDATION_ERROR_MESSAGE = "İstek geçersiz."
 LLM_UNAVAILABLE_MESSAGE = "Yapay zeka servisi geçici olarak kullanılamıyor."
 LLM_NOT_CONFIGURED_MESSAGE = "Yapay zeka servisi yapılandırılmamış."
 NOT_AUTHENTICATED_MESSAGE = "Oturum açmanız gerekiyor."
+NOT_AUTHORIZED_MESSAGE = "Bu işlem için yetkiniz yok."
 
 
 def _response(status_code: int, detail: object) -> JSONResponse:

@@ -11,7 +11,8 @@ BACKEND_PORT := $(or $(BACKEND_PORT),8000)
 SVC ?=
 
 .PHONY: help env-check dirs up up-full down ps logs build test test-llm lint format prompt-doc \
-        migrate migration seed-admin seed-demo-users psql shell seed reset-demo eval backup restore clean
+        migrate migration seed-admin seed-demo-users seed-demo-departments seed-demo-projects \
+        psql shell seed reset-demo eval backup restore clean
 
 help: ## Bu listeyi göster
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -84,6 +85,12 @@ seed-admin: dirs ## admin kullanıcısını oluştur (yoksa)
 
 seed-demo-users: dirs ## demo kullanıcılarını oluştur (yoksa): yonetim, finans, hukuk, enerji
 	$(COMPOSE) run --rm -T backend python -m app.cli seed-demo-users
+
+seed-demo-departments: dirs ## demo departmanlarını + demo kullanıcı üyeliklerini oluştur (yoksa)
+	$(COMPOSE) run --rm -T backend python -m app.cli seed-demo-departments
+
+seed-demo-projects: dirs ## demo projelerini oluştur (yoksa): Ankara RES, İzmir RES
+	$(COMPOSE) run --rm -T backend python -m app.cli seed-demo-projects
 
 psql: env-check ## postgres'e psql ile bağlan
 	$(COMPOSE) exec postgres sh -c 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'

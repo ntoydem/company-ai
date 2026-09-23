@@ -86,6 +86,45 @@ def admin_user(db_session: Session, settings: Settings) -> Iterator[User]:
 
 
 @pytest.fixture
+def employee_user(db_session: Session) -> Iterator[User]:
+    """A plain `employee` with no department membership; tests attach departments via
+    `tests.department_fixtures.add_user_to_department`. Same override pattern as
+    `admin_user`."""
+    user = user_repo.create(
+        db_session,
+        username="test-calisan",
+        password_hash=hash_password("gecerli-sifre"),
+        display_name="Test Çalışan",
+        role=UserRole.employee,
+    )
+    db_session.commit()
+    app.dependency_overrides[get_current_user] = lambda: user
+    try:
+        yield user
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
+
+
+@pytest.fixture
+def management_user(db_session: Session) -> Iterator[User]:
+    """A `management` user — sees every department regardless of membership (SPEC_02 §5),
+    so no membership rows are needed."""
+    user = user_repo.create(
+        db_session,
+        username="test-yonetim",
+        password_hash=hash_password("gecerli-sifre"),
+        display_name="Test Yönetim",
+        role=UserRole.management,
+    )
+    db_session.commit()
+    app.dependency_overrides[get_current_user] = lambda: user
+    try:
+        yield user
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
+
+
+@pytest.fixture
 def inactive_user(db_session: Session) -> User:
     """A disabled user, created ad hoc so tests never mutate seeded demo-account state."""
     user = user_repo.create(

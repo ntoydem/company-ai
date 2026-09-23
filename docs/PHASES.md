@@ -11,7 +11,7 @@ Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 | 0.2 | Belge hattı (upload → OCR → sayfa → chunk → FTS) | tamamlandı | phase-0-2 | [PHASE_0_2_REPORT](reports/PHASE_0_2_REPORT.md) |
 | 0.3 | LLM + soru-cevap + sayfa kaynaklı cevap (T0) | tamamlandı | phase-0-3 | [PHASE_0_3_REPORT](reports/PHASE_0_3_REPORT.md) |
 | 1.1 | Auth + kullanıcılar | tamamlandı | phase-1-1 | [PHASE_1_1_REPORT](reports/PHASE_1_1_REPORT.md) |
-| 1.2 | Departman, rol, proje, yetki | bekliyor | – | – |
+| 1.2 | Departman, rol, proje, yetki | tamamlandı | phase-1-2 | [PHASE_1_2_REPORT](reports/PHASE_1_2_REPORT.md) |
 | 2.1 | Truth ledger + validator + golden questions v1 | bekliyor | – | – |
 | 3.1 | 15 demo belge + seed/reset | bekliyor | – | – |
 | 3.2 | AI metadata önerisi + temporal/versiyon mantığı | bekliyor | – | – |
@@ -97,6 +97,7 @@ Tanım: Tanıma aşaması — bulur, okur, kaynak göstererek aktarır; yorum ka
 ## Phase 3.2 — AI metadata önerisi + temporal mantık `S`
 **Kapsam:** Upload sonrası `LLM_MODEL_CLASSIFY` ile öneri (`document_metadata_suggestions`), kullanıcı kabul/düzenleme endpoint'i; kritik alan sessiz overwrite yok. Versiyon zinciri (`supersedes/superseded_by`) yönetimi ve `/api/ask`'te "güncel"/"ilk" ayrımının tam hali; "neden?" sorularında kural 6.
 **Kabul kriterleri:** Facility Agreement upload → öneri Finans/Ankara/Facility Agreement + confidence; LLM hatası upload'ı bozmaz; "güncel kapasite" ↔ "ilk lisans kapasitesi" farklı ve doğru; "EBITDA neden düştü?" → yalnızca belgede yazan sebep veya "belirtilmemiş".
+**Not (Phase 1.2):** `documents.department` FK almıyor, serbest slug string olarak kalıyor (bkz. `docs/plans/PHASE_1_2_PLAN.md` T2) — bu fazda upload formu/öneri akışı, kullanıcının veya LLM önerisinin yazdığı `department` değerini `departments` tablosundaki bilinen slug listesine karşı doğrulamalı; yanlış yazılmış/bilinmeyen bir slug şu an güvenli yönde başarısız oluyor (belge admin dışında kimseye görünmüyor) ama sessizce, hatasız geçiyor.
 
 ## Phase 3.3 — Frontend `S`
 **Kapsam:** Vite+React+TS, Caddy compose'a; ekranlar: Giriş, Ana sayfa (departman kartları + Genel Sor), Departman (Sor / Belgeler / Yükle / Projeler), Yükle (form + AI önerisi), Belgeler, Sor (cevap + kaynak kartları: belge, sayfa, tarih, versiyon, proje). Türkçe, sade, responsive.

@@ -3,7 +3,7 @@
 Kurumsal doküman + Excel + AI bilgi platformu. Şirket bilgisinin **kaynağını, erişim yetkisini, tarihini,
 versiyonunu ve ilişkilerini** koruyarak AI tarafından güvenilir kullanılmasını sağlar. Basit bir chatbot değildir.
 
-Bu README Phase 1.1 (auth + kullanıcılar) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
+Bu README Phase 1.2 (departman, rol, proje, yetki) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
 `docs/PHASES.md`. Mimari kararlar: `docs/ARCHITECTURE.md`. Alan modeli: `docs/DOMAIN_MODEL.md`.
 
 ## Gereksinimler (VM)
@@ -19,9 +19,10 @@ make up                         # postgres + backend build & start, /health bekl
 curl localhost:8000/health      # {"status":"ok","version":"0.1.0","database":"ok"}
 ```
 İlk açılışta backend container'ı sırayla: veritabanını bekler → `alembic upgrade head` → admin kullanıcısını
-oluşturur (`ADMIN_USERNAME` / `ADMIN_PASSWORD`; kullanıcı varsa dokunmaz) → demo kullanıcılarını oluşturur
-(`DEMO_USER_PASSWORD`, aşağıdaki tablo; var olanlara dokunmaz) → API'yi başlatır. `ocr-worker`
-aynı anda ayağa kalkar ve `ingestion_jobs` kuyruğunu 2 saniyede bir yoklar.
+oluşturur (`ADMIN_USERNAME` / `ADMIN_PASSWORD`; kullanıcı varsa dokunmaz) → demo kullanıcılarını, demo
+departmanlarını (+ üyeliklerini) ve demo projelerini oluşturur (`DEMO_USER_PASSWORD`, aşağıdaki tablo; var
+olanlara dokunmaz) → API'yi başlatır. `ocr-worker` aynı anda ayağa kalkar ve `ingestion_jobs` kuyruğunu 2
+saniyede bir yoklar.
 
 Veri kökü `.env` içindeki `DATA_ROOT` altındadır (dev: `./data`, prod: `/srv/company-ai`):
 `postgres/ documents/ excel/ app-data/ backups/`. Container'ları silmek veri kaybettirmez.
@@ -39,16 +40,40 @@ curl -i -X POST http://localhost:8000/api/auth/logout -b cookies.txt
 Yanlış şifre, bilinmeyen kullanıcı adı ve devre dışı hesap aynı `401` mesajını döner (kullanıcı adı sızdırılmaz).
 Başarısız denemeler sınırlıdır: kullanıcı adı başına 5 / 15 dk, IP başına 20 / 15 dk — aşılınca `429`.
 
-Demo hesapları — hepsi tek `DEMO_USER_PASSWORD` şifresini paylaşır, roller birbirinden farklıdır
-(departman bazlı yetki ayrımı Phase 1.2'de gelir; şimdilik rol tek başına yetkiyi belirlemez):
+Demo hesapları — hepsi tek `DEMO_USER_PASSWORD` şifresini paylaşır; erişim departman üyeliğinden gelir, rolden
+değil (`yonetim`/`admin` üyelikten bağımsız her şeyi görür):
 
-| Kullanıcı adı | Rol |
-|---|---|
-| `admin` | `admin` (ayrı `ADMIN_PASSWORD`) |
-| `yonetim` | `management` |
-| `finans` | `employee` |
-| `hukuk` | `employee` |
-| `enerji` | `employee` |
+| Kullanıcı adı | Rol | Departman üyeliği |
+|---|---|---|
+| `admin` | `admin` (ayrı `ADMIN_PASSWORD`) | — (her şeyi görür) |
+| `yonetim` | `management` | — (üyelikten bağımsız her şeyi görür) |
+| `finans` | `employee` | `finans`, `mali_isler` |
+| `hukuk` | `employee` | `hukuk` |
+| `enerji` | `employee` | `enerji_grubu` (Geliştirme/EPC-İnşaat/Bakım dahil) |
+
+## Departman, rol, proje, yetki (Phase 1.2)
+`allowed_document_ids()` gerçek kuralları uygular (SPEC_02 §5): `employee` yalnızca üye olduğu departman(lar)ın
+`normal` belgelerini görür; `management` tüm departmanları ve tüm gizlilik seviyelerini (`normal`/`restricted`/
+`board`) görür; `admin` her şeyi görür. Yetki her zaman belgenin `department` alanından gelir, projesinden değil.
+Belge listesi, indirme (`GET /api/documents/{id}/download`) ve `/api/ask` — hepsi bu fonksiyondan geçer;
+yetkisiz erişimde indirme `403`, liste ve `/api/ask` sessizce dışarıda bırakır ("bilgi bulamadım").
+
+```bash
+curl http://localhost:8000/api/departments -b cookies.txt   # ağaç: id, name, slug, parent_id
+curl http://localhost:8000/api/projects -b cookies.txt      # ANK_RES, IZM_RES (herkes okuyabilir)
+
+# Admin: yeni proje (yalnızca admin; diğerleri 403)
+curl -i -X POST http://localhost:8000/api/projects -b admin_cookies.txt \
+  -H 'content-type: application/json' \
+  -d '{"name":"Yeni Proje","code":"YENI_PRJ","stage":"development","department_ids":["<departman-uuid>"]}'
+curl -i -X PATCH http://localhost:8000/api/projects/<id> -b admin_cookies.txt \
+  -H 'content-type: application/json' -d '{"is_active": false}'
+```
+
+Departmanların CRUD ucu yok (V0'da yalnızca seed); admin'in proje formunda departman seçebilmesi için
+`GET /api/departments` salt-okunur. Ankara RES ve İzmir RES `enerji_grubu`, `finans` ve `hukuk`
+departmanlarına bağlı (`mali_isler`/`idari_isler` şirket geneli, proje-spesifik değil) — bu bağlantı yalnızca
+organizasyonel/filtreleme amaçlıdır, belge yetkisini etkilemez.
 
 ## Belge yükleme (Phase 0.2)
 Tüm `/api/documents/*` ve `/api/ask` istekleri artık giriş yapılmış olmayı gerektirir (yukarıdaki `cookies.txt`).
@@ -97,7 +122,7 @@ model saturasyonunda `make test-llm MODEL=gemini-3.5-flash`).
 | `make test` | pytest: backend → şema doğrulaması → ocr-worker, sırayla; test DB (`company_ai_test`) compose içindeki Postgres'tedir |
 | `make lint` / `make format` | ruff + mypy / otomatik biçimlendirme |
 | `make migrate`, `make migration NAME=...` | Alembic upgrade / yeni migration |
-| `make seed-admin` | Admin kullanıcısını oluştur (yoksa) |
+| `make seed-admin`, `make seed-demo-users`, `make seed-demo-departments`, `make seed-demo-projects` | Admin/demo kullanıcı/demo departman+üyelik/demo proje oluştur (yoksa) |
 | `make psql`, `make shell` | Postgres'e psql / backend container'ında bash |
 | `make seed`, `make reset-demo`, `make eval`, `make backup`, `make restore` | Sonraki phase'lerde (şimdilik "henüz uygulanmadı") |
 
@@ -117,9 +142,13 @@ docs/         SPEC_0x, PHASES.md, ARCHITECTURE.md (ADR), DOMAIN_MODEL.md, plans/
 - Yalnızca LAN, düz HTTP; HTTPS/Tailscale V0 sonrası.
 - Embedding opsiyonel (`EMBEDDINGS_ENABLED=false` varsayılan); sistem yalnızca full-text + metadata ile çalışır.
 - Consume klasörü, Word/e-posta ingest, SSO yok.
-- `/api/ask` yalnızca belge sorularını cevaplar (DOCUMENT); Excel/DATA ve MIXED sorgular Adım 4. Proje izolasyonu
-  Phase 1.2'ye kadar yalnızca prompt kuralıyla sağlanır (yapısal `project_id` filtresi `projects` tablosuyla gelir).
+- `/api/ask` yalnızca belge sorularını cevaplar (DOCUMENT); Excel/DATA ve MIXED sorgular Adım 4.
 - Gemini ücretsiz katmanı: `gemini-3.8-flash` için 5 istek/dk; yoğunlukta "high demand" 503 dönebilir — `/api/ask`
   bunu Türkçe 503 mesajıyla iletir, sistem çalışmaya devam eder.
-- `department`/`project_id`/`confidentiality` alanları var ama varsayılan değerde; `allowed_document_ids()`
-  hâlâ Adım 0 stub'ı (tüm belgeler) — gerçek yetki kuralları Phase 1.2.
+- `POST /api/documents/upload` hâlâ `department`/`project_id`/`confidentiality` almıyor (AI metadata önerisi
+  Phase 3.2'de geliyor) — bu alanlar bugün yalnızca DB'ye doğrudan yazılarak (seed/test) doldurulabilir.
+  `documents.department` bir FK değil, serbest slug string'idir; yanlış yazılmış bir slug güvenli yönde
+  başarısız olur (belge admin dışında kimseye görünmez) ama sessizce — Phase 3.2'nin doğrulama alması gerekiyor
+  (bkz. `docs/PHASES.md` Phase 3.2 notu).
+- Departman CRUD ucu yok (V0'da yalnızca seed); proje-departman bağlantısı yalnızca organizasyonel/filtreleme
+  amaçlıdır, belge yetkisi her zaman belgenin kendi `department` alanından gelir.
