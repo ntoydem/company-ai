@@ -22,7 +22,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
     assert "users" not in inspect(engine).get_table_names()
 
     command.upgrade(cfg, "head")
-    assert _current_revision() == "0005"
+    assert _current_revision() == "0006"
     tables = inspect(engine).get_table_names()
     assert "users" in tables
     assert "documents" in tables
@@ -34,6 +34,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
     assert "projects" in tables
     assert "project_departments" in tables
     assert "document_metadata_suggestions" in tables
+    assert "audit_log" in tables
     document_columns = {c["name"] for c in inspect(engine).get_columns("documents")}
     assert "external_ref" in document_columns
     assert "ai_suggestion_id" in document_columns
@@ -41,6 +42,19 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
         c["name"] for c in inspect(engine).get_columns("document_metadata_suggestions")
     }
     assert {"document_id", "model", "status", "fields", "error"} <= suggestion_columns
+    audit_columns = {c["name"] for c in inspect(engine).get_columns("audit_log")}
+    assert {
+        "user_id",
+        "timestamp",
+        "question",
+        "query_type",
+        "documents_retrieved",
+        "sources",
+        "cost_estimate",
+        "execution_ms",
+        "request_id",
+        "error",
+    } <= audit_columns
 
     with engine.connect() as conn:
         has_vector = conn.execute(
@@ -51,4 +65,4 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
 
 def test_upgrade_head_is_idempotent() -> None:
     command.upgrade(alembic_config(), "head")
-    assert _current_revision() == "0005"
+    assert _current_revision() == "0006"

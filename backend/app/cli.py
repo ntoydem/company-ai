@@ -4,11 +4,14 @@ import argparse
 import logging
 import sys
 import time
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from app.core.config import get_settings
 from app.core.db import database_reachable, get_engine, get_session_factory
 from app.core.logging import setup_logging
+from app.repositories import audit_log_repo
+from app.services import embedding_backfill
 from app.services.admin_seed import ensure_admin_user
 from app.services.demo_departments_seed import (
     ensure_demo_department_memberships,
@@ -142,6 +145,33 @@ def cmd_print_answer_prompt() -> int:
     return 0
 
 
+def cmd_cleanup_audit_log() -> int:
+    """Manual/scriptable equivalent of the background cleanup loop (SPEC_06 §1: 90-day
+    retention) — for a host cron, or a one-off run outside the normal 6h interval."""
+    settings = get_settings()
+    cutoff = datetime.now(UTC) - timedelta(days=settings.audit_log_retention_days)
+    with get_session_factory()() as session:
+        deleted = audit_log_repo.delete_older_than(session, cutoff)
+    log.info("cleanup-audit-log done", extra={"deleted": deleted, "cutoff": cutoff.isoformat()})
+    return 0
+
+
+def cmd_backfill_embeddings(limit: int) -> int:
+    """One backfill batch (Phase 3.4). No-op if `EMBEDDINGS_ENABLED=false` — never calls
+    a possibly-absent `embed` service just because someone ran this command."""
+    settings = get_settings()
+    if not settings.embeddings_enabled:
+        log.info("backfill-embeddings: EMBEDDINGS_ENABLED=false, nothing to do")
+        return 0
+    from app.services.embedding_client import build_embedding_client
+
+    client = build_embedding_client(settings)
+    with get_session_factory()() as session:
+        processed = embedding_backfill.run_pending_scan(session, client, limit=limit)
+    log.info("backfill-embeddings done", extra={"processed": processed})
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="app.cli")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -167,6 +197,13 @@ def main(argv: list[str] | None = None) -> int:
         "assert-pipeline-schema", help="fail if the Phase 0.2 pipeline tables are missing"
     )
     sub.add_parser("print-answer-prompt", help="print the /api/ask system prompt")
+    sub.add_parser(
+        "cleanup-audit-log", help="delete audit_log rows older than AUDIT_LOG_RETENTION_DAYS"
+    )
+    backfill = sub.add_parser(
+        "backfill-embeddings", help="embed one batch of document_chunks with no vector yet"
+    )
+    backfill.add_argument("--limit", type=int, default=20)
     args = parser.parse_args(argv)
 
     setup_logging(get_settings().log_level)
@@ -188,6 +225,10 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_assert_pipeline_schema()
     if args.command == "print-answer-prompt":
         return cmd_print_answer_prompt()
+    if args.command == "cleanup-audit-log":
+        return cmd_cleanup_audit_log()
+    if args.command == "backfill-embeddings":
+        return cmd_backfill_embeddings(args.limit)
     return 2
 
 

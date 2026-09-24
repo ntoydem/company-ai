@@ -12,20 +12,25 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
+from app.core.request_id import get_request_id
 from app.models.user import User
-from app.repositories import document_repo
+from app.repositories import audit_log_repo, document_repo
 from app.repositories.document_repo import SqlDocumentIdsProvider
 from app.schemas.ask import AskRequest, SourceCard
 from app.schemas.authorization import AuthorizationScope
 from app.schemas.retrieval import RetrievalFilters
 from app.services import answer_prompt
 from app.services.authorization import allowed_document_ids
-from app.services.llm import LLMClient, LLMRequest
+from app.services.llm import LLMClient, LLMError, LLMRequest
 from app.services.retrieval import retrieve
 from app.services.search_query import build_search_query
 from app.services.version_chain import evaluate_version_chains
 
 log = logging.getLogger(__name__)
+
+# Always "DOCUMENT_QUERY": the router (ADR-010) lands in Phase 4.3; `/api/ask` only ever
+# does document Q&A today.
+_QUERY_TYPE = "DOCUMENT_QUERY"
 
 
 @dataclass(frozen=True)
@@ -78,13 +83,54 @@ def _source_cards(
     return cards, unknown
 
 
+def _write_audit_log(
+    session: Session,
+    user: User,
+    request: AskRequest,
+    *,
+    retrieved_ids: list[UUID],
+    answer: str,
+    sources: list[SourceCard],
+    model: str | None,
+    tokens_in: int,
+    tokens_out: int,
+    execution_ms: int,
+    error: str | None,
+) -> None:
+    """SPEC_06 §1: one row per `/api/ask` call, success or failure. Never raises — a
+    logging failure must never break the answer the user already has (ADR-006 pattern);
+    the caller's response is unaffected either way. `cost_estimate` stays `NULL` in V0 —
+    no invented per-model pricing (Phase 3.2 SORU 2, docs/plans/PHASE_3_4_PLAN.md)."""
+    try:
+        audit_log_repo.create(
+            session,
+            user_id=user.id,
+            question=request.question,
+            query_type=_QUERY_TYPE,
+            scope_department=request.department,
+            scope_project=request.project_id,
+            documents_retrieved=retrieved_ids,
+            answer=answer,
+            sources=[card.model_dump(mode="json") for card in sources],
+            model=model,
+            tokens_in=tokens_in,
+            tokens_out=tokens_out,
+            cost_estimate=None,
+            execution_ms=execution_ms,
+            request_id=get_request_id(),
+            error=error,
+        )
+    except Exception:
+        log.exception("audit log write failed")
+
+
 def answer_question(
     session: Session, user: User, request: AskRequest, llm: LLMClient, settings: Settings
 ) -> AskResult:
     started = time.perf_counter()
     filters = RetrievalFilters(department=request.department, project_id=request.project_id)
     query = build_search_query(request.question)
-    chunks = retrieve(session, user, query, filters) if query else []
+    chunks = retrieve(session, user, query, filters, raw_question=request.question) if query else []
     retrieved_ids = list(dict.fromkeys(chunk.document_id for chunk in chunks))
 
     if not chunks:
@@ -100,15 +146,31 @@ def answer_question(
         user_prompt = answer_prompt.build_user_prompt(
             request.question, sources, settings.demo_today
         )
-        response = llm.complete(
-            LLMRequest(
-                system=answer_prompt.SYSTEM_PROMPT,
-                user=user_prompt,
-                model=settings.llm_model_answer,
-                max_output_tokens=settings.llm_max_output_tokens,
-                reasoning_effort=settings.llm_reasoning_effort,
+        try:
+            response = llm.complete(
+                LLMRequest(
+                    system=answer_prompt.SYSTEM_PROMPT,
+                    user=user_prompt,
+                    model=settings.llm_model_answer,
+                    max_output_tokens=settings.llm_max_output_tokens,
+                    reasoning_effort=settings.llm_reasoning_effort,
+                )
             )
-        )
+        except LLMError as exc:
+            _write_audit_log(
+                session,
+                user,
+                request,
+                retrieved_ids=retrieved_ids,
+                answer="",
+                sources=[],
+                model=None,
+                tokens_in=0,
+                tokens_out=0,
+                execution_ms=round((time.perf_counter() - started) * 1000),
+                error=str(exc),
+            )
+            raise
         if answer_prompt.is_no_answer(response.text):
             result = AskResult(
                 answer=answer_prompt.NO_ANSWER_TEXT,
@@ -148,5 +210,18 @@ def answer_question(
             "tokens_out": result.tokens_out,
             "duration_ms": round((time.perf_counter() - started) * 1000),
         },
+    )
+    _write_audit_log(
+        session,
+        user,
+        request,
+        retrieved_ids=result.retrieved_document_ids,
+        answer=result.answer,
+        sources=result.sources,
+        model=result.model,
+        tokens_in=result.tokens_in,
+        tokens_out=result.tokens_out,
+        execution_ms=round((time.perf_counter() - started) * 1000),
+        error=None,
     )
     return result

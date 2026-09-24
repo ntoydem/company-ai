@@ -1,4 +1,5 @@
-"""Full-text search over `document_chunks` (ADR-007)."""
+"""`document_chunks` search (FTS — ADR-007; vector — Phase 3.4) and the embedding
+backfill queue."""
 
 from __future__ import annotations
 
@@ -68,3 +69,62 @@ def search_fts(
         )
         for chunk, rank_value in session.execute(stmt).all()
     ]
+
+
+def search_vector(
+    session: Session, *, allowed_ids: Iterable[uuid.UUID], vector: list[float], top_k: int
+) -> list[RetrievedChunk]:
+    """Vector similarity search (Phase 3.4, `EMBEDDINGS_ENABLED=true` only) — same
+    `allowed_ids` gate as `search_fts` (ADR-004). Chunks without an embedding yet (the
+    backfill loop hasn't reached them) are excluded rather than surfaced with a
+    meaningless distance. `rank` is cosine *similarity* (`1 - distance`, higher = better)
+    so it sorts the same direction as `search_fts`'s `ts_rank_cd` — used only for
+    single-list ordering; `retrieval.py`'s RRF fusion compares rank *position*, never
+    these two scales directly against each other.
+    """
+    allowed = list(allowed_ids)
+    if not allowed:
+        return []
+
+    distance = DocumentChunk.embedding.cosine_distance(vector)
+    stmt = (
+        select(DocumentChunk, distance.label("distance"))
+        .where(DocumentChunk.document_id.in_(allowed))
+        .where(DocumentChunk.embedding.is_not(None))
+        .order_by(distance)
+        .limit(top_k)
+    )
+    return [
+        RetrievedChunk(
+            id=chunk.id,
+            document_id=chunk.document_id,
+            chunk_index=chunk.chunk_index,
+            page_number=chunk.page_number,
+            text=chunk.text,
+            rank=1.0 - float(distance_value),
+        )
+        for chunk, distance_value in session.execute(stmt).all()
+    ]
+
+
+def list_ids_pending_embedding(session: Session, *, limit: int) -> list[uuid.UUID]:
+    """Chunks with no vector yet (Phase 3.4 embedding backfill queue), oldest first."""
+    stmt = (
+        select(DocumentChunk.id)
+        .where(DocumentChunk.embedding.is_(None))
+        .order_by(DocumentChunk.created_at)
+        .limit(limit)
+    )
+    return list(session.scalars(stmt).all())
+
+
+def get_many(session: Session, ids: Iterable[uuid.UUID]) -> list[DocumentChunk]:
+    id_list = list(ids)
+    if not id_list:
+        return []
+    return list(session.scalars(select(DocumentChunk).where(DocumentChunk.id.in_(id_list))).all())
+
+
+def set_embedding(session: Session, chunk: DocumentChunk, vector: list[float]) -> None:
+    chunk.embedding = vector
+    session.commit()

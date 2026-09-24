@@ -1,5 +1,6 @@
 """ORM models. Import every model here so Alembic autogenerate sees the full metadata."""
 
+from app.models.audit_log import AuditLog
 from app.models.base import Base
 from app.models.department import Department
 from app.models.document import (
@@ -19,6 +20,7 @@ from app.models.user import User, UserRole
 from app.models.user_department import UserDepartment
 
 __all__ = [
+    "AuditLog",
     "Base",
     "Confidentiality",
     "Department",

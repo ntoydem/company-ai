@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+from app.models.document_chunk import EMBEDDING_DIM
+from app.services.embedding_client import EmbeddingError
 from app.services.llm import LLMError, LLMRequest, LLMResponse
 
 
@@ -38,3 +40,21 @@ class FakeLLMClient:
     def prompt_text(self, index: int = 0) -> str:
         request = self.requests[index]
         return request.system + "\n" + request.user
+
+
+class FakeEmbeddingClient:
+    """Records every call; returns a deterministic vector per text (or raises `error`)."""
+
+    def __init__(self, *, error: EmbeddingError | None = None) -> None:
+        self.calls: list[list[str]] = []
+        self.error = error
+        self.vector_by_text: dict[str, list[float]] = {}
+        # Real dimension (bge-m3 via TEI) — a real `document_chunks.embedding` write
+        # rejects anything else.
+        self.default_vector: list[float] = [1.0] + [0.0] * (EMBEDDING_DIM - 1)
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        self.calls.append(texts)
+        if self.error is not None:
+            raise self.error
+        return [self.vector_by_text.get(text, self.default_vector) for text in texts]

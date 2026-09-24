@@ -3,7 +3,7 @@
 Kurumsal doküman + Excel + AI bilgi platformu. Şirket bilgisinin **kaynağını, erişim yetkisini, tarihini,
 versiyonunu ve ilişkilerini** koruyarak AI tarafından güvenilir kullanılmasını sağlar. Basit bir chatbot değildir.
 
-Bu README Phase 3.3 (Frontend) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
+Bu README Phase 3.4 (Audit log + embedding) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
 `docs/PHASES.md`. Mimari kararlar: `docs/ARCHITECTURE.md`. Alan modeli: `docs/DOMAIN_MODEL.md`.
 
 ## Gereksinimler (VM)
@@ -159,6 +159,39 @@ Sistem promptu `backend/app/services/answer_prompt.py`'dedir; kopyası `docs/pro
 
 Canlı LLM testleri `make test`'in dışındadır: `make test-llm` (ücretsiz katman 5 istek/dk — testler kendini yavaşlatır;
 model saturasyonunda `make test-llm MODEL=gemini-3.5-flash`).
+
+## Audit log (Phase 3.4)
+Her `/api/ask` çağrısı (cevaplı, "bilgi bulamadım" veya LLM hatası — hepsi) `audit_log` tablosuna bir satır yazar:
+kim sordu, ne zaman, hangi kapsamda, hangi belgeler getirildi, cevap, kaynaklar, model, token, süre, `request_id`,
+hata (varsa). Audit log **kurumsal hafıza değildir** (ADR-016): retrieval'da veya prompt'ta hiç kullanılmaz,
+yalnızca admin görür, 90 gün sonra otomatik silinir (arka planda 6 saatte bir; elle: `make cleanup-audit-log`).
+Şifre/API key/JWT hiçbir zaman yazılmaz.
+```bash
+curl "http://<vm-ip>:8080/api/audit-log?limit=20" -b admin_cookies.txt        # hafif liste (cevap/kaynak yok)
+curl "http://<vm-ip>:8080/api/audit-log?has_error=true" -b admin_cookies.txt # yalnızca hatalı çağrılar
+curl "http://<vm-ip>:8080/api/audit-log/<id>" -b admin_cookies.txt           # tam kayıt (cevap + kaynaklar)
+```
+Filtreli görüntüleme arayüzü Phase 5.2'nin admin panelinde; bu fazda yalnızca API var. `cost_estimate` V0'da her
+zaman `null` — gerçek model fiyatları doğrulanmadan uydurulmuyor.
+
+## Embedding (Phase 3.4, opsiyonel)
+`EMBEDDINGS_ENABLED=false` varsayılan ve **referans yapılandırma**: sistem ve test paketi `embed` servisi hiç
+çalışmadan tam çalışır. `true` yapılıp `make up-full` ile `embed` (bge-m3, `text-embeddings-inference`, CPU)
+başlatılırsa, `/api/ask` retrieval'ı FTS + vektör aramayı Reciprocal Rank Fusion ile birleştirir — bazı sorularda
+(örn. metinde literal geçmeyen kısaltmalar/eş anlamlılar) yalnızca FTS'in bulamadığı belgeleri de bulur. Arka
+planda bir döngü mevcut chunk'ları otomatik embedler (`document_chunks.embedding`, ~15 sn'de bir, elle:
+`make backfill-embeddings`). `embed` servisi geçici kapalıysa/yavaşsa retrieval sessizce FTS-only'e düşer —
+`/api/ask` bu yüzden asla 503 vermez.
+```bash
+sed -i 's/^EMBEDDINGS_ENABLED=.*/EMBEDDINGS_ENABLED=true/' .env
+make up-full        # embed'i indirir + başlatır (~2 GB indirme, ilk açılış birkaç dakika)
+```
+**Canlı ölçüm (bu VM, 24.09.2026):** `embed` container'ı hazır olana kadar ~3 dk 45 sn (model indirme + ONNX
+ağırlıkları + ısınma); RAM **~10,5 GB** (bge-m3'ün yayınlanan ağırlık boyutundan — ~1,1 GB fp16 — beklenenin çok
+üzerinde; fark TEI'nin CPU çalışma zamanı overhead'i — batch tamponları, ONNX runtime, tokenization worker'ları).
+16 GB VM'e sığıyor (`free -h` her şey çalışırken ~4 GB "available" gösterdi) ama planlanandan daha az pay
+bırakıyor — `docs/reports/PHASE_3_4_REPORT.md`'de tam rakamlar ve canlı bir "önce FTS'te 0 sonuç, embedding
+açılınca doğru cevap" örneği var.
 
 ## Truth ledger (Phase 2.1)
 İki demo projenin **tüm** rakam, tarih ve isimleri tek yerde: `seed_data/master/` — `company.yaml` (kurgusal

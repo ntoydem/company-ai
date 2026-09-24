@@ -16,7 +16,7 @@ Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 | 3.1 | 15 demo belge + seed/reset | tamamlandı | phase-3-1 | [PHASE_3_1_REPORT](reports/PHASE_3_1_REPORT.md) |
 | 3.2 | AI metadata önerisi + temporal/versiyon mantığı | tamamlandı | phase-3-2 | [PHASE_3_2_REPORT](reports/PHASE_3_2_REPORT.md) |
 | 3.3 | Frontend | tamamlandı | phase-3-3 | [PHASE_3_3_REPORT](reports/PHASE_3_3_REPORT.md) |
-| 3.4 | Audit log + embedding (opsiyonel) | bekliyor | – | – |
+| 3.4 | Audit log + embedding (opsiyonel) | tamamlandı | phase-3-4 | [PHASE_3_4_REPORT](reports/PHASE_3_4_REPORT.md) |
 | 4.1 | Eval runner (karne) | bekliyor | – | – |
 | 4.2 | Excel motoru | bekliyor | – | – |
 | 4.3 | Mixed query | bekliyor | – | – |

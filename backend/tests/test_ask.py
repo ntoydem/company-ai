@@ -18,6 +18,7 @@ from app.main import app
 from app.models.document import Document, DocumentStatus
 from app.models.document_chunk import DocumentChunk
 from app.models.user import User
+from app.repositories import audit_log_repo
 from app.schemas.ask import NO_INTERPRETATION_NOTICE
 from app.services import retrieval as retrieval_module
 from app.services.answer_prompt import NO_ANSWER_TEXT
@@ -267,3 +268,95 @@ def test_employee_ask_outside_department_returns_no_answer_with_empty_retrieved(
     assert body["retrieved_document_ids"] == []
     record = next(r for r in caplog.records if r.getMessage() == "ask completed")
     assert record.retrieved_document_ids == []  # type: ignore[attr-defined]
+
+
+# --- Phase 3.4: every /api/ask call is audited (SPEC_06 §1) ---
+
+
+def _only_row(session: Session):  # noqa: ANN202 — test helper, mypy doesn't check tests/
+    rows = audit_log_repo.list_filtered(session, limit=10)
+    assert len(rows) == 1, rows
+    return rows[0]
+
+
+def test_audit_log_written_for_an_answered_question(
+    client: TestClient, db_session: Session, admin_user: User, fake_llm: FakeLLMClient
+) -> None:
+    document = _document(db_session, title="A", department="finans", text="DSCR covenant 1,25x")
+
+    response = client.post(
+        "/api/ask",
+        json={"question": "DSCR covenant nedir?", "department": "finans"},
+        headers={"X-Request-ID": "test-req-id"},
+    )
+    assert response.status_code == 200
+
+    row = _only_row(db_session)
+    assert row.user_id == admin_user.id
+    assert row.question == "DSCR covenant nedir?"
+    assert row.query_type == "DOCUMENT_QUERY"
+    assert row.scope_department == "finans"
+    assert row.documents_retrieved == [document.id]
+    assert row.answer == response.json()["answer"]
+    assert row.sources and row.sources[0]["title"] == "A"
+    assert row.model == "fake-model"
+    assert (row.tokens_in, row.tokens_out) == (123, 45)
+    assert row.cost_estimate is None
+    assert row.execution_ms >= 0
+    assert row.request_id == "test-req-id"
+    assert row.error is None
+
+
+def test_audit_log_written_when_no_chunks_retrieved(
+    client: TestClient, admin_user: User, fake_llm: FakeLLMClient, db_session: Session
+) -> None:
+    response = client.post("/api/ask", json={"question": "İzmir RES'in COD tarihi nedir?"})
+    assert response.status_code == 200
+
+    row = _only_row(db_session)
+    assert row.answer == NO_ANSWER_TEXT
+    assert row.documents_retrieved == []
+    assert row.model is None
+    assert row.error is None
+    assert fake_llm.requests == []  # confirms this really is the zero-chunk path
+
+
+def test_audit_log_written_with_error_on_llm_failure_and_response_unaffected(
+    client: TestClient, db_session: Session, admin_user: User, fake_llm: FakeLLMClient
+) -> None:
+    _document(db_session, title="A", department=None, text="DSCR covenant 1,25x")
+    fake_llm.error = LLMRateLimitError("quota exceeded for key sk-secret")
+
+    response = client.post("/api/ask", json={"question": "DSCR covenant nedir?"})
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == LLM_UNAVAILABLE_MESSAGE
+    row = _only_row(db_session)
+    assert row.error is not None and "quota exceeded" in row.error
+    assert row.answer == ""
+    assert row.model is None
+    assert (row.tokens_in, row.tokens_out) == (0, 0)
+
+
+def test_audit_log_write_failure_never_breaks_the_response(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """ADR-006 pattern: a broken audit write must not break the answer the user already
+    has — `/api/ask` still returns 200, no exception propagates."""
+    from app.services import ask as ask_module
+
+    _document(db_session, title="A", department=None, text="DSCR covenant 1,25x")
+
+    def _boom(*_args: object, **_kwargs: object) -> None:
+        raise RuntimeError("db is on fire")
+
+    monkeypatch.setattr(ask_module.audit_log_repo, "create", _boom)
+
+    response = client.post("/api/ask", json={"question": "DSCR covenant nedir?"})
+
+    assert response.status_code == 200
+    assert response.json()["answered"] is True

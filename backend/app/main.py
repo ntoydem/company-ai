@@ -6,6 +6,7 @@ import logging
 import time
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime, timedelta
 
 from fastapi import FastAPI, Request, Response
 from sqlalchemy.engine import make_url
@@ -17,11 +18,15 @@ from app.core.db import get_session_factory
 from app.core.errors import register_exception_handlers
 from app.core.logging import setup_logging
 from app.core.request_id import REQUEST_ID_HEADER, clear_request_id, set_request_id
-from app.services import metadata_suggestion
+from app.repositories import audit_log_repo
+from app.services import embedding_backfill, metadata_suggestion
+from app.services.embedding_client import EmbeddingClient, build_embedding_client
 from app.services.llm import LLMClient, LLMError, build_llm_client
 
 log = logging.getLogger("app.http")
 log_suggestion = logging.getLogger("app.metadata_suggestion")
+log_audit = logging.getLogger("app.audit_log")
+log_embedding = logging.getLogger("app.embedding_backfill")
 
 
 def _is_test_database(settings: Settings) -> bool:
@@ -54,6 +59,43 @@ async def _metadata_suggestion_loop(settings: Settings, llm: LLMClient) -> None:
             log_suggestion.exception("background scan tick failed")
 
 
+async def _audit_log_cleanup_loop(settings: Settings) -> None:
+    """Phase 3.4 (SPEC_06 §1: 90-day retention, daily cleanup). Interval defaults to 6h —
+    comfortably covers "daily", and a `DELETE ... WHERE timestamp < cutoff` is cheap and
+    idempotent, so running it more often than strictly needed is harmless. Same
+    test-database guard as the other loops; `python -m app.cli cleanup-audit-log` is the
+    manual/scriptable equivalent for a host cron, if preferred over this loop."""
+    while True:
+        await asyncio.sleep(settings.audit_log_cleanup_interval_s)
+        try:
+            cutoff = datetime.now(UTC) - timedelta(days=settings.audit_log_retention_days)
+            with get_session_factory()() as session:
+                deleted = audit_log_repo.delete_older_than(session, cutoff)
+            if deleted:
+                log_audit.info("audit log cleanup", extra={"deleted": deleted})
+        except Exception:
+            log_audit.exception("audit log cleanup tick failed")
+
+
+async def _embedding_backfill_loop(settings: Settings, client: EmbeddingClient) -> None:
+    """Phase 3.4: populates `document_chunks.embedding` for chunks with none yet, in
+    batches, only while `EMBEDDINGS_ENABLED=true` (the caller only starts this task in
+    that case). A failed batch is logged and retried next tick — never stops the loop."""
+    while True:
+        await asyncio.sleep(settings.embedding_backfill_interval_s)
+        try:
+            with get_session_factory()() as session:
+                processed = embedding_backfill.run_pending_scan(
+                    session, client, limit=settings.embedding_backfill_batch_size
+                )
+            if processed:
+                log_embedding.info(
+                    "embedding backfill processed chunks", extra={"count": processed}
+                )
+        except Exception:
+            log_embedding.exception("embedding backfill tick failed")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
@@ -61,19 +103,26 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         directory.mkdir(parents=True, exist_ok=True)
     log.info("startup", extra={"version": __version__, "env": settings.app_env})
 
-    task: asyncio.Task[None] | None = None
+    tasks: list[asyncio.Task[None]] = []
     if not _is_test_database(settings):
         try:
             llm = build_llm_client(settings)
         except LLMError:
             log_suggestion.info("metadata suggestion background scan disabled: LLM not configured")
         else:
-            task = asyncio.create_task(_metadata_suggestion_loop(settings, llm))
+            tasks.append(asyncio.create_task(_metadata_suggestion_loop(settings, llm)))
+
+        tasks.append(asyncio.create_task(_audit_log_cleanup_loop(settings)))
+
+        if settings.embeddings_enabled:
+            embedding_client = build_embedding_client(settings)
+            tasks.append(asyncio.create_task(_embedding_backfill_loop(settings, embedding_client)))
 
     yield
 
-    if task is not None:
+    for task in tasks:
         task.cancel()
+    for task in tasks:
         with contextlib.suppress(asyncio.CancelledError):
             await task
     log.info("shutdown")

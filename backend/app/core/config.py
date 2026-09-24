@@ -47,6 +47,18 @@ class Settings(BaseSettings):
     # Phase 3.4
     embeddings_enabled: bool = False
     embed_model_id: str = "BAAI/bge-m3"
+    # Compose network hostname (service name `embed`); never reached when the flag above
+    # is false — the client is built lazily, see app/services/embedding_client.py.
+    embed_base_url: str = "http://embed:8080"
+    embed_timeout_s: int = 30
+    # Background backfill loop (app/main.py lifespan) — only starts when
+    # embeddings_enabled=true and not against a `_test` database.
+    embedding_backfill_interval_s: int = 15
+    embedding_backfill_batch_size: int = 20
+
+    # Phase 3.4: audit_log retention + cleanup (app/main.py lifespan).
+    audit_log_retention_days: int = 90
+    audit_log_cleanup_interval_s: int = 6 * 60 * 60
 
     # Phase 0.2
     max_upload_size_mb: int = 50
