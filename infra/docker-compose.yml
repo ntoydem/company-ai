@@ -40,9 +40,8 @@ services:
       - ${DATA_ROOT}/documents:/data/documents
       - ${DATA_ROOT}/excel:/data/excel
       - ${DATA_ROOT}/app-data:/data/app-data
-    ports:
-      # Open on the host until Caddy takes over (Phase 3.3).
-      - "${BACKEND_PORT:-8000}:8000"
+    # No host port since Phase 3.3 (ADR-018): reachable only as backend:8000 inside the
+    # compose network; the host talks to Caddy (${CADDY_PORT}).
     depends_on:
       postgres:
         condition: service_healthy
@@ -75,10 +74,12 @@ services:
       postgres:
         condition: service_healthy
 
-  # --- Placeholder: Phase 3.3 (frontend static + /api reverse proxy) ---
+  # Phase 3.3: React bundle (built into the image from ./frontend) + /api reverse proxy.
+  # The only host-facing entry point; part of the default `make up`.
   caddy:
-    profiles: ["web"]
-    image: caddy:2-alpine
+    build:
+      context: ./frontend
+      dockerfile: ../infra/caddy/Dockerfile
     restart: unless-stopped
     ports:
       - "${CADDY_PORT:-8080}:80"
@@ -86,7 +87,22 @@ services:
       - ./infra/Caddyfile:/etc/caddy/Caddyfile:ro
       - ${DATA_ROOT}/app-data/caddy:/data
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+
+  # Tooling only (profile "tools", never `up`): `make lint` (eslint + tsc) and
+  # `make dev-frontend` (Vite HMR on :5173, proxying /api to backend:8000).
+  frontend:
+    profiles: ["tools"]
+    build:
+      context: ./frontend
+    environment:
+      VITE_DEV_API_TARGET: http://backend:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
 
   # --- Placeholder: Phase 3.4 (bge-m3 embeddings, needs 16 GB VM) ---
   embed:

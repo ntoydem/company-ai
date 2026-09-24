@@ -8,11 +8,13 @@ DATA_ROOT := $(shell grep -E '^DATA_ROOT=' $(ENV_FILE) 2>/dev/null | cut -d= -f2
 DATA_ROOT := $(or $(DATA_ROOT),./data)
 BACKEND_PORT := $(shell grep -E '^BACKEND_PORT=' $(ENV_FILE) 2>/dev/null | cut -d= -f2-)
 BACKEND_PORT := $(or $(BACKEND_PORT),8000)
+CADDY_PORT := $(shell grep -E '^CADDY_PORT=' $(ENV_FILE) 2>/dev/null | cut -d= -f2-)
+CADDY_PORT := $(or $(CADDY_PORT),8080)
 SVC ?=
 
 .PHONY: help env-check dirs up up-full down ps logs build test test-llm lint format prompt-doc validate-ledger \
         migrate migration seed-admin seed-demo-users seed-demo-departments seed-demo-projects \
-        prose validate-documents seed-demo-documents \
+        prose validate-documents seed-demo-documents build-frontend dev-frontend \
         psql shell seed reset-demo eval backup restore clean
 
 help: ## Bu listeyi göster
@@ -25,16 +27,16 @@ dirs: env-check
 	@mkdir -p "$(DATA_ROOT)/postgres" "$(DATA_ROOT)/documents" "$(DATA_ROOT)/excel" \
 	          "$(DATA_ROOT)/app-data" "$(DATA_ROOT)/backups"
 
-up: dirs ## postgres + backend + ocr-worker'ı başlat (build dahil) ve /health bekle
-	$(COMPOSE) up -d --build postgres backend ocr-worker
-	BACKEND_PORT=$(BACKEND_PORT) bash scripts/wait_for_services.sh 120
+up: dirs ## postgres + backend + ocr-worker + caddy'yi başlat (build dahil); arayüz http://<vm-ip>:$(CADDY_PORT)
+	$(COMPOSE) up -d --build postgres backend ocr-worker caddy
+	CADDY_PORT=$(CADDY_PORT) bash scripts/wait_for_services.sh 120
 
 up-full: dirs ## full profil (embed dahil; 16 GB VM)
 	$(COMPOSE) --profile full up -d --build
-	BACKEND_PORT=$(BACKEND_PORT) bash scripts/wait_for_services.sh 120
+	CADDY_PORT=$(CADDY_PORT) bash scripts/wait_for_services.sh 120
 
 down: env-check ## container'ları durdur (veri kalır)
-	$(COMPOSE) --profile full --profile web down
+	$(COMPOSE) --profile full --profile tools down
 
 ps: env-check ## servis durumu
 	$(COMPOSE) ps -a
@@ -57,9 +59,16 @@ test-llm: dirs ## canlı LLM testleri (gerçek Gemini; LLM_API_KEY gerekir). mak
 	$(COMPOSE) run --rm -T -e LLM_LIVE_TESTS=1 $(if $(MODEL),-e LLM_MODEL_ANSWER=$(MODEL)) backend \
 		sh -c 'export DATABASE_URL="$$TEST_DATABASE_URL"; python -m app.cli wait-for-db --timeout 60 && pytest -q -s -m live_llm tests/live $(ARGS)'
 
-lint: env-check ## ruff + mypy (backend), ruff (ocr-worker), prompt dokümanı güncel mi
+build-frontend: env-check ## React bundle'ı içeren caddy imajını yeniden derle (make up zaten yapar)
+	$(COMPOSE) build caddy
+
+dev-frontend: env-check ## Vite dev server (HMR) http://<vm-ip>:5173 — /api backend'e proxy'lenir; make up çalışıyor olmalı
+	$(COMPOSE) --profile tools run --rm --service-ports frontend npm run dev -- --host
+
+lint: env-check ## ruff + mypy (backend), ruff (ocr-worker), eslint + tsc (frontend), prompt dokümanı güncel mi
 	$(COMPOSE) run --rm -T --no-deps backend sh -c 'ruff check . && ruff format --check . && mypy'
 	$(COMPOSE) run --rm -T --no-deps ocr-worker sh -c 'ruff check . && ruff format --check .'
+	$(COMPOSE) --profile tools run --rm -T --no-deps frontend sh -c 'npm run lint && npm run typecheck'
 	@$(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-answer-prompt 2>/dev/null \
 		| diff -q - <(sed -n '/^```text$$/,/^```$$/{//!p}' docs/prompts/ANSWER_SYSTEM_PROMPT.md) >/dev/null \
 		|| { echo "docs/prompts/ANSWER_SYSTEM_PROMPT.md güncel değil: make prompt-doc"; exit 1; }

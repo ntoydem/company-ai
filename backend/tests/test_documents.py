@@ -274,6 +274,55 @@ def test_upload_unknown_project_id_returns_404(client: TestClient, admin_user: U
     assert response.status_code == 404
 
 
+def test_list_item_carries_subdepartment_and_confidentiality(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    """Phase 3.3: the Belgeler screen filters Enerji sub-cards by `subdepartment` and
+    shows `confidentiality` — both were missing from the list item before."""
+    document = _document(db_session, department="enerji_grubu")
+    document.subdepartment = "Geliştirme"
+    db_session.commit()
+
+    item = next(i for i in client.get("/api/documents").json() if i["id"] == str(document.id))
+
+    assert item["subdepartment"] == "Geliştirme"
+    assert item["confidentiality"] == "normal"
+
+
+def test_get_document_returns_full_metadata(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    """Phase 3.3 SORU 1: `GET /api/documents/{id}`."""
+    facility_id = _upload(client, status="executed", effective_date="2023-06-01").json()["id"]
+    amendment_id = _upload(
+        client, title="Amendment 01", version="2", supersedes_document_id=facility_id
+    ).json()["id"]
+
+    response = client.get(f"/api/documents/{amendment_id}")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["title"] == "Amendment 01"
+    assert body["version"] == 2
+    assert body["supersedes_document_id"] == facility_id
+    assert body["tags"] == []
+    assert body["ingestion_status"] == "uploaded"
+    assert body["page_count"] is None
+    facility = client.get(f"/api/documents/{facility_id}").json()
+    assert facility["superseded_by_document_id"] == amendment_id
+    assert facility["status"] == "superseded"
+
+
+def test_get_document_hides_other_department_document_with_404(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    enerji = make_department(db_session, slug="enerji_grubu")
+    add_user_to_department(db_session, employee_user, enerji)
+    finans_doc = _document(db_session, department="finans")
+
+    assert client.get(f"/api/documents/{finans_doc.id}").status_code == 404
+
+
 def test_suggest_metadata_requires_admin(
     client: TestClient, db_session: Session, employee_user: User, fake_llm: FakeLLMClient
 ) -> None:

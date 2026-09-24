@@ -3,7 +3,7 @@
 Kurumsal doküman + Excel + AI bilgi platformu. Şirket bilgisinin **kaynağını, erişim yetkisini, tarihini,
 versiyonunu ve ilişkilerini** koruyarak AI tarafından güvenilir kullanılmasını sağlar. Basit bir chatbot değildir.
 
-Bu README Phase 3.2 (AI metadata önerisi + temporal/versiyon mantığı) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
+Bu README Phase 3.3 (Frontend) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
 `docs/PHASES.md`. Mimari kararlar: `docs/ARCHITECTURE.md`. Alan modeli: `docs/DOMAIN_MODEL.md`.
 
 ## Gereksinimler (VM)
@@ -16,7 +16,7 @@ Bu README Phase 3.2 (AI metadata önerisi + temporal/versiyon mantığı) durumu
 git clone <repo> company-ai && cd company-ai
 cp infra/.env.example .env      # şifreleri değiştir (POSTGRES_PASSWORD, ADMIN_PASSWORD, JWT_SECRET, DEMO_USER_PASSWORD)
 make up                         # postgres + backend build & start, /health bekler
-curl localhost:8000/health      # {"status":"ok","version":"0.1.0","database":"ok"}
+curl localhost:8080/health      # {"status":"ok","version":"0.1.0","database":"ok"}
 ```
 İlk açılışta backend container'ı sırayla: veritabanını bekler → `alembic upgrade head` → admin kullanıcısını
 oluşturur (`ADMIN_USERNAME` / `ADMIN_PASSWORD`; kullanıcı varsa dokunmaz) → demo kullanıcılarını, demo
@@ -27,15 +27,37 @@ saniyede bir yoklar.
 Veri kökü `.env` içindeki `DATA_ROOT` altındadır (dev: `./data`, prod: `/srv/company-ai`):
 `postgres/ documents/ excel/ app-data/ backups/`. Container'ları silmek veri kaybettirmez.
 
+## Arayüz (Phase 3.3)
+`make up` artık Caddy'yi de başlatır: **`http://<vm-ip>:8080`** tek giriş noktasıdır — React arayüzü (Vite + React 18 +
+TypeScript + react-router + TanStack Query; `frontend/`) ve `/api/*`, `/health`, `/ask` proxy'si. Backend'in 8000
+portu host'a **artık açık değil** (ADR-018); aşağıdaki `curl` örnekleri bu yüzden `:8080` kullanır. Arayüz bundle'ı
+Caddy imajının içindedir (`infra/caddy/Dockerfile`, çok aşamalı build); ayrı bir Node container'ı çalışmaz.
+
+- **Giriş** → **Ana sayfa**: departman kartları (yalnızca erişebildikleriniz — `employee` için kendi üyelikleri,
+  `management`/`admin` için hepsi; kart gizleme yalnızca kolaylıktır, yetki her zaman sunucuda) + **Genel Sor**.
+- **Departman ekranı** (`/departman/<slug>`): **AI'ya Sor** (o departmanla sınırlı) / **Belgeler** (liste, detay, indir,
+  AI önerisi) / **Belge Yükle** (form → OCR durumu → AI önerisi) / **Projeler** (admin: oluştur/düzenle). Enerji'de
+  Geliştirme / EPC-İnşaat / Bakım alt kartları yalnızca belge listesini filtreler.
+- **Sor**: cevap + `[K#]` kaynak kartları (belge, **sayfa**, tarih, versiyon, durum, GÜNCEL rozeti, proje, indir).
+  Her cevabın üstünde "yorum içermez" notu. Kaynak yoksa gri "bilgi bulamadım".
+- **AI önerisi**: `ready` belgede otomatik (arka plan taraması) ya da admin'in "Şimdi üret"i ile; admin alanları
+  düzenler, **yalnızca işaretlediği** alanları uygular ya da reddeder; diğer roller salt-okunur görür.
+- Hatalar: backend'in Türkçe `detail`'i + küçük "İstek no" satırı; ağ hatasında "Sunucuya ulaşılamadı."
+- Dar ekranda tek sütun (responsive). Türkçe metinlerin tamamı `frontend/src/lib/strings.ts`'te.
+
+Geliştirme: `make dev-frontend` → Vite HMR `http://<vm-ip>:5173` (`/api` backend'e proxy'lenir; `make up` çalışıyor
+olmalı). `make lint` frontend için eslint + tsc de çalıştırır. Playwright/UI otomasyon testi V0'da yoktur
+(CLAUDE.md); kabul kriterleri tarayıcıda elle doğrulanır (bkz. `docs/reports/PHASE_3_3_REPORT.md`).
+
 ## Giriş yapma (Phase 1.1)
 JWT, httpOnly cookie'de (`access_token`, 8 saat, `samesite=lax`; V0'da `secure=false` — LAN, düz HTTP).
 ```bash
-curl -i -X POST http://localhost:8000/api/auth/login \
+curl -i -X POST http://localhost:8080/api/auth/login \
   -H 'content-type: application/json' -d '{"username":"admin","password":"<ADMIN_PASSWORD>"}' \
   -c cookies.txt
-curl -b cookies.txt http://localhost:8000/api/auth/me
+curl -b cookies.txt http://localhost:8080/api/auth/me
 # {"id":"...","username":"admin","display_name":"Yönetici","role":"admin"}
-curl -i -X POST http://localhost:8000/api/auth/logout -b cookies.txt
+curl -i -X POST http://localhost:8080/api/auth/logout -b cookies.txt
 ```
 Yanlış şifre, bilinmeyen kullanıcı adı ve devre dışı hesap aynı `401` mesajını döner (kullanıcı adı sızdırılmaz).
 Başarısız denemeler sınırlıdır: kullanıcı adı başına 5 / 15 dk, IP başına 20 / 15 dk — aşılınca `429`.
@@ -59,14 +81,14 @@ Belge listesi, indirme (`GET /api/documents/{id}/download`) ve `/api/ask` — he
 yetkisiz erişimde indirme `403`, liste ve `/api/ask` sessizce dışarıda bırakır ("bilgi bulamadım").
 
 ```bash
-curl http://localhost:8000/api/departments -b cookies.txt   # ağaç: id, name, slug, parent_id
-curl http://localhost:8000/api/projects -b cookies.txt      # ANK_RES, IZM_RES (herkes okuyabilir)
+curl http://localhost:8080/api/departments -b cookies.txt   # ağaç: id, name, slug, parent_id
+curl http://localhost:8080/api/projects -b cookies.txt      # ANK_RES, IZM_RES (herkes okuyabilir)
 
 # Admin: yeni proje (yalnızca admin; diğerleri 403)
-curl -i -X POST http://localhost:8000/api/projects -b admin_cookies.txt \
+curl -i -X POST http://localhost:8080/api/projects -b admin_cookies.txt \
   -H 'content-type: application/json' \
   -d '{"name":"Yeni Proje","code":"YENI_PRJ","stage":"development","department_ids":["<departman-uuid>"]}'
-curl -i -X PATCH http://localhost:8000/api/projects/<id> -b admin_cookies.txt \
+curl -i -X PATCH http://localhost:8080/api/projects/<id> -b admin_cookies.txt \
   -H 'content-type: application/json' -d '{"is_active": false}'
 ```
 
@@ -78,14 +100,14 @@ organizasyonel/filtreleme amaçlıdır, belge yetkisini etkilemez.
 ## Belge yükleme (Phase 0.2, 3.2)
 Tüm `/api/documents/*` ve `/api/ask` istekleri artık giriş yapılmış olmayı gerektirir (yukarıdaki `cookies.txt`).
 ```bash
-curl -X POST http://localhost:8000/api/documents/upload -b cookies.txt \
+curl -X POST http://localhost:8080/api/documents/upload -b cookies.txt \
   -F "file=@sözleşme.pdf;type=application/pdf" \
   -F "title=Facility Agreement" -F "document_type=facility_agreement" \
   -F "document_date=2023-06-01" -F "counterparty=PQR Bank" -F "status=executed" \
   -F "department=finans" -F "confidentiality=normal"   # ikisi de opsiyonel (Phase 3.2)
 # {"id":"...","ingestion_status":"uploaded"} — birkaç saniye içinde "ready" olur:
-curl -b cookies.txt http://localhost:8000/api/documents/<id>/status
-curl -b cookies.txt http://localhost:8000/api/documents   # yetkili (Adım 0'da: tüm) belgeler
+curl -b cookies.txt http://localhost:8080/api/documents/<id>/status
+curl -b cookies.txt http://localhost:8080/api/documents   # yetkili (Adım 0'da: tüm) belgeler
 ```
 Kabul edilen türler: pdf/png/jpg (MIME imzasıyla doğrulanır, `.xlsx/.xlsm/.csv` Phase 4.2). Taranmış (görüntü)
 PDF'ler `ocr-worker`'da `ocrmypdf` (tur+eng) ile OCR'lanır; sayfa metni ve ~800 kelimelik chunk'lar
@@ -103,15 +125,15 @@ belgenin kendi metadata'sı hiç değişmez (SPEC_02 §4, "kritik alan sessiz ov
 ```bash
 # Otomatik: backend, ready + önerisiz belgeleri arka planda tarar (15 sn'de bir, 5'li grup halinde).
 # Elle tetiklemek/yeniden denemek için (yalnızca admin):
-curl -X POST http://localhost:8000/api/documents/<id>/suggest-metadata -b admin_cookies.txt
-curl http://localhost:8000/api/documents/<id>/metadata-suggestion -b cookies.txt
+curl -X POST http://localhost:8080/api/documents/<id>/suggest-metadata -b admin_cookies.txt
+curl http://localhost:8080/api/documents/<id>/metadata-suggestion -b cookies.txt
 # {"status":"pending","fields":{"department":{"value":"finans","confidence":0.86}, ...}}
 
 # Kabul (yalnızca admin; yalnızca gövdede adı geçen alanlar yazılır):
-curl -X POST http://localhost:8000/api/documents/<id>/metadata-suggestion/apply -b admin_cookies.txt \
+curl -X POST http://localhost:8080/api/documents/<id>/metadata-suggestion/apply -b admin_cookies.txt \
   -H 'content-type: application/json' -d '{"department":"finans","project_code":"ANK_RES"}'
 # Ret (öneriyi reddeder, belgeye dokunmaz; sonra tekrar suggest-metadata çağrılabilir):
-curl -X POST http://localhost:8000/api/documents/<id>/metadata-suggestion/reject -b admin_cookies.txt
+curl -X POST http://localhost:8080/api/documents/<id>/metadata-suggestion/reject -b admin_cookies.txt
 ```
 LLM hatası (kota, bağlantı) önerinin `status:"failed"` olmasına yol açar, upload'ı hiçbir zaman bozmaz. Arka plan
 taraması yalnızca `LLM_API_KEY` doluyken ve `_test` veritabanına karşı çalışmıyorken başlar (`make test`
@@ -123,12 +145,12 @@ sırasında hiç çalışmaz).
 ("Yapay zeka servisi yapılandırılmamış."), belge hattı çalışmaya devam eder.
 ```bash
 # Demo belgeler yüklüyse (bkz. "Demo veri (Phase 3.1)"), doğrudan soru sorulabilir:
-curl -s -X POST localhost:8000/api/ask -b cookies.txt -H 'content-type: application/json' \
+curl -s -X POST localhost:8080/api/ask -b cookies.txt -H 'content-type: application/json' \
   -d '{"question": "Ankara RES'\''in güncel minimum DSCR covenant'\''ı nedir?"}'
 # {"answer":"... 1,20x'tir [K1] ...","answered":true,"sources":[{"ref":"K1","title":"Amendment 01","page_number":3,
 #   "document_date":"2025-03-15","version":1,"status":"executed","is_current":true,...}],"model":"...","tokens_in":..}
 ```
-Tek sayfalık test arayüzü: `http://<vm-ip>:8000/ask` (Caddy ve build gerektirmez). Cevaplar Türkçe'dir, her olgu
+Tek sayfalık test arayüzü: `http://<vm-ip>:8080/ask` (Caddy ve build gerektirmez). Cevaplar Türkçe'dir, her olgu
 cümlesi `[K#]` etiketiyle bir belge+sayfaya bağlanır; kaynak yoksa sabit "…yeterli bilgi bulamadım." cevabı döner ve
 LLM hiç çağrılmaz. "Güncel" / "ilk" ayrımı `supersedes` zinciri ve `DEMO_TODAY` ile kodda hesaplanır (ADR-021).
 Yüklemede zincir kurmak için `effective_date`, `version`, `supersedes_document_id` form alanları opsiyoneldir.
@@ -183,11 +205,13 @@ doküman planlanmadı); bu bilinen bir boşluktur, bkz. `docs/reports/PHASE_3_1_
 ## Make hedefleri
 | Hedef | Açıklama |
 |---|---|
-| `make up` / `make down` | Servisleri başlat / durdur (veri kalır) |
+| `make up` / `make down` | postgres + backend + ocr-worker + caddy başlat (arayüz `:8080`) / durdur (veri kalır) |
 | `make up-full` | `embed` dahil (profile `full`, 16 GB) |
 | `make ps`, `make logs SVC=backend` | Durum ve loglar |
 | `make test` | pytest: backend → şema doğrulaması → ocr-worker, sırayla; test DB (`company_ai_test`) compose içindeki Postgres'tedir |
-| `make lint` / `make format` | ruff + mypy / otomatik biçimlendirme |
+| `make lint` / `make format` | ruff + mypy (backend), ruff (ocr-worker), eslint + tsc (frontend) / otomatik biçimlendirme |
+| `make build-frontend` | React bundle'ı içeren caddy imajını yeniden derle (`make up` zaten yapar) |
+| `make dev-frontend` | Vite dev server (HMR) `:5173`, `/api` backend'e proxy — günlük arayüz geliştirme |
 | `make migrate`, `make migration NAME=...` | Alembic upgrade / yeni migration |
 | `make seed-admin`, `make seed-demo-users`, `make seed-demo-departments`, `make seed-demo-projects` | Admin/demo kullanıcı/demo departman+üyelik/demo proje oluştur (yoksa) |
 | `make prose` | LLM ile `seed_data/generator/prose/*.yaml` üret (yalnızca içerik değiştiğinde, elle commit edilir) |
@@ -197,14 +221,15 @@ doküman planlanmadı); bu bilinen bir boşluktur, bkz. `docs/reports/PHASE_3_1_
 | `make psql`, `make shell` | Postgres'e psql / backend container'ında bash |
 | `make eval`, `make backup`, `make restore` | Sonraki phase'lerde (şimdilik "henüz uygulanmadı") |
 
-Postgres portu host'a açılmaz; `make psql` kullanın. Backend `BACKEND_PORT` (varsayılan 8000) üzerinden
-Caddy gelene kadar (Phase 3.3) doğrudan erişilebilir.
+Postgres portu host'a açılmaz; `make psql` kullanın. Backend'in 8000 portu da Phase 3.3'ten beri host'a
+açık değildir (`BACKEND_PORT` yalnızca compose ağı içindir); her şey Caddy'nin `CADDY_PORT`'u (8080) üzerinden.
 
 ## Repo düzeni
 ```
 backend/      FastAPI (app/api, app/services, app/repositories, app/models, app/schemas, app/core), tests/, alembic/
+frontend/     Vite + React 18 + TS (src/api istemci, src/auth, src/pages, src/components, src/lib/strings.ts); Dockerfile = lint/dev aracı
 ocr-worker/   ocrmypdf + PyMuPDF ingestion worker; kendi pyproject/tests'i, backend/app'i import etmez
-infra/        docker-compose.yml, Caddyfile, .env.example, postgres/init, ocr-worker/Dockerfile
+infra/        docker-compose.yml, Caddyfile, caddy/Dockerfile (frontend build + Caddy), .env.example, postgres/init, ocr-worker/Dockerfile
 seed_data/    master/ (truth ledger), generator/ (prose, template, render, validate — app/ tarafından import edilmez),
               documents/ (üretilen PDF'ler + manifest.json, git'e girmez), evaluation/ (golden sorular)
 scripts/      wait_for_services.sh, seed_demo.sh, reset_demo.sh (+ ileride backup/restore/eval)

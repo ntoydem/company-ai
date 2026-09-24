@@ -1,4 +1,6 @@
-# Placeholder until Phase 3.3. LAN, plain HTTP (no TLS in V0).
+# Phase 3.3. LAN, plain HTTP (no TLS in V0, ADR-015). The React bundle is baked into the
+# Caddy image at /srv (infra/caddy/Dockerfile); the API is reached only through here —
+# the backend's port 8000 is no longer published on the host (ADR-018).
 :80 {
 	handle /api/* {
 		reverse_proxy backend:8000
@@ -6,7 +8,14 @@
 	handle /health {
 		reverse_proxy backend:8000
 	}
+	# Phase 0.3 developer test page, kept after the real UI (ADR-021).
+	handle /ask {
+		reverse_proxy backend:8000
+	}
 	handle {
-		respond "Company AI arayüzü Phase 3.3'te eklenecek." 200
+		root * /srv
+		# SPA: every client-side route (react-router) falls back to index.html.
+		try_files {path} /index.html
+		file_server
 	}
 }

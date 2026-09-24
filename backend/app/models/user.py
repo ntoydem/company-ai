@@ -35,5 +35,12 @@ class User(TimestampMixin, Base):
     # app/services/authorization.py.
     departments: Mapped[list[Department]] = relationship("Department", secondary="user_departments")
 
+    @property
+    def department_slugs(self) -> list[str]:
+        """Direct membership slugs only (empty for admin/management, who need no rows —
+        SPEC_02 §5). Exposed via `/api/auth/me` so the UI can hide department cards
+        (Phase 3.3); hiding is convenience, the gate stays server-side (ADR-004)."""
+        return [department.slug for department in self.departments]
+
     def __repr__(self) -> str:  # never include password_hash
         return f"User(username={self.username!r}, role={self.role.value!r})"

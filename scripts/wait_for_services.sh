@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
-# Waits until the backend answers /health with 200 (default 90 s), then prints the body.
+# Waits until /health answers 200 through Caddy (default 90 s), then prints the body.
+# Since Phase 3.3 the backend has no host port (ADR-018); Caddy proxies /health.
 set -euo pipefail
 
-PORT="${BACKEND_PORT:-8000}"
+PORT="${CADDY_PORT:-8080}"
 TIMEOUT="${1:-90}"
 URL="http://localhost:${PORT}/health"
 
 for ((i = 0; i < TIMEOUT; i++)); do
     if body="$(curl -fsS "$URL" 2>/dev/null)"; then
-        echo "backend hazır: $URL -> $body"
+        echo "hazır: $URL -> $body"
+        echo "arayüz: http://<vm-ip>:${PORT}"
         exit 0
     fi
     sleep 1
 done
 
-echo "backend ${TIMEOUT} saniye içinde hazır olmadı: $URL" >&2
-echo "Loglar için: make logs SVC=backend" >&2
+echo "servisler ${TIMEOUT} saniye içinde hazır olmadı: $URL" >&2
+echo "Loglar için: make logs SVC=backend  /  make logs SVC=caddy" >&2
 exit 1

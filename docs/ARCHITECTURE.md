@@ -29,6 +29,7 @@ Status values: `accepted` | `superseded by ADR-xxx`. Phase column = when the dec
 - Initial admin is created idempotently at startup from `ADMIN_USERNAME` / `ADMIN_PASSWORD`; an existing user is never modified by the seed.
 - Login rate limiting (Phase 1.1) protects the single password endpoint.
 - **Phase 1.1 concretization:** JWT via `PyJWT` (HS256, `JWT_SECRET`), cookie name `access_token` (`path=/`, `samesite=lax`, `secure=false` in V0 plain-HTTP LAN, ADR-015). The token's `sub` (user id) and `role` claim are non-authoritative — `get_current_user` re-fetches the `User` row on every request and trusts only the DB's `role`/`is_active`, since there is no refresh/revocation mechanism. Wrong username, wrong password and a disabled account return an identical 401 (no username enumeration). Login rate limit: in-memory, 5 failed attempts/15 min per username and 20/15 min per client IP (no Redis in this stack; single `uvicorn` process makes this sufficient for V0; resets on restart). Demo users `yonetim`/`finans`/`hukuk`/`enerji` are seeded the same idempotent way as admin, sharing one `DEMO_USER_PASSWORD` — they carry only a `role` until Phase 1.2 adds department membership.
+- **Phase 3.3 concretization:** the UI never reads the JWT (httpOnly); its only notion of "logged in" is `GET /api/auth/me` (200 → user, 401 → login screen), and any later 401 drops the session client-side. `/me` (and `/login`) now also return `department_slugs` — the user's direct memberships — so the home screen can hide cards of departments the employee cannot see; this is convenience only, ADR-004's server-side gate is unchanged.
 
 ## ADR-004 — Authorization model and the `allowed_document_ids` contract
 **Status:** accepted · **Phase:** 0.1 (contract) · 1.2 (rules)
@@ -145,12 +146,14 @@ Status values: `accepted` | `superseded by ADR-xxx`. Phase column = when the dec
 - Host side: `DATA_ROOT` (dev `./data`, prod `/srv/company-ai`) and all host ports (`BACKEND_PORT`, `CADDY_PORT`) are consumed only by compose. Container side: `APP_DATA_DIR=/data` with `documents/ excel/ app-data/` sub-mounts.
 - The Makefile calls `docker compose --project-directory . -f infra/docker-compose.yml --env-file .env`, so relative paths resolve from the repo root on any host. No host-specific path exists in the repo.
 - Backend port 8000 is exposed on the host until Caddy arrives (Phase 3.3); afterwards it is closed to the compose network.
+- **Phase 3.3 concretization:** done — `backend.ports` removed from compose; `caddy` is part of the default `make up` (no profile) and is the only host-facing service (`CADDY_PORT`). The React bundle is built in a multi-stage `infra/caddy/Dockerfile` (node → `caddy:2-alpine`, `/srv`) and served with an SPA fallback (`try_files … /index.html`); `/api/*`, `/health` and `/ask` are reverse-proxied. The app uses relative URLs only; in `make dev-frontend` Vite's dev proxy plays Caddy's role, so the backend needs no CORS configuration in either mode. A `frontend` tooling service (`profiles: ["tools"]`) exists solely for `make lint` / `make dev-frontend`.
 
 ## ADR-019 — Testing and quality gates
 **Status:** accepted · **Phase:** 0.1
 - pytest runs inside the backend container against a dedicated `company_ai_test` database (created by the Postgres init script); a session fixture applies `alembic upgrade head` and refuses any database whose name does not end in `_test`.
 - Every endpoint has at least one integration test; every service has unit tests with fakes (e.g. `DocumentIdsProvider`).
 - `ruff` (lint + format) and `mypy --strict` on `app/` must be green before a phase closes; frontend adds `eslint` + `tsc` in Phase 3.3.
+- **Phase 3.3 concretization:** `make lint` runs `eslint .` + `tsc --noEmit` (app and vite configs) in the `frontend` tooling container. No Playwright/UI test suite (CLAUDE.md: out of V0 scope) — UI acceptance criteria are verified by hand in a browser and documented with screenshots in the phase report; endpoint-level guarantees behind the UI (403/404, error bodies, `/me` memberships) stay covered by the backend's pytest suite.
 - Phase closing ritual (CLAUDE.md): all tests green → docs/README updated → migration present → `docs/reports/PHASE_x_y_REPORT.md` → `docs/PHASES.md` status → commit + tag `phase-x-y`.
 
 ## ADR-020 — Search query construction: OR semantics for natural-language questions

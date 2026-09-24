@@ -25,6 +25,7 @@ from app.repositories import (
 from app.repositories.document_repo import SqlDocumentIdsProvider
 from app.schemas.authorization import AuthorizationScope
 from app.schemas.document import (
+    DocumentDetailResponse,
     DocumentListItem,
     DocumentStatusResponse,
     DocumentUploadResponse,
@@ -220,6 +221,18 @@ def _get_authorized_document(session: Session, user: User, document_id: uuid.UUI
     if document is None:
         raise HTTPException(404, DOCUMENT_NOT_FOUND_MESSAGE)
     return document
+
+
+@router.get("/{document_id}", response_model=DocumentDetailResponse)
+def get_document(
+    session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    document_id: uuid.UUID,
+) -> DocumentDetailResponse:
+    """Full metadata for one visible document (Phase 3.3, SORU 1). Unauthorized ids get
+    the same 404 as `/status` (existence hidden; `/download` alone answers 403)."""
+    document = _get_authorized_document(session, current_user, document_id)
+    return DocumentDetailResponse.model_validate(document)
 
 
 @router.post("/{document_id}/suggest-metadata", response_model=MetadataSuggestionResponse)

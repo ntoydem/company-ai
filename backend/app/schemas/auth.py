@@ -17,3 +17,4 @@ class CurrentUserResponse(BaseModel):
     username: str
     display_name: str
     role: UserRole
+    department_slugs: list[str]

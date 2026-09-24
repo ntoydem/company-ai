@@ -15,6 +15,7 @@ from app.models.user import User
 from app.repositories import user_repo
 from app.services.admin_seed import ensure_admin_user
 from app.services.security import ACCESS_TOKEN_COOKIE_NAME
+from tests.department_fixtures import add_user_to_department, make_department
 
 
 def _login(client: TestClient, username: str, password: str) -> Response:
@@ -101,6 +102,24 @@ def test_me_with_valid_cookie_returns_current_user(
     body = response.json()
     assert body["username"] == settings.admin_username
     assert body["role"] == "admin"
+
+
+def test_me_returns_direct_department_memberships(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    """Phase 3.3: the UI hides department cards with this list (convenience only; the
+    server-side gate is unchanged)."""
+    enerji = make_department(db_session, slug="enerji_grubu")
+    make_department(db_session, slug="finans")
+    add_user_to_department(db_session, employee_user, enerji)
+
+    body = client.get("/api/auth/me").json()
+
+    assert body["department_slugs"] == ["enerji_grubu"]
+
+
+def test_me_management_has_no_membership_rows(client: TestClient, management_user: User) -> None:
+    assert client.get("/api/auth/me").json()["department_slugs"] == []
 
 
 def test_logout_clears_cookie_without_requiring_auth(client: TestClient) -> None:

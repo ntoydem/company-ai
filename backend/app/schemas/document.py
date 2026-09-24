@@ -26,9 +26,26 @@ class DocumentListItem(BaseModel):
     status: DocumentStatus
     ingestion_status: IngestionStatus
     department: str | None
+    subdepartment: str | None
     project_id: UUID | None
+    confidentiality: Confidentiality
     external_ref: str | None
     created_at: datetime
+
+
+class DocumentDetailResponse(DocumentListItem):
+    """`GET /api/documents/{id}` (Phase 3.3, SORU 1): the list item plus the temporal and
+    system fields a detail/review screen needs."""
+
+    tags: list[str]
+    effective_date: date | None
+    expiration_date: date | None
+    version: int
+    supersedes_document_id: UUID | None
+    superseded_by_document_id: UUID | None
+    related_document_ids: list[UUID]
+    ingestion_error: str | None
+    page_count: int | None
 
 
 class DocumentStatusResponse(BaseModel):
