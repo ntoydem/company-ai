@@ -118,6 +118,7 @@ Tanım: Doğruluğun ölçülmesi; kesin veriyle aritmetik yapan Excel motoru; p
 ## Phase 4.1 — Eval runner `S`
 **Kapsam:** `scripts/run_eval.py`: `questions.json` → `/api/ask` (soruyu `ask_as_user` ile) → skor (normalize karşılaştırma `1.20x/1,20x/1.2`, required/forbidden sources, expected_project, expect_no_answer). Çıktı markdown + JSON, `results/<model>_<date>`. Gemini ücretsiz katman istek sınırına uyum (bekleme).
 **Kabul kriterleri:** `make eval MODEL=…` çalışır; isolation/hallucination/authorization %100; document/temporal ≥ %80 (değilse Phase 3.2'ye dönülür); iki model karşılaştırma dosyası.
+**Ön koşul (Phase 3.2):** Eval koşmadan önce FTS'in İngilizce çoğul/kısaltma eşleşme zayıflığı (`test_initial_dscr_is_executed_and_differs`, "covenant" vs "covenants", "DSCR" literal geçmiyor) golden questions/prose seviyesinde çözülmeli veya bilinen sınırlama olarak eval sonuçlarına not düşülmeli — aksi halde document kategorisi skoru retrieval hatasını model hatası gibi gösterir (bkz. `docs/reports/PHASE_3_2_REPORT.md` §7).
 **Not (Phase 0.3):** `isolation` kategorisi, alakasız projenin chunk'ları retrieval'a girdiğinde (OR-FTS, ADR-020: "İzmir RES" sorusu Ankara chunk'larını getirir) LLM'in çıkarım yapmayıp "bilgi bulamadım" demesini de kapsamalı; T0'da kriter 3 tam olarak bu yola dayanıyor. Runner Gemini ücretsiz katmanı (5 istek/dk, 503 "high demand") için bekleme/retry ve `MODEL=` override'ı içermeli.
 
 ## Phase 4.2 — Excel motoru `O`
