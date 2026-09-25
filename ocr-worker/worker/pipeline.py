@@ -77,6 +77,21 @@ def _process(engine: Engine, tables: Tables, config: Config, job: LockedJob) -> 
     # by globbing the document's directory (its extension varies: pdf/png/jpg).
     original_path = storage.original_file(config.documents_dir, job.document_id)
     extension = original_path.suffix.lstrip(".").lower()
+    if extension in ("xlsx", "xlsm", "csv"):
+        # Excel family never gets a job (Phase 4.2: the upload marks it ready directly);
+        # if one ever appears, finish it without touching ocrmypdf — never a failure.
+        with engine.begin() as conn:
+            conn.execute(
+                update(tables.documents)
+                .where(tables.documents.c.id == job.document_id)
+                .values(ingestion_status="ready")
+            )
+            conn.execute(
+                update(tables.ingestion_jobs)
+                .where(tables.ingestion_jobs.c.id == job.id)
+                .values(status="done")
+            )
+        return
     converted_input: Path | None = None
     if extension in ("png", "jpg", "jpeg"):
         converted_input = original_path.with_name("_ocr_input.pdf")
