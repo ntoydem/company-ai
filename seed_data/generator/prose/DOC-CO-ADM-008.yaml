@@ -1,0 +1,21 @@
+doc_id: DOC-CO-ADM-008
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Karar Gerekçesi
+  paragraphs:
+  - Şirketimiz bünyesinde kurumsal yönetim ilkelerinin etkinliğinin artırılması ve
+    iç kontrol mekanizmalarının güçlendirilmesi amacıyla yeni bir denetim komitesi
+    oluşturulması [[counterparty]] tarafından talep edilmiştir. İlgili düzenlemeler
+    çerçevesinde, [[spv_name]] bünyesindeki finansal raporlama süreçlerinin şeffaflığı
+    ve güvenilirliği [[document_date]] tarihinde detaylıca değerlendirilmiştir. Yapılan
+    ön incelemeler sonucunda, [[status_label]] statüsündeki denetim faaliyetlerinin
+    kesintisiz yürütülmesi için atama yapılmasının zaruri olduğu kanaatine varılmıştır.
+- heading: Alınan Karar
+  paragraphs:
+  - Yönetim kurulu, [[document_no]] sayılı karar metni doğrultusunda, [[effective_date]]
+    itibarıyla geçerli olmak üzere denetim komitesi üyelerinin atanmasına oy birliğiyle
+    karar vermiştir. Komite üyelerinin görev ve sorumlulukları [[version_label]] numaralı
+    dokümanda belirtilen esaslara göre yürütülecek olup, ilgili [[parties_list]] bilgilendirilecektir.
+    Alınan bu kararın tüm kurumsal paydaşlarımıza ve [[title]] makamına tebliğ edilmesi
+    hususunda gerekli işlemler başlatılmıştır.

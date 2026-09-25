@@ -1,0 +1,31 @@
+doc_id: DOC-CO-ADM-010
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Karar Gerekçesi
+  paragraphs:
+  - İşbu belge, [[parties_list]] huzurunda gerçekleştirilen genel kurul toplantısında
+    [[document_date]] tarihinde ele alınan stratejik mali planlamalar neticesinde
+    hazırlanmıştır. Şirketin uzun vadeli büyüme hedefleri ve [[spv_name]] bünyesindeki
+    operasyonel sürdürülebilirlik ilkeleri, mevcut kâr dağıtım politikasının yeniden
+    değerlendirilmesini zorunlu kılmıştır. Alınan bu kararın temel amacı, pay sahiplerinin
+    haklarını korurken şirketin özkaynak yapısını [[status_label]] statüsüne uygun
+    olarak güçlendirmektir.
+  - Piyasa koşulları ve sektörel dinamikler göz önünde bulundurularak, [[title]] çerçevesinde
+    belirlenen kurumsal yönetim ilkelerine tam uyum sağlanması hedeflenmiştir. [[counterparty]]
+    ile yürütülen projelerin finansal gereksinimleri ve nakit akışı dengesi, [[document_no]]
+    sayılı referans metin doğrultusunda detaylıca incelenmiştir. Bu kapsamda, [[version_label]]
+    revizyonu ile güncellenen esaslar, şirketin mali disiplinini artırmayı amaçlamaktadır.
+- heading: Alınan Karar
+  paragraphs:
+  - Yönetim kurulu tarafından sunulan öneriler doğrultusunda, [[parties_list]] oy
+    birliği ile kârın belirli bir kısmının şirket bünyesinde bırakılmasına karar vermiştir.
+    [[effective_date]] itibarıyla yürürlüğe girecek olan bu politika, [[spv_name]]
+    operasyonlarının kesintisiz devam etmesini sağlayacaktır. Dağıtıma konu olan tutarlar
+    ve ödeme takvimi, [[document_date]] tarihli yönetim kurulu yönergelerine tam uygunluk
+    gösterecektir.
+  - Şirketin finansal istikrarını ve [[status_label]] derecelendirmesini korumak adına,
+    [[counterparty]] ile yapılan anlaşmaların hükümleri saklı tutulmuştur. İlgili
+    departmanlar, [[title]] standartlarına göre gerekli bildirimleri yapmakla ve [[version_label]]
+    belgelerini arşivlemekle yükümlüdür. İşbu karar, [[document_no]] sicil numarası
+    altında resmi kayıtlara geçirilmiştir.

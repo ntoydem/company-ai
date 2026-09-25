@@ -1,0 +1,26 @@
+doc_id: DOC-CO-ADM-007
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Politika Kapsamı
+  paragraphs:
+  - Bu kurumsal yönetim ve uyum politikası belgesi, [[spv_name]] bünyesindeki tüm
+    operasyonel süreçleri ve idari faaliyetleri kapsamaktadır. Belirtilen standartlar,
+    [[counterparty]] ve ilgili tüm paydaşların katılımıyla [[document_date]] tarihinde
+    güncellenmiştir. [[document_no]] numaralı bu metin, şirket içi tüm birimlerin
+    yasal düzenlemelere tam uyum sağlamasını hedefler.
+  - Uygulama alanı içerisinde [[parties_list]] tarafından yürütülen tüm projeler ve
+    ticari ilişkiler yer almaktadır. [[version_label]] sürümü ile birlikte, iç denetim
+    mekanizmaları daha sıkı bir şekilde yapılandırılmıştır. [[status_label]] statüsündeki
+    bu politika, tüm çalışanların erişimine açık bir şekilde muhafaza edilmektedir.
+- heading: Uygulama
+  paragraphs:
+  - Politika hükümlerinin hayata geçirilmesi sürecinde, [[effective_date]] tarihi
+    itibarıyla tüm departmanlar sorumlu hareket etmekle yükümlüdür. [[spv_name]] yönetim
+    kurulu, uyum süreçlerinin etkinliğini düzenli olarak denetlemektedir. [[counterparty]]
+    ile yürütülen ortak çalışmalarda bu kuralların ihlal edilmemesi için gerekli tedbirler
+    alınmıştır.
+  - Olası uyumsuzluk durumlarında [[document_no]] kapsamında belirtilen disiplin ve
+    düzeltme prosedürleri derhal devreye sokulur. [[parties_list]] üyeleri, bu süreçlerin
+    yürütülmesinde aktif rol oynamaktadır. Tüm bu adımlar, şirketin kurumsal itibarını
+    ve yasal güvencesini korumak amacıyla titizlikle uygulanır.

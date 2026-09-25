@@ -1,0 +1,28 @@
+doc_id: DOC-IZM-DEV-007
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Ölçüm Kapsamı
+  paragraphs:
+  - '[[project_name]] projesi kapsamında rüzgar potansiyelini belirlemek amacıyla
+    [[spv_name]] tarafından kurumsal standartlara uygun bir ölçüm kampanyası başlatılmıştır.
+    [[counterparty]] ile iş birliği içerisinde yürütülen bu süreçte, [[document_date]]
+    tarihinde güncellenen [[document_no]] numaralı teknik şartname esas alınmıştır.'
+  - Ölçüm direklerinin yerleşimi ve teknik donanımı, [[target_capacity_mw]] hedef
+    değerine ulaşmak üzere titizlikle planlanmıştır. [[parties_list]] mutabakatıyla
+    belirlenen istasyonlar üzerinden veri toplama süreci kesintisiz olarak sürdürülmektedir.
+  - '[[effective_date]] itibarıyla sahada yürütülen faaliyetler [[status_label]] statüsünde
+    olup, [[title]] gereklilikleri eksiksiz bir şekilde yerine getirilmektedir. [[version_label]]
+    revizyonu ile metodoloji en güncel uluslararası normlara uyumlu hale getirilmiştir.'
+- heading: Sonuçlar
+  paragraphs:
+  - Toplanan ham verilerin analizi neticesinde, [[project_name]] sahasının rüzgar
+    hızı ve yön dağılımı [[spv_name]] mühendislik ekibi tarafından raporlanmıştır.
+    [[counterparty]] denetiminden geçen bu bulgular, [[target_capacity_mw]] kapasite
+    beklentisini doğrular nitelikte tutarlı seyretmektedir.
+  - Elde edilen veriler, [[document_date]] tarihli [[document_no]] raporlama protokolüne
+    uygun olarak arşivlenmiştir. [[parties_list]] tarafından incelenen bu sonuçlar,
+    projenin finansal ve teknik fizibilitesi için sağlam bir temel oluşturmaktadır.
+  - Ölçüm dönemi boyunca kaydedilen performans göstergeleri [[status_label]] seviyesini
+    korumuş ve [[effective_date]] tarihinde onaylanmıştır. [[title]] standartlarına
+    göre hazırlanan nihai değerlendirme, [[version_label]] belgesi ile resmileştirilmiştir.

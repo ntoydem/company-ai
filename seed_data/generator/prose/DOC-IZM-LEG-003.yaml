@@ -1,0 +1,30 @@
+doc_id: DOC-IZM-LEG-003
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: İnceleme Kapsamı
+  paragraphs:
+  - İşbu hukuki inceleme raporu, [[project_name]] projesi kapsamında kurulmuş olan
+    [[spv_name]] unvanlı özel amaçlı şirketin hukuki statüsünün değerlendirilmesi
+    amacıyla hazırlanmıştır. İnceleme sürecinde, şirket ana sözleşmesi, hissedarlar
+    sözleşmesi ve ilgili kurumsal belgeler [[counterparty]] ve diğer paydaşlar nezdinde
+    tetkik edilmiştir.
+  - Raporun temel amacı, şirketin mevcut hukuki yapısının ulusal mevzuata ve [[parties_list]]
+    tarafından akdedilen anlaşmalara tam uyumunu denetlemektir. Yapılan çalışmalar
+    [[effective_date]] tarihi itibarıyla yürürlükte olan mevzuat hükümlerine dayanmakta
+    olup, [[status_label]] statüsündeki tüm kurumsal süreçleri kapsamaktadır.
+  - İnceleme esnasında, [[document_no]] sayılı dosya muhteviyatında yer alan bilgi
+    ve belgeler esas alınmış, [[document_date]] tarihli mutabakat metinleri de kapsam
+    dahilinde değerlendirilmiştir.
+- heading: Değerlendirme
+  paragraphs:
+  - Şirketin kurumsal yönetişim mekanizmaları, [[title]] pozisyonundaki yetkililerin
+    imza sirküleri ve yetki matrisi çerçevesinde incelenmiş olup, iç denetim prosedürlerinin
+    [[version_label]] revizyonuna uygun olduğu görülmüştür. Ortaklık yapısının [[project_name]]
+    projeksiyonlarıyla uyumlu olduğu ve [[spv_name]] bünyesindeki karar alma süreçlerinin
+    etkin bir şekilde işlediği tespit edilmiştir.
+  - İlgili mevzuat ve [[counterparty]] ile imzalanan sözleşmeler ışığında yapılan
+    hukuki değerlendirme sonucunda, şirketin operasyonel faaliyetlerini sürdürmesinin
+    önünde herhangi bir hukuki engel bulunmadığı kanaatine varılmıştır. Mevcut [[status_label]]
+    durumunun korunması ve [[parties_list]] haklarının gözetilmesi hususunda ilgili
+    yönetim organlarına tavsiyelerde bulunulmuştur.

@@ -38,7 +38,7 @@ def _raws() -> dict[str, Any]:
 
 
 def ensure_generated_documents() -> dict[str, Any]:
-    """Renders the 15 documents from the committed prose if `manifest.json` is missing
+    """Renders the 70 documents from the committed prose if `manifest.json` is missing
     (first test run in a fresh checkout) — no LLM call, same as `make seed`."""
     if not MANIFEST_PATH.exists():
         from seed_data.generator.generate_documents import generate

@@ -1,0 +1,172 @@
+docker compose --project-directory . -f infra/docker-compose.yml --env-file .env up -d --wait --build backend
+ Image company-ai-backend Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 598B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.45kB done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for ghcr.io/astral-sh/uv:0.12.17
+#3 DONE 0.1s
+
+#4 [internal] load metadata for docker.io/library/python:3.12-slim
+#4 DONE 0.1s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 2B done
+#5 DONE 0.0s
+
+#6 [stage-0 1/9] FROM docker.io/library/python:3.12-slim@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9
+#6 resolve docker.io/library/python:3.12-slim@sha256:2f17fc044b579bab302c2e8054d3a686e2cb9a83de48e70534b94cd8ebbe06a9 0.1s done
+#6 DONE 0.1s
+
+#7 FROM ghcr.io/astral-sh/uv:0.12.17@sha256:10787c682e4184e4f290de1171fd4703dc63de99221f10fe1c99002ce7fa9acc
+#7 resolve ghcr.io/astral-sh/uv:0.12.17@sha256:10787c682e4184e4f290de1171fd4703dc63de99221f10fe1c99002ce7fa9acc 0.0s done
+#7 DONE 0.1s
+
+#8 [internal] load build context
+#8 transferring context: 2.68MB 0.0s done
+#8 DONE 0.0s
+
+#9 [stage-0 3/9] RUN apt-get update && apt-get install -y --no-install-recommends         libpango-1.0-0         libpangocairo-1.0-0         libgdk-pixbuf-2.0-0         libffi-dev         shared-mime-info         fonts-dejavu-core     && rm -rf /var/lib/apt/lists/*
+#9 CACHED
+
+#10 [stage-0 5/9] WORKDIR /app
+#10 CACHED
+
+#11 [stage-0 2/9] COPY --from=ghcr.io/astral-sh/uv:0.12.17 /uv /uvx /bin/
+#11 CACHED
+
+#12 [stage-0 4/9] RUN groupadd --gid "1000" app     && useradd --uid "1000" --gid "1000" --create-home --shell /bin/bash app     && mkdir -p /app /data/documents /data/excel /data/app-data     && chown -R app:app /app /data
+#12 CACHED
+
+#13 [stage-0 6/9] COPY pyproject.toml uv.lock ./
+#13 CACHED
+
+#14 [stage-0 7/9] RUN uv sync --frozen --no-install-project && chown -R app:app /opt/venv
+#14 CACHED
+
+#15 [stage-0 8/9] COPY --chown=app:app . /app
+#15 DONE 0.1s
+
+#16 [stage-0 9/9] RUN chmod +x /app/entrypoint.sh
+#16 DONE 0.2s
+
+#17 exporting to image
+#17 exporting layers
+#17 exporting layers 0.7s done
+#17 exporting manifest sha256:e3a84eb0727b68ce9aad299f1aa1eb2d75f6aa94a69005dda4e1ba82ca7cfd60 0.0s done
+#17 exporting config sha256:39dd00479768323c9c6c2a3ce171bacae61505a1a08371915cba17a7a1c6d485 0.0s done
+#17 exporting attestation manifest sha256:8c46d114d67fb22431f30edfcf0564cd6aef78ce8bcb6b6fb774a7e203f4e0a7 0.0s done
+#17 exporting manifest list sha256:d94d6c5e4c8ce5dc9e8630d0dcdc7251f7478a585cd1e63a0f87b221328c8739 0.0s done
+#17 naming to docker.io/library/company-ai-backend:latest
+#17 naming to docker.io/library/company-ai-backend:latest done
+#17 unpacking to docker.io/library/company-ai-backend:latest 0.1s done
+#17 DONE 0.9s
+
+#18 resolving provenance for metadata file
+#18 DONE 0.0s
+ Image company-ai-backend Built 
+ Container company-ai-postgres-1 Running 
+ Container company-ai-backend-1 Recreate 
+ Container company-ai-backend-1 Recreated 
+ Container company-ai-postgres-1 Waiting 
+ Container company-ai-postgres-1 Healthy 
+ Container company-ai-backend-1 Starting 
+ Container company-ai-backend-1 Started 
+ Container company-ai-postgres-1 Waiting 
+ Container company-ai-backend-1 Waiting 
+ Container company-ai-postgres-1 Healthy 
+ Container company-ai-backend-1 Healthy 
+ Container company-ai-postgres-1 Running 
+ Container company-ai-postgres-1 Waiting 
+ Container company-ai-postgres-1 Healthy 
+ Container company-ai-backend-run-e6eb695e80d2 Creating 
+ Container company-ai-backend-run-e6eb695e80d2 Created 
+2026-09-25 20:24:02,624 INFO asking 1/61: ANK-DEV-001
+2026-09-25 20:24:02,734 INFO HTTP Request: POST http://backend:8000/api/auth/login "HTTP/1.1 200 OK"
+2026-09-25 20:24:04,567 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:24:04,567 WARNING ask retry
+2026-09-25 20:24:30,392 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:24:30,392 WARNING ask retry
+2026-09-25 20:24:56,386 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:24:56,386 WARNING ask retry
+2026-09-25 20:25:37,993 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:25:37,993 WARNING question ANK-DEV-001 errored: http 503 after 3 retries
+2026-09-25 20:25:37,993 INFO asking 2/61: ANK-DEV-002
+2026-09-25 20:26:04,032 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:26:04,032 WARNING ask retry
+2026-09-25 20:26:31,001 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:26:31,001 WARNING ask retry
+2026-09-25 20:26:56,076 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:26:56,077 WARNING ask retry
+2026-09-25 20:27:37,821 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:27:37,821 WARNING question ANK-DEV-002 errored: http 503 after 3 retries
+2026-09-25 20:27:37,821 INFO asking 3/61: ANK-DEV-003
+2026-09-25 20:28:03,913 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:28:03,913 WARNING ask retry
+2026-09-25 20:28:29,737 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:28:29,737 WARNING ask retry
+2026-09-25 20:28:55,761 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:28:55,761 WARNING ask retry
+2026-09-25 20:29:37,541 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:29:37,541 WARNING question ANK-DEV-003 errored: http 503 after 3 retries
+2026-09-25 20:29:37,541 INFO asking 4/61: ANK-DEV-004
+2026-09-25 20:30:03,428 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:30:03,428 WARNING ask retry
+2026-09-25 20:30:29,433 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:30:29,433 WARNING ask retry
+2026-09-25 20:30:55,360 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:30:55,360 WARNING ask retry
+2026-09-25 20:31:37,076 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:31:37,076 WARNING question ANK-DEV-004 errored: http 503 after 3 retries
+2026-09-25 20:31:37,076 INFO asking 5/61: ANK-DEV-005
+2026-09-25 20:32:03,073 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:32:03,074 WARNING ask retry
+2026-09-25 20:32:29,078 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:32:29,078 WARNING ask retry
+2026-09-25 20:32:54,951 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:32:54,952 WARNING ask retry
+2026-09-25 20:33:36,724 INFO HTTP Request: POST http://backend:8000/api/ask "HTTP/1.1 503 Service Unavailable"
+2026-09-25 20:33:36,724 WARNING question ANK-DEV-005 errored: http 503 after 3 retries
+2026-09-25 20:33:36,724 ERROR aborting eval run: 5 ardışık istek hatası (ANK-DEV-005'de durdu) — günlük kota tükenmiş olabilir, bkz. Gemini konsolu
+# Eval sonucu — unknown-model — 2026-09-25
+
+`DEMO_TODAY`: 2026-09-15 · `EMBEDDINGS_ENABLED`: False
+
+**Koşu yarıda kesildi:** 5 ardışık istek hatası (ANK-DEV-005'de durdu) — günlük kota tükenmiş olabilir, bkz. Gemini konsolu
+
+## Kategori bazlı sonuç
+
+| Kategori | Eşik | Sonuç | Geçen/Değerlendirilen | Hata |
+|---|---|---|---|---|
+| document | ≥%80 | ❌ %0.0 | 0/0 (toplam 3) | 3 |
+| temporal | ≥%80 | ❌ %0.0 | 0/0 (toplam 2) | 2 |
+
+**Genel sonuç:** ❌ en az bir kategori eşiği altında
+
+## Puanlanamayan sorular (istek hatası)
+
+- **ANK-DEV-001** (document): http 503 after 3 retries
+- **ANK-DEV-002** (document): http 503 after 3 retries
+- **ANK-DEV-003** (document): http 503 after 3 retries
+- **ANK-DEV-004** (temporal): http 503 after 3 retries
+- **ANK-DEV-005** (temporal): http 503 after 3 retries
+
+sonuçlar: /app/seed_data/evaluation/results/unknown-model_2026-09-25
+
+== backend .env'deki LLM_MODEL_ANSWER'a geri alınıyor ==
+ Image company-ai-backend Building 
+ Image company-ai-backend Built 
+ Container company-ai-backend-1 Running 
+ Container company-ai-postgres-1 Running 
+ Container company-ai-postgres-1 Waiting 
+ Container company-ai-postgres-1 Healthy 
+ Container company-ai-postgres-1 Waiting 
+ Container company-ai-backend-1 Waiting 
+ Container company-ai-postgres-1 Healthy 
+ Container company-ai-backend-1 Healthy 
+make: *** [Makefile:156: eval] Error 1
+exit=2

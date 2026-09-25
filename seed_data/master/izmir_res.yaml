@@ -141,3 +141,236 @@ documents:
     confidentiality: normal
     generate_in_phase: "3.1"
     tag: USER_FACT
+
+  # --- Phase 5.1 documents ---
+  - id: DOC-IZM-DEV-005
+    department: enerji_grubu
+    subdepartment: enerji_gelistirme
+    folder: development
+    type: Bağlantı Görüşü Başvurusu
+    name: {value: "İzmir RES Bağlantı Görüşü Başvurusu", tag: AI_ASSUMPTION}
+    document_date: {value: 2025-06-10, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "TEİAŞ"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-IZM-DEV-006
+    department: enerji_grubu
+    subdepartment: enerji_gelistirme
+    folder: development
+    type: Toplantı Tutanağı
+    name: {value: "Kamu Duyurusu ve Halkın Katılımı Toplantısı Tutanağı", tag: AI_ASSUMPTION}
+    document_date: {value: 2025-08-20, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-IZM-DEV-003]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-IZM-DEV-007
+    department: enerji_grubu
+    subdepartment: enerji_gelistirme
+    folder: development
+    type: Teknik Rapor
+    name: {value: "Rüzgar Ölçüm Kampanyası Raporu", tag: AI_ASSUMPTION}
+    document_date: {value: 2024-06-15, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "MNO Teknik Danışmanlık Ltd."]
+    key_facts: {target_capacity_mw: project.capacity_mw.target.value}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-IZM-DEV-004]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-IZM-DEV-008
+    department: enerji_grubu
+    subdepartment: enerji_gelistirme
+    folder: development
+    type: Ön Görüş Talebi
+    name: {value: "Askeri Yasak Bölgeler Ön Görüş Talebi", tag: AI_ASSUMPTION}
+    document_date: {value: 2025-09-01, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: scanned_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-IZM-LEG-001
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Legal Review Memo
+    name: {value: "Arazi Mülkiyeti Hukuki İnceleme Notu", tag: AI_ASSUMPTION}
+    document_date: {value: 2024-03-15, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "KLM Hukuk Bürosu"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-IZM-DEV-002]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-IZM-LEG-002
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Lease Agreement Draft
+    name: {value: "Kira/İrtifak Hakkı Sözleşmesi Taslağı", tag: AI_ASSUMPTION}
+    document_date: {value: 2024-05-01, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: DRAFT
+    status: draft
+    parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-IZM-DEV-002]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-IZM-LEG-003
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Legal Opinion
+    name: {value: "Şirket Yapısı Hukuki Görüşü — İzmir SPV", tag: AI_ASSUMPTION}
+    document_date: {value: 2023-03-01, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "ABC Enerji A.Ş.", "KLM Hukuk Bürosu"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-IZM-LEG-004
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Legal Review Memo
+    name: {value: "Önlisans Süre Uzatımı Hukuki Değerlendirmesi", tag: AI_ASSUMPTION}
+    document_date: {value: 2023-11-01, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "KLM Hukuk Bürosu"]
+    key_facts: {pre_licence_date: project.timeline.pre_licence.date}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-IZM-DEV-001]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-IZM-ADM-001
+    department: mali_isler
+    subdepartment: null
+    folder: admin
+    type: Budget Approval
+    name: {value: "İzmir RES Geliştirme Bütçesi Onayı", tag: AI_ASSUMPTION}
+    document_date: {value: 2023-04-01, tag: AI_ASSUMPTION}
+    effective_date: {value: 2023-04-01, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-IZM-ADM-002
+    department: idari_isler
+    subdepartment: null
+    folder: admin
+    type: Site Security Memo
+    name: {value: "Saha Güvenliği ve İdari Düzenlemeler Notu", tag: AI_ASSUMPTION}
+    document_date: {value: 2024-05-15, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-IZM-ADM-003
+    department: mali_isler
+    subdepartment: null
+    folder: admin
+    type: Cost Tracking Memo
+    name: {value: "Proje Maliyet Takip Notu — Geliştirme Aşaması", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-06-01, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+

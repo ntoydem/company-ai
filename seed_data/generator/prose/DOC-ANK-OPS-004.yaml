@@ -1,0 +1,31 @@
+doc_id: DOC-ANK-OPS-004
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Scope of Services
+  paragraphs:
+  - The operator shall provide comprehensive operational and maintenance services
+    for the project known as [[project_name]], ensuring optimal performance at all
+    times. All activities must be executed in strict compliance with the agreement
+    referenced as [[document_no]] and signed on [[document_date]].
+  - The responsibilities defined herein apply equally to the primary stakeholders
+    including [[counterparty]], [[spv_name]], and the entities specified in [[parties_list]].
+    Every technician deployed on-site must adhere to safety protocols outlined in
+    the current version of the manual designated as [[version_label]].
+  - Routine inspections and corrective measures form the core of the daily operations
+    under the supervision of [[title]]. The overarching objective remains the preservation
+    of asset integrity until the status transitions to [[status_label]].
+- heading: 2. Term and Termination
+  paragraphs:
+  - This agreement shall enter into force on the date formally established as [[effective_date]]
+    and shall govern the operational relationship between [[spv_name]] and [[counterparty]].
+    Any modification regarding the duration must be mutually agreed upon in writing
+    by all members of [[parties_list]].
+  - In the event of a material breach, the non-defaulting party may issue a notice
+    of termination in accordance with the procedures stipulated in [[document_no]].
+    Such action shall immediately alter the operational status to [[status_label]]
+    pending final resolution by [[title]].
+  - Upon termination, the operator designated under [[project_name]] shall transfer
+    all technical logs, administrative records, and physical assets back to [[spv_name]].
+    Compliance with this handover clause is mandatory and forms a vital part of the
+    closure protocol dated [[document_date]].

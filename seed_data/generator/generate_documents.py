@@ -2,9 +2,10 @@
 
     python -m seed_data.generator.generate_documents [--out DIR]
 
-Renders every `generate_in_phase: "3.1"` ledger document to `seed_data/documents/` and
-writes `manifest.json` — the only thing `app.cli seed-demo-documents` reads (ADR-013:
-the backend never imports this package). Refuses to run if the ledger doesn't validate.
+Renders every `generate_in_phase` in `GENERATED_PHASES` ledger document to
+`seed_data/documents/` and writes `manifest.json` — the only thing
+`app.cli seed-demo-documents` reads (ADR-013: the backend never imports this package).
+Refuses to run if the ledger doesn't validate.
 """
 
 from __future__ import annotations
@@ -33,6 +34,9 @@ DEFAULT_OUT = REPO_ROOT / "seed_data" / "documents"
 
 _TOKEN_RE = re.compile(r"\[\[(\w+)\]\]")
 _SCAN_DPI = 200
+# Phases whose documents are actually rendered to PDF (Phase 5.1 promotes "5.1" alongside
+# the original "3.1"); "4.2" (Excel workbooks) and "never" are never rendered here.
+GENERATED_PHASES = ("3.1", "5.1")
 
 _PROJECT_CODE = {"ANK": "ANK_RES", "IZM": "IZM_RES", "CO": None}
 
@@ -127,7 +131,7 @@ def _nearest_generated(ref: str | None, by_id: dict[str, tuple[str, dict[str, An
     while ref is not None and ref not in seen:
         seen.add(ref)
         _, doc = by_id[ref]
-        if doc["generate_in_phase"] == "3.1":
+        if doc["generate_in_phase"] in GENERATED_PHASES:
             return ref
         ref = doc.get("supersedes")
     return None
@@ -141,7 +145,7 @@ def _revision_rows(
     rows = []
     for ref in chain:
         _, chain_doc = by_id[ref]
-        if chain_doc["generate_in_phase"] != "3.1":
+        if chain_doc["generate_in_phase"] not in GENERATED_PHASES:
             continue
         language = chain_doc["language"]
         rows.append(
@@ -270,7 +274,9 @@ def _build_document(
         digital_file = digital_path.name
 
     supersedes_ref = _nearest_generated(doc.get("supersedes"), by_id)
-    related_refs = [r for r in doc.get("related", []) if by_id[r][1]["generate_in_phase"] == "3.1"]
+    related_refs = [
+        r for r in doc.get("related", []) if by_id[r][1]["generate_in_phase"] in GENERATED_PHASES
+    ]
     project_code = _PROJECT_CODE[doc_id.split("-")[1]]
 
     return {
@@ -331,7 +337,7 @@ def generate(out_dir: Path = DEFAULT_OUT) -> list[dict[str, Any]]:
 
     entries = []
     for doc_id, (_, doc) in sorted(by_id.items()):
-        if doc["generate_in_phase"] != "3.1":
+        if doc["generate_in_phase"] not in GENERATED_PHASES:
             continue
         print(f"üretiliyor: {doc_id} — {doc['name']['value']}")
         entries.append(_build_document(doc, raws, by_id, env, out_dir))

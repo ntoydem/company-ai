@@ -1,0 +1,31 @@
+doc_id: DOC-IZM-LEG-004
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Değerlendirme Kapsamı
+  paragraphs:
+  - '[[project_name]] projesine ilişkin önlisans süreçlerinin hukuki statüsü, ilgili
+    mevzuat hükümleri çerçevesinde titizlikle incelenmiştir. Bu inceleme kapsamında,
+    [[spv_name]] tarafından sunulan bilgi ve belgeler ile [[counterparty]] nezdindeki
+    resmi kayıtlar detaylı olarak ele alınmıştır.'
+  - '[[document_no]] sayılı ve [[document_date]] tarihli başvuru evrakı, önlisans
+    süre uzatımı talebinin dayanaklarını oluşturmaktadır. İlgili [[version_label]]
+    taslağında belirtilen hususlar ile [[effective_date]] tarihinde yürürlüğe giren
+    düzenlemeler mukayeseli olarak değerlendirilmiştir.'
+  - '[[parties_list]] arasında imzalanan mutabakat metinleri ve [[pre_licence_date]]
+    tarihli idari kararlar, sürecin hukuki seyrini doğrudan etkilemektedir. [[status_label]]
+    statüsündeki bu gelişmeler, projenin gelecekteki aşamaları açısından da kritik
+    bir öneme sahiptir.'
+- heading: Sonuç
+  paragraphs:
+  - Yapılan hukuki incelemeler neticesinde, [[project_name]] için talep edilen süre
+    uzatımının ilgili mevzuata uygunluk arz ettiği tespit edilmiştir. [[spv_name]]
+    tarafından yerine getirilen yükümlülükler, sürecin yasal çerçevede ilerlediğini
+    açıkça göstermektedir.
+  - '[[counterparty]] nezdinde yürütülecek müteakip işlemlerin, [[document_no]] referans
+    numarası üzerinden takip edilmesi önerilmektedir. [[effective_date]] itibarıyla
+    geçerli olacak yeni düzenlemelerin takibi, sürecin selameti açısından büyük önem
+    taşımaktadır.'
+  - '[[status_label]] olarak belirlenen nihai aşamada, [[parties_list]] mutabakatının
+    korunması ve [[pre_licence_date]] tarihli kazanılmış hakların muhafaza edilmesi
+    esastır. Bu kapsamda gerekli idari başvuruların derhal yapılması tavsiye olunur.'

@@ -1,0 +1,30 @@
+doc_id: DOC-ANK-LEG-001
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Scope of Review
+  paragraphs:
+  - This legal memorandum has been prepared by our firm for [[counterparty]] regarding
+    the financing prerequisites concerning [[project_name]]. Our review encompasses
+    all relevant corporate authorizations and regulatory filings submitted by [[spv_name]].
+  - The examination was conducted pursuant to the instructions received under [[document_no]]
+    dated [[document_date]]. We have analyzed the transaction documents involving
+    all members of [[parties_list]] to ensure full compliance with applicable statutory
+    frameworks.
+  - The current assessment reflects the operational parameters set forth as of [[effective_date]].
+    Our analysis remains subject to the final execution of all collateral documentation
+    and the fulfillment of regulatory clearance procedures.
+- heading: 2. Conclusion
+  paragraphs:
+  - Based upon our comprehensive legal review, the financing preconditions for [[project_name]]
+    are substantially aligned with the requirements of [[counterparty]]. The corporate
+    structure of [[spv_name]] satisfies the baseline criteria for entering into the
+    contemplated credit arrangements.
+  - Certain administrative conditions subsequent remain outstanding and must be resolved
+    by [[parties_list]] prior to the initial disbursement date. These minor compliance
+    items are formally classified under [[status_label]] in our internal tracking
+    registers.
+  - We advise that the formal closing proceed only after all stipulated conditions
+    precedent are fully satisfied. Further legal updates will be provided in subsequent
+    revisions bearing the designation [[version_label]] if material circumstances
+    change.

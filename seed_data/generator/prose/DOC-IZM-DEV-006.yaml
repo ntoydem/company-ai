@@ -1,0 +1,22 @@
+doc_id: DOC-IZM-DEV-006
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Toplantı Özeti
+  paragraphs:
+  - '[[project_name]] kapsamında gerçekleştirilen halkın katılımı toplantısı, [[counterparty]]
+    ve ilgili paydaşların katılımıyla [[document_date]] tarihinde başarıyla tamamlanmıştır.
+    Toplantı süresince [[spv_name]] yetkilileri tarafından projenin genel çerçevesi
+    ve olası etkileri hakkında kapsamlı bilgilendirme yapılmıştır.'
+  - Toplantı tutanağı, [[document_no]] referans numarasıyla kayıt altına alınmış olup
+    [[version_label]] statüsündedir. Katılımcıların görüş ve önerileri resmi süreçler
+    çerçevesinde [[parties_list]] tarafından dikkate alınmak üzere derlenmiştir.
+- heading: Alınan Görüşler
+  paragraphs:
+  - Toplantı sırasında yerel halk ve [[counterparty]] temsilcileri tarafından iletilen
+    görüşler, [[title]] başlığı altında tasnif edilmiştir. İlgili tarafların projeye
+    yönelik beklentileri ve çekinceleri şeffaf bir şekilde [[status_label]] sürecine
+    dahil edilmiştir.
+  - Alınan geri bildirimlerin [[effective_date]] sonrasında yapılacak değerlendirmelerde
+    rehber niteliğinde olması planlanmaktadır. Proje yönetimi, [[spv_name]] koordinasyonunda
+    halkın bilgilendirilmesine düzenli olarak devam edecektir.

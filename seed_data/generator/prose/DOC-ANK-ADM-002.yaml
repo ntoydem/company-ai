@@ -1,0 +1,24 @@
+doc_id: DOC-ANK-ADM-002
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Gözden Geçirme Kapsamı
+  paragraphs:
+  - '[[project_name]] projesine ilişkin mevcut sigorta programı, [[document_date]]
+    tarihinde [[counterparty]] katılımıyla gözden geçirilmiştir. Bu değerlendirme,
+    [[spv_name]] tarafından sağlanan teminatların yeterliliğini ve [[parties_list]]
+    haklarını koruma düzeyini incelemek amacıyla gerçekleştirilmiştir.'
+  - Yürürlükteki [[document_no]] numaralı poliçe şartları, [[effective_date]] itibarıyla
+    güncel risk profili ile karşılaştırılmıştır. [[version_label]] kapsamında belirlenen
+    [[status_label]] doğrultusunda, [[title]] gerekliliklerinin tam olarak karşılanıp
+    karşılanmadığı denetlenmiştir.
+- heading: Değerlendirme
+  paragraphs:
+  - Yapılan incelemeler sonucunda, [[project_name]] varlıklarının sigorta kapsamının
+    [[counterparty]] standartlarına uygun olduğu tespit edilmiştir. [[spv_name]] tarafından
+    taahhüt edilen risk yönetimi prosedürlerinin [[parties_list]] beklentilerini karşıladığı
+    görülmüştür.
+  - '[[document_no]] belgesinde belirtilen teminat limitlerinin, [[effective_date]]
+    dönemindeki piyasa koşullarına göre yeterli olduğu kanaatine varılmıştır. Gerekli
+    [[status_label]] güncellemelerinin [[version_label]] sürecine uygun olarak [[title]]
+    çerçevesinde takip edilmesi önerilmektedir.'

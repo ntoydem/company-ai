@@ -1,0 +1,26 @@
+doc_id: DOC-ANK-FIN-016
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Purpose and Scope
+  paragraphs:
+  - This document has been prepared for [[project_name]] to evaluate the financial
+    standing and obligations of [[spv_name]]. The review period covers the operational
+    metrics as of [[document_date]], involving all relevant stakeholders.
+  - The primary objective of this report is to ensure adherence to the financial thresholds
+    established under the current [[version_label]]. Our analysis involves comprehensive
+    verification of reporting standards set by [[counterparty]].
+  - The scope encompasses a detailed examination of cash flow statements and reserve
+    accounts associated with [[parties_list]]. All findings are documented in accordance
+    with the provisions outlined in [[document_no]].
+- heading: 2. Compliance Summary
+  paragraphs:
+  - During the review period starting from [[effective_date]], the financial metrics
+    demonstrated stability across all operational phases. The calculated debt service
+    coverage ratio reached [[dscr]], which remains aligned with the required benchmarks.
+  - Based on the aforementioned metrics, the overall covenant evaluation for the period
+    is classified as [[covenant_result]]. Management confirms that no defaults have
+    occurred, and the project maintains its [[status_label]] standing.
+  - Future projections indicate continued adherence to financial obligations under
+    the guidance of the [[title]]. Regular monitoring will persist to sustain this
+    performance through subsequent operational quarters.

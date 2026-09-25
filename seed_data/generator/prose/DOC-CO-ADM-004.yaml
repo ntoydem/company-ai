@@ -1,0 +1,24 @@
+doc_id: DOC-CO-ADM-004
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Kapsam Özeti
+  paragraphs:
+  - Bu sigorta programı özeti belgesi, [[counterparty]] ile ilişkili tüm iştirakleri
+    ve varlıkları güvence altına almak amacıyla hazırlanmıştır. İlgili taraflar arasında
+    imzalanan [[document_no]] numaralı mutabakat çerçevesinde, risk yönetimi politikaları
+    [[parties_list]] katılımıyla yeniden yapılandırılmıştır.
+  - Teminat kapsamı, kurumsal faaliyetlerin sürdürülebilirliğini korumak ve olası
+    operasyonel kesintileri minimize etmek için tasarlanmıştır. Belirtilen [[status_label]]
+    statüsüne uygun olarak, tüm operasyonel riskler merkezi bir yaklaşımla yönetilmektedir.
+  - Şirketler grubunun [[spv_name]] bünyesindeki yapıları da bu kapsam dahilinde tam
+    güvence altına alınmıştır. Yapılan bu düzenleme, [[title]] pozisyonundaki yetkililerin
+    onayladığı [[version_label]] revizyonuna dayanmaktadır.
+- heading: Poliçe Dönemi
+  paragraphs:
+  - Mevcut sigorta poliçesinin geçerlilik süresi, [[effective_date]] tarihinde başlayacak
+    şekilde resmi olarak akdedilmiştir. Bu dönem boyunca tüm teminat koşulları, [[document_date]]
+    tarihinde yayımlanan esaslara göre uygulanacaktır.
+  - Poliçe süresinin sonunda yapılacak değerlendirmeler, risk profillerindeki değişimler
+    dikkate alınarak yeniden gözden geçirilecektir. İlgili tüm taraflar, süre bitiminden
+    önce yenileme süreçleri hakkında bilgilendirilecektir.

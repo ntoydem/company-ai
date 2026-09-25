@@ -1,0 +1,29 @@
+doc_id: DOC-ANK-FIN-013
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Assignment of Insurance Proceeds
+  paragraphs:
+  - The undersigned parties, specifically including [[parties_list]] and [[spv_name]],
+    hereby agree to the comprehensive transfer of all insurance rights related to
+    [[project_name]]. This agreement is formally executed under the tracking identifier
+    [[document_no]], reflecting the current [[status_label]] of the transaction.
+  - Pursuant to this arrangement, all potential claims and monetary proceeds arising
+    from relevant policies shall be directed in favor of [[counterparty]]. The provisions
+    herein shall formally commence upon [[effective_date]], superseding any prior
+    understandings associated with [[title]].
+  - It is expressly understood that this assignment remains contingent upon the operational
+    guidelines established in [[version_label]]. Any subsequent modification to the
+    underlying coverage must receive prior written consent from all designated stakeholders.
+- heading: 2. Governing Law
+  paragraphs:
+  - This legal instrument, identified by [[document_no]] and formalized on [[document_date]],
+    shall be interpreted and enforced in accordance with the statutory framework applicable
+    to [[project_name]]. Both [[parties_list]] acknowledge the exclusive jurisdiction
+    of the designated legal authorities.
+  - Any dispute arising from the interpretation of this clause involving [[spv_name]]
+    and [[counterparty]] shall be resolved through formal arbitration proceedings.
+    The operational validity of this section begins strictly on [[effective_date]].
+  - Compliance with the stipulations set forth in [[version_label]] remains mandatory
+    for all participating entities. The designated [[status_label]] confirms that
+    all jurisdictional prerequisites have been fully satisfied.

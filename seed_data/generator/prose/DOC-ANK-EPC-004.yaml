@@ -1,0 +1,26 @@
+doc_id: DOC-ANK-EPC-004
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Scope of Works Completed
+  paragraphs:
+  - This document certifies that all mechanical completion activities for the [[project_name]]
+    have been successfully executed by [[counterparty]] in accordance with the technical
+    specifications and project requirements. The scope encompasses the full assembly,
+    alignment, and preliminary testing of all wind turbine generators and associated
+    balance of plant mechanical systems.
+  - All quality control inspections, non-destructive examinations, and factory acceptance
+    protocols pertinent to this phase were duly completed and approved. Representatives
+    of [[spv_name]] have verified that the physical installation strictly complies
+    with the engineering designs stipulated under the contractual agreements dated
+    [[document_date]].
+- heading: 2. Confirmation
+  paragraphs:
+  - It is hereby confirmed that the mechanical systems are ready for the subsequent
+    pre-commissioning and commissioning phases, effective as of [[effective_date]].
+    This certificate, bearing the reference number [[document_no]], is issued under
+    the authority of the undersigned [[parties_list]] representatives.
+  - The issuance of this status label [[status_label]] under version [[version_label]]
+    acknowledges the formal handover of the mechanical assets for operational integration.
+    The designated [[title]] confirms that all stipulated punch list items have been
+    satisfactorily resolved prior to this declaration.

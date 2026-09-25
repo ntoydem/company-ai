@@ -22,7 +22,7 @@ Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 | 4.1 | Eval runner (karne) | tamamlandı (skor eşiği altında, bkz. rapor §7) | phase-4-1 | [PHASE_4_1_REPORT](reports/PHASE_4_1_REPORT.md) |
 | 4.2 | Excel motoru | tamamlandı | phase-4-2 | [PHASE_4_2_REPORT](reports/PHASE_4_2_REPORT.md) |
 | 4.3 | Mixed query (router) | tamamlandı | phase-4-3 | [PHASE_4_3_REPORT](reports/PHASE_4_3_REPORT.md) |
-| 5.1 | Tam dataset (~70) + consistency checks | bekliyor | – | – |
+| 5.1 | Tam dataset (~70) + consistency checks | tamamlandı (eval kriteri Gemini kesintisi nedeniyle doğrulanamadı, bkz. rapor §1/§4) | phase-5-1 | [PHASE_5_1_REPORT](reports/PHASE_5_1_REPORT.md) |
 | 5.2 | Admin panel | bekliyor | – | – |
 | 5.3 | Backup / restore | bekliyor | – | – |
 | 5.4 | Temiz kurulum doğrulaması + README final | bekliyor | – | – |
@@ -143,8 +143,8 @@ Tanım: Gösterilebilir, yedeklenebilir, sıfırdan kurulabilir sistem.
 ## Phase 5.1 — Tam dataset + consistency checks `S`
 **Kapsam:** ~70 belge (SPEC_05 §6 dağılımı), 8–10 görüntü PDF, `validate_dataset.py` (SPEC_05 §11), `questions.json` v2 (≥ 60).
 **Kabul kriterleri:** validator 0 hata; görüntü PDF'ler `ready`; eval isolation/hallucination/authorization %100, diğerleri ≥ %80; belge ≤ 80.
-**Ertelenen (Phase 4.3, 25.09.2026):** (a) `QuestionCategory`'ye `general` eklenmesi + GENERAL soruları (eval bugün yalnızca pytest+canlı testle kanıtlıyor); (b) MIXED'in "sebep belgede yazıyor" pozitif dalı — arıza/duruş sebebini anlatan bir belge (örn. Bakım Raporu Temmuz 2024, ledger `incidents` üzerinden) üretilince `ANK-MIX-002` benzeri bir soru eklenmeli.
-**Ertelenen (Phase 3.2c, 25.09.2026, Naci kararı):** (1) `IZM-DEV-005/006` gibi negatif-olgu soruları ("lisans alındı mı?") NO OPINION kuralıyla çelişiyor — soru seti v2'de ya `expect_no_answer` beklenmeli ya da belgeler açıkça "henüz alınmamıştır" demeli; (2) `ANK-EPC-004`/`IZM-DEV-007`: cevap doğru ama `required_sources` listesindeki ikinci belge gösterilmiyor — v2 şemasında "hepsi / en az biri" ayrımı (`required_sources_all`) tanımlanmalı ve eval runner'a yansıtılmalı; (3) elle düzenlenmiş prose dosyaları `hand_edited:` işaretli, `generate_prose.py` bunları `--force` ile bile ezmez — yeni belgeler üretilirken bu 6 dosya korunur (`docs/reports/PHASE_3_2C_REPORT.md`).
+**Kapandı (Phase 5.1, 25.09.2026):** Phase 4.3'ün ertelediği (a) `QuestionCategory` += `general` + 3 GENERAL sorusu (`eval_lib.py` artık `query_type`/kaynak-yokluğu üzerinden puanlıyor) ve (b) MIXED'in pozitif "sebep belgede yazıyor" dalı — yeni `DOC-ANK-OPS-005` (Bakım Raporu — Temmuz 2024) `incidents[0]`'ı `monthly_production[8]`'e bağlıyor, `ANK-MIX-002` artık pozitif; negatif örnek (Q1 2025, belgesiz kalan Ocak 2025 kesintisi) yeni `ANK-MIX-003`'e taşındı.
+**Ertelenen (Phase 3.2c, 25.09.2026, Naci kararı — Phase 5.1 kapsamı dışında kaldı):** (1) `IZM-DEV-005/006` gibi negatif-olgu soruları ("lisans alındı mı?") NO OPINION kuralıyla çelişiyor — soru seti v2'de ya `expect_no_answer` beklenmeli ya da belgeler açıkça "henüz alınmamıştır" demeli; (2) `ANK-EPC-004`/`IZM-DEV-007`: cevap doğru ama `required_sources` listesindeki ikinci belge gösterilmiyor — v2 şemasında "hepsi / en az biri" ayrımı (`required_sources_all`) tanımlanmalı ve eval runner'a yansıtılmalı; (3) elle düzenlenmiş prose dosyaları `hand_edited:` işaretli, `generate_prose.py` bunları `--force` ile bile ezmez — yeni belgeler üretilirken bu 6 dosya korunur (`docs/reports/PHASE_3_2C_REPORT.md`).
 
 ## Phase 5.2 — Admin panel `S`
 **Kapsam:** kullanıcı ekle/disable/rol, departman izinleri, proje CRUD, metadata düzenleme, "bu belgeyi kim görebilir", audit log (filtre).

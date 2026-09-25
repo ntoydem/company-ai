@@ -1,0 +1,32 @@
+doc_id: DOC-ANK-LEG-003
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Değerlendirme Kapsamı
+  paragraphs:
+  - Bu resmi değerlendirme belgesi, [[project_name]] projesi kapsamında taraflar arasındaki
+    sözleşme hükümlerinin uyumunu denetlemek amacıyla hazırlanmıştır. İnceleme sürecinde,
+    [[parties_list]] tarafından sağlanan tüm hukuki ve finansal dokümanlar detaylı
+    bir şekilde masaya yatırılmıştır.
+  - Çalışmanın temel amacı, [[spv_name]] ile [[counterparty]] arasında imzalanan taahhütlerin
+    mevcut yasal düzenlemelere ve proje finansman şartnamelerine uygunluğunu teyit
+    etmektir. [[document_no]] numaralı bu rapor, [[document_date]] tarihinde yürürlüğe
+    giren [[version_label]] revizyonuna dayanmaktadır.
+  - Değerlendirme süresince [[effective_date]] itibarıyla geçerli olan tüm finansman
+    sözleşmeleri ve mühendislik, tedarik ve inşaat metinleri çapraz kontrole tabi
+    tutulmuştur. Elde edilen bulgular, [[status_label]] statüsündeki risk matrisi
+    üzerinden ilgili kurullara sunulmuştur.
+- heading: Sonuç
+  paragraphs:
+  - Yapılan kapsamlı hukuki incelemeler neticesinde, [[project_name]] projesine ait
+    EPC ve finansman sözleşmelerinin genel çerçevesi [[status_label]] olarak onaylanmıştır.
+    [[parties_list]] tarafından icra edilen faaliyetlerin sözleşme şartlarıyla tam
+    bir uyum içerisinde olduğu tespit edilmiştir.
+  - '[[spv_name]] ve [[counterparty]] arasındaki ticari ve hukuki mutabakat metinlerinde,
+    projeyi aksatacak herhangi bir uyumsuzluğa rastlanmamıştır. [[document_no]] referanslı
+    bu değerlendirme, [[document_date]] tarihli [[version_label]] versiyonu esas alınarak
+    nihai statüye kavuşturulmuştur.'
+  - İşbu [[title]] belgesinde belirtilen tüm uyumluluk kriterleri [[effective_date]]
+    tarihinden itibaren taraflar açısından bağlayıcı kabul edilmektedir. İlerleyen
+    dönemlerde yapılacak olası güncellemelerin, mevcut sözleşme dengelerini koruyacak
+    şekilde [[parties_list]] denetiminde yürütülmesi tavsiye edilmektedir.

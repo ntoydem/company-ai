@@ -1,0 +1,22 @@
+doc_id: DOC-CO-ADM-002
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Karar Gerekçesi
+  paragraphs:
+  - Şirketimiz bünyesinde yürütülen projelerin finansal sürdürülebilirliğini artırmak
+    amacıyla [[document_no]] numaralı yeni bir süreç başlatılmıştır. İlgili departman
+    tarafından sunulan raporlar doğrultusunda, [[spv_name]] kapsamında ilave kaynak
+    tahsis edilmesi zorunluluğu doğmuştur.
+  - '[[document_date]] tarihinde gerçekleştirilen ön incelemeler sonucunda, yatırım
+    planlarının güncellenmesi ve operasyonel verimliliğin en üst düzeye çıkarılması
+    hedeflenmiştir. Bu kapsamda, [[counterparty]] ile yürütülen iş birliklerinin stratejik
+    önemi bir kez daha teyit edilmiştir.'
+- heading: Alınan Karar
+  paragraphs:
+  - Yönetim kurulu üyelerinin oy birliğiyle, [[effective_date]] tarihi itibarıyla
+    söz konusu bütçe kalemi onaylanmıştır. İlgili operasyonların [[version_label]]
+    standartlarına uygun olarak yürütülmesi kararlaştırılmıştır.
+  - Projenin tüm paydaşları olan [[parties_list]] temsilcilerine kararın yazılı olarak
+    bildirilmesi ve [[status_label]] sürecinin titizlikle takip edilmesi hususunda
+    mutabakata varılmıştır.

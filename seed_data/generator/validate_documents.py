@@ -134,8 +134,9 @@ def validate_generated(manifest_path: Path) -> Report:
     banners = raws["company"]["demo_banners"]
 
     entries = manifest["documents"]
-    if len(entries) != 15:
-        report.error(f"manifest.json: {len(entries)} belge, 15 bekleniyordu (G6)")
+    # G6: manifest.json must render exactly document_specs.SPECS, no more, no fewer — the
+    # overall count/distribution sanity check lives in validate_ledger.py's
+    # check_document_distribution (Phase 5.1: the target is no longer a single fixed 15).
     expected_ids = {doc_id for doc_id, spec in SPECS.items()}
     manifest_ids = {e["external_ref"] for e in entries}
     if manifest_ids != expected_ids:
@@ -164,6 +165,13 @@ def validate_generated(manifest_path: Path) -> Report:
         # whitelisted name (the wrapped/label-prefixed case) rather than equalling it.
         whitelist = raws["company"]["name_whitelist"]
         normalized = re.sub(r"\s+", " ", text)
+        # The `.watermark` div (CSS `position: fixed`, base.html) is extracted by PyMuPDF as
+        # a run of bare "DEMO" tokens per page — harmless page noise, but the whitelist scan
+        # below would otherwise misread "DEMO DEMO DEMO DEMO <Word>" as a name-pattern match
+        # whenever a title/heading happens to start with a name-suffix word (observed: a
+        # document titled "Sigorta ..." — Phase 5.1). The real banner ("DEMO / FICTIONAL
+        # DOCUMENT ...", checked above) is a single non-repeated "DEMO" and is unaffected.
+        normalized = re.sub(r"(?:DEMO ){2,}", "", normalized)
         for match in _NAME_PATTERN.finditer(normalized):
             name = match.group(1)
             if name in whitelist or any(name.endswith(w) for w in whitelist):

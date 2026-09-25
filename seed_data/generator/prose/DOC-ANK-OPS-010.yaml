@@ -1,0 +1,26 @@
+doc_id: DOC-ANK-OPS-010
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Guarantee Terms
+  paragraphs:
+  - This compliance report evaluates the operational performance metrics of [[project_name]]
+    operated by [[spv_name]]. The guarantee framework ensures that the facility maintains
+    the agreed availability thresholds established with [[counterparty]].
+  - The current assessment period confirms that the operational parameters align with
+    the stipulations defined in [[document_no]] dated [[document_date]]. All parties
+    listed under [[parties_list]] have reviewed the baseline availability metrics.
+  - The targeted availability percentage of [[availability_pct]] serves as the benchmark
+    for this evaluation. Any deviation from this threshold triggers the review mechanisms
+    outlined in the primary operational agreement.
+- heading: 2. Compliance Assessment
+  paragraphs:
+  - The technical audit conducted for [[project_name]] demonstrates full adherence
+    to the performance standards set forth in [[version_label]]. Maintenance logs
+    and SCADA data verify the operational uptime reported by [[spv_name]].
+  - '[[counterparty]] has validated the telemetry reports submitted as of [[effective_date]],
+    confirming the current [[status_label]] of the facility. Minor scheduled outages
+    were accounted for within the permissible maintenance allowances.'
+  - Concluding this assessment, the facility successfully meets all contractual availability
+    obligations. The stakeholders designated in [[parties_list]] are advised to proceed
+    with the routine administrative sign-off.

@@ -1,0 +1,32 @@
+doc_id: DOC-ANK-OPS-011
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Scope of Supply
+  paragraphs:
+  - This agreement outlines the procurement of critical spare parts for the [[project_name]]
+    initiative. The selected vendor, known as [[counterparty]], shall deliver all
+    specified mechanical and electrical components in accordance with technical specifications.
+    Shipments must be directed to the main operational facility managed by [[spv_name]].
+  - Quality assurance protocols require comprehensive testing before dispatching any
+    equipment to the site. Authorized representatives from both [[parties_list]] must
+    inspect the deliverables upon arrival. Any non-compliant item will be rejected
+    and replaced under the warranty terms.
+  - Logistical arrangements and customs clearance procedures are the sole responsibility
+    of the supplier. Operational continuity of the power plant depends on the timely
+    delivery of these strategic assets. Detailed inventory lists will be updated regularly
+    in the system.
+- heading: 2. Term and Termination
+  paragraphs:
+  - The contractual obligations commence on [[effective_date]] and remain in force
+    throughout the operational lifecycle. This document is officially referenced as
+    [[document_no]] under the current [[version_label]] guidelines. Both entities
+    executed the accord on [[document_date]] to ensure mutual compliance.
+  - Either party may terminate the arrangement prematurely under severe breach of
+    contract conditions. A formal written notice must be transmitted prior to the
+    intended cessation date. The current operational classification is marked as [[status_label]]
+    for administrative tracking.
+  - Upon termination, all outstanding payments and inventory reconciliation must be
+    settled promptly. The designated supervisor holding the [[title]] position will
+    oversee the closure process. Final administrative sign-off concludes all obligations
+    between the involved stakeholders.

@@ -1,0 +1,34 @@
+doc_id: DOC-ANK-OPS-012
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Planlama Kapsamı
+  paragraphs:
+  - '[[project_name]] projesi kapsamında yürütülecek yıllık bakım ve onarım faaliyetleri
+    bu belgenin temelini oluşturmaktadır. İşlemler, [[spv_name]] tarafından belirlenen
+    kurumsal standartlara ve operasyonel prosedürlere tam uyum içerisinde gerçekleştirilecektir.
+    Bakım sürecinde [[counterparty]] ile koordineli bir şekilde çalışılarak tüm teknik
+    gereksinimlerin eksiksiz karşılanması hedeflenmektedir.'
+  - '[[document_no]] numaralı bu plan, [[version_label]] sürümü ile güncellenmiş olup
+    [[status_label]] statüsündedir. [[document_date]] tarihinde son şeklini alan doküman,
+    ilgili tüm departmanların erişimine sunulmuştur. Faaliyetlerin kesintisiz sürdürülebilmesi
+    adına gerekli tüm önlemler önceden alınmıştır.'
+  - '[[effective_date]] itibarıyla yürürlüğe girecek olan plan, [[parties_list]] mutabakatı
+    ile güvence altına alınmıştır. Operasyonel verimliliğin artırılması ve olası aksaklıkların
+    önlenmesi amacıyla süreç sürekli olarak denetlenecektir. [[title]] sorumluluğundaki
+    ekipler, çalışmaların güvenli ve zamanında tamamlanmasını sağlayacaktır.'
+- heading: Takvim
+  paragraphs:
+  - Yıllık bakım takvimi, [[project_name]] tesislerinin operasyonel ihtiyaçları göz
+    önünde bulundurularak titizlikle hazırlanmıştır. [[spv_name]] ve [[counterparty]]
+    ortak çalışmasıyla belirlenen tarihlerde müdahaleler gerçekleştirilecektir. Planlanan
+    takvim dışına çıkılmaması için tüm operasyonel adımlar önceden koordine edilmiştir.
+  - '[[document_no]] referanslı takvim dokümanı, [[version_label]] sürümüyle güncel
+    durumu yansıtmaktadır. [[document_date]] tarihinde onaylanan takvim [[status_label]]
+    olarak işaretlenmiştir. İlgili tüm taraflar süreç boyunca takvime riayet etmekle
+    yükümlüdür.'
+  - '[[effective_date]] tarihinde başlayacak olan takvim döngüsü, [[parties_list]]
+    tarafından onaylanan süreler çerçevesinde işletilecektir. [[title]] tarafından
+    koordine edilecek takvim, periyodik raporlarla sürekli olarak takip edilecektir.
+    Olası takvim güncellemeleri ancak yasal prosedürler ve tarafların mutabakatı ile
+    yapılabilir.'

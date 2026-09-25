@@ -1,0 +1,21 @@
+doc_id: DOC-ANK-OPS-005
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Olay Özeti
+  paragraphs:
+  - '[[project_name]] bünyesinde yürütülen rutin operasyonlar esnasında, [[spv_name]]
+    tarafından işletilen tesiste plan dışı bir duruş kaydedilmiştir. İlgili teknik
+    ekip tarafından yapılan ilk incelemelerde, söz konusu arızanın [[incident_type]]
+    kaynaklı olduğu tespit edilmiştir.'
+  - Müdahale süreci [[counterparty]] ile koordineli bir şekilde yürütülmüş olup, gerekli
+    güvenlik önlemleri alınarak arıza tespiti tamamlanmıştır. Yapılan müdahalelerin
+    ardından sistemin [[status_label]] durumuna getirilmesi için çalışmalar hızlandırılmıştır.
+- heading: Üretime Etkisi
+  paragraphs:
+  - Yaşanan bu teknik aksaklık, rapor dönemindeki toplam enerji üretim miktarını doğrudan
+    etkilemiş ve [[mwh]] seviyesinde üretim kayıplarına yol açmıştır. Tesisin genel
+    verimlilik oranı olan [[availability_pct]] metriği üzerinde geçici bir düşüş gözlemlenmiştir.
+  - Planlanan onarım takvimine sadık kalınarak kayıpların telafi edilmesi hedeflenmektedir.
+    [[effective_date]] tarihi itibarıyla sistemin tam kapasiteyle devreye alınması
+    öngörülmektedir.

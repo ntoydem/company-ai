@@ -19,7 +19,14 @@ from app.services.version_chain import evaluate_version_chains
 
 MANIFEST_PATH = Path(__file__).resolve().parent.parent / "seed_data" / "documents" / "manifest.json"
 
-_FACILITY_CHAIN = ["DOC-ANK-FIN-001", "DOC-ANK-FIN-004", "DOC-ANK-FIN-005", "DOC-ANK-FIN-006"]
+_FACILITY_CHAIN = [
+    "DOC-ANK-FIN-001",
+    "DOC-ANK-FIN-002",
+    "DOC-ANK-FIN-003",
+    "DOC-ANK-FIN-004",
+    "DOC-ANK-FIN-005",
+    "DOC-ANK-FIN-006",
+]  # Phase 5.1: V01/V02 (002/003) are now rendered too — the full 6-link chain, not just 4.
 
 
 def _prepare(session: Session, settings: Settings) -> None:
@@ -33,25 +40,25 @@ def _seeded_documents(session: Session) -> dict[str, Document]:
     return {d.external_ref: d for d in rows if d.external_ref is not None}
 
 
-def test_seed_creates_15_pdfs_plus_4_workbooks_and_queues_pdf_jobs(
+def test_seed_creates_70_pdfs_plus_4_workbooks_and_queues_pdf_jobs(
     db_session: Session, settings: Settings
 ) -> None:
     _prepare(db_session, settings)
 
     results = ensure_demo_documents(db_session, settings, MANIFEST_PATH)
 
-    assert len(results) == 19  # 15 PDF (Phase 3.1) + 4 workbook (Phase 4.2)
+    assert len(results) == 74  # 70 PDF (Phase 3.1 + 5.1) + 4 workbook (Phase 4.2)
     assert all(r.created for r in results)
     documents = _seeded_documents(db_session)
-    assert len(documents) == 19
+    assert len(documents) == 74
     workbooks = [d for d in documents.values() if d.storage_path.endswith(".xlsx")]
     assert len(workbooks) == 4 and all(d.ingestion_status.value == "ready" for d in workbooks)
     pdfs = [d for d in documents.values() if d.storage_path.endswith(".pdf")]
-    assert len(pdfs) == 15 and all(d.ingestion_status.value == "uploaded" for d in pdfs)
+    assert len(pdfs) == 70 and all(d.ingestion_status.value == "uploaded" for d in pdfs)
     jobs = db_session.scalars(
         select(IngestionJob).where(IngestionJob.document_id.in_([d.id for d in documents.values()]))
     ).all()
-    assert len(jobs) == 15  # workbooks get no OCR job
+    assert len(jobs) == 70  # workbooks get no OCR job
     assert all(j.status.value == "queued" for j in jobs)
 
 
@@ -61,9 +68,9 @@ def test_seed_is_idempotent(db_session: Session, settings: Settings) -> None:
 
     results = ensure_demo_documents(db_session, settings, MANIFEST_PATH)
 
-    assert len(results) == 19  # 15 PDF (Phase 3.1) + 4 workbook (Phase 4.2)
+    assert len(results) == 74  # 70 PDF (Phase 3.1 + 5.1) + 4 workbook (Phase 4.2)
     assert all(r.created is False for r in results)
-    assert len(_seeded_documents(db_session)) == 19
+    assert len(_seeded_documents(db_session)) == 74
 
 
 def test_seeded_metadata_matches_ledger(db_session: Session, settings: Settings) -> None:

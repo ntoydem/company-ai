@@ -3,7 +3,7 @@
 Kurumsal doküman + Excel + AI bilgi platformu. Şirket bilgisinin **kaynağını, erişim yetkisini, tarihini,
 versiyonunu ve ilişkilerini** koruyarak AI tarafından güvenilir kullanılmasını sağlar. Basit bir chatbot değildir.
 
-Bu README Phase 4.3 (Mixed query / router) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
+Bu README Phase 5.1 (Tam dataset + consistency checks) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
 `docs/PHASES.md`. Mimari kararlar: `docs/ARCHITECTURE.md`. Alan modeli: `docs/DOMAIN_MODEL.md`.
 
 ## Gereksinimler (VM)
@@ -284,8 +284,8 @@ akıştan geçer. Onay tablosu `docs/reports/PHASE_2_1_REPORT.md §10`. `make li
 bozan bir düzenleme lint'i kırar.
 
 ## Eval (Phase 4.1)
-`scripts/run_eval.py`: `seed_data/evaluation/questions.json` (v2: 48 soru — 43 + Phase 4.3'ün 3 `data` + 2 `mixed`
-sorusu) → gerçek `/api/ask` çağrıları (`ask_as_user` ile giriş yapılmış demo kullanıcı) → skor →
+`scripts/run_eval.py`: `seed_data/evaluation/questions.json` (v3: 61 soru — Phase 5.1'de `general` kategorisi ve
+yeni belgelere değen 13 soru eklendi) → gerçek `/api/ask` çağrıları (`ask_as_user` ile giriş yapılmış demo kullanıcı) → skor →
 `seed_data/evaluation/results/<model>_<tarih>/results.{md,json}` (git-ignored). Kaynak (required/forbidden)
 kontrolü `seed_data/documents/manifest.json` + `seed_data/excel/manifest.json`'dan (`excel_sources[].file` →
 workbook başlığı); beklenen değer,
@@ -306,9 +306,11 @@ demo kullanıcılar arasında; her `/api/ask` router + cevap = ≥ 2 LLM isteği
 deneme, 5 ardışık hata sonrası koşu güvenli
 şekilde durur ("günlük kota tükenmiş olabilir" uyarısıyla) — bkz. `docs/reports/PHASE_4_1_REPORT.md`.
 
-## Demo veri (Phase 3.1)
-İki demo proje için 15 belge (Ankara RES 10, İzmir RES 4, şirket geneli 1): lisans, Facility Agreement +
-2 amendment (versiyon zinciri), EPC sözleşmesi + tadili, ÇED yazıları, üretim raporu, yönetim kurulu kararı vb.
+## Demo veri (Phase 3.1 + 5.1)
+İki demo proje için 70 belge (Ankara RES 45, İzmir RES 15, şirket geneli 10 — SPEC_05 §6 dağılımı, Phase 5.1):
+lisans + tadili, Facility Agreement zinciri (DRAFT→V01→V02→EXECUTED→AMD01→AMD02) + destek finans belgeleri
+(security/pledge/drawdown/waiver), EPC sözleşmesi + tamamlama/garanti belgeleri, ÇED/arazi/bağlantı yazıları,
+aylık üretim + bakım raporları, hukuk görüşleri, mali/idari onaylar, yönetim kurulu/pay sahipleri kararları vb.
 Rakam/tarih/isim **yalnızca** `seed_data/master/*.yaml` truth ledger'dan gelir; LLM'e hiçbir zaman gerçek değer
 verilmez — yalnızca `[[placeholder]]` token adları ve doldurulacak bölüm başlıkları. Prose'u (placeholder'lı
 paragraflar) LLM bir kez üretir, `seed_data/generator/prose/*.yaml` olarak `tag: AI_ASSUMPTION` ile commit edilir;
@@ -319,16 +321,18 @@ demo veriyi yükleyebilir.
 ```bash
 make prose               # yalnızca içerik değiştiğinde: LLM ile prose/*.yaml üretir/günceller, elle commit edilir
 make validate-documents  # prose (P1/P2: sayı/para birimi/gerçek isim sızıntısı yok) + üretilmiş PDF (G1-G6) kontrolü
-make seed                # ledger doğrula → 15 PDF render et → admin/demo kullanıcı/departman/proje → belgeleri yükle
-                          # → ingestion_jobs'ın "ready" olmasını bekle (~40 sn)
+make seed                # ledger doğrula → 70 PDF render et → admin/demo kullanıcı/departman/proje → belgeleri yükle
+                          # → ingestion_jobs'ın "ready" olmasını bekle
 make reset-demo           # yalnızca belgeleri siler (TRUNCATE documents CASCADE + dosyalar); kullanıcı/departman/
                           # proje korunur; onay ister, `--yes` ile atlanır
 ```
 Her belgenin taranmış (görüntüsel, OCR gerektiren) ya da dijital (metin katmanlı) kopyası vardır — gerçek OCR
 hattını da uçtan uca test eder. Üretilen belgelerin manifesti: `seed_data/documents/manifest.json` (sayfa
 haritaları, versiyon zinciri referansları — `app/` bu dosyayı okur, `seed_data.generator` paketini **asla**
-import etmez, ADR-013). Hukuk departmanının 15 belge içinde kendi belgesi yok (ledger'da hukukla ilgili ayrı bir
-doküman planlanmadı); bu bilinen bir boşluktur, bkz. `docs/reports/PHASE_3_1_REPORT.md`.
+import etmez, ADR-013). Belge spec'leri (`document_specs.py`) Phase 5.1'de tek dosyadan
+`seed_data/generator/document_specs/` paketine bölündü — proje/departman başına bir dosya (400+ satır kuralı,
+CLAUDE.md); `document_specs/__init__.py` hepsini tek bir `SPECS` sözlüğünde birleştirir. Hukuk departmanı artık
+kendi belgelerine sahip (Ankara 3, İzmir 4 — Phase 5.1, bkz. `docs/reports/PHASE_5_1_REPORT.md`).
 
 ## Make hedefleri
 | Hedef | Açıklama |

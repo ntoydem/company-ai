@@ -1,0 +1,30 @@
+doc_id: DOC-ANK-FIN-003
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Definitions and Interpretation
+  paragraphs:
+  - This facility agreement is established between [[parties_list]] regarding the
+    development of [[project_name]]. The obligations herein shall bind the designated
+    entity known as [[spv_name]] and the relevant counterparty designated as [[counterparty]].
+  - References to the document date shall pertain to [[document_date]], whereas the
+    formal effective date of this arrangement is [[effective_date]]. Interpretation
+    of financial metrics shall strictly incorporate the agreed financial ratio defined
+    by [[dscr_covenant]].
+- heading: 2. The Facility
+  paragraphs:
+  - The primary credit facility is made available for a fixed duration corresponding
+    to [[tenor_years]]. Utilization of the funds must strictly adhere to the operational
+    parameters established for [[project_name]].
+  - The borrower, specifically [[spv_name]], shall maintain compliance with the minimum
+    debt service coverage ratio specified under [[dscr_covenant]]. Any failure to
+    uphold these financial parameters constitutes an immediate event of default under
+    this agreement.
+- heading: 3. Status of this Draft
+  paragraphs:
+  - This instrument is formally designated by the document number [[document_no]]
+    and carries the current version label [[version_label]]. The operational status
+    of this text is officially recorded as [[status_label]].
+  - Recipients must treat this manuscript as confidential and subject to further review
+    by [[counterparty]]. Formal execution remains pending until all signatures from
+    [[parties_list]] are formally validated.

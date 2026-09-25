@@ -1,0 +1,25 @@
+doc_id: DOC-CO-ADM-006
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Hizmetlerin Kapsamı
+  paragraphs:
+  - İşbu belgede belirtilen esaslar çerçevesinde, [[counterparty]] ile [[spv_name]]
+    arasında kurulan kurumsal ilişkiler neticesinde sunulacak idari ve teknik hizmetlerin
+    çerçevesi çizilmiştir. İlgili taraflar, [[parties_list]] kapsamında tanımlanan
+    yükümlülüklerini karşılıklı olarak yerine getirmeyi taahhüt ederler.
+  - Sunulacak hizmetlerin kalitesi, [[version_label]] standardında belirlenen kurumsal
+    yönetim ilkelerine uygun olarak yürütülecektir. Operasyonel süreçlerin takibi
+    ve raporlanması, [[status_label]] statüsüne uygun bir biçimde ilgili birimlerin
+    denetiminde gerçekleştirilecektir.
+  - Hizmet kapsamına dahil olan tüm idari faaliyetler, [[document_no]] numaralı idari
+    prosedürler kılavuzuna dayanmaktadır. Taraflar, işbu kapsamın dışına çıkılmaması
+    hususunda mutabık kalmışlardır.
+- heading: 2. Yürürlük ve Genel Hükümler
+  paragraphs:
+  - İşbu sözleşme metni, [[document_date]] tarihinde taraflarca imzalanmış olup, [[effective_date]]
+    itibarıyla resmi olarak yürürlüğe girecektir. [[title]] unvanına sahip yetkili
+    temsilciler, sözleşme hükümlerinin eksiksiz uygulanmasından sorumludur.
+  - Genel hükümler başlığı altında yer alan tüm maddeler, tarafların hukuki ve mali
+    sorumluluklarını net bir şekilde sınırlandırmaktadır. Uygulamada doğabilecek her
+    türlü ihtilaf, kurumsal mutabakat yollarıyla çözüme kavuşturulacaktır.

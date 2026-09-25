@@ -1,0 +1,36 @@
+doc_id: DOC-ANK-EPC-005
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Purpose and Scope
+  paragraphs:
+  - This independent technical assessment has been prepared by [[counterparty]] for
+    [[project_name]], operating under the corporate structure of [[spv_name]]. The
+    primary objective of this review is to evaluate the construction progress and
+    completion status as of [[document_date]], ensuring full compliance with the contractual
+    obligations outlined in [[document_no]].
+  - The evaluation encompasses all major engineering milestones, civil works, and
+    electromechanical installations executed by the designated [[parties_list]]. Our
+    technical team has reviewed all relevant documentation, quality certificates,
+    and site inspection logs to verify that the facility meets the required standards
+    defined in the agreement dated [[effective_date]].
+  - This document also assigns the current operational categorization as [[status_label]],
+    reflecting the readiness of the plant. Furthermore, the review establishes the
+    baseline for the upcoming operational phase, detailed further under the governance
+    of [[title]] and its associated [[version_label]].
+- heading: 2. Findings
+  paragraphs:
+  - Site inspections conducted by [[counterparty]] confirmed that the primary civil
+    structures and wind turbine foundations at [[project_name]] have been completed
+    by [[spv_name]] in accordance with the approved engineering designs. Minor snags
+    identified during the initial walkthroughs have been successfully resolved by
+    [[parties_list]] prior to the issuance of [[document_no]].
+  - Electromechanical testing protocols witnessed on site demonstrated satisfactory
+    performance parameters, aligning with the benchmarks established in the agreement
+    signed on [[effective_date]]. All safety systems and grid interconnection sub-stations
+    were verified and certified as operational, supporting the current [[status_label]]
+    classification of the asset.
+  - Based on the thorough examination of site records up to [[document_date]], the
+    project demonstrates structural and functional integrity. Final administrative
+    handover procedures remain subject to the overarching provisions outlined in [[title]]
+    and the guidelines specified in [[version_label]].

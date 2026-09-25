@@ -74,6 +74,13 @@ _FIELD_KIND: dict[str, tuple[str, str]] = {
     "repayment_profile": ("text", ""),
     "approved_spv": ("text", ""),
     "ced_status": ("ced_status", ""),
+    # Phase 5.1
+    "drawdown_amount": ("money", ""),
+    "drawdown_date": ("date", ""),
+    "incident_type": ("text", ""),
+    "covenant_result": ("text", ""),
+    "availability_pct": ("percent", ""),
+    "ghi_share_pct": ("percent", ""),
 }
 
 _PREFIX_TO_LEDGER = {"ANK": "ankara_res", "IZM": "izmir_res", "CO": "company"}

@@ -1,0 +1,21 @@
+doc_id: DOC-IZM-DEV-008
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Talep Kapsamı
+  paragraphs:
+  - '[[spv_name]] tarafından yürütülen [[project_name]] faaliyetleri çerçevesinde,
+    ilgili resmi makamlardan ön görüş alınması zorunluluğu doğmuştur. Bu doğrultuda,
+    [[counterparty]] ile gerçekleştirilecek yazışmaların [[document_no]] referans
+    numarası ile yürütülmesi kararlaştırılmıştır.'
+  - Söz konusu talep, [[parties_list]] temsilcilerinin katılımıyla hazırlanan teknik
+    dokümanlar temelinde şekillendirilmiştir. Proje sahasının coğrafi konumu ve stratejik
+    durumu, [[title]] makamlarının değerlendirmesini gerektirmektedir.
+- heading: Süreç
+  paragraphs:
+  - Değerlendirme süreci, [[document_date]] tarihinde resmiyet kazanmış olup [[status_label]]
+    statüsünde takip edilmektedir. İlgili kurumların incelemeleri sonrasında nihai
+    görüş [[effective_date]] itibarıyla taraflara bildirilecektir.
+  - Yürütülen idari işlemlerin güncelliği [[version_label]] revizyon numarası ile
+    koruma altına alınmıştır. Sürecin tamamlanmasını takiben operasyonel adımlara
+    geçilmesi planlanmaktadır.

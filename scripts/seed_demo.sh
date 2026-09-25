@@ -26,7 +26,7 @@ $COMPOSE run --rm -T backend python -m app.cli seed-demo-projects
 echo "== belgeler yükleniyor =="
 $COMPOSE run --rm -T backend python -m app.cli seed-demo-documents
 
-echo "== ocr-worker bekleniyor (15 belge 'ready' olana kadar) =="
-$COMPOSE run --rm -T backend python -m app.cli wait-for-documents --timeout 600
+echo "== ocr-worker bekleniyor (70 belge 'ready' olana kadar) =="
+$COMPOSE run --rm -T backend python -m app.cli wait-for-documents --timeout 1800
 
 echo "demo veri hazır."

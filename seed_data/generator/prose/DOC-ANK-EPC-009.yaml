@@ -1,0 +1,28 @@
+doc_id: DOC-ANK-EPC-009
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Defects Liability Period
+  paragraphs:
+  - This document certifies that the works executed by [[counterparty]] for the project
+    designated as [[project_name]] have reached formal completion as of [[effective_date]].
+    Pursuant to the underlying agreement involving [[parties_list]], the defects liability
+    period officially commences on this date under the supervision of [[spv_name]].
+  - During this operational phase, the contractor remains fully accountable for rectifying
+    any latent flaws, material failures, or performance deviations identified within
+    the facility. All interventions must comply strictly with the technical specifications
+    outlined in document reference [[document_no]].
+  - The current administrative phase is designated under [[status_label]], reflecting
+    the preliminary acceptance of the delivered infrastructure. Further revisions
+    to this framework shall be managed in accordance with version [[version_label]]
+    of the master agreement.
+- heading: 2. Confirmation
+  paragraphs:
+  - The undersigned authorized representatives hereby confirm that the technical systems
+    evaluated under [[project_name]] satisfy all stipulated quality benchmarks. This
+    verification is formally issued on [[document_date]] by the designated authority
+    holding the official title of [[title]].
+  - By executing this instrument, the stakeholders acknowledge the initiation of the
+    warranty obligations governing the aforementioned assets. No further claims regarding
+    initial delivery discrepancies shall be entertained unless documented prior to
+    the issuance of this certificate.

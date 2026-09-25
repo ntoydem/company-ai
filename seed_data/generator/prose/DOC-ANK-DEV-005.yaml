@@ -1,0 +1,20 @@
+doc_id: DOC-ANK-DEV-005
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Değerlendirme Kapsamı
+  paragraphs:
+  - '[[project_name]] projesi kapsamında [[spv_name]] tarafından hazırlanan başvuru
+    dosyası ilgili mercilere sunulmuştur. Yapılan incelemeler neticesinde [[counterparty]]
+    görüşleri alınmış ve [[parties_list]] dahilindeki tüm paydaşların bildirimleri
+    değerlendirilmiştir.'
+  - Söz konusu tesisin [[capacity_mw]] değerindeki planlanan kurulu gücü çevresel
+    etki açısından detaylıca incelenmiştir. [[document_no]] sayılı dosya kapsamında
+    yürütülen çalışmalar [[document_date]] tarihinde sonlandırılmıştır.
+- heading: Karar
+  paragraphs:
+  - Yapılan nihai değerlendirmeler sonucunda [[status_label]] statüsü verilmesi uygun
+    görülmüştür. [[effective_date]] itibarıyla yürürlüğe girecek olan bu karar [[title]]
+    makamınca onaylanmıştır.
+  - Projenin [[version_label]] sürümünde belirtilen taahhütlere uyulması zorunludur.
+    İlgili tüm taraflara tebliğ olunan bu karar resmiyet kazanmıştır.

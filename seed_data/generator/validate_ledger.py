@@ -52,10 +52,9 @@ IZMIR_POST_LICENCE_KEYS = (
     "cod_actual",
     "operation_start",
 )
-QUOTAS = {"İzmir RES": 9, "Ankara RES": 20}
-CATEGORY_QUOTAS = {"hallucination": 3, "isolation": 3, "authorization": 3}
-MIN_QUESTIONS = 30
-PHASE_3_1_DOCUMENT_COUNT = 15
+QUOTAS = {"İzmir RES": 12, "Ankara RES": 35}
+CATEGORY_QUOTAS = {"hallucination": 3, "isolation": 3, "authorization": 3, "general": 3}
+MIN_QUESTIONS = 60
 FX_CROSS_TOLERANCE = 0.02
 # "<Name> A.Ş." style company suffixes; every match must be whitelisted (SPEC_05 §11).
 _NAME_PATTERN = re.compile(
@@ -590,7 +589,6 @@ def check_documents(
                     "D2: name must be a non-empty string",
                 )
 
-    generated_3_1 = 0
     for name, ledger in ledgers.items():
         file = LEDGER_FILES[name]
         ids_here = {doc.id for doc in ledger.documents}
@@ -615,17 +613,135 @@ def check_documents(
                         f"documents[{i}].key_facts.{key}",
                         f"F8: ledger path {path!r} not found",
                     )
-            if doc.generate_in_phase == "3.1":
-                generated_3_1 += 1
         # every DOC-... reference anywhere in the file must resolve
         for path, text in string_leaves(raws[name]):
             if re.fullmatch(r"DOC-(ANK|IZM|CO)-[A-Z]{3}-\d{3}", text) and text not in all_ids:
                 report.error(file, path, f"D2: unknown document {text}")
-    if generated_3_1 != PHASE_3_1_DOCUMENT_COUNT:
+
+
+def check_version_links(
+    ledgers: dict[str, ls.AnkaraLedger | ls.IzmirLedger | ls.CompanyLedger], report: Report
+) -> None:
+    """Phase 5.1 (SPEC_05 §11 "Legal"/"Version"): generalizes F6's Facility-chain-only
+    rule to every document. Two parts: (1) `supersedes`/`superseded_by` must be mutual
+    wherever either is set — a one-way link is almost always a copy-paste mistake in a
+    52-document inventory; (2) for every maximal chain built by following that mutual
+    link, exactly the last (most recent) document may be non-`superseded`. Documents
+    that never set `supersedes`/`superseded_by` (e.g. a licence and its amendment, linked
+    only via `related` — a different relationship: the amendment overlays, it doesn't
+    replace) are outside this rule entirely."""
+    by_id: dict[str, tuple[str, ls.Document]] = {
+        doc.id: (LEDGER_FILES[name], doc)
+        for name, ledger in ledgers.items()
+        for doc in ledger.documents
+    }
+    for doc_id, (file, doc) in by_id.items():
+        if doc.supersedes is not None and doc.supersedes in by_id:
+            pred = by_id[doc.supersedes][1]
+            if pred.superseded_by != doc_id:
+                report.error(
+                    file,
+                    f"documents[{doc_id}].supersedes",
+                    f"V1: {doc_id} supersedes {doc.supersedes}, but its superseded_by is "
+                    f"{pred.superseded_by!r}, not {doc_id!r}",
+                )
+        if doc.superseded_by is not None and doc.superseded_by in by_id:
+            succ = by_id[doc.superseded_by][1]
+            if succ.supersedes != doc_id:
+                report.error(
+                    file,
+                    f"documents[{doc_id}].superseded_by",
+                    f"V1: {doc_id} is superseded by {doc.superseded_by}, but its supersedes is "
+                    f"{succ.supersedes!r}, not {doc_id!r}",
+                )
+
+    visited: set[str] = set()
+    for start_id in by_id:
+        if start_id in visited:
+            continue
+        # walk to the chain's root (oldest link with no predecessor still in the ledger)
+        root, seen = start_id, {start_id}
+        while by_id[root][1].supersedes in by_id and by_id[root][1].supersedes not in seen:
+            root = by_id[root][1].supersedes  # type: ignore[assignment]
+            seen.add(root)
+        # walk forward from the root to collect the full chain
+        chain, cur = [root], root
+        while by_id[cur][1].superseded_by in by_id and by_id[cur][1].superseded_by not in visited:
+            nxt = by_id[cur][1].superseded_by
+            assert nxt is not None
+            if nxt in chain:
+                break
+            chain.append(nxt)
+            cur = nxt
+        visited.update(chain)
+        if len(chain) < 2:
+            continue
+        # Same "current" definition as F6: a chain link is draft/superseded/whatever in
+        # between, but exactly the last one is executed/active (mirrors F6's own check —
+        # a link that was superseded before ever taking effect, like FIN-001's DRAFT, is
+        # not literally "superseded" and must not be mistaken for current either).
+        current = [d for d in chain if by_id[d][1].status in ("executed", "active")]
+        if current != [chain[-1]]:
+            report.error(
+                "*",
+                f"documents chain {chain[0]}..{chain[-1]}",
+                f"V2: exactly the last link must be executed/active, got {current}",
+            )
+
+
+def check_technical(ankara: ls.AnkaraLedger, report: Report) -> None:
+    """SPEC_05 §11 "Technical": a coarse sanity check — declared turbine count times the
+    ledger's own "5 MW sınıfı" description should land near the declared current
+    capacity. A soft WARNING (the class description is free text, not a machine fact) that
+    catches the obvious slip of changing one without the other."""
+    f = "ankara_res.yaml"
+    turbines = ankara.project.turbines
+    implied = float(turbines.count.value) * 5.0  # type: ignore[arg-type]
+    current = float(ankara.project.capacity_mw.current.value)  # type: ignore[arg-type]
+    if abs(implied - current) > 5.0:
         report.warning(
-            "*",
-            "documents.generate_in_phase",
-            f"G1: {generated_3_1} documents marked 3.1, PHASES.md lists {PHASE_3_1_DOCUMENT_COUNT}",
+            f,
+            "project.turbines.count.value",
+            f"T1: {turbines.count.value} türbin × ~5 MW ≈ {implied:.0f} MW, "
+            f"declared capacity_mw.current is {current:.0f} MW",
+        )
+
+
+_DISTRIBUTION_CAP = 80
+_DISTRIBUTION_TARGETS = {"ankara_res": 45, "izmir_res": 15, "company": 10}
+_SCANNED_RANGE = (8, 10)
+_DISTRIBUTION_TOLERANCE = 0.3
+_GENERATED_PHASES = ("3.1", "5.1")
+
+
+def check_document_distribution(
+    ledgers: dict[str, ls.AnkaraLedger | ls.IzmirLedger | ls.CompanyLedger], report: Report
+) -> None:
+    """SPEC_05 §6: ~70 documents (Ankara ~45, İzmir ~15, company ~10), hard cap 80,
+    8-10 of them scanned. Replaces the old G1 hardcoded-15 warning (Phase 3.1 -> 5.1:
+    the count is no longer a single fixed number, so only the cap is a hard ERROR — the
+    per-bucket/scanned targets are SPEC's own "yaklaşık", kept as WARNING with generous
+    (±30%) tolerance)."""
+    generated = {
+        name: [d for d in ledger.documents if d.generate_in_phase in _GENERATED_PHASES]
+        for name, ledger in ledgers.items()
+    }
+    total = sum(len(docs) for docs in generated.values())
+    if total > _DISTRIBUTION_CAP:
+        report.error(
+            "*", "documents", f"G1: {total} documents, cap is {_DISTRIBUTION_CAP} (SPEC_05 §6)"
+        )
+    for name, target in _DISTRIBUTION_TARGETS.items():
+        n = len(generated.get(name, []))
+        if abs(n - target) > target * _DISTRIBUTION_TOLERANCE:
+            report.warning(
+                LEDGER_FILES[name], "documents", f"G1: {n} documents, SPEC_05 §6 target ~{target}"
+            )
+    scanned = sum(1 for docs in generated.values() for d in docs if d.source_type == "scanned_pdf")
+    lo, hi = _SCANNED_RANGE
+    if not lo <= scanned <= hi:
+        report.warning(
+            "*", "documents", f"G1: {scanned} scanned_pdf documents, SPEC_05 §6 target {lo}-{hi}"
         )
 
 
@@ -711,7 +827,7 @@ def check_questions(
                     resolve_path(raws[file_key], path)
                 except (KeyError, IndexError, TypeError):
                     report.error(f, f"{p}.expected_answer", f"Q4: ledger path {path!r} not found")
-        elif not q.expect_no_answer and q.expected_answer is None:
+        elif not q.expect_no_answer and q.expected_answer is None and q.category != "general":
             report.error(
                 f, f"{p}.expected_answer", "Q4: answerable question needs an expected_answer"
             )
@@ -801,6 +917,10 @@ def validate(master: Path, questions: Path | None) -> tuple[Report, dict[str, in
     }
     if ledgers:
         check_documents(raws, ledgers, report)
+        check_version_links(ledgers, report)
+        check_document_distribution(ledgers, report)
+    if isinstance(ankara, ls.AnkaraLedger):
+        check_technical(ankara, report)
     if isinstance(fx, ls.FxLedger):
         check_fx(fx, report)
 

@@ -1,0 +1,20 @@
+doc_id: DOC-CO-ADM-009
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Risk Değerlendirmesi
+  paragraphs:
+  - '[[counterparty]] ile yürütülen operasyonel süreçler, [[document_date]] tarihinde
+    güncellenen [[document_no]] sayılı [[title]] çerçevesinde detaylıca incelenmiştir.
+    Mevcut risk profili, [[effective_date]] itibarıyla [[parties_list]] tarafından
+    belirlenen kriterlere uygun olarak [[version_label]] seviyesinde tutulmaktadır.
+    Kurumsal yapımız ve [[spv_name]] bünyesindeki varlıklar, olası piyasa dalgalanmalarına
+    karşı [[status_label]] statüsünde korunmaktadır.'
+- heading: Sonuç
+  paragraphs:
+  - Yapılan kapsamlı denetimler neticesinde, [[counterparty]] ile olan iş ortaklığımızın
+    [[document_date]] tarihli [[document_no]] referanslı [[title]] hükümlerine tamamen
+    uyumlu olduğu saptanmıştır. İlgili [[version_label]] standartları doğrultusunda,
+    [[parties_list]] ve [[spv_name]] nezdinde yürütülen tüm risk yönetimi faaliyetleri
+    [[status_label]] olarak tescil edilmiştir. Gelecek dönem stratejileri, [[effective_date]]
+    tarihinde yürürlüğe girecek yeni tedbirler çerçevesinde şekillendirilecektir.

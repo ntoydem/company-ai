@@ -1,0 +1,28 @@
+doc_id: DOC-ANK-FIN-014
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Drawdown Request
+  paragraphs:
+  - Pursuant to the financing agreements executed by [[counterparty]] and [[spv_name]],
+    this document serves as the official drawdown request for the project known as
+    [[project_name]]. The requested funding shall be utilized strictly in accordance
+    with the stipulations outlined in [[document_no]] dated [[document_date]].
+  - The undersigned representatives, acting on behalf of [[parties_list]], hereby
+    confirm that all conditions precedent have been fully satisfied as of [[effective_date]].
+    We formally request the disbursement of the tranche amount specified as [[drawdown_amount]]
+    to be executed on [[drawdown_date]].
+  - It is certified that the current project status remains classified under [[status_label]],
+    reflecting compliance with all technical and financial milestones. Further documentation
+    regarding this request is detailed in the accompanying version [[version_label]]
+    and associated corporate filings.
+- heading: Payment Instructions
+  paragraphs:
+  - The disbursed funds corresponding to [[drawdown_amount]] must be transferred directly
+    to the designated bank account held by [[spv_name]]. Financial institutions acting
+    on behalf of [[counterparty]] are instructed to complete the wire transfer prior
+    to the close of business on [[drawdown_date]].
+  - Any discrepancies identified during the transfer process coordinated by [[parties_list]]
+    must be reported immediately to ensure the validity of [[document_no]]. Confirmation
+    of receipt shall be issued in accordance with the protocols established under
+    [[effective_date]].

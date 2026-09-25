@@ -75,3 +75,194 @@ documents:
     confidentiality: board
     generate_in_phase: "3.1"
     tag: USER_FACT
+
+  # --- Phase 5.1 documents ---
+  - id: DOC-CO-ADM-002
+    department: idari_isler
+    subdepartment: null
+    folder: corporate
+    type: Board Resolution
+    name: {value: "Yönetim Kurulu Kararı — İzmir RES Geliştirme Bütçesi Onayı", tag: AI_ASSUMPTION}
+    document_date: {value: 2023-03-25, tag: AI_ASSUMPTION}
+    effective_date: {value: 2023-03-25, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["ABC Enerji A.Ş.", "DEF İzmir Rüzgar Enerji A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-IZM-ADM-001]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: board
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-CO-ADM-003
+    department: idari_isler
+    subdepartment: null
+    folder: corporate
+    type: Shareholder Resolution
+    name: {value: "Pay Sahipleri Kararı — GHI Yatırım A.Ş. Ortaklık Onayı", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-05-01, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-05-01, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["ABC Enerji A.Ş.", "GHI Yatırım A.Ş.", "DEF Enerji Üretim A.Ş."]
+    key_facts: {ghi_share_pct: "spvs[0].shareholders[1].share_pct.value"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: scanned_pdf
+    language: tr
+    confidentiality: board
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-CO-ADM-004
+    department: idari_isler
+    subdepartment: null
+    folder: corporate
+    type: Insurance Summary
+    name: {value: "Sigorta Programı Özeti (Şirketler Grubu)", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-02-01, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["ABC Enerji A.Ş.", "STU Sigorta"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-EPC-007, DOC-ANK-OPS-009]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-CO-ADM-005
+    department: idari_isler
+    subdepartment: null
+    folder: corporate
+    type: Management Report
+    name: {value: "Yıllık Yönetim Raporu — 2025", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-02-15, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["ABC Enerji A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-CO-ADM-006
+    department: idari_isler
+    subdepartment: null
+    folder: corporate
+    type: Service Agreement
+    name: {value: "Grup İlişkili Taraf Hizmet Sözleşmesi", tag: AI_ASSUMPTION}
+    document_date: {value: 2022-01-10, tag: AI_ASSUMPTION}
+    effective_date: {value: 2022-01-10, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["ABC Enerji A.Ş.", "DEF Enerji Üretim A.Ş.", "DEF İzmir Rüzgar Enerji A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-CO-ADM-007
+    department: idari_isler
+    subdepartment: null
+    folder: corporate
+    type: Governance Policy
+    name: {value: "Kurumsal Yönetim ve Uyum Politikası", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-01-15, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-01-15, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: active
+    parties: ["ABC Enerji A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-CO-ADM-008
+    department: idari_isler
+    subdepartment: null
+    folder: corporate
+    type: Board Resolution
+    name: {value: "Yönetim Kurulu Kararı — Denetim Komitesi Ataması", tag: AI_ASSUMPTION}
+    document_date: {value: 2022-03-01, tag: AI_ASSUMPTION}
+    effective_date: {value: 2022-03-01, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["ABC Enerji A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: scanned_pdf
+    language: tr
+    confidentiality: board
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-CO-ADM-009
+    department: idari_isler
+    subdepartment: null
+    folder: corporate
+    type: Risk Report
+    name: {value: "Grup Risk Raporu — 2026", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-03-01, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["ABC Enerji A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-CO-ADM-010
+    department: idari_isler
+    subdepartment: null
+    folder: corporate
+    type: Shareholder Resolution
+    name: {value: "Pay Sahipleri Kararı — Kâr Dağıtım Politikası", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-04-01, tag: AI_ASSUMPTION}
+    effective_date: {value: 2026-04-01, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["ABC Enerji A.Ş.", "GHI Yatırım A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: board
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+

@@ -1,0 +1,42 @@
+doc_id: DOC-ANK-EPC-003
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Background
+  paragraphs:
+  - This instrument serves as an official change order regarding the commercial operation
+    date for the undertaking known as [[project_name]]. The original timeline anticipated
+    reaching completion by [[cod_expected_initial]], but unforeseen site conditions
+    have impacted the critical path. Consequently, [[counterparty]] and other stakeholders
+    have reviewed the operational constraints and agreed upon the necessity of a formal
+    schedule adjustment.
+  - The special purpose vehicle entity, [[spv_name]], formally requested an extension
+    to align the completion milestones with current site realities. All participating
+    entities listed under [[parties_list]] acknowledge that maintaining the previous
+    target is no longer feasible under standard operating procedures. This document,
+    bearing the reference number [[document_no]], supersedes previous timeline arrangements
+    as of [[effective_date]].
+  - Technical evaluations conducted by independent engineers confirm that the revised
+    timeline ensures structural integrity and compliance with regulatory frameworks.
+    The status of the project is currently classified under [[status_label]], reflecting
+    ongoing mitigation efforts by the engineering team. Furthermore, this adjustment
+    maintains alignment with the overarching objectives outlined in the primary agreement
+    dated [[document_date]].
+- heading: 2. Revised Schedule
+  paragraphs:
+  - Under the revised terms of this change order, the target commercial operation
+    date is officially deferred to [[cod_actual]]. All parties must update their respective
+    operational milestones and procurement schedules to reflect this new target date.
+    The contractor shall submit an updated master schedule within the timeframe specified
+    under the current revision level [[version_label]].
+  - Failure to meet the newly established milestones without prior written consent
+    from [[counterparty]] will result in standard liquidated damages as defined in
+    the master contract. The project management team of [[spv_name]] shall provide
+    weekly progress reports to ensure transparency throughout the remaining construction
+    phase. Adherence to this updated timeline is mandatory for all subcontractors
+    and suppliers involved in the execution of [[project_name]].
+  - This section concludes the formal modifications required for the schedule realignment
+    under the current project lifecycle. Future amendments will require a separate
+    review process and a subsequent document carrying an updated [[title]]. All stakeholders
+    are instructed to archive previous scheduling revisions and strictly adhere to
+    the parameters established herein.

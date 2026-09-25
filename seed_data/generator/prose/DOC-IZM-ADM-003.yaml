@@ -1,0 +1,24 @@
+doc_id: DOC-IZM-ADM-003
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Maliyet Kapsamı
+  paragraphs:
+  - '[[project_name]] projesi kapsamında yürütülen [[title]] çalışmaları, [[spv_name]]
+    tarafından titizlikle takip edilmektedir. İlgili harcamalar ve bütçe kalemleri,
+    [[counterparty]] ile yapılan mutabakatlar çerçevesinde sınıflandırılmıştır.'
+  - Geliştirme aşamasındaki finansal operasyonlar, [[document_no]] referans numarasıyla
+    kayıt altına alınmıştır. [[document_date]] tarihinde güncellenen maliyet planı,
+    projenin sürdürülebilirliği açısından kritik önem taşımaktadır.
+  - '[[parties_list]] tarafından sağlanan girdiler doğrultusunda, [[effective_date]]
+    itibarıyla bütçe revizyonları tamamlanmıştır. [[status_label]] durumu göz önüne
+    alınarak, olası sapmalar önceden tespit edilmektedir.'
+- heading: Değerlendirme
+  paragraphs:
+  - Mevcut harcama trendleri, [[version_label]] revizyonuna uygun olarak ilerlemektedir.
+    [[spv_name]] denetim ekibi, maliyetlerin kontrol altında tutulması için düzenli
+    raporlama yapmaktadır.
+  - '[[counterparty]] ile yürütülen süreçlerin mali etkileri detaylıca incelenmiştir.
+    [[project_name]] için öngörülen hedeflere ulaşılması adına ek tedbirler değerlendirilmektedir.'
+  - Sonuç olarak, [[document_no]] kapsamındaki finansal veriler beklentileri karşılamaktadır.
+    [[effective_date]] tarihinden sonraki dönem için yeni stratejiler belirlenecektir.

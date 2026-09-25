@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "demo_today": "2026-09-15",
   "questions": [
     {
@@ -847,8 +847,69 @@
     {
       "id": "ANK-MIX-002",
       "category": "mixed",
-      "question": "Ankara RES Q3 2024 bütçe sapması neydi ve sebebi belgelerde yazıyor mu?",
+      "question": "Ankara RES'te Temmuz 2024'te üretim kaybına yol açan olay neydi ve bu dönemin (Q3 2024) bütçe sapması ne kadardı?",
       "expected_answer": "ledger:ankara_res.project.operations.budget_vs_actual[3]",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Bakım Raporu — Temmuz 2024 (Türbin T-07 Arızası)",
+        "Budget vs Actual 2026"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "MIXED (Phase 5.1, pozitife çevrildi): belge tarafı artık Bakım Raporu'ndan T-07 dişli kutusu arızasını (11 gün duruş) sebep olarak veriyor; Excel tarafı -894.000 TRY (Summary!D5). Değer kontrolü atlanır (dict), kaynak+answered puanlanır. Negatif (sebep belgede yok) örneği ANK-MIX-003'e taşındı."
+    },
+    {
+      "id": "GEN-GEN-001",
+      "category": "general",
+      "question": "DSCR (Debt Service Coverage Ratio) ne demek?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": null,
+      "required_sources": [],
+      "forbidden_sources": [],
+      "ask_as_user": "yonetim",
+      "expect_no_answer": false,
+      "notes": "GENERAL (Phase 5.1): şirket verisi kullanılmaz, cevap sabit notla başlar; sources/excel_sources boş."
+    },
+    {
+      "id": "GEN-GEN-002",
+      "category": "general",
+      "question": "ÇED (Çevresel Etki Değerlendirmesi) süreci nedir?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": null,
+      "required_sources": [],
+      "forbidden_sources": [],
+      "ask_as_user": "yonetim",
+      "expect_no_answer": false,
+      "notes": "GENERAL (Phase 5.1): genel bir süreç tanımı, İzmir RES'in kendi ÇED durumuna atıf yapmamalı."
+    },
+    {
+      "id": "GEN-GEN-003",
+      "category": "general",
+      "question": "Bir kredi sözleşmesinde covenant testi ne işe yarar?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": null,
+      "required_sources": [],
+      "forbidden_sources": [],
+      "ask_as_user": "yonetim",
+      "expect_no_answer": false,
+      "notes": "GENERAL (Phase 5.1): genel bir finans kavramı, Ankara RES'in kendi covenant değerine atıf yapmamalı."
+    },
+    {
+      "id": "ANK-MIX-003",
+      "category": "mixed",
+      "question": "Ankara RES Q1 2025 bütçe sapması neydi ve sebebi belgelerde yazıyor mu?",
+      "expected_answer": "ledger:ankara_res.project.operations.budget_vs_actual[5]",
       "expected_answer_aliases": [],
       "expected_project": "Ankara RES",
       "expected_department": "enerji_grubu",
@@ -860,7 +921,169 @@
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
-      "notes": "MIXED: Excel farkı -894.000 TRY (Summary!D5) + belgelerde sebep yok -> kural 6 sabit cümlesi; değer kontrolü atlanır (dict), kaynak+answered puanlanır"
+      "notes": "MIXED (Phase 5.1, negatif örnek — ANK-MIX-002'nin eski rolü): hiçbir belge Ocak 2025 şebeke kesintisini (incidents[1]) anlatmıyor, bilerek belgesiz bırakıldı; belge tarafı sabit 'bulamadım' metni, Excel tarafı gerçek fark. Değer kontrolü atlanır (dict), kaynak+answered puanlanır."
+    },
+    {
+      "id": "ANK-FIN-014",
+      "category": "document",
+      "question": "Ankara RES'in Q4 2024 covenant compliance raporunda DSCR değeri kaç olarak belirtilmiştir?",
+      "expected_answer": "ledger:ankara_res.project.finance.covenant_tests[4].dscr",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Ankara RES Covenant Compliance Report — Q4 2024"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "Phase 5.1 yeni belge (DOC-ANK-FIN-016); covenant testi Q4 2024 (1,24x, fail)."
+    },
+    {
+      "id": "ANK-FIN-015",
+      "category": "document",
+      "question": "Ankara RES'in ilk kredi çekim bildiriminde (drawdown notice) belirtilen tutar nedir?",
+      "expected_answer": "ledger:ankara_res.project.finance.drawdowns[0].amount.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Ankara RES Drawdown Notice — Tranche 1"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "Phase 5.1 yeni belge (DOC-ANK-FIN-014); ilk çekim 2021-12-15, 15.000.000 EUR."
+    },
+    {
+      "id": "ANK-DEV-006",
+      "category": "document",
+      "question": "Ankara RES'in ÇED olumlu kararında belirtilen kapasite kaç MW'tır?",
+      "expected_answer": "ledger:ankara_res.project.capacity_mw.initial.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Ankara RES ÇED Olumlu Kararı"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Phase 5.1 yeni belge (DOC-ANK-DEV-005); ÇED, lisans öncesi (2019-11-05) ilk kapasiteyi (48 MW) anlatır."
+    },
+    {
+      "id": "ANK-OPS-002",
+      "category": "document",
+      "question": "Ankara RES'te Temmuz 2024'te üretimi etkileyen olay bakım raporuna göre neydi?",
+      "expected_answer": "ledger:ankara_res.project.operations.incidents[0].type.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Bakım Raporu — Temmuz 2024 (Türbin T-07 Arızası)"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Phase 5.1 yeni belge (DOC-ANK-OPS-005); T-07 dişli kutusu arızası, 11 gün duruş."
+    },
+    {
+      "id": "ANK-EPC-005",
+      "category": "document",
+      "question": "Ankara RES performans testi raporuna göre teyit edilen kapasite kaç MW'tır?",
+      "expected_answer": "ledger:ankara_res.project.capacity_mw.current.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Ankara RES Performance Test Results Report"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Phase 5.1 yeni belge (DOC-ANK-EPC-008); COD sonrası güncel kapasite (60 MW) doğrulaması."
+    },
+    {
+      "id": "ANK-OPS-003",
+      "category": "document",
+      "question": "Ankara RES'in Aralık 2023 aylık üretim raporuna göre üretim kaç MWh'tır?",
+      "expected_answer": "ledger:ankara_res.project.operations.monthly_production[1].mwh",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Aylık Üretim Raporu — Aralık 2023"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Phase 5.1 yeni belge (DOC-ANK-OPS-006); ilk tam işletme ayı, 17.218 MWh."
+    },
+    {
+      "id": "ANK-COR-001",
+      "category": "document",
+      "question": "GHI Yatırım A.Ş.'nin Ankara RES'teki hisse oranı, pay sahipleri kararında kaç olarak onaylanmıştır?",
+      "expected_answer": "ledger:company.spvs[0].shareholders[1].share_pct.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "idari_isler",
+      "required_sources": [
+        "Pay Sahipleri Kararı — GHI Yatırım A.Ş. Ortaklık Onayı"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "yonetim",
+      "expect_no_answer": false,
+      "notes": "Phase 5.1 yeni belge (DOC-CO-ADM-003, confidentiality: board — yalnızca yonetim/admin görür); değer kontrolü atlanır (yol adı eşleşmiyor)."
+    },
+    {
+      "id": "IZM-DEV-010",
+      "category": "document",
+      "question": "İzmir RES için hedeflenen kapasite, rüzgar ölçüm kampanyası raporunda kaç MW olarak belirtilmiştir?",
+      "expected_answer": "ledger:izmir_res.project.capacity_mw.target.value",
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Rüzgar Ölçüm Kampanyası Raporu"
+      ],
+      "forbidden_sources": [
+        "Ankara RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Phase 5.1 yeni belge (DOC-IZM-DEV-007); erken rüzgar ölçüm kampanyası, hedef kapasite 80 MW."
+    },
+    {
+      "id": "IZM-DEV-011",
+      "category": "temporal",
+      "question": "İzmir RES'in önlisans süre uzatımı hukuki değerlendirmesinde referans alınan önlisans tarihi nedir?",
+      "expected_answer": "ledger:izmir_res.project.timeline.pre_licence.date",
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "hukuk",
+      "required_sources": [
+        "Önlisans Süre Uzatımı Hukuki Değerlendirmesi"
+      ],
+      "forbidden_sources": [
+        "Ankara RES"
+      ],
+      "ask_as_user": "hukuk",
+      "expect_no_answer": false,
+      "notes": "Phase 5.1 yeni belge (DOC-IZM-LEG-004); önlisans tarihi 18.01.2024."
     }
   ]
 }

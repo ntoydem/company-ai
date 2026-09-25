@@ -1,0 +1,20 @@
+doc_id: DOC-CO-ADM-003
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Karar Gerekçesi
+  paragraphs:
+  - Şirketimiz [[spv_name]] bünyesinde yürütülen stratejik büyüme faaliyetleri kapsamında
+    [[counterparty]] ile iş birliği yapılması planlanmaktadır.
+  - Ortaklık yapısının güçlendirilmesi ve pazar payının artırılması amacıyla [[parties_list]]
+    arasında müzakereler tamamlanmıştır.
+  - İlgili yatırımların [[effective_date]] tarihi itibarıyla hayata geçirilmesi ve
+    gerekli yasal süreçlerin başlatılması zorunludur.
+- heading: Alınan Karar
+  paragraphs:
+  - Yönetim kurulu tarafından yapılan değerlendirmeler neticesinde [[ghi_share_pct]]
+    oranındaki hisse devri oy birliğiyle kabul edilmiştir.
+  - İşbu [[document_no]] numaralı karar belgesinde belirtilen tüm şartların yerine
+    getirilmesi hususunda genel müdürlük yetkilendirilmiştir.
+  - Alınan kararların [[status_label]] statüsünde yürürlüğe konulması ve ilgili resmi
+    kurumlara bildirilmesi kararlaştırılmıştır.

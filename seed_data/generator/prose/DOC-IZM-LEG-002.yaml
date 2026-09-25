@@ -1,0 +1,23 @@
+doc_id: DOC-IZM-LEG-002
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Hakkın Kapsamı
+  paragraphs:
+  - İşbu sözleşme kapsamında, [[project_name]] projesine ilişkin olarak [[spv_name]]
+    lehine tesis edilecek kira ve irtifak haklarının hukuki sınırları belirlenmiştir.
+    İlgili gayrimenkul üzerinde gerçekleştirilecek tüm faaliyetler, taraflar arasında
+    mutabakata varılan usul ve esaslara uygun olarak yürütülecektir.
+  - '[[counterparty]] ile [[spv_name]] arasında imzalanacak olan [[document_no]] sayılı
+    bu belge, hak sahibine sahanın kullanımı konusunda münhasıran yetki vermektedir.
+    Projenin kesintisiz olarak ilerleyebilmesi adına gerekli tüm teknik ve idari altyapı
+    çalışmaları bu kapsamda değerlendirilecektir.'
+- heading: 2. Yürürlük ve Genel Hükümler
+  paragraphs:
+  - İşbu sözleşme tasarısı, [[document_date]] tarihinde tarafların yetkili temsilcilerinin
+    katılımıyla akdedilmiştir. Sözleşmenin hükümleri, [[effective_date]] itibarıyla
+    resmi olarak yürürlüğe girecek olup, taraflar için bağlayıcı nitelik kazanacaktır.
+  - '[[parties_list]] arasında teati edilen bu metin, [[version_label]] versiyonu
+    ile [[status_label]] statüsünde kayıt altına alınmıştır. Taraflar, metin içerisinde
+    yer alan tüm maddelere eksiksiz olarak riayet etmeyi ve olası ihtilaflarda işbu
+    dokümanı esas almayı kabul ve beyan ederler.'

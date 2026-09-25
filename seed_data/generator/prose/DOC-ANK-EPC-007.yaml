@@ -1,0 +1,25 @@
+doc_id: DOC-ANK-EPC-007
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Coverage Summary
+  paragraphs:
+  - This policy summary outlines the comprehensive insurance framework established
+    for [[project_name]], developed under the corporate umbrella of [[spv_name]].
+    The insurance structure is meticulously arranged in coordination with [[counterparty]]
+    to ensure robust risk mitigation throughout the construction phase.
+  - The agreement details the protection mechanisms applicable to the parties listed
+    in [[parties_list]], safeguarding physical assets and operational liabilities
+    against unforeseen contingencies. All stakeholders must adhere strictly to the
+    stipulated operational parameters set forth in [[document_no]] to maintain policy
+    validity.
+- heading: 2. Policy Period
+  paragraphs:
+  - The effective duration of the insurance coverage commences strictly on [[effective_date]],
+    aligning with the initial mobilization schedule of the engineering, procurement,
+    and construction activities. This timeline is formally documented under the reference
+    details of [[document_date]] and remains subject to periodic review.
+  - Any subsequent amendments regarding the operational timeline or version updates,
+    categorized under [[version_label]], require formal endorsement by all participating
+    entities. The current operational classification of this document is designated
+    as [[status_label]], reflecting its formal standing within the corporate archive.

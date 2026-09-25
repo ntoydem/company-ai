@@ -1,0 +1,26 @@
+doc_id: DOC-ANK-DEV-006
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Kullanım Hakkının Kapsamı
+  paragraphs:
+  - İşbu [[title]] kapsamında, [[project_name]] projesine ait arazi tahsis ve kullanım
+    hakları [[spv_name]] lehine tesis edilmiştir. Söz konusu sahanın sınırları, ilgili
+    makamlarca onaylanan krokide belirtildiği şekliyle sınırlandırılmıştır.
+  - Taraflar, [[counterparty]] ile imzalanan [[document_no]] sayılı protokol çerçevesinde
+    belirlenen teknik usullere uymakla yükümlüdür. Sahada gerçekleştirilecek her türlü
+    altyapı ve üstyapı çalışması önceden yazılı izne tabidir.
+  - '[[status_label]] statüsündeki bu alanın güvenliği ve çevresel koruma tedbirleri
+    [[parties_list]] tarafından ortaklaşa denetlenecektir. Faaliyetler esnasında yürürlükteki
+    mevzuata tam uyum sağlanması esastır.'
+- heading: 2. Yürürlük ve Genel Hükümler
+  paragraphs:
+  - Bu sözleşme, [[effective_date]] tarihinde taraflarca imza altına alınarak yürürlüğe
+    girmiş olup resmi geçerliliği [[document_date]] tarihli teyit ile kesinleşmiştir.
+    Belgenin [[version_label]] sürümünde yer alan tüm maddeler bağlayıcıdır.
+  - Taraflardan birinin yükümlülüklerini kısmen veya tamamen yerine getirmemesi durumunda,
+    [[counterparty]] tarafından yapılacak yazılı bildirim ile yasal süreç başlatılır.
+    Anlaşmazlıkların çözümünde ilgili yetkili merciler merîdir.
+  - İşbu metin [[parties_list]] mutabakatıyla [[document_no]] referans numarası altında
+    arşivlenmiştir. Yapılacak her türlü güncelleme yeni bir ek protokol ile taraflara
+    duyurulacaktır.

@@ -1,0 +1,21 @@
+doc_id: DOC-IZM-ADM-001
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Bütçe Kapsamı
+  paragraphs:
+  - '[[project_name]] projesi kapsamında hazırlanan bütçe taslağı ilgili birimler
+    tarafından detaylıca incelenmiştir. Planlanan harcamalar [[spv_name]] şirketinin
+    finansal stratejileri ile tam uyum göstermektedir. Belirtilen [[document_date]]
+    tarihinde güncellenen maliyet kalemleri [[counterparty]] ile yapılan mutabakata
+    dayanmaktadır.'
+  - Yatırım faaliyetlerinin kesintisiz sürdürülebilmesi için gerekli kaynak [[parties_list]]
+    tarafından ortaklaşa sağlanacaktır. [[status_label]] statüsündeki bu finansal
+    plan [[effective_date]] itibarıyla geçerlilik kazanacaktır. Tüm harcama süreçleri
+    [[version_label]] belgesinde belirtilen kurallara tabi olacaktır.
+- heading: Onay
+  paragraphs:
+  - İşbu [[document_no]] numaralı bütçe belgesi yetkili kurullar tarafından oy birliğiyle
+    onaylanmıştır. [[title]] unvanlı yetkilinin imzasını taşıyan bu karar ilgili tüm
+    taraflara resmi olarak bildirilmiştir. Projenin mali yönetimi [[spv_name]] denetim
+    organlarının gözetiminde yürütülecektir.

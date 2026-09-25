@@ -1,0 +1,23 @@
+doc_id: DOC-ANK-ADM-001
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Bütçe Kapsamı
+  paragraphs:
+  - İşbu belge, [[project_name]] bünyesinde yürütülen tüm operasyonel faaliyetleri
+    ve mali planlamaları kapsamaktadır. [[spv_name]] tarafından hazırlanan yıllık
+    mali projeksiyonlar, ilgili tarafların ortak mutabakatı ile şekillendirilmiştir.
+  - Planlanan harcamalar ve gelir akışları, [[document_date]] tarihinde güncellenen
+    ekonomik varsayımlara dayanmaktadır. [[counterparty]] ile yapılan anlaşmalar çerçevesinde,
+    bütçekalemlerinin tamamı şeffaf bir şekilde sınıflandırılmıştır.
+  - Belirtilen [[version_label]] sürümü, tüm operasyonel birimlerin yıl boyunca takip
+    edeceği temel finansal rehber niteliğindedir. [[status_label]] statüsündeki bu
+    mali plan, şirket içi denetim standartlarına tam uyum sağlamaktadır.
+- heading: Onay
+  paragraphs:
+  - Yukarıda detayları verilen yıllık bütçe, yetkili kurullar tarafından incelenmiş
+    ve [[effective_date]] itibarıyla yürürlüğe girmiştir. [[parties_list]] temsilcilerinin
+    imzaları ile resmiyet kazanan bu karar, ilgili tüm departmanlar için bağlayıcıdır.
+  - İşbu [[document_no]] referanslı onay belgesi, şirketin sürdürülebilir büyüme hedefleri
+    doğrultusunda hazırlanmıştır. [[title]] unvanına sahip yetkililer, bütçenin etkin
+    bir şekilde uygulanmasından müteselsilen sorumludur.

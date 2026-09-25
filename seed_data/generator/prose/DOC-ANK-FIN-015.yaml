@@ -1,0 +1,28 @@
+doc_id: DOC-ANK-FIN-015
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Background
+  paragraphs:
+  - This document sets forth the official financial evaluation regarding [[project_name]]
+    operated by [[spv_name]]. The review encompasses the operational metrics and financial
+    ratios calculated as of [[document_date]].
+  - Pursuant to the financing agreements entered into by [[parties_list]], the calculated
+    metric for [[dscr]] failed to reach the required threshold [[status_label]]. Consequently,
+    [[counterparty]] has reviewed the formal request submitted under [[document_no]].
+  - The current version of this technical evaluation is marked as [[version_label]]
+    and takes into full consideration the operational adjustments implemented since
+    [[effective_date]]. All relevant parties have been duly notified regarding the
+    outcome of this covenant assessment.
+- heading: Waiver
+  paragraphs:
+  - In response to the formal request submitted by [[spv_name]], [[counterparty]]
+    hereby grants a formal waiver regarding the recent covenant breach concerning
+    [[project_name]]. This waiver applies strictly to the testing period ending on
+    [[document_date]] under [[document_no]].
+  - The effectiveness of this accommodation is contingent upon the continued compliance
+    of [[parties_list]] with all ongoing reporting obligations. Furthermore, the provisions
+    set forth in [[version_label]] remain in full force and effect without modification.
+  - Upon the occurrence of [[effective_date]], standard monitoring procedures shall
+    resume as outlined in the initial framework. [[status_label]] shall be updated
+    across all internal ledgers maintained by [[counterparty]].

@@ -1,0 +1,32 @@
+doc_id: DOC-ANK-OPS-006
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Genel Değerlendirme
+  paragraphs:
+  - '[[project_name]] projesi kapsamında yürütülen [[version_label]] dönemi faaliyetleri,
+    belirlenen stratejik hedefler doğrultusunda başarıyla tamamlanmıştır. Rapor dönemi
+    içerisinde [[spv_name]] tarafından gerçekleştirilen operasyonel çalışmalar, ilgili
+    mevzuat ve [[document_no]] numaralı iç yönerge hükümlerine tam uyum içinde sürdürülmüştür.'
+  - Sahada görev yapan [[parties_list]] unsurları ile koordine bir şekilde yürütülen
+    süreçler, [[document_date]] tarihinde güncellenen [[status_label]] statüsüne uygun
+    olarak denetlenmiştir. Karşı taraf [[counterparty]] ile sürdürülen kurumsal iş
+    birliği, operasyonların verimliliğine doğrudan katkı sağlamıştır.
+  - İlgili döneme ait teknik ve idari süreçler [[effective_date]] itibarıyla resmi
+    kayıt altına alınmış olup, tüm aşamalarda sürdürülebilirlik ilkeleri önceliklendirilmiştir.
+    Yapılan değerlendirmeler sonucunda, kurumsal standartların korunması adına gerekli
+    görülen iyileştirme adımlarının atılması planlanmaktadır.
+- heading: Performans Özeti
+  paragraphs:
+  - İlgili dönem zarfında elde edilen üretim çıktıları, [[mwh]] cinsinden toplam hacim
+    baz alınarak detaylı bir şekilde analiz edilmiştir. Gerçekleşen performans değerleri,
+    [[title]] tarafından belirlenen operasyonel eşiklerin üzerinde seyretmiş ve planlanan
+    hedeflere ulaşılmıştır.
+  - Sistem verimliliğini artırmaya yönelik olarak hayata geçirilen iyileştirme projeleri,
+    [[project_name]] bünyesindeki enerji akışının kesintisiz sürmesini sağlamıştır.
+    [[spv_name]] teknik ekipleri tarafından yürütülen periyodik bakım faaliyetleri,
+    olası aksaklıkların önlenmesinde kritik rol oynamıştır.
+  - Gelecek döneme ilişkin performans öngörüleri, [[parties_list]] tarafından hazırlanan
+    [[version_label]] raporunda detaylandırılmıştır. Süreçlerin daha etkin yönetilmesi
+    amacıyla [[counterparty]] ile koordinasyonun artırılması ve [[document_no]] standartlarının
+    titizlikle uygulanması kararlaştırılmıştır.

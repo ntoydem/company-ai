@@ -19,7 +19,14 @@ DocumentStatus = Literal["draft", "executed", "amended", "superseded", "active"]
 Confidentiality = Literal["normal", "restricted", "board"]
 GeneratePhase = Literal["3.1", "4.2", "5.1", "never"]
 QuestionCategory = Literal[
-    "document", "temporal", "data", "mixed", "isolation", "hallucination", "authorization"
+    "document",
+    "temporal",
+    "data",
+    "mixed",
+    "isolation",
+    "hallucination",
+    "authorization",
+    "general",
 ]
 DemoUser = Literal["admin", "yonetim", "finans", "hukuk", "enerji"]
 

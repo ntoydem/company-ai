@@ -1,0 +1,22 @@
+doc_id: DOC-ANK-OPS-009
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Yenileme Kapsamı
+  paragraphs:
+  - '[[spv_name]] tarafından işletilmekte olan [[project_name]] tesisi için sigorta
+    poliçesi yenileme süreçleri başlatılmıştır. Mevcut risk analizleri gözden geçirilmiş
+    olup, [[counterparty]] ile yürütülen müzakereler neticesinde teminat kapsamı güncellenmiştir.'
+  - '[[parties_list]] mutabakatı çerçevesinde, tesisin operasyonel güvenliğini sağlamak
+    amacıyla gerekli teminatlar, [[document_no]] referans numaralı bildirimde belirtilen
+    şartlar doğrultusunda yeniden düzenlenmiştir.'
+  - İşbu yenileme süreci, [[version_label]] standardına uygun olarak tamamlanmış ve
+    ilgili idari mercilerin onayına sunulmuştur.
+- heading: Yürürlük
+  paragraphs:
+  - İşbu yenileme bildirimi metni, [[effective_date]] tarihinde yürürlüğe girecek
+    şekilde tanzim edilmiştir. Belirtilen tarihten itibaren tüm operasyonel sigorta
+    yükümlülükleri bu yeni hükümlere tabi olacaktır.
+  - '[[document_date]] tarihinde taraflarca imza altına alınan bu belge, [[status_label]]
+    statüsünde resmiyet kazanmıştır. İlgili tüm taraflar kararları eksiksiz uygulamakla
+    yükümlüdür.'

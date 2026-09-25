@@ -1,0 +1,23 @@
+doc_id: DOC-IZM-LEG-001
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: İnceleme Kapsamı
+  paragraphs:
+  - İşbu hukuki inceleme notu, [[project_name]] projesine ilişkin taşınmazların mülkiyet
+    durumunu tespit etmek amacıyla hazırlanmıştır. Çalışma kapsamında [[parties_list]]
+    tarafından sağlanan tapu kayıtları ve ilgili resmi belgeler detaylıca incelenmiştir.
+  - İnceleme süreci [[spv_name]] bünyesindeki varlıkların hukuki statüsünün tespiti
+    odaklı yürütülmüştür. Karşı taraf olarak yer alan [[counterparty]] ile imzalanan
+    ön protokoller de bu değerlendirmeye dahil edilmiştir.
+  - Belge no [[document_no]] altında kaydedilen bu çalışma, [[document_date]] tarihinde
+    son şeklini almıştır. Belirtilen [[version_label]] versiyonu ile mevcut durumun
+    hukuki resmi çıkarılmıştır.
+- heading: Değerlendirme
+  paragraphs:
+  - Yapılan incelemeler neticesinde, taşınmazlar üzerinde mülkiyet hakkını kısıtlayıcı
+    herhangi bir ipotek veya şerhe rastlanmamıştır. Projenin yürütülmesi açısından
+    [[status_label]] statüsünde olan alanların hukuki altyapısı uygundur.
+  - '[[effective_date]] tarihi itibarıyla yürürlüğe girecek olan hususlar için gerekli
+    idari izinler titizlikle takip edilmektedir. İlgili tarafların haklarının korunması
+    adına gerekli hukuki tedbirler eksiksiz olarak alınmıştır.'

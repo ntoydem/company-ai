@@ -484,6 +484,680 @@ documents:
     generate_in_phase: "3.1"
     tag: USER_FACT
 
+
+  # --- Phase 5.1 documents ---
+  - id: DOC-ANK-DEV-003
+    department: enerji_grubu
+    subdepartment: enerji_gelistirme
+    folder: development
+    type: Bağlantı Anlaşması
+    name: {value: "Ankara RES Bağlantı Anlaşması", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-05-10, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-05-10, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "TEİAŞ"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-DEV-004
+    department: enerji_grubu
+    subdepartment: enerji_gelistirme
+    folder: development
+    type: Yapı Ruhsatı
+    name: {value: "Ankara RES Yapı Ruhsatı", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-12-05, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-12-05, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: scanned_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-DEV-005
+    department: enerji_grubu
+    subdepartment: enerji_gelistirme
+    folder: development
+    type: ÇED Olumlu Kararı
+    name: {value: "Ankara RES ÇED Olumlu Kararı", tag: AI_ASSUMPTION}
+    document_date: {value: 2019-11-05, tag: AI_ASSUMPTION}
+    effective_date: {value: 2019-11-05, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş."]
+    key_facts: {capacity_mw: project.capacity_mw.initial.value}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-DEV-001]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-DEV-006
+    department: enerji_grubu
+    subdepartment: enerji_gelistirme
+    folder: development
+    type: Saha Kullanım Hakkı Sözleşmesi
+    name: {value: "Ankara RES Saha Kullanım Hakkı Sözleşmesi", tag: AI_ASSUMPTION}
+    document_date: {value: 2019-03-01, tag: AI_ASSUMPTION}
+    effective_date: {value: 2019-03-01, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-FIN-010
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Common Terms Agreement
+    name: {value: "Ankara RES Common Terms Agreement", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-09-30, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-09-30, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    key_facts: {total_debt: project.finance.total_debt.value}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-FIN-004]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-FIN-011
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Share Pledge
+    name: {value: "Ankara RES Security Agreement (Share Pledge)", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-11-10, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-11-10, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "ABC Enerji A.Ş.", "GHI Yatırım A.Ş.", "PQR Bank"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-FIN-004]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-FIN-012
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Account Pledge
+    name: {value: "Ankara RES Account Pledge Agreement", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-11-10, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-11-10, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-FIN-004]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-FIN-013
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Assignment Agreement
+    name: {value: "Ankara RES Insurance Assignment Agreement", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-11-12, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-11-12, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "STU Sigorta", "PQR Bank"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-FIN-004]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-FIN-014
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Drawdown Notice
+    name: {value: "Ankara RES Drawdown Notice — Tranche 1", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-12-15, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-12-15, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank"]
+    key_facts: {drawdown_amount: "project.finance.drawdowns[0].amount.value", drawdown_date: "project.finance.drawdowns[0].date"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-FIN-004]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-FIN-015
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Waiver Letter
+    name: {value: "Ankara RES Waiver Letter — Q4 2024 Covenant Test", tag: AI_ASSUMPTION}
+    document_date: {value: 2025-01-20, tag: AI_ASSUMPTION}
+    effective_date: {value: 2025-01-20, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    key_facts: {dscr: "project.finance.covenant_tests[4].dscr"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-FIN-005]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-FIN-016
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Covenant Report
+    name: {value: "Ankara RES Covenant Compliance Report — Q4 2024", tag: AI_ASSUMPTION}
+    document_date: {value: 2025-01-10, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank"]
+    key_facts: {dscr: "project.finance.covenant_tests[4].dscr", covenant_result: "project.finance.covenant_tests[4].result"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-FIN-015]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-EPC-004
+    department: enerji_grubu
+    subdepartment: enerji_epc_insaat
+    folder: epc
+    type: Completion Certificate
+    name: {value: "Ankara RES Mechanical Completion Certificate", tag: AI_ASSUMPTION}
+    document_date: {value: 2023-07-20, tag: AI_ASSUMPTION}
+    effective_date: {value: 2023-07-20, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-EPC-001]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-EPC-005
+    department: enerji_grubu
+    subdepartment: enerji_epc_insaat
+    folder: epc
+    type: Completion Report
+    name: {value: "Ankara RES Independent Engineer's Completion Report", tag: AI_ASSUMPTION}
+    document_date: {value: 2023-09-25, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş.", "MNO Teknik Danışmanlık Ltd."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-EPC-001, DOC-ANK-EPC-004]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-EPC-006
+    department: enerji_grubu
+    subdepartment: enerji_epc_insaat
+    folder: epc
+    type: Punch List Closure
+    name: {value: "Ankara RES Punch List Closure Confirmation", tag: AI_ASSUMPTION}
+    document_date: {value: 2023-10-05, tag: AI_ASSUMPTION}
+    effective_date: {value: 2023-10-05, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-EPC-001]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-EPC-007
+    department: enerji_grubu
+    subdepartment: enerji_epc_insaat
+    folder: epc
+    type: Insurance Policy
+    name: {value: "Ankara RES Construction All Risks Insurance Policy Summary", tag: AI_ASSUMPTION}
+    document_date: {value: 2022-01-05, tag: AI_ASSUMPTION}
+    effective_date: {value: 2022-01-05, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş.", "STU Sigorta"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-EPC-008
+    department: enerji_grubu
+    subdepartment: enerji_epc_insaat
+    folder: epc
+    type: Performance Test Report
+    name: {value: "Ankara RES Performance Test Results Report", tag: AI_ASSUMPTION}
+    document_date: {value: 2023-10-10, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş.", "MNO Teknik Danışmanlık Ltd."]
+    key_facts: {capacity_mw: project.capacity_mw.current.value}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-EPC-002]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-EPC-009
+    department: enerji_grubu
+    subdepartment: enerji_epc_insaat
+    folder: epc
+    type: Warranty Certificate
+    name: {value: "Ankara RES Warranty & Defects Liability Certificate", tag: AI_ASSUMPTION}
+    document_date: {value: 2024-10-15, tag: AI_ASSUMPTION}
+    effective_date: {value: 2024-10-15, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-EPC-001]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-EPC-010
+    department: enerji_grubu
+    subdepartment: enerji_epc_insaat
+    folder: epc
+    type: Grid Connection Certificate
+    name: {value: "Ankara RES Şebeke Bağlantı Tamamlama Belgesi", tag: AI_ASSUMPTION}
+    document_date: {value: 2023-09-01, tag: AI_ASSUMPTION}
+    effective_date: {value: 2023-09-01, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş.", "TEİAŞ"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-DEV-003]
+    source_type: scanned_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-OPS-004
+    department: enerji_grubu
+    subdepartment: enerji_bakim
+    folder: operations
+    type: O&M Agreement
+    name: {value: "Ankara RES O&M Agreement", tag: AI_ASSUMPTION}
+    document_date: {value: 2023-10-15, tag: AI_ASSUMPTION}
+    effective_date: {value: 2023-10-15, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-EPC-001]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-OPS-005
+    department: enerji_grubu
+    subdepartment: enerji_bakim
+    folder: operations
+    type: Maintenance Report
+    name: {value: "Bakım Raporu — Temmuz 2024 (Türbin T-07 Arızası)", tag: AI_ASSUMPTION}
+    document_date: {value: 2024-08-05, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş."]
+    key_facts: {incident_type: "project.operations.incidents[0].type.value", mwh: "project.operations.monthly_production[8].mwh", availability_pct: "project.operations.monthly_production[8].availability_pct"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-OPS-006
+    department: enerji_grubu
+    subdepartment: enerji_bakim
+    folder: operations
+    type: Production Report
+    name: {value: "Aylık Üretim Raporu — Aralık 2023", tag: AI_ASSUMPTION}
+    document_date: {value: 2024-01-05, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş."]
+    key_facts: {mwh: "project.operations.monthly_production[1].mwh"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-OPS-007
+    department: enerji_grubu
+    subdepartment: enerji_bakim
+    folder: operations
+    type: Production Report
+    name: {value: "Aylık Üretim Raporu — Haziran 2025", tag: AI_ASSUMPTION}
+    document_date: {value: 2025-07-05, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş."]
+    key_facts: {mwh: "project.operations.monthly_production[19].mwh"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-OPS-008
+    department: enerji_grubu
+    subdepartment: enerji_bakim
+    folder: operations
+    type: Performance Review
+    name: {value: "Yıllık Performans Değerlendirme Notu — 2024-2025 Dönemi", tag: AI_ASSUMPTION}
+    document_date: {value: 2025-10-20, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-OPS-009
+    department: enerji_grubu
+    subdepartment: enerji_bakim
+    folder: operations
+    type: Insurance Notice
+    name: {value: "Sigorta Yenileme Bildirimi — İşletme Dönemi", tag: AI_ASSUMPTION}
+    document_date: {value: 2024-01-10, tag: AI_ASSUMPTION}
+    effective_date: {value: 2024-01-10, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "STU Sigorta"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-EPC-007]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-OPS-010
+    department: enerji_grubu
+    subdepartment: enerji_bakim
+    folder: operations
+    type: Availability Report
+    name: {value: "Ankara RES Kullanılabilirlik Garantisi Uyum Raporu", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-09-05, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş.", "XYZ Wind Turbines GmbH"]
+    key_facts: {availability_pct: "project.operations.monthly_production[33].availability_pct"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-OPS-011
+    department: enerji_grubu
+    subdepartment: enerji_bakim
+    folder: operations
+    type: Spare Parts Agreement
+    name: {value: "Ankara RES Yedek Parça Tedarik Sözleşmesi", tag: AI_ASSUMPTION}
+    document_date: {value: 2023-11-01, tag: AI_ASSUMPTION}
+    effective_date: {value: 2023-11-01, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş.", "XYZ Wind Turbines GmbH"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-OPS-012
+    department: enerji_grubu
+    subdepartment: enerji_bakim
+    folder: operations
+    type: Maintenance Plan
+    name: {value: "Yıllık Bakım Planı — 2026", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-01-15, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-OPS-005]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-LEG-001
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Legal Opinion
+    name: {value: "Hukuki Görüş — Finansman Ön Koşulları", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-11-01, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş.", "KLM Hukuk Bürosu"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-FIN-004]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-LEG-002
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Legal Review Memo
+    name: {value: "Arazi Kullanım Hakkı Hukuki İnceleme Notu", tag: AI_ASSUMPTION}
+    document_date: {value: 2019-02-15, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş.", "KLM Hukuk Bürosu"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-DEV-006]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-LEG-003
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Legal Review Memo
+    name: {value: "Sözleşme Uyum Değerlendirmesi — EPC ve Finansman Sözleşmeleri", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-10-25, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş.", "KLM Hukuk Bürosu"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-EPC-001, DOC-ANK-FIN-004]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-ADM-001
+    department: mali_isler
+    subdepartment: null
+    folder: admin
+    type: Budget Approval
+    name: {value: "Yıllık İşletme Bütçesi Onayı — 2026", tag: AI_ASSUMPTION}
+    document_date: {value: 2025-12-10, tag: AI_ASSUMPTION}
+    effective_date: {value: 2025-12-10, tag: AI_ASSUMPTION}
+    version: EXECUTED
+    status: executed
+    parties: ["DEF Enerji Üretim A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-ADM-002
+    department: idari_isler
+    subdepartment: null
+    folder: admin
+    type: Insurance Review Memo
+    name: {value: "Sigorta Programı Yıllık Gözden Geçirme Notu", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-01-15, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: EXECUTED
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş.", "STU Sigorta"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-EPC-007]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
   # --- Phase 4.2 workbooks (generated by seed_data/generator/generate_excel.py, committed under seed_data/excel/) ---
   - id: DOC-ANK-FIN-008
     department: finans

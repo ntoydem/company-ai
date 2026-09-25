@@ -1,0 +1,23 @@
+doc_id: DOC-ANK-OPS-007
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Genel Değerlendirme
+  paragraphs:
+  - İlgili dönem içerisinde [[project_name]] kapsamında yürütülen faaliyetler planlanan
+    hedefler doğrultusunda tamamlanmıştır. Rapor dönemi boyunca [[spv_name]] tarafından
+    sağlanan koordinasyon ile operasyonel süreçlerde süreklilik korunmuştur. Süreçlerin
+    takibi [[document_date]] tarihinde güncellenen prosedürlere uygun olarak gerçekleştirilmiştir.
+  - Saha operasyonlarında görev yapan [[parties_list]] ekipleri ile yapılan değerlendirmeler
+    neticesinde verimlilik artışları gözlemlenmiştir. Tespit edilen hususlar [[version_label]]
+    revizyon numaralı doküman ile kayıt altına alınmıştır. İlgili denetimler [[counterparty]]
+    gözetiminde tamamlanmıştır.
+- heading: Performans Özeti
+  paragraphs:
+  - Üretim tesisinin aylık bazdaki enerji çıkışı [[mwh]] seviyesinde gerçekleşmiştir.
+    Bu sonuç, dönem sonu [[status_label]] kriterlerini tam olarak karşılamaktadır.
+    Gerçekleşen değerler, [[effective_date]] itibarıyla yürürlüğe giren teknik kısıtlar
+    çerçevesindedir.
+  - Gelecek döneme ilişkin hedefler, [[title]] pozisyonundaki yetkililerin onayladığı
+    planlar doğrultusunda revize edilmiştir. Mevcut [[document_no]] kodlu talimatlar
+    ışığında bakım ve onarım faaliyetleri kesintisiz sürmektedir.

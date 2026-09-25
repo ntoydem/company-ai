@@ -1,0 +1,22 @@
+doc_id: DOC-ANK-EPC-010
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Bağlantı Kapsamı
+  paragraphs:
+  - '[[project_name]] projesi kapsamında gerçekleştirilen elektrik şebekesi bağlantı
+    çalışmaları, [[parties_list]] arasında imzalanan protokoller çerçevesinde tamamlanmıştır.
+    İlgili altyapı sistemleri, [[spv_name]] tarafından kurulan tesislerin ulusal enerji
+    iletim hatlarına entegrasyonunu sağlamak üzere tasarlanmıştır.'
+  - Yapılan teknik incelemeler ve saha testleri sonucunda, tüm bağlantı ekipmanlarının
+    [[counterparty]] tarafından belirlenen standartlara tam uyumlu olduğu tespit edilmiştir.
+    Şebeke kararlılığı ve enerji akışının güvenliği, ilgili mevzuat hükümleri doğrultusunda
+    güvence altına alınmıştır.
+- heading: Onay
+  paragraphs:
+  - İşbu belge, [[document_no]] referans numarasıyla kayıt altına alınmış olup [[document_date]]
+    tarihinde yürürlüğe girmiştir. [[effective_date]] itibarıyla tesisin ticari işletmeye
+    geçiş süreci resmiyet kazanmıştır.
+  - Tarafların yetkili temsilcileri tarafından imzalanan bu doküman, [[title]] statüsünde
+    olup [[status_label]] ve [[version_label]] bilgileriyle son şeklini almıştır.
+    İlgili tüm taraflara ve yetkili makamlara saygıyla sunulur.

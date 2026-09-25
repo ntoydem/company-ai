@@ -1,0 +1,26 @@
+doc_id: DOC-ANK-FIN-010
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Common Definitions
+  paragraphs:
+  - This document sets forth the common terms agreed upon by [[parties_list]] regarding
+    [[project_name]]. All capitalized terms used herein shall bear the meanings ascribed
+    to them in this agreement executed on [[document_date]].
+  - The obligations of [[spv_name]] and [[counterparty]] are governed by the provisions
+    detailed under [[document_no]]. Any subsequent amendments shall require the written
+    consent of all relevant parties as indicated in [[version_label]].
+  - The operational status of the undertaking is currently designated as [[status_label]].
+    All financial metrics including [[total_debt]] shall be computed in accordance
+    with the standards set forth in [[effective_date]].
+- heading: 2. Relationship Between Finance Documents
+  paragraphs:
+  - This agreement shall be read and construed in conjunction with [[title]] and other
+    related instruments. In the event of any ambiguity between this text and ancillary
+    agreements, the stipulations contained herein shall prevail.
+  - The rights and remedies of [[counterparty]] under [[document_no]] are cumulative
+    and operational alongside other security packages established for [[project_name]].
+    Nothing in this section shall diminish the primary liabilities undertaken by [[spv_name]].
+  - Modifications to the overarching framework established by [[parties_list]] must
+    be formalized prior to [[effective_date]]. Each document maintains its distinct
+    legal efficacy while supporting the primary objectives outlined in [[version_label]].

@@ -1,0 +1,28 @@
+doc_id: DOC-ANK-DEV-003
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Bağlantı Kapsamı
+  paragraphs:
+  - İşbu [[title]] belgesi çerçevesinde, [[project_name]] projesine ilişkin bağlantı
+    ve sistem kullanım esasları resmi olarak belirlenmiştir. [[spv_name]] ile ilgili
+    diğer yetkili taraflar arasında sağlanan mutabakat doğrultusunda teknik altyapı
+    oluşturulmuştur. [[counterparty]] tarafından onaylanan teknik kriterler, sistemin
+    güvenli ve kesintisiz işletilmesini temin etmek amacıyla eksiksiz uygulanacaktır.
+  - Şebeke entegrasyonu sürecinde [[parties_list]] unsurlarının tamamı ilgili teknik
+    şartnamelere uygun şekilde tesis edilecektir. Yapılan mühendislik çalışmaları,
+    mevcut iletim altyapısının güvenilirliğini koruyacak standartlarda tamamlanmıştır.
+    İlgili tüm taraflar, belirlenen teknik sınırlamalara ve işletme talimatlarına
+    uymakla yükümlüdür.
+- heading: 2. Yürürlük ve Genel Hükümler
+  paragraphs:
+  - İşbu anlaşma, [[document_date]] tarihinde taraflarca imzalanmış olup [[effective_date]]
+    itibarıyla resmi olarak yürürlüğe girmiştir. Belgeye ait [[document_no]] referans
+    numarası, tüm yazışmalarda ve resmi işlemler sırasında tekil tanımlayıcı olarak
+    kullanılacaktır. [[version_label]] sürümünde belirtilen tüm hükümler, taraflar
+    açısından bağlayıcı nitelik taşımaktadır.
+  - Anlaşmanın uygulama süreci boyunca ortaya çıkabilecek her türlü ihtilaf, [[status_label]]
+    altında düzenlenen uyuşmazlık çözüm prosedürlerine tabi olacaktır. Taraflar, kurumsal
+    işbirliği ilkeleri çerçevesinde yükümlülüklerini eksiksiz yerine getirmeyi kabul
+    ve taahhüt eder. Yapılacak her türlü değişiklik, ancak karşılıklı mutabakat ve
+    yazılı onay ile geçerlilik kazanacaktır.

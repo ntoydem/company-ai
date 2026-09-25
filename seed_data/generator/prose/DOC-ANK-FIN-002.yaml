@@ -1,0 +1,43 @@
+doc_id: DOC-ANK-FIN-002
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Definitions and Interpretation
+  paragraphs:
+  - In this document, certain terms shall bear specific meanings as agreed between
+    [[parties_list]]. The term [[spv_name]] refers to the special purpose vehicle
+    established for the development of [[project_name]]. Any reference to the principal
+    agreement or related instruments shall incorporate all subsequent amendments and
+    lawful interpretations.
+  - The financial metrics, including the required [[dscr_covenant]], shall be calculated
+    in accordance with standard accounting principles consistently applied. All parties
+    shall interpret the provisions herein in good faith and in alignment with the
+    overarching commercial objectives of the transaction.
+  - Headings and section numbers are inserted for convenience of reference only and
+    shall not affect the construction or interpretation of this agreement. Words denoting
+    the singular shall include the plural and vice versa, as the context may require.
+- heading: 2. The Facility
+  paragraphs:
+  - Subject to the terms and conditions set forth herein, the lenders agree to make
+    available a credit facility to [[spv_name]]. The utilization of the facility shall
+    be strictly restricted to the funding and execution requirements of [[project_name]].
+  - The tenor of the facility is [[tenor_years]], commencing from [[effective_date]]
+    and terminating on the final maturity date. Repayment obligations and interest
+    calculations shall be governed by the precise mechanics detailed in the operational
+    schedules.
+  - Drawdown requests must be submitted by [[counterparty]] within the designated
+    operational windows and in compliance with all precedent conditions. Failure to
+    satisfy these conditions may result in the suspension or cancellation of available
+    commitments.
+- heading: 3. Status of this Draft
+  paragraphs:
+  - This document is designated under reference [[document_no]] and carries the status
+    label [[status_label]]. It represents a preliminary working draft prepared for
+    discussion purposes only and does not constitute a binding financial commitment.
+  - The contents hereof are subject to formal internal approvals, final credit committee
+    clearance, and comprehensive legal review by all participating entities. No liability
+    or obligation shall arise until the definitive agreements are duly executed by
+    authorized signatories.
+  - As of [[document_date]], this text corresponds to [[version_label]] and supersedes
+    all prior informal communications, term sheets, or preliminary understandings
+    exchanged between the involved parties.

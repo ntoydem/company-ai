@@ -16,7 +16,7 @@ MANIFEST_PATH = Path(__file__).resolve().parent.parent / "seed_data" / "document
 
 
 def test_real_prose_and_manifest_validate_clean() -> None:
-    """Kabul kriteri: gerçek isim yok (validator) — committed prose + üretilen 15 belge."""
+    """Kabul kriteri: gerçek isim yok (validator) — committed prose + üretilen 70 belge."""
     prose_report = validate_prose()
     assert prose_report.errors == []
     generated_report = validate_generated(MANIFEST_PATH)

@@ -1,0 +1,30 @@
+doc_id: DOC-ANK-EPC-006
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Outstanding Items Reviewed
+  paragraphs:
+  - The technical committee representing [[parties_list]] has conducted a thorough
+    inspection of [[project_name]] as mandated by [[spv_name]]. All previously recorded
+    discrepancies associated with the facility have been meticulously examined to
+    ensure full compliance with the primary agreement.
+  - Detailed evaluations confirm that the engineering team has successfully resolved
+    every pending deficiency listed under reference [[document_no]]. Verification
+    protocols were executed in strict alignment with the standards established by
+    [[counterparty]].
+  - No further operational deviations remain within the designated scope of the site
+    inspection. The current status of the punch list is formally recognized as [[status_label]]
+    by the authorized representatives.
+- heading: 2. Confirmation
+  paragraphs:
+  - In accordance with the provisions detailed in [[title]], this document serves
+    as the official closure confirmation for all items previously marked as pending.
+    The formal assessment was finalized on [[document_date]] with the full consensus
+    of all stakeholders.
+  - Effective as of [[effective_date]], the obligations concerning the deficiency
+    rectification process are hereby discharged. Future operational phases shall proceed
+    under the governance framework outlined in version [[version_label]] of the project
+    documentation.
+  - The undersigned parties acknowledge the successful completion of all remedial
+    works without reservation. This confirmation is issued to formally conclude the
+    current phase of the development lifecycle.

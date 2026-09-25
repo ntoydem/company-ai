@@ -1,0 +1,31 @@
+doc_id: DOC-ANK-EPC-008
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Test Methodology
+  paragraphs:
+  - The performance testing protocol for [[project_name]] was executed in accordance
+    with the technical specifications defined by [[counterparty]]. All measurements
+    were recorded under stabilized environmental conditions to ensure the validity
+    of the capacity assessment for [[spv_name]].
+  - Data acquisition systems continuously monitored the output parameters throughout
+    the designated evaluation period as stipulated in [[document_no]]. Calibration
+    of all sensors and measurement devices was verified prior to commencement by independent
+    technical advisors.
+  - The evaluation methodology adheres to international industry standards and the
+    framework established under [[effective_date]]. Representatives from [[parties_list]]
+    witnessed the initial calibration procedures to guarantee full compliance with
+    contractual obligations.
+- heading: 2. Results
+  paragraphs:
+  - The operational output successfully demonstrated that the facility achieved the
+    targeted [[capacity_mw]] threshold during peak generation intervals. These findings
+    confirm the structural integrity and mechanical readiness of the installation
+    under normal operating conditions.
+  - Detailed analysis of the recorded telemetry data indicates that all performance
+    metrics satisfy the acceptance criteria outlined in [[title]]. The final status
+    of the assessment has been formally designated as [[status_label]] by the supervising
+    engineering team.
+  - Further operational optimization recommendations and long-term monitoring guidelines
+    are detailed in [[version_label]]. Archival of all raw measurement logs has been
+    completed in coordination with [[counterparty]] for future audit requirements.

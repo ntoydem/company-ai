@@ -1,0 +1,32 @@
+doc_id: DOC-ANK-FIN-011
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Pledge of Shares
+  paragraphs:
+  - The Pledgor hereby irrevocably pledges and assigns all of its right, title, and
+    interest in and to the shares of [[spv_name]] in favor of the Security Trustee
+    acting on behalf of the Secured Parties. This pledge is constituted as continuing
+    security for the due and punctual payment and discharge of all liabilities and
+    obligations of the Borrower under the Financing Documents relating to [[project_name]].
+  - Upon the occurrence of any event of default which remains uncured beyond the applicable
+    grace period, the Security Trustee shall be entitled to exercise all voting rights
+    and other prerogatives pertaining to the pledged shares, subject strictly to the
+    terms set forth in the agreement dated [[document_date]] and referenced under
+    [[document_no]].
+  - The Pledgor undertakes to execute all such further instruments and perform all
+    such acts as may be reasonably required by the Security Trustee to perfect the
+    security interest created over the shares of [[spv_name]] and to ensure priority
+    against any competing claims from third parties.
+- heading: 2. Governing Law
+  paragraphs:
+  - This Agreement, and any non-contractual obligations arising out of or in connection
+    with it, shall be governed by, and construed in accordance with, the laws of the
+    jurisdiction applicable to the principal financing arrangements of [[project_name]].
+  - Any dispute, controversy, or claim arising out of or relating to this share pledge,
+    including its formation or breach, shall be submitted to the exclusive jurisdiction
+    of the competent courts designated in the main facility agreement signed by [[counterparty]]
+    and other relevant entities.
+  - The provisions of this governance clause shall remain fully effective regardless
+    of any subsequent amendments to the operational status indicated as [[status_label]]
+    or changes in the corporate structure of the parties listed under [[parties_list]].

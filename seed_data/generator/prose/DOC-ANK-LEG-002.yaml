@@ -1,0 +1,23 @@
+doc_id: DOC-ANK-LEG-002
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: İnceleme Kapsamı
+  paragraphs:
+  - İşbu hukuki inceleme notu, [[project_name]] projesi kapsamında [[spv_name]] tarafından
+    yürütülen arazi kullanım haklarının yasal durumunu değerlendirmek amacıyla [[document_date]]
+    tarihinde kaleme alınmıştır.
+  - İnceleme sürecinde [[counterparty]] ile imzalanan sözleşmeler, [[parties_list]]
+    beyanları ve mevcut [[status_label]] durumu detaylı bir şekilde masaya yatırılmıştır.
+  - Bu rapor, [[document_no]] sayılı referans belgesi ve [[version_label]] sürüm bilgisi
+    esas alınarak hazırlanmış olup, [[effective_date]] itibarıyla geçerliliğini korumaktadır.
+- heading: Değerlendirme
+  paragraphs:
+  - Yapılan hukuki incelemeler neticesinde, [[project_name]] sahasına ilişkin mülkiyet
+    ve intifa haklarının [[spv_name]] lehine tesis edildiği tespit edilmiştir.
+  - '[[counterparty]] ile yapılan mutabakatlar çerçevesinde, [[parties_list]] tarafından
+    taahhüt edilen yükümlülüklerin [[status_label]] aşamasına uygun olarak yerine
+    getirildiği görülmektedir.'
+  - İlerleyen dönemde doğabilecek risklerin bertaraf edilmesi adına [[document_no]]
+    belgesinde belirtilen hususların takibi [[effective_date]] tarihinden itibaren
+    titizlikle sürdürülecektir.

@@ -1,0 +1,22 @@
+doc_id: DOC-IZM-ADM-002
+model: gemini-3.5-flash-lite
+tag: AI_ASSUMPTION
+sections:
+- heading: Düzenleme Kapsamı
+  paragraphs:
+  - İşbu belgenin temel amacı, [[project_name]] projesi kapsamında yürütülecek saha
+    güvenlik prosedürlerini ve idari düzenlemeleri resmi olarak belirlemektir. İlgili
+    tüm paydaşlar, [[spv_name]] tarafından belirlenen kurallara eksiksiz bir şekilde
+    uymakla yükümlüdür.
+  - '[[counterparty]] ile imzalanan mutabakat metni çerçevesinde, [[document_no]]
+    numaralı bu doküman [[document_date]] tarihinde yürürlüğe girmiştir. Belirtilen
+    standartlar, [[version_label]] sürümü ile güncellenmiş olup saha güvenliğinin
+    artırılmasını hedeflemektedir.'
+- heading: Değerlendirme
+  paragraphs:
+  - Saha genelinde gerçekleştirilen denetimler sonucunda, [[status_label]] statüsünde
+    bulunan idari süreçlerin gözden geçirilmesi gerekmiştir. Alınan önlemlerin etkinliği,
+    [[parties_list]] temsilcilerinin katılımıyla düzenli olarak raporlanmaktadır.
+  - '[[effective_date]] itibarıyla uygulanmaya başlanan yeni tedbirler sayesinde operasyonel
+    verimlilik artırılmıştır. Gelecek dönemde yapılacak denetimlerde, [[title]] pozisyonundaki
+    yetkililerin yönlendirmeleri esas alınacaktır.'

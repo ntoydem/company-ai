@@ -46,10 +46,10 @@ def _question(**overrides: object) -> ls.Question:
 # ---------------------------------------------------------------- loading real data
 
 
-def test_load_questions_returns_the_committed_43_questions() -> None:
+def test_load_questions_returns_the_committed_questions() -> None:
     question_set = load_questions()
-    assert len(question_set.questions) == 48  # v2: +3 data +2 mixed (Phase 4.3)
-    assert question_set.version == 2
+    assert len(question_set.questions) == 61  # v3: +13 (Phase 5.1: general, mixed, new docs)
+    assert question_set.version == 3
 
 
 def test_build_document_catalog_maps_title_type_and_project() -> None:
@@ -323,6 +323,35 @@ def test_score_question_passes_when_sources_and_value_match() -> None:
     assert result.passed
     assert result.value_check == "pass"
     assert result.error is None
+
+
+def test_score_question_general_passes_only_with_no_company_sources() -> None:
+    """Phase 5.1: `general` has no ledger-backed expected value; passing means the router
+    actually took the GENERAL branch and cited nothing at all (ADR-010)."""
+    from scripts.eval_lib import ExpectedValue
+
+    question = _question(id="GEN-GEN-001", category="general", expected_project=None)
+    good = AskOutcome(
+        answered=True,
+        answer_text="Bu cevap genel bilgidir; şirket belgeleri veya verileri kullanılmamıştır. ...",
+        query_type="GENERAL_QUERY",
+    )
+    result = score_question(question, ExpectedValue(skip=True), _catalog(), good)
+    assert result.passed and result.value_check == "skipped"
+
+    wrong_type = AskOutcome(answered=True, answer_text="...", query_type="DOCUMENT_QUERY")
+    assert not score_question(question, ExpectedValue(skip=True), _catalog(), wrong_type).passed
+
+    leaked_source = AskOutcome(
+        answered=True,
+        answer_text="...",
+        query_type="GENERAL_QUERY",
+        cited_titles=("Facility Agreement Amendment 01",),
+    )
+    assert not score_question(question, ExpectedValue(skip=True), _catalog(), leaked_source).passed
+
+    not_answered = AskOutcome(answered=False, answer_text="", query_type="GENERAL_QUERY")
+    assert not score_question(question, ExpectedValue(skip=True), _catalog(), not_answered).passed
 
 
 def test_score_question_fails_when_required_source_missing() -> None:
