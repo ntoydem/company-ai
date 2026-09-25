@@ -171,6 +171,31 @@ def format_value(field_name: str, value: Any, language: str) -> str:
     return str(value)
 
 
+def guess_field_kind(path: str) -> str | None:
+    """Best-effort reverse lookup: does `path` (a ledger path, e.g.
+    `"project.finance.outstanding_debt_as_of_demo_today.value"`) contain one of the known
+    `_FIELD_KIND` keys? Longest key wins on overlap (`"dscr_covenant"` over `"dscr"`).
+    Used by `scripts/eval_lib.py` (Phase 4.1) to format a resolved ledger value the same
+    way `build_facts()` would format it inside a generated document."""
+    matches = [key for key in _FIELD_KIND if key in path]
+    return max(matches, key=len) if matches else None
+
+
+def format_ledger_leaf(path: str, value: Any, parent: Any, language: str) -> str | None:
+    """Format a resolved ledger leaf as it would appear in a generated document, or
+    `None` if `path` doesn't match a known field kind (Phase 4.1's eval runner then skips
+    the value check for that question rather than guessing a format). `parent` is the
+    dict enclosing `value` (if any) — used only for money's sibling `currency` key, since
+    `format_value()` alone always assumes EUR."""
+    field_name = guess_field_kind(path)
+    if field_name is None:
+        return None
+    kind, _unit = _FIELD_KIND[field_name]
+    if kind == "money" and isinstance(parent, dict) and "currency" in parent:
+        return _format_money(float(value), language, str(parent["currency"]))
+    return format_value(field_name, value, language)
+
+
 def _ledger_key_for_doc_id(doc_id: str) -> str:
     prefix = doc_id.split("-")[1]
     return _PREFIX_TO_LEDGER[prefix]

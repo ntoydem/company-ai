@@ -211,6 +211,22 @@ değişiyorsa yeni değer + `USER_FACT`), `make validate-ledger` tekrar 0 hata v
 akıştan geçer. Onay tablosu `docs/reports/PHASE_2_1_REPORT.md §10`. `make lint` de validator'ı çalıştırır; ledger'ı
 bozan bir düzenleme lint'i kırar.
 
+## Eval (Phase 4.1)
+`scripts/run_eval.py`: `seed_data/evaluation/questions.json` (43 soru) → gerçek `/api/ask` çağrıları (`ask_as_user`
+ile giriş yapılmış demo kullanıcı) → skor → `seed_data/evaluation/results/<model>_<tarih>/results.{md,json}`
+(git-ignored). Kaynak (required/forbidden) kontrolü `seed_data/documents/manifest.json`'dan; beklenen değer,
+ledger yolunu `seed_data/generator/facts.py::format_ledger_leaf` ile demo belgelere gömülen **aynı** biçimde
+formatlayıp cevap metninde arar — liste/sözlük/`DOC-*` referansı/"henüz olmadı" tipi değerler için bu kontrol
+atlanır (yalnızca kaynak+`answered` ile puanlanır; hangi sorular atlandığı raporda açıkça listelenir).
+```bash
+make eval                          # .env'deki mevcut LLM_MODEL_ANSWER ile
+make eval MODEL=gemini-3.5-flash   # backend'i geçici olarak bu modelle yeniden başlatır, koşar, .env'e geri döner
+```
+Kategori eşikleri: `isolation`/`hallucination`/`authorization` %100, diğerleri ≥%80 (PHASES.md); altında kalınırsa
+`make eval` sıfırdan farklı çıkar. Gemini ücretsiz katmanına uyum: istekler arası en az 13 sn (paylaşılan, tüm
+demo kullanıcılar arasında), 503'te 3 kez artan gecikmeyle yeniden deneme, 5 ardışık hata sonrası koşu güvenli
+şekilde durur ("günlük kota tükenmiş olabilir" uyarısıyla) — bkz. `docs/reports/PHASE_4_1_REPORT.md`.
+
 ## Demo veri (Phase 3.1)
 İki demo proje için 15 belge (Ankara RES 10, İzmir RES 4, şirket geneli 1): lisans, Facility Agreement +
 2 amendment (versiyon zinciri), EPC sözleşmesi + tadili, ÇED yazıları, üretim raporu, yönetim kurulu kararı vb.
@@ -252,7 +268,8 @@ doküman planlanmadı); bu bilinen bir boşluktur, bkz. `docs/reports/PHASE_3_1_
 | `make seed` | 15 demo belgeyi render edip yükler (bkz. "Demo veri (Phase 3.1)"); LLM çağırmaz |
 | `make reset-demo` | Demo belgeleri siler (kullanıcı/departman/proje korunur); `--yes` ile onaysız |
 | `make psql`, `make shell` | Postgres'e psql / backend container'ında bash |
-| `make eval`, `make backup`, `make restore` | Sonraki phase'lerde (şimdilik "henüz uygulanmadı") |
+| `make eval`, `make eval MODEL=...` | Eval runner (bkz. "Eval (Phase 4.1)") |
+| `make backup`, `make restore` | Sonraki phase'lerde (şimdilik "henüz uygulanmadı") |
 
 Postgres portu host'a açılmaz; `make psql` kullanın. Backend'in 8000 portu da Phase 3.3'ten beri host'a
 açık değildir (`BACKEND_PORT` yalnızca compose ağı içindir); her şey Caddy'nin `CADDY_PORT`'u (8080) üzerinden.
@@ -286,3 +303,8 @@ docs/         SPEC_0x, PHASES.md, ARCHITECTURE.md (ADR), DOMAIN_MODEL.md, plans/
   bağlı, `supersedes` değil (Phase 3.1) — bu yüzden "güncel"/"ilk" zincir mekanizmasına hiç girmiyor; SPEC_02
   §11'in kapasite örneği bu çift için değil, gerçek bir `supersedes` zinciri (örn. Facility Agreement) için
   geçerlidir.
+- **Eval skoru %80/%100 eşiğinin altında (Phase 4.1, 24.09.2026 ölçümü):** `document` %47.8, `temporal` %33.3,
+  `isolation` %50 — kök nedenler tespit edildi (FTS'in Türkçe soru ↔ İngilizce finans belgesi kelime eşleşmesi
+  zayıflığı, ve aynı soru/kaynak kombinasyonunda modelin bazen doğru bazen "bilgi bulamadım" demesi — retrieval
+  değil üretim adımı kararsızlığı). Ayrıntı ve öneriler `docs/reports/PHASE_4_1_REPORT.md`; PHASES.md'nin kendi
+  kuralı gereği Phase 4.2'ye geçmeden Phase 3.2'ye (retrieval/answer-prompt) dönülmesi gerekiyor.

@@ -11,6 +11,7 @@ BACKEND_PORT := $(or $(BACKEND_PORT),8000)
 CADDY_PORT := $(shell grep -E '^CADDY_PORT=' $(ENV_FILE) 2>/dev/null | cut -d= -f2-)
 CADDY_PORT := $(or $(CADDY_PORT),8080)
 SVC ?=
+EVAL_ARGS ?=
 
 .PHONY: help env-check dirs up up-full down ps logs build test test-llm lint format prompt-doc validate-ledger \
         migrate migration seed-admin seed-demo-users seed-demo-departments seed-demo-projects \
@@ -127,8 +128,12 @@ seed: dirs ## demo veri: ledger doğrula -> belge üret -> doğrula -> kullanıc
 	bash scripts/seed_demo.sh
 reset-demo: dirs ## demo belgelerini sıfırla (yalnızca belgeler; kullanıcı/departman/proje korunur)
 	bash scripts/reset_demo.sh
-eval: ## eval runner (Phase 4.1)
-	@echo "Henüz uygulanmadı (Phase 4.1)."; exit 1
+eval: dirs ## eval runner: questions.json -> /api/ask -> skor. make eval MODEL=gemini-3.5-flash
+	$(if $(MODEL),LLM_MODEL_ANSWER=$(MODEL)) $(COMPOSE) up -d --wait --build backend
+	@$(COMPOSE) run --rm -T backend python -m scripts.run_eval $(EVAL_ARGS); status=$$?; \
+	echo "== backend .env'deki LLM_MODEL_ANSWER'a geri alınıyor =="; \
+	$(COMPOSE) up -d --wait --build backend >/dev/null; \
+	exit $$status
 backup: ## yedek (Phase 5.3)
 	@echo "Henüz uygulanmadı (Phase 5.3)."; exit 1
 restore: ## geri yükleme (Phase 5.3)

@@ -34,9 +34,13 @@ services:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-company_ai}
       TEST_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/company_ai_test
       APP_DATA_DIR: /data
+      # Re-stated from .env so a shell-level override (`make eval MODEL=...`, Phase 4.1)
+      # makes compose recreate this service; `env_file` alone is not diffed for changes.
+      LLM_MODEL_ANSWER: ${LLM_MODEL_ANSWER}
     volumes:
       - ./backend:/app
       - ./seed_data:/app/seed_data
+      - ./scripts:/app/scripts
       - ${DATA_ROOT}/documents:/data/documents
       - ${DATA_ROOT}/excel:/data/excel
       - ${DATA_ROOT}/app-data:/data/app-data

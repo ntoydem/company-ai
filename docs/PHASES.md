@@ -17,7 +17,7 @@ Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 | 3.2 | AI metadata önerisi + temporal/versiyon mantığı | tamamlandı | phase-3-2 | [PHASE_3_2_REPORT](reports/PHASE_3_2_REPORT.md) |
 | 3.3 | Frontend | tamamlandı | phase-3-3 | [PHASE_3_3_REPORT](reports/PHASE_3_3_REPORT.md) |
 | 3.4 | Audit log + embedding (opsiyonel) | tamamlandı | phase-3-4 | [PHASE_3_4_REPORT](reports/PHASE_3_4_REPORT.md) |
-| 4.1 | Eval runner (karne) | bekliyor | – | – |
+| 4.1 | Eval runner (karne) | tamamlandı (skor eşiği altında, bkz. rapor §7) | phase-4-1 | [PHASE_4_1_REPORT](reports/PHASE_4_1_REPORT.md) |
 | 4.2 | Excel motoru | bekliyor | – | – |
 | 4.3 | Mixed query | bekliyor | – | – |
 | 5.1 | Tam dataset (~70) + consistency checks | bekliyor | – | – |
@@ -122,6 +122,13 @@ Tanım: Doğruluğun ölçülmesi; kesin veriyle aritmetik yapan Excel motoru; p
 **Not (Phase 0.3):** `isolation` kategorisi, alakasız projenin chunk'ları retrieval'a girdiğinde (OR-FTS, ADR-020: "İzmir RES" sorusu Ankara chunk'larını getirir) LLM'in çıkarım yapmayıp "bilgi bulamadım" demesini de kapsamalı; T0'da kriter 3 tam olarak bu yola dayanıyor. Runner Gemini ücretsiz katmanı (5 istek/dk, 503 "high demand") için bekleme/retry ve `MODEL=` override'ı içermeli.
 
 ## Phase 4.2 — Excel motoru `O`
+**Ön koşul (Phase 4.1):** 25.09.2026 eval koşusunda `document` %52,2, `temporal` %33,3, `isolation` %50 — %80/%100
+eşiklerinin altında; PHASES.md'nin kendi kuralı bu Phase'e geçmeden Phase 3.2'ye dönülmesini gerektiriyor. Kök
+nedenler tespit edildi: (1) FTS'in Türkçe soru ↔ İngilizce finans belgesi kelime uyumsuzluğu (retrieval doğru
+belgeyi buluyor ama doğru sayfayı top-k'ya sokamıyor), (2) aynı soru/kaynak bağlamında modelin bazen doğru cevap
+verip bazen "bilgi bulamadım" demesi (cevap üretimi tutarsızlığı, retrieval'dan bağımsız). Embedding/hibrit
+retrieval denemesi bu koşuda net bir iyileşme göstermedi (küçük örneklem, sonuç belirsiz). **Güvenlik sınırı
+sağlam kaldı** — 43 sorunun hiçbirinde yasak kaynak/proje karışması yok. Ayrıntı: `docs/reports/PHASE_4_1_REPORT.md`.
 **Kapsam:** SPEC_04. Dört workbook ledger'dan (openpyxl) + build-time LibreOffice headless recalc (`seed_data/generator/recalc.sh`). Inspection (openpyxl), hesap DuckDB read-only; LLM yalnızca SELECT (whitelist) + predefined fonksiyonlar; timeout 10 s; kaynak dosya+sheet+range; `CalculationEngine` interface'i.
 **Kabul kriterleri:** cached değerler dolu (`data_only` boş hücre yok); "Ankara RES 2026 Q2 DSCR kaç?" → DuckDB + `Covenant_Report.xlsx Q2_2026!D14` tarzı kaynak; `DROP/;/COPY/çoklu statement` reddedilir; `.xlsm` macro çalışmaz; audit'te excel kaynakları.
 
