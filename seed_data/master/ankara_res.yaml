@@ -79,6 +79,64 @@ project:
       - {period: Q1_2026, dscr: 1.34, result: pass, doc: null,            tag: USER_FACT}
       - {period: Q2_2026, dscr: 1.37, result: pass, doc: DOC-ANK-FIN-007, tag: USER_FACT}
     facility_chain: [DOC-ANK-FIN-001, DOC-ANK-FIN-002, DOC-ANK-FIN-003, DOC-ANK-FIN-004, DOC-ANK-FIN-005, DOC-ANK-FIN-006]
+    # --- Phase 4.2 (Financial Model inputs; docs/plans/PHASE_4_2_PLAN.md SORU 1, AI_ASSUMPTION until reviewed) ---
+    # Fictional EURIBOR 6M yearly averages; all-in rate = base + margin_pct. Interest for a half-year =
+    # opening balance x all-in / 2 (seed_data/generator/debt_math.py).
+    base_rate_pct_by_year:
+      - {year: 2021, rate_pct: -0.50, tag: AI_ASSUMPTION}
+      - {year: 2022, rate_pct: 0.75, tag: AI_ASSUMPTION}
+      - {year: 2023, rate_pct: 3.60, tag: AI_ASSUMPTION}
+      - {year: 2024, rate_pct: 3.50, tag: AI_ASSUMPTION}
+      - {year: 2025, rate_pct: 2.40, tag: AI_ASSUMPTION}
+      - {year: 2026, rate_pct: 2.10, tag: AI_ASSUMPTION}
+      - {year: 2027, rate_pct: 2.00, tag: AI_ASSUMPTION}
+      - {year: 2028, rate_pct: 2.00, tag: AI_ASSUMPTION}
+      - {year: 2029, rate_pct: 2.00, tag: AI_ASSUMPTION}
+      - {year: 2030, rate_pct: 2.00, tag: AI_ASSUMPTION}
+      - {year: 2031, rate_pct: 2.00, tag: AI_ASSUMPTION}
+      - {year: 2032, rate_pct: 2.00, tag: AI_ASSUMPTION}
+      - {year: 2033, rate_pct: 2.00, tag: AI_ASSUMPTION}
+      - {year: 2034, rate_pct: 2.00, tag: AI_ASSUMPTION}
+      - {year: 2035, rate_pct: 2.00, tag: AI_ASSUMPTION}
+    # Semi-annual sculpted instalments after the 24-month grace (financial close 2021-11-15); sum = drawn 50.4M,
+    # balance after H1_2026 = outstanding_debt_as_of_demo_today (validator F9), last instalment within tenor (F11).
+    repayment_schedule:
+      - {date: 2024-06-30, principal: {value: 1000000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2024-12-31, principal: {value: 1100000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2025-06-30, principal: {value: 1300000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2025-12-31, principal: {value: 1400000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2026-06-30, principal: {value: 1500000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2026-12-31, principal: {value: 1600000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2027-06-30, principal: {value: 1700000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2027-12-31, principal: {value: 1800000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2028-06-30, principal: {value: 1900000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2028-12-31, principal: {value: 2000000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2029-06-30, principal: {value: 2100000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2029-12-31, principal: {value: 2200000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2030-06-30, principal: {value: 2300000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2030-12-31, principal: {value: 2400000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2031-06-30, principal: {value: 2500000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2031-12-31, principal: {value: 2600000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2032-06-30, principal: {value: 2700000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2032-12-31, principal: {value: 2800000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2033-06-30, principal: {value: 2900000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2033-12-31, principal: {value: 3000000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2034-06-30, principal: {value: 3100000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2034-12-31, principal: {value: 3200000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2035-06-30, principal: {value: 3300000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+    # CFADS per quarter, derived so that CFADS / quarterly debt service reproduces covenant_tests.dscr (F10).
+    cfads_by_quarter:
+      - {period: Q4_2023, cfads: {value: 1225600, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q1_2024, cfads: {value: 1863700, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q2_2024, cfads: {value: 1769200, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q3_2024, cfads: {value: 1757200, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q4_2024, cfads: {value: 1715700, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q1_2025, cfads: {value: 1638700, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q2_2025, cfads: {value: 1718600, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q3_2025, cfads: {value: 1814000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q4_2025, cfads: {value: 1854900, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q1_2026, cfads: {value: 1822300, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q2_2026, cfads: {value: 1863100, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
 
   construction:
     epc_contractor:   {value: "JKL İnşaat A.Ş.", tag: USER_FACT}
@@ -425,3 +483,85 @@ documents:
     confidentiality: normal
     generate_in_phase: "3.1"
     tag: USER_FACT
+
+  # --- Phase 4.2 workbooks (generated by seed_data/generator/generate_excel.py, committed under seed_data/excel/) ---
+  - id: DOC-ANK-FIN-008
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Financial Model
+    name: {value: "Financial Model 2026", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-09-01, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: V2026
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-FIN-006, DOC-ANK-FIN-007]
+    source_type: xlsx
+    language: en
+    confidentiality: restricted
+    generate_in_phase: "4.2"
+    tag: AI_ASSUMPTION
+  - id: DOC-ANK-FIN-009
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Covenant Report
+    name: {value: "Covenant Report (workbook)", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-08-15, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: Q2_2026
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-FIN-007]
+    source_type: xlsx
+    language: en
+    confidentiality: normal
+    generate_in_phase: "4.2"
+    tag: AI_ASSUMPTION
+  - id: DOC-ANK-OPS-002
+    department: enerji_grubu
+    subdepartment: enerji_bakim
+    folder: operations
+    type: Budget vs Actual
+    name: {value: "Budget vs Actual 2026", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-07-31, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: Q2_2026
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: xlsx
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "4.2"
+    tag: AI_ASSUMPTION
+  - id: DOC-ANK-OPS-003
+    department: enerji_grubu
+    subdepartment: enerji_bakim
+    folder: operations
+    type: Monthly Production
+    name: {value: "Monthly Production 2026", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-09-05, tag: AI_ASSUMPTION}
+    effective_date: null
+    version: "2026-08"
+    status: active
+    parties: ["DEF Enerji Üretim A.Ş."]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-OPS-001]
+    source_type: xlsx
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "4.2"
+    tag: AI_ASSUMPTION

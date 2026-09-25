@@ -2,7 +2,8 @@ import enum
 import uuid
 from datetime import date
 
-from sqlalchemy import Date, Enum, ForeignKey, Integer, String, Text, Uuid
+from sqlalchemy import Boolean, Date, Enum, ForeignKey, Integer, String, Text, Uuid
+from sqlalchemy import false as sa_false
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -116,6 +117,12 @@ class Document(TimestampMixin, Base):
     # through `document_metadata_suggestions.document_id`, never through this column.
     ai_suggestion_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, nullable=True)
     page_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # Excel family only (Phase 4.2): the uploaded workbook carries a VBA project. Flagged
+    # from the zip members at upload, shown in inspection — never loaded, never executed.
+    has_macros: Mapped[bool] = mapped_column(Boolean, default=False, server_default=sa_false())
+    # Original upload name ("Covenant_Report.xlsx"): what an Excel citation shows, since
+    # `storage_path` is always <uuid>/original.<ext>. NULL for pre-4.2 rows.
+    file_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     # Truth-ledger document id (e.g. "DOC-ANK-FIN-004"), set only by the demo seed
     # (Phase 3.1); the upload API never sets this. Idempotency key for `make seed` and
     # the matching anchor for Phase 4.1's eval runner.

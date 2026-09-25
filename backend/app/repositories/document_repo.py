@@ -103,6 +103,81 @@ def create_with_job(
     return document
 
 
+def create_ready(
+    session: Session,
+    *,
+    document_id: uuid.UUID,
+    title: str,
+    document_type: str,
+    document_date: date,
+    counterparty: str,
+    status: DocStatus,
+    tags: list[str],
+    storage_path: str,
+    uploaded_by_id: uuid.UUID | None,
+    page_count: int | None,
+    has_macros: bool = False,
+    file_name: str | None = None,
+    effective_date: date | None = None,
+    version: int = 1,
+    department: str | None = None,
+    subdepartment: str | None = None,
+    project_id: uuid.UUID | None = None,
+    confidentiality: Confidentiality = Confidentiality.normal,
+    source: DocumentSource = DocumentSource.web,
+    related_document_ids: list[uuid.UUID] | None = None,
+    external_ref: str | None = None,
+) -> Document:
+    """Excel family (Phase 4.2, SPEC_04 §1): no OCR job, no pages/chunks — the file is
+    `ready` at once; sheets are read at query time by `app/excel/`. `page_count` = sheet
+    count, informational only."""
+    document = Document(
+        id=document_id,
+        title=title,
+        document_type=document_type,
+        document_date=document_date,
+        counterparty=counterparty,
+        status=status,
+        tags=tags,
+        effective_date=effective_date,
+        version=version,
+        department=department,
+        subdepartment=subdepartment,
+        project_id=project_id,
+        source=source,
+        confidentiality=confidentiality,
+        related_document_ids=related_document_ids or [],
+        external_ref=external_ref,
+        storage_path=storage_path,
+        ingestion_status=IngestionStatus.ready,
+        uploaded_by_id=uploaded_by_id,
+        page_count=page_count,
+        has_macros=has_macros,
+        file_name=file_name,
+    )
+    session.add(document)
+    session.flush()
+    return document
+
+
+EXCEL_SUFFIXES = (".xlsx", ".xlsm", ".csv")
+
+
+def list_excel_by_ids(session: Session, ids: Iterable[uuid.UUID]) -> list[Document]:
+    """Ready Excel-family documents among `ids` (Phase 4.2 catalogue), title order."""
+    id_list = list(ids)
+    if not id_list:
+        return []
+    stmt = (
+        select(Document)
+        .where(Document.id.in_(id_list), Document.ingestion_status == IngestionStatus.ready)
+        .order_by(Document.title)
+    )
+    return [
+        d for d in session.scalars(stmt).all() if d.storage_path.lower().endswith(EXCEL_SUFFIXES)
+    ]
+
+
 def get_by_external_ref(session: Session, external_ref: str) -> Document | None:
     return session.scalar(select(Document).where(Document.external_ref == external_ref))
 

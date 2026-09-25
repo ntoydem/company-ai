@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.core.config import Settings, get_settings
 from app.core.db import get_session
 from app.core.errors import NOT_AUTHENTICATED_MESSAGE, NOT_AUTHORIZED_MESSAGE
+from app.excel.calc import CachedValueEngine, CalculationEngine
 from app.models.user import User, UserRole
 from app.repositories import user_repo
 from app.services.llm import LLMClient, build_llm_client
@@ -60,3 +61,17 @@ def _login_rate_limiter() -> LoginRateLimiter:
 def get_login_rate_limiter() -> LoginRateLimiter:
     """One limiter per process (ADR-015); resets on restart, acceptable for V0."""
     return _login_rate_limiter()
+
+
+@lru_cache
+def _cached_calculation_engine() -> CalculationEngine:
+    settings = get_settings()
+    return CachedValueEngine(
+        timeout_s=settings.excel_query_timeout_s, row_limit=settings.excel_row_limit
+    )
+
+
+def get_calculation_engine() -> CalculationEngine:
+    """Phase 4.2 (ADR-011): the one `CalculationEngine` implementation, `CachedValueEngine`.
+    Stateless apart from its limits, so a process-wide instance is fine."""
+    return _cached_calculation_engine()

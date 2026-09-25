@@ -3,7 +3,7 @@
 Kurumsal doküman + Excel + AI bilgi platformu. Şirket bilgisinin **kaynağını, erişim yetkisini, tarihini,
 versiyonunu ve ilişkilerini** koruyarak AI tarafından güvenilir kullanılmasını sağlar. Basit bir chatbot değildir.
 
-Bu README Phase 3.2c (eval eşikleri geçildi) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
+Bu README Phase 4.2 (Excel motoru) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
 `docs/PHASES.md`. Mimari kararlar: `docs/ARCHITECTURE.md`. Alan modeli: `docs/DOMAIN_MODEL.md`.
 
 ## Gereksinimler (VM)
@@ -199,6 +199,40 @@ ağırlıkları + ısınma); RAM **~10,5 GB** (bge-m3'ün yayınlanan ağırlık
 bırakıyor — `docs/reports/PHASE_3_4_REPORT.md`'de tam rakamlar ve canlı bir "önce FTS'te 0 sonuç, embedding
 açılınca doğru cevap" örneği var.
 
+## Excel analizi (Phase 4.2)
+Excel doküman RAG'ıyla çözülmez (SPEC_04): `.xlsx/.xlsm/.csv` upload'da OCR'a girmeden hemen `ready` olur, chunk
+yazılmaz; sheet'ler soru anında DuckDB tablolarına (`<dosya>__<sheet>`, `_row` = Excel satır no) yüklenir.
+**LLM matematik yapmaz:** bir *plan* çağrısı (`LLM_MODEL_CLASSIFY`, JSON) predefined fonksiyonlardan birini
+(`dscr`, `outstanding_debt`, `budget_variance`, `capacity_factor`, `production`) ya da tek bir read-only `SELECT`
+seçer; hesabı DuckDB/Python yapar; ikinci çağrı sonucu Türkçe aktarır — cevapta motorun rakamı aynen yoksa
+şablon cevap döner. Her cevap **dosya + sheet + range** gösterir (`Covenant_Report.xlsx Q2_2026!D14`) ve
+`audit_log`'a `excel_files_used` ile yazılır. `/api/ask` bu fazda DOCUMENT-only; router Phase 4.3.
+```bash
+curl -s -X POST localhost:8080/api/excel/ask -b cookies.txt -H 'content-type: application/json' \
+  -d '{"question": "Ankara RES 2026 Q2 DSCR kaç?"}'
+# {"answer":"... 1,37x ...","answered":true,"value":1.37,"formatted_value":"1,37x",
+#  "sources":[{"file":"Covenant_Report.xlsx","sheet":"Q2_2026","range":"D14","label":"Covenant_Report.xlsx Q2_2026!D14"}],
+#  "plan_kind":"function","plan":{"kind":"function","name":"dscr","params":{"period":"Q2_2026"}},...}
+curl -s localhost:8080/api/excel/<document_id>/inspect -b cookies.txt   # sheet'ler, gizli sheet, named range'ler, has_macros
+```
+Güvenlik: SQL whitelist (`;`/yorum yok, `SELECT`/`WITH` ile başlar, `DROP/ATTACH/INSTALL/LOAD/PRAGMA/COPY…` ve
+`read_csv` gibi dosya fonksiyonları yasak, yalnızca bilinen tablolar, `LIMIT` ≤ `EXCEL_ROW_LIMIT`) + DuckDB
+`enable_external_access=false` + `EXCEL_QUERY_TIMEOUT_S` zaman aşımı. **`.xlsm` macro asla çalıştırılmaz:** VBA
+projesi zip içinden algılanıp `has_macros` olarak işaretlenir, hiçbir kod yolu yüklemez (`tests/test_no_execution_paths.py`).
+Formül sonuçları dosyada yoksa (Excel dışı bir araçla kaydedilmişse) "dosyanın Excel'de yeniden hesaplanıp
+kaydedilmesi gerekiyor" mesajı döner; sunucuda hesaplama yok. CSV: tek tablo, yalnızca SQL yolu.
+
+Demo workbook'lar (`seed_data/excel/`, **commit'li**): Financial Model (Inputs/Debt/DSCR/Cashflow), Covenant Report
+(Summary + çeyrek sheet'leri), Budget vs Actual, Monthly Production — hepsi ledger'dan formüllerle üretilir
+(`generate_excel.py`), LibreOffice headless `tools` container'ında yeniden hesaplanır (`recalc.sh`, ~3 sn) ve
+`validate_excel.py` ile doğrulanır (cached değer eksik yok, named range'ler, gizli `_meta`, ledger tutarlılığı):
+```bash
+make excel            # üret + recalc + doğrula (yalnızca dev'de; prod klonu LibreOffice gerektirmez)
+make validate-excel   # commit'li dosyaları doğrula (make lint'in parçası)
+```
+Financial Model'in taban faiz, geri ödeme takvimi ve çeyreklik CFADS girdileri ledger'a `AI_ASSUMPTION` olarak
+eklendi (`validate_ledger` F9-F11: DEMO_TODAY bakiyesi 44,1M, DSCR'ler covenant testleriyle ±0,01 tutarlı).
+
 ## Truth ledger (Phase 2.1)
 İki demo projenin **tüm** rakam, tarih ve isimleri tek yerde: `seed_data/master/` — `company.yaml` (kurgusal
 taraflar, SPV'ler, isim whitelist'i), `ankara_res.yaml` (işletmedeki proje: lisans → finansman → inşaat → COD →
@@ -279,6 +313,7 @@ doküman planlanmadı); bu bilinen bir boşluktur, bkz. `docs/reports/PHASE_3_1_
 | `make reset-demo` | Demo belgeleri siler (kullanıcı/departman/proje korunur); `--yes` ile onaysız |
 | `make psql`, `make shell` | Postgres'e psql / backend container'ında bash |
 | `make eval`, `make eval MODEL=...` | Eval runner (bkz. "Eval (Phase 4.1)") |
+| `make excel` / `make validate-excel` | Demo workbook'ları üret+recalc+doğrula / yalnızca doğrula (bkz. "Excel analizi (Phase 4.2)") |
 | `make backup`, `make restore` | Sonraki phase'lerde (şimdilik "henüz uygulanmadı") |
 
 Postgres portu host'a açılmaz; `make psql` kullanın. Backend'in 8000 portu da Phase 3.3'ten beri host'a
@@ -300,7 +335,7 @@ docs/         SPEC_0x, PHASES.md, ARCHITECTURE.md (ADR), DOMAIN_MODEL.md, plans/
 - Yalnızca LAN, düz HTTP; HTTPS/Tailscale V0 sonrası.
 - Embedding opsiyonel (`EMBEDDINGS_ENABLED=false` varsayılan); sistem yalnızca full-text + metadata ile çalışır.
 - Consume klasörü, Word/e-posta ingest, SSO yok.
-- `/api/ask` yalnızca belge sorularını cevaplar (DOCUMENT); Excel/DATA ve MIXED sorgular Adım 4.
+- `/api/ask` yalnızca belge sorularını cevaplar (DOCUMENT); DATA soruları ayrı `POST /api/excel/ask` ucunda (Phase 4.2), MIXED ve router Phase 4.3.
 - Gemini ücretsiz katmanı: `gemini-3.8-flash` için 5 istek/dk; yoğunlukta "high demand" 503 dönebilir — `/api/ask`
   bunu Türkçe 503 mesajıyla iletir, sistem çalışmaya devam eder.
 - `documents.department` bir FK değil, serbest slug string'idir (upload/apply endpoint'leri bilinen slug'a

@@ -20,7 +20,7 @@ Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 | 3.3 | Frontend | tamamlandı | phase-3-3 | [PHASE_3_3_REPORT](reports/PHASE_3_3_REPORT.md) |
 | 3.4 | Audit log + embedding (opsiyonel) | tamamlandı | phase-3-4 | [PHASE_3_4_REPORT](reports/PHASE_3_4_REPORT.md) |
 | 4.1 | Eval runner (karne) | tamamlandı (skor eşiği altında, bkz. rapor §7) | phase-4-1 | [PHASE_4_1_REPORT](reports/PHASE_4_1_REPORT.md) |
-| 4.2 | Excel motoru | bekliyor | – | – |
+| 4.2 | Excel motoru | tamamlandı | phase-4-2 | [PHASE_4_2_REPORT](reports/PHASE_4_2_REPORT.md) |
 | 4.3 | Mixed query | bekliyor | – | – |
 | 5.1 | Tam dataset (~70) + consistency checks | bekliyor | – | – |
 | 5.2 | Admin panel | bekliyor | – | – |
@@ -127,6 +127,7 @@ Tanım: Doğruluğun ölçülmesi; kesin veriyle aritmetik yapan Excel motoru; p
 **Ön koşul (Phase 4.1 → 3.2b → 3.2c, 25.09.2026) — karşılandı:** Phase 3.2c sonrası eval: authorization/hallucination/isolation %100, document %87,0 (20/23), temporal %88,9 (8/9) — eşikler geçildi, `make eval` sıfır çıkış. Yol: 4.1 ölçtü (%50/%52/%33), 3.2b kod+prompt'u düzeltti (sözlük, deterministik sıralama, top_k=40, kural 2/5), 3.2c belge içeriğindeki boşlukları kapattı (7 cümle). Kalan 4: `IZM-DEV-005/006` negatif-olgu soruları (NO OPINION çelişkisi — Naci kararı bekliyor), `ANK-EPC-004`/`IZM-DEV-007` doğru cevap ama soru setinin ikinci atıf beklentisi. Güvenlik sınırı üç koşuda da sağlam (sıfır yasak kaynak). Ayrıntı: `docs/reports/PHASE_3_2C_REPORT.md`.
 **Kapsam:** SPEC_04. Dört workbook ledger'dan (openpyxl) + build-time LibreOffice headless recalc (`seed_data/generator/recalc.sh`). Inspection (openpyxl), hesap DuckDB read-only; LLM yalnızca SELECT (whitelist) + predefined fonksiyonlar; timeout 10 s; kaynak dosya+sheet+range; `CalculationEngine` interface'i.
 **Kabul kriterleri:** cached değerler dolu (`data_only` boş hücre yok); "Ankara RES 2026 Q2 DSCR kaç?" → DuckDB + `Covenant_Report.xlsx Q2_2026!D14` tarzı kaynak; `DROP/;/COPY/çoklu statement` reddedilir; `.xlsm` macro çalışmaz; audit'te excel kaynakları.
+**Not (Phase 4.2):** Financial Model'in taban faiz / geri ödeme takvimi / çeyreklik CFADS girdileri ledger'a `AI_ASSUMPTION` olarak eklendi (`validate_ledger` F9-F11) — Naci gözden geçirip `USER_FACT`'e çevirebilir. Dört workbook `seed_data/excel/` altında commit'li (recalc LibreOffice `tools` container'ında, prod'da gerekmez). DATA giriş noktası `POST /api/excel/ask`; `/api/ask` DOCUMENT-only kaldı, birleştirme Phase 4.3'te.
 
 ## Phase 4.3 — Mixed query `S`
 **Kapsam:** Router `DOCUMENT|DATA|MIXED|GENERAL`; MIXED = iki alt sorgu + birleştirme (yorum yok). Belirsiz "güncel DSCR kaç?" → covenant (belge) + gerçekleşen (Excel).

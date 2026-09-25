@@ -22,7 +22,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
     assert "users" not in inspect(engine).get_table_names()
 
     command.upgrade(cfg, "head")
-    assert _current_revision() == "0007"
+    assert _current_revision() == "0008"
     tables = inspect(engine).get_table_names()
     assert "users" in tables
     assert "documents" in tables
@@ -44,6 +44,9 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
     assert {"document_id", "model", "status", "fields", "error"} <= suggestion_columns
     audit_columns = {c["name"] for c in inspect(engine).get_columns("audit_log")}
     assert "chunks_retrieved" in audit_columns
+    document_columns = {c["name"] for c in inspect(engine).get_columns("documents")}
+    assert "has_macros" in document_columns
+    assert "file_name" in document_columns
     assert {
         "user_id",
         "timestamp",
@@ -66,4 +69,4 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
 
 def test_upgrade_head_is_idempotent() -> None:
     command.upgrade(alembic_config(), "head")
-    assert _current_revision() == "0007"
+    assert _current_revision() == "0008"

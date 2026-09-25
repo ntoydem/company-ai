@@ -108,6 +108,21 @@ services:
     ports:
       - "5173:5173"
 
+  # Build-time only (profile "tools", Phase 4.2): LibreOffice headless recalculates the
+  # formulas of the generated demo workbooks so their cached values exist (openpyxl writes
+  # formulas, never values). Never used at runtime — the backend image stays LibreOffice-free.
+  libreoffice:
+    profiles: ["tools"]
+    build:
+      context: ./infra/libreoffice
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
+    environment:
+      HOME: /tmp
+    volumes:
+      - ./seed_data:/seed_data
+    working_dir: /seed_data
+    entrypoint: ["/bin/bash", "/seed_data/generator/recalc.sh"]
+
   # --- Placeholder: Phase 3.4 (bge-m3 embeddings, needs 16 GB VM) ---
   embed:
     profiles: ["full"]

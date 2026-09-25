@@ -18,6 +18,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
+from app.excel.inspect import inspect_file
 from app.models.document import Confidentiality
 from app.models.document import DocumentStatus as DocStatus
 from app.repositories import document_repo, project_repo, user_repo
@@ -54,9 +55,36 @@ def _seed_one(
 
     document_id = uuid.uuid4()
     store = LocalFileSystemStore(settings.documents_dir)
+    is_workbook = entry.get("source_type") == "xlsx"
+    original_name = "original.xlsx" if is_workbook else "original.pdf"
     with (manifest_dir / entry["file"]).open("rb") as stream:
-        stored = store.store(document_id, "original.pdf", stream)
+        stored = store.store(document_id, original_name, stream)
     relative_path = str(stored.original_path.relative_to(settings.documents_dir))
+
+    if is_workbook:
+        document_repo.create_ready(
+            session,
+            document_id=document_id,
+            title=entry["title"],
+            document_type=entry["document_type"],
+            document_date=date.fromisoformat(entry["document_date"]),
+            counterparty=entry["counterparty"],
+            status=DocStatus(entry["status"]),
+            tags=entry["tags"],
+            storage_path=relative_path,
+            uploaded_by_id=uploaded_by_id,
+            page_count=len(inspect_file(stored.original_path).sheets),
+            file_name=entry["file"],
+            version=entry["version_number"],
+            department=entry["department"],
+            subdepartment=entry["subdepartment"],
+            project_id=_project_id(session, entry["project_code"]),
+            confidentiality=Confidentiality(entry["confidentiality"]),
+            external_ref=external_ref,
+        )
+        session.commit()
+        log.info("demo workbook created", extra={"external_ref": external_ref})
+        return DemoSeedResult(external_ref=external_ref, created=True)
 
     document_repo.create_with_job(
         session,
@@ -120,10 +148,18 @@ def ensure_demo_documents(
     admin = user_repo.get_by_username(session, settings.admin_username)
     uploaded_by_id = admin.id if admin else None
 
-    entries = manifest["documents"]
+    entries = list(manifest["documents"])
+    # Phase 4.2 workbooks live in seed_data/excel/manifest.json (committed); seeded through
+    # the same idempotent external_ref path, no OCR job, not part of the version chain pass.
     results = [
         _seed_one(session, settings, manifest_path.parent, entry, uploaded_by_id)
         for entry in entries
     ]
     _relink_chain(session, manifest_path.parent, entries)
+    excel_manifest = manifest_path.parent.parent / "excel" / "manifest.json"
+    if excel_manifest.exists():
+        for entry in json.loads(excel_manifest.read_text(encoding="utf-8"))["workbooks"]:
+            results.append(
+                _seed_one(session, settings, excel_manifest.parent, entry, uploaded_by_id)
+            )
     return results

@@ -33,7 +33,7 @@ User ──< AuditLog
 | IngestionJob | `ingestion_jobs` | Postgres-backed work queue polled by `ocr-worker`: status, attempts, error, lock | 0.2 |
 | DocumentMetadataSuggestion | `document_metadata_suggestions` | AI-proposed metadata with per-field confidence; applied only on user acceptance | 3.2 |
 | AuditLog | `audit_log` | Who asked what, scope, sources used, model, tokens, request id; admin-only; 90 days | 3.4 |
-| Excel workbook | *(no table in V0)* | Workbooks are Documents with `document_type` in the Excel family; sheets are loaded into DuckDB at query time | 4.2 |
+| Excel workbook | *(no table in V0)* | Workbooks are Documents (`storage_path` ends in .xlsx/.xlsm/.csv, `has_macros`, `file_name`); no pages/chunks; sheets are loaded into DuckDB at query time (`app/excel/`). Demo: Financial Model, Covenant Report, Budget vs Actual, Monthly Production (`seed_data/excel/`) | 4.2 |
 
 ## 3. Document metadata groups (SPEC_02 §2)
 

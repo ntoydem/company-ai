@@ -15,9 +15,9 @@ __pycache__/
 .ruff_cache/
 *.egg-info/
 
-# Generated demo data (built, not committed)
+# Generated demo data (built, not committed). seed_data/excel/ IS committed (Phase 4.2 SORU 2):
+# the recalculated workbooks are small and the prod clone has no LibreOffice.
 seed_data/documents/
-seed_data/excel/
 seed_data/evaluation/results/
 
 # Node / frontend

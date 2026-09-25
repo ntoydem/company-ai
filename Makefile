@@ -15,7 +15,7 @@ EVAL_ARGS ?=
 
 .PHONY: help env-check dirs up up-full down ps logs build test test-llm lint format prompt-doc validate-ledger \
         migrate migration seed-admin seed-demo-users seed-demo-departments seed-demo-projects \
-        prose validate-documents seed-demo-documents build-frontend dev-frontend \
+        prose validate-documents seed-demo-documents build-frontend dev-frontend excel validate-excel \
         psql shell seed reset-demo eval backup restore clean
 
 help: ## Bu listeyi göster
@@ -73,14 +73,26 @@ lint: env-check ## ruff + mypy (backend), ruff (ocr-worker), eslint + tsc (front
 	@$(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-answer-prompt 2>/dev/null \
 		| diff -q - <(sed -n '/^```text$$/,/^```$$/{//!p}' docs/prompts/ANSWER_SYSTEM_PROMPT.md) >/dev/null \
 		|| { echo "docs/prompts/ANSWER_SYSTEM_PROMPT.md güncel değil: make prompt-doc"; exit 1; }
+	@$(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-excel-prompts 2>/dev/null \
+		| diff -q - <(sed -n '/^```text$$/,/^```$$/{//!p}' docs/prompts/EXCEL_PROMPTS.md) >/dev/null \
+		|| { echo "docs/prompts/EXCEL_PROMPTS.md güncel değil: make prompt-doc"; exit 1; }
 	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_ledger
 	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_documents --prose-only
+	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_excel
 
 validate-ledger: env-check ## truth ledger + questions.json doğrulaması (0 hata = exit 0)
 	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_ledger --summary
 
 prose: env-check ## demo belge prose'unu LLM ile üret (BİR KEZ; çıktı commit edilir, `make seed` LLM çağırmaz)
 	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.generate_prose
+
+excel: env-check ## 4 demo workbook'u ledger'dan üret + LibreOffice recalc (tools profili) + doğrula; çıktı commit edilir
+	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.generate_excel
+	$(COMPOSE) --profile tools run --rm -T libreoffice
+	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_excel
+
+validate-excel: env-check ## commit'li workbook'ları doğrula (cached değerler, named range'ler, ledger tutarlılığı)
+	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_excel
 
 validate-documents: env-check ## üretilen 15 demo belgenin içeriğini doğrula (banner/isim/izolasyon/facts)
 	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_documents
@@ -90,6 +102,10 @@ prompt-doc: env-check ## /api/ask sistem promptunu docs/prompts/ANSWER_SYSTEM_PR
 	   printf '%s\n\n' 'Kaynak: `backend/app/services/answer_prompt.py::SYSTEM_PROMPT`. Bu dosya yalnızca gözden geçirme kopyasıdır; `make lint` ikisinin aynı olduğunu doğrular. Değişiklik Python sabitinde yapılır, sonra `make prompt-doc` çalıştırılır.'; \
 	   echo '```text'; $(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-answer-prompt 2>/dev/null; echo '```'; } \
 	   > docs/prompts/ANSWER_SYSTEM_PROMPT.md && echo "yazıldı: docs/prompts/ANSWER_SYSTEM_PROMPT.md"
+	@{ printf '%s\n\n' '# Excel plan + cevap promptları (Phase 4.2)'; \
+	   printf '%s\n\n' 'Kaynak: `backend/app/services/excel_ask.py::PLAN_SYSTEM_PROMPT` ve `ANSWER_SYSTEM_PROMPT`. Gözden geçirme kopyası; `make lint` eşitliği denetler, değişiklik Python sabitinde yapılır.'; \
+	   echo '```text'; $(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-excel-prompts 2>/dev/null; echo '```'; } \
+	   > docs/prompts/EXCEL_PROMPTS.md && echo "yazıldı: docs/prompts/EXCEL_PROMPTS.md"
 
 format: env-check ## ruff format + autofix (backend + ocr-worker)
 	$(COMPOSE) run --rm -T --no-deps backend sh -c 'ruff format . && ruff check --fix .'

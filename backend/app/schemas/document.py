@@ -46,6 +46,7 @@ class DocumentDetailResponse(DocumentListItem):
     related_document_ids: list[UUID]
     ingestion_error: str | None
     page_count: int | None
+    has_macros: bool
 
 
 class DocumentStatusResponse(BaseModel):

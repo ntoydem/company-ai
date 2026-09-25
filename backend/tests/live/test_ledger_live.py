@@ -214,3 +214,42 @@ def test_value_stated_only_in_a_superseded_chain_member_is_still_answered(
     titles = {source["title"] for source in body["sources"]}
     assert "Facility Agreement" in titles
     _assert_turkish(answer)
+
+
+def test_excel_dscr_question_is_planned_computed_and_cited(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    """Phase 4.2 kabul kriteri: "Ankara RES 2026 Q2 DSCR kaç?" -> the real planning model
+    picks `dscr(Q2_2026)` (or an equivalent SELECT), DuckDB/openpyxl computes, the cited
+    range is `Covenant_Report.xlsx Q2_2026!D14` and the phrased answer carries the value."""
+    from pathlib import Path
+
+    excel_dir = Path(__file__).resolve().parents[2] / "seed_data" / "excel"
+    response = client.post(
+        "/api/documents/upload",
+        files={
+            "file": (
+                "Covenant_Report.xlsx",
+                (excel_dir / "Covenant_Report.xlsx").read_bytes(),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+        },
+        data={
+            "title": "Covenant Report (workbook)",
+            "document_type": "Covenant Report",
+            "document_date": "2026-08-15",
+            "counterparty": "PQR Bank",
+        },
+    )
+    assert response.status_code == 201, response.text
+    time.sleep(_CALL_SPACING_S)
+    answer = client.post("/api/excel/ask", json={"question": "Ankara RES 2026 Q2 DSCR kaç?"})
+    assert answer.status_code == 200, answer.text
+    body = answer.json()
+    print(f"\nPLAN: {body['plan']}\nCEVAP: {body['answer']}\nKAYNAK: {body['sources']}")
+    expected = ledger_value("ankara_res.project.finance.covenant_tests[-1].dscr")
+    assert body["answered"] is True
+    assert body["value"] == expected
+    assert body["sources"][0]["label"] == "Covenant_Report.xlsx Q2_2026!D14"
+    assert body["formatted_value"] in body["answer"]
+    _assert_turkish(str(body["answer"]))

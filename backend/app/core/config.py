@@ -60,6 +60,10 @@ class Settings(BaseSettings):
     audit_log_retention_days: int = 90
     audit_log_cleanup_interval_s: int = 6 * 60 * 60
 
+    # Phase 4.2 (SPEC_04 §4): DuckDB query timeout and result row cap.
+    excel_query_timeout_s: float = 10.0
+    excel_row_limit: int = 200
+
     # Phase 0.2
     max_upload_size_mb: int = 50
     # 40 (Phase 3.2b): a page-per-chunk corpus of ~450 chars/chunk makes 40 chunks ~10k

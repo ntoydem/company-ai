@@ -17,7 +17,7 @@ Currency = Literal["EUR", "USD", "TRY"]
 Stage = Literal["development", "construction", "operation"]
 DocumentStatus = Literal["draft", "executed", "amended", "superseded", "active"]
 Confidentiality = Literal["normal", "restricted", "board"]
-GeneratePhase = Literal["3.1", "5.1", "never"]
+GeneratePhase = Literal["3.1", "4.2", "5.1", "never"]
 QuestionCategory = Literal[
     "document", "temporal", "data", "mixed", "isolation", "hallucination", "authorization"
 ]
@@ -214,6 +214,24 @@ class CovenantTest(_Strict):
     tag: Tag
 
 
+class BaseRate(_Strict):
+    year: int
+    rate_pct: float
+    tag: Tag
+
+
+class Instalment(_Strict):
+    date: date
+    principal: Money
+    tag: Tag
+
+
+class QuarterCfads(_Strict):
+    period: str = Field(pattern=r"^Q[1-4]_\d{4}$")
+    cfads: Money
+    tag: Tag
+
+
 class Finance(_Strict):
     capex: Money
     equity: Money
@@ -230,6 +248,10 @@ class Finance(_Strict):
     outstanding_debt_as_of_demo_today: Money
     covenant_tests: list[CovenantTest]
     facility_chain: list[str]
+    # Phase 4.2 (Financial Model inputs)
+    base_rate_pct_by_year: list[BaseRate]
+    repayment_schedule: list[Instalment]
+    cfads_by_quarter: list[QuarterCfads]
 
 
 class ChangeOrder(_Strict):
@@ -369,7 +391,7 @@ class Document(_Strict):
     supersedes: str | None
     superseded_by: str | None
     related: list[str]
-    source_type: Literal["digital_pdf", "scanned_pdf"]
+    source_type: Literal["digital_pdf", "scanned_pdf", "xlsx"]
     language: Literal["en", "tr"]
     confidentiality: Confidentiality
     generate_in_phase: GeneratePhase

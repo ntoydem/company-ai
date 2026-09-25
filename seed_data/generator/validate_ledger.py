@@ -26,6 +26,7 @@ from typing import Any
 import yaml
 from pydantic import BaseModel, ValidationError
 
+from seed_data.generator import debt_math
 from seed_data.generator import ledger_schema as ls
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -326,6 +327,58 @@ def check_document_dates(
                 )
 
 
+def check_debt_schedule(ankara: ls.AnkaraLedger, report: Report) -> None:
+    """F9-F11 (Phase 4.2): the Financial Model inputs must reproduce the approved facts.
+    F9 balance after the last half-year closed before demo_today == outstanding_debt;
+    F10 cfads / quarterly debt service == covenant_tests.dscr (±0.01);
+    F11 instalments sum to the drawn amount and end within the current tenor."""
+    f = "ankara_res.yaml"
+    fin = ankara.project.finance
+    if not (fin.base_rate_pct_by_year and fin.repayment_schedule and fin.cfads_by_quarter):
+        report.error(f, "project.finance", "F9: base rates, repayment schedule and cfads required")
+        return
+    rows = debt_math.build_schedule(
+        drawdowns=[(d.date, float(d.amount.value)) for d in fin.drawdowns],
+        instalments=[(i.date, float(i.principal.value)) for i in fin.repayment_schedule],
+        base_rate_pct_by_year={b.year: b.rate_pct for b in fin.base_rate_pct_by_year},
+        margin_pct=float(fin.interest.margin_pct.value),  # type: ignore[arg-type]
+    )
+    outstanding = debt_math.outstanding_on(rows, ankara.meta.demo_today)
+    if abs(outstanding - float(fin.outstanding_debt_as_of_demo_today.value)) > 0.5:
+        report.error(
+            f,
+            "project.finance.repayment_schedule",
+            f"F9: balance on demo_today {outstanding:.0f} != outstanding_debt "
+            f"{fin.outstanding_debt_as_of_demo_today.value}",
+        )
+    cfads = {c.period: float(c.cfads.value) for c in fin.cfads_by_quarter}
+    for test in fin.covenant_tests:
+        if test.period not in cfads:
+            report.error(f, "project.finance.cfads_by_quarter", f"F10: no cfads for {test.period}")
+            continue
+        service = debt_math.quarterly_debt_service(rows, test.period)
+        if abs(cfads[test.period] / service - test.dscr) > 0.01:
+            report.error(
+                f,
+                "project.finance.cfads_by_quarter",
+                f"F10: {test.period} cfads/service = {cfads[test.period] / service:.3f}, "
+                f"covenant test says {test.dscr}",
+            )
+    drawn = sum(float(d.amount.value) for d in fin.drawdowns)
+    repaid = sum(float(i.principal.value) for i in fin.repayment_schedule)
+    if abs(drawn - repaid) > 0.5:
+        report.error(
+            f,
+            "project.finance.repayment_schedule",
+            f"F11: instalments {repaid:.0f} != drawn {drawn:.0f}",
+        )
+    close = ankara.project.timeline.financial_close.date
+    last = max(i.date for i in fin.repayment_schedule)
+    tenor_years = int(fin.tenor_years.current.value)  # type: ignore[arg-type]
+    if close is not None and last > close.replace(year=close.year + tenor_years):
+        report.error(f, "project.finance.repayment_schedule", "F11: last instalment beyond tenor")
+
+
 def check_finance(ankara: ls.AnkaraLedger, report: Report) -> None:
     f = "ankara_res.yaml"
     fin = ankara.project.finance
@@ -369,6 +422,8 @@ def check_finance(ankara: ls.AnkaraLedger, report: Report) -> None:
             "project.finance.dscr_covenant.current.value",
             "F4: covenant tightened (spec: relaxed)",
         )
+    check_debt_schedule(ankara, report)
+
     by_id = {doc.id: doc for doc in ankara.documents}
     for name, changed in (("tenor_years", tenor), ("dscr_covenant", dscr)):
         doc = by_id.get(changed.changed_by)

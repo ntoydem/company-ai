@@ -3,6 +3,7 @@
 import io
 import logging
 import uuid
+import zipfile
 from datetime import date
 from typing import Annotated, BinaryIO
 
@@ -13,6 +14,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_current_user, get_llm_client, require_admin
 from app.core.config import Settings, get_settings
 from app.core.db import get_session
+from app.excel.inspect import inspect_file
 from app.models.document import Confidentiality, Document, DocumentStatus, IngestionStatus
 from app.models.document_metadata_suggestion import SuggestionStatus
 from app.models.user import User
@@ -41,13 +43,15 @@ log = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
-# Only these three are in scope for Phase 0.2 (SPEC_02 §1 also lists xlsx/xlsm/csv,
-# which land with the Excel engine in Phase 4.2).
+# pdf/png/jpg (Phase 0.2) go through the OCR pipeline; xlsx/xlsm/csv (Phase 4.2, SPEC_02 §1)
+# are the Excel family — stored as-is, `ready` without a job, read by `app/excel/`.
 _MAGIC_BYTES: dict[bytes, str] = {
     b"%PDF-": "pdf",
     b"\x89PNG\r\n\x1a\n": "png",
     b"\xff\xd8\xff": "jpg",
 }
+_ZIP_MAGIC = b"PK\x03\x04"
+EXCEL_EXTENSIONS = frozenset({"xlsx", "xlsm", "csv"})
 UNSUPPORTED_FILE_TYPE_MESSAGE = "Desteklenmeyen dosya türü."
 FILE_TOO_LARGE_MESSAGE = "Dosya çok büyük."
 DOCUMENT_NOT_FOUND_MESSAGE = "Belge bulunamadı."
@@ -62,11 +66,37 @@ FIELD_CANNOT_BE_NULL_MESSAGE = "Bu alan boş bırakılamaz."
 _CLEARABLE_FIELDS = frozenset({"department", "subdepartment", "project_code"})
 
 
-def _detect_extension(header: bytes) -> str | None:
+def _detect_extension(content: bytes, filename: str | None = None) -> str | None:
+    """Content-sniffed, never the declared extension alone: a zip is only an Excel file
+    when it carries `xl/workbook.xml`, and it is `xlsm` (macros flagged, never run) when
+    it also carries `xl/vbaProject.bin`. CSV has no signature — accepted only when the
+    declared name ends in .csv, the bytes decode as UTF-8 and a delimiter is found."""
     for signature, extension in _MAGIC_BYTES.items():
-        if header.startswith(signature):
+        if content.startswith(signature):
             return extension
+    if content.startswith(_ZIP_MAGIC):
+        try:
+            with zipfile.ZipFile(io.BytesIO(content)) as archive:
+                names = set(archive.namelist())
+        except zipfile.BadZipFile:
+            return None
+        if "xl/workbook.xml" not in names:
+            return None
+        return "xlsm" if "xl/vbaProject.bin" in names else "xlsx"
+    if filename and filename.lower().endswith(".csv"):
+        try:
+            text = content.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            return None
+        return "csv" if any(d in text for d in (",", ";", "\t", "|")) else None
     return None
+
+
+def _safe_file_name(filename: str | None, extension: str) -> str:
+    """Basename only, no path separators, extension normalised to the sniffed one."""
+    base = (filename or "").replace("\\", "/").rsplit("/", 1)[-1].strip()
+    stem = base.rsplit(".", 1)[0] if "." in base else base
+    return f"{stem or 'workbook'}.{extension}"[:255]
 
 
 def _read_within_limit(stream: BinaryIO, max_bytes: int) -> bytes:
@@ -96,7 +126,7 @@ def upload_document(
     confidentiality: Annotated[Confidentiality, Form()] = Confidentiality.normal,
 ) -> DocumentUploadResponse:
     content = _read_within_limit(file.file, settings.max_upload_size_mb * 1024 * 1024)
-    extension = _detect_extension(content)
+    extension = _detect_extension(content, file.filename)
     if extension is None:
         raise HTTPException(415, UNSUPPORTED_FILE_TYPE_MESSAGE)
 
@@ -130,25 +160,52 @@ def upload_document(
     stored = store.store(document_id, f"original.{extension}", io.BytesIO(content))
     relative_path = str(stored.original_path.relative_to(settings.documents_dir))
 
-    document = document_repo.create_with_job(
-        session,
-        document_id=document_id,
-        title=title,
-        document_type=document_type,
-        document_date=document_date,
-        counterparty=counterparty,
-        status=status,
-        tags=[],
-        storage_path=relative_path,
-        uploaded_by_id=current_user.id,
-        effective_date=effective_date,
-        version=version,
-        supersedes_document_id=supersedes_document_id,
-        department=department,
-        subdepartment=subdepartment,
-        project_id=project_id,
-        confidentiality=confidentiality,
-    )
+    if extension in EXCEL_EXTENSIONS:
+        # Excel family: no OCR, no chunks (SPEC_04 §1 — workbooks are not RAG documents);
+        # sheets are read at query time. Macros are flagged from the zip, never loaded.
+        info = inspect_file(stored.original_path)
+        document = document_repo.create_ready(
+            session,
+            document_id=document_id,
+            title=title,
+            document_type=document_type,
+            document_date=document_date,
+            counterparty=counterparty,
+            status=status,
+            tags=[],
+            storage_path=relative_path,
+            uploaded_by_id=current_user.id,
+            page_count=len(info.sheets),
+            has_macros=info.has_macros,
+            file_name=_safe_file_name(file.filename, extension),
+            effective_date=effective_date,
+            version=version,
+            department=department,
+            subdepartment=subdepartment,
+            project_id=project_id,
+            confidentiality=confidentiality,
+        )
+        document.supersedes_document_id = supersedes_document_id
+    else:
+        document = document_repo.create_with_job(
+            session,
+            document_id=document_id,
+            title=title,
+            document_type=document_type,
+            document_date=document_date,
+            counterparty=counterparty,
+            status=status,
+            tags=[],
+            storage_path=relative_path,
+            uploaded_by_id=current_user.id,
+            effective_date=effective_date,
+            version=version,
+            supersedes_document_id=supersedes_document_id,
+            department=department,
+            subdepartment=subdepartment,
+            project_id=project_id,
+            confidentiality=confidentiality,
+        )
     if predecessor is not None:
         document_repo.mark_superseded(session, older=predecessor, newer=document)
     session.commit()

@@ -16,6 +16,12 @@ dependencies = [
     "pgvector>=0.3",
     "python-multipart>=0.0.9",
     "openai>=3.17,<4",
+    # Phase 4.2 Excel engine (ADR-011): inspection, calculation, sheet -> table bridge.
+    "openpyxl>=3.1",
+    "duckdb>=1.1",
+    "polars>=1.0",
+    # DuckDB reads Polars frames through Arrow.
+    "pyarrow>=17",
 ]
 
 [dependency-groups]
@@ -24,6 +30,7 @@ dev = [
     "httpx>=0.27",
     "ruff>=0.6",
     "mypy>=1.11",
+    "types-openpyxl>=3.1",
     # seed_data/generator (truth ledger validator, Phase 2.1) — never imported by app/.
     "pyyaml>=6.0",
     # seed_data/generator (Phase 2.1/3.1 truth ledger + demo document generation) — not used at runtime.

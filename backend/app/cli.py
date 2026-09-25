@@ -136,6 +136,18 @@ def cmd_assert_pipeline_schema() -> int:
     return 0
 
 
+def cmd_print_excel_prompts() -> int:
+    """Print the two Excel prompts (planning + phrasing, Phase 4.2) so `make prompt-doc`
+    can mirror them into docs/prompts/EXCEL_PROMPTS.md and `make lint` can diff."""
+    from app.services.excel_ask import ANSWER_SYSTEM_PROMPT, PLAN_SYSTEM_PROMPT
+
+    print("=== PLAN (LLM_MODEL_CLASSIFY, json_object) ===")
+    print(PLAN_SYSTEM_PROMPT)
+    print("=== ANSWER (LLM_MODEL_ANSWER) ===")
+    print(ANSWER_SYSTEM_PROMPT)
+    return 0
+
+
 def cmd_print_answer_prompt() -> int:
     """Print the `/api/ask` system prompt (source of truth) so `make prompt-doc` can mirror
     it into docs/prompts/ANSWER_SYSTEM_PROMPT.md and `make lint` can diff the two."""
@@ -197,6 +209,7 @@ def main(argv: list[str] | None = None) -> int:
         "assert-pipeline-schema", help="fail if the Phase 0.2 pipeline tables are missing"
     )
     sub.add_parser("print-answer-prompt", help="print the /api/ask system prompt")
+    sub.add_parser("print-excel-prompts", help="print the /api/excel/ask plan + answer prompts")
     sub.add_parser(
         "cleanup-audit-log", help="delete audit_log rows older than AUDIT_LOG_RETENTION_DAYS"
     )
@@ -225,6 +238,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_assert_pipeline_schema()
     if args.command == "print-answer-prompt":
         return cmd_print_answer_prompt()
+    if args.command == "print-excel-prompts":
+        return cmd_print_excel_prompts()
     if args.command == "cleanup-audit-log":
         return cmd_cleanup_audit_log()
     if args.command == "backfill-embeddings":
