@@ -87,10 +87,15 @@ def _source_satisfied(name: str, cited_titles: frozenset[str], catalog: Document
     """`name` (a `required_sources`/`forbidden_sources` entry) is a document title, a
     document type, or (forbidden-only) a project name — same three-way rule
     `validate_ledger.py::check_questions` uses to validate `questions.json` itself."""
-    if name in catalog.titles:
-        return name in cited_titles
+    if name in catalog.titles and name in cited_titles:
+        return True
+    # "Facility Agreement" is both one document's title and the type shared by its draft
+    # and amendments; the golden set uses the bare name in both senses, so either reading
+    # satisfies it (same "name or type" rule `validate_ledger.py` applies to the set).
     if name in catalog.types:
         return any(catalog.title_to_type.get(t) == name for t in cited_titles)
+    if name in catalog.titles:
+        return False
     if name in catalog.project_names:
         return any(catalog.title_to_project.get(t) == name for t in cited_titles)
     return False
@@ -120,11 +125,18 @@ def _classify_and_format(value: Any, path: str, parent: Any) -> tuple[str, ...] 
     if isinstance(value, bool):
         return None
     if isinstance(value, date):
-        return (facts_mod.format_date(value, "tr"), value.isoformat())
+        # TR (what the prompt asks for), ISO, and the EN long form English documents print.
+        return (
+            facts_mod.format_date(value, "tr"),
+            value.isoformat(),
+            facts_mod.format_date(value, "en"),
+        )
     if isinstance(value, str) and value.startswith("DOC-"):
         return None  # a document reference, not literal text — see required_sources
     if isinstance(value, str) and value in _STRING_ALIASES:
         return _STRING_ALIASES[value]
+    if isinstance(value, str) and path.endswith(".name"):
+        return (value,)  # identity key (e.g. `project.name: Ankara RES`) — literal
     if isinstance(value, int | float | str):
         formatted = facts_mod.format_ledger_leaf(path, value, parent, "tr")
         if formatted is None:
@@ -217,6 +229,7 @@ class AskOutcome:
     tokens_out: int = 0
     latency_ms: int = 0
     error: str | None = None
+    request_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -228,6 +241,7 @@ class QuestionResult:
     expect_no_answer: bool
     answered: bool
     answer_text: str
+    cited_titles: tuple[str, ...]
     answered_ok: bool
     required_sources_missing: tuple[str, ...]
     forbidden_sources_hit: tuple[str, ...]
@@ -253,6 +267,7 @@ def score_question(
             expect_no_answer=question.expect_no_answer,
             answered=False,
             answer_text="",
+            cited_titles=(),
             answered_ok=False,
             required_sources_missing=(),
             forbidden_sources_hit=(),
@@ -301,6 +316,7 @@ def score_question(
         expect_no_answer=question.expect_no_answer,
         answered=outcome.answered,
         answer_text=outcome.answer_text,
+        cited_titles=tuple(outcome.cited_titles),
         answered_ok=answered_ok,
         required_sources_missing=missing_required,
         forbidden_sources_hit=forbidden_hit,
@@ -432,6 +448,7 @@ def report_to_json(report: EvalReport) -> dict[str, Any]:
                 "expect_no_answer": r.expect_no_answer,
                 "answered": r.answered,
                 "answer_text": r.answer_text,
+                "cited_titles": list(r.cited_titles),
                 "answered_ok": r.answered_ok,
                 "required_sources_missing": list(r.required_sources_missing),
                 "forbidden_sources_hit": list(r.forbidden_sources_hit),
@@ -510,4 +527,227 @@ def render_markdown(report: EvalReport) -> str:
         for r in skipped:
             lines.append(f"- **{r.id}** ({r.category}): {r.value_check_reason}")
 
+    return "\n".join(lines) + "\n"
+
+
+# ---------------------------------------------------------------- target pages (Phase 3.2b)
+
+Page = tuple[str, int]  # (document title, page number)
+
+
+@dataclass(frozen=True)
+class TargetIndex:
+    """Ledger path -> the (title, page) pairs where that fact is physically printed.
+
+    Derived without an LLM: each ledger `documents[].key_facts` entry names a ledger path,
+    `manifest.json`'s `key_facts_used` holds the literal text substituted for it, and that
+    literal is searched in the document's page texts (plan T5). Ground truth for
+    "did retrieval put the right *page* in the prompt" (recall@k)."""
+
+    pages_by_path: dict[str, frozenset[Page]]
+
+
+def build_target_index(
+    raws: dict[str, Any], manifest: dict[str, Any], page_texts: dict[str, list[tuple[int, str]]]
+) -> TargetIndex:
+    """`page_texts`: document title -> [(page_number, text)] (from `document_chunks`)."""
+    entries = {e["external_ref"]: e for e in manifest["documents"]}
+    pages_by_path: dict[str, set[Page]] = {}
+    for file_key, raw in raws.items():
+        for doc in raw.get("documents") or []:
+            entry = entries.get(doc.get("id"))
+            if entry is None:
+                continue
+            literals: dict[str, str] = entry.get("key_facts_used") or {}
+            for field_name, ledger_path in (doc.get("key_facts") or {}).items():
+                literal = literals.get(field_name)
+                if not literal:
+                    continue
+                needle = _normalize(str(literal))
+                for page_number, text in page_texts.get(entry["title"], []):
+                    if needle in _normalize(text):
+                        pages_by_path.setdefault(f"{file_key}.{ledger_path}", set()).add(
+                            (entry["title"], page_number)
+                        )
+    return TargetIndex({path: frozenset(pages) for path, pages in pages_by_path.items()})
+
+
+def target_pages(
+    question: ls.Question,
+    index: TargetIndex,
+    *,
+    expected: ExpectedValue | None = None,
+    catalog: DocumentCatalog | None = None,
+    page_texts: dict[str, list[tuple[int, str]]] | None = None,
+) -> frozenset[Page]:
+    """Empty when the question has no ledger answer or no document prints that fact
+    (then recall is simply not measurable for it — never a pass or a fail).
+
+    Two sources, unioned: (1) the ledger `key_facts` index (T5); (2) when `expected`,
+    `catalog` and `page_texts` are given, the expected value's own spellings searched in
+    the pages of the question's `required_sources` documents — covers facts that are
+    printed but not registered as a key_fact (e.g. a financial-close date on a cover)."""
+    if question.expected_answer is None:
+        return frozenset()
+    ref = question.expected_answer.removeprefix("ledger:")
+    pages: set[Page] = set()
+    for path, found in index.pages_by_path.items():
+        if path == ref or path.startswith(ref + "."):
+            pages |= found
+    if (
+        expected is not None
+        and catalog is not None
+        and page_texts is not None
+        and not expected.skip
+    ):
+        titles = {
+            title
+            for name in question.required_sources
+            for title in catalog.titles
+            if title == name or catalog.title_to_type.get(title) == name
+        }
+        needles = [_normalize(sp) for group in expected.required for sp in group]
+        for title in titles:
+            for page_number, text in page_texts.get(title, []):
+                haystack = _normalize(text)
+                if any(n in haystack for n in needles):
+                    pages.add((title, page_number))
+    return frozenset(pages)
+
+
+# ---------------------------------------------------------------- retrieval-only recall
+
+
+@dataclass(frozen=True)
+class RetrievalProbe:
+    id: str
+    category: str
+    ask_as_user: str
+    targets: tuple[Page, ...]
+    retrieved: tuple[Page, ...]
+
+    @property
+    def measurable(self) -> bool:
+        return bool(self.targets)
+
+    @property
+    def hit(self) -> bool:
+        return bool(set(self.targets) & set(self.retrieved))
+
+
+def render_retrieval_markdown(probes: list[RetrievalProbe], *, top_k: int, label: str) -> str:
+    measurable = [p for p in probes if p.measurable]
+    hits = sum(1 for p in measurable if p.hit)
+    lines = [
+        f"# Retrieval recall@{top_k} — {label}",
+        "",
+        f"Ölçülebilir soru: {len(measurable)}/{len(probes)} (hedef sayfası türetilebilenler) · "
+        f"**recall@{top_k}: {hits}/{len(measurable)}"
+        f" (%{100.0 * hits / len(measurable) if measurable else 0.0:.1f})**",
+        "",
+        "| Soru | Kategori | Hedef sayfa(lar) | Prompt'a girdi mi |",
+        "|---|---|---|---|",
+    ]
+    for p in probes:
+        if not p.measurable:
+            lines.append(f"| {p.id} | {p.category} | – | ölçülemez |")
+            continue
+        target_text = ", ".join(f"{t} s.{n}" for t, n in sorted(p.targets))
+        lines.append(f"| {p.id} | {p.category} | {target_text} | {'✅' if p.hit else '❌'} |")
+    return "\n".join(lines) + "\n"
+
+
+def retrieval_probes_to_json(probes: list[RetrievalProbe]) -> list[dict[str, Any]]:
+    return [
+        {
+            "id": p.id,
+            "category": p.category,
+            "ask_as_user": p.ask_as_user,
+            "targets": [list(t) for t in p.targets],
+            "retrieved": [list(r) for r in p.retrieved],
+            "measurable": p.measurable,
+            "hit": p.hit if p.measurable else None,
+        }
+        for p in probes
+    ]
+
+
+# ---------------------------------------------------------------- consistency (repeat) report
+
+
+@dataclass(frozen=True)
+class RepeatOutcome:
+    """One repetition of one question over the real `/api/ask`, joined with the
+    `audit_log.chunks_retrieved` row of that very request."""
+
+    id: str
+    repeat: int
+    target_in_prompt: bool | None  # None = no target pages derivable
+    answered: bool
+    value_ok: bool | None  # None = value check skipped/not applicable
+    error: str | None
+
+
+@dataclass(frozen=True)
+class ConsistencySummary:
+    retrieval_stable: int  # questions whose target_in_prompt agrees across all repeats
+    retrieval_measurable: int
+    model_answered: int  # repeats with target_in_prompt=True that were answered
+    model_measurable: int  # repeats with target_in_prompt=True
+    value_ok: int
+    value_measurable: int
+
+
+def summarize_consistency(outcomes: list[RepeatOutcome]) -> ConsistencySummary:
+    by_id: dict[str, list[RepeatOutcome]] = {}
+    for o in outcomes:
+        if o.error is None:
+            by_id.setdefault(o.id, []).append(o)
+    retrieval_measurable = retrieval_stable = 0
+    for rows in by_id.values():
+        flags = {r.target_in_prompt for r in rows}
+        if None in flags:
+            continue
+        retrieval_measurable += 1
+        if len(flags) == 1:
+            retrieval_stable += 1
+    with_target = [o for o in outcomes if o.error is None and o.target_in_prompt]
+    valued = [o for o in outcomes if o.error is None and o.value_ok is not None]
+    return ConsistencySummary(
+        retrieval_stable=retrieval_stable,
+        retrieval_measurable=retrieval_measurable,
+        model_answered=sum(1 for o in with_target if o.answered),
+        model_measurable=len(with_target),
+        value_ok=sum(1 for o in valued if o.value_ok),
+        value_measurable=len(valued),
+    )
+
+
+def _pct(num: int, den: int) -> str:
+    return f"{num}/{den} (%{100.0 * num / den:.1f})" if den else "–"
+
+
+def render_consistency_markdown(outcomes: list[RepeatOutcome], *, label: str) -> str:
+    s = summarize_consistency(outcomes)
+    lines = [
+        f"# Tutarlılık ölçümü — {label}",
+        "",
+        f"- **Retrieval kararlılığı** (hedef sayfa her tekrarda aynı şekilde girdi/girmedi): "
+        f"{_pct(s.retrieval_stable, s.retrieval_measurable)}",
+        f"- **Model kararlılığı** (hedef sayfa prompt'tayken cevap verdi): "
+        f"{_pct(s.model_answered, s.model_measurable)}",
+        f"- **Uçtan uca** (beklenen değer cevapta): {_pct(s.value_ok, s.value_measurable)}",
+        "",
+        "| Soru | Tekrar | Hedef prompt'ta | Cevapladı | Değer doğru | Hata |",
+        "|---|---|---|---|---|---|",
+    ]
+
+    def mark(value: bool | None) -> str:
+        return "–" if value is None else ("✅" if value else "❌")
+
+    for o in outcomes:
+        lines.append(
+            f"| {o.id} | {o.repeat} | {mark(o.target_in_prompt)} | {mark(o.answered)} | "
+            f"{mark(o.value_ok)} | {o.error or ''} |"
+        )
     return "\n".join(lines) + "\n"

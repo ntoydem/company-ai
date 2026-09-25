@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import re
 
+from app.services.search_glossary import expand_terms
+
 # Possessive / case suffixes written after an apostrophe: "RES'in", "covenant'ı".
 _APOSTROPHE_SUFFIX = re.compile(r"['’]\S*")
 _TOKEN = re.compile(r"[^\W_]+")
@@ -74,7 +76,11 @@ def turkish_lower(text: str) -> str:
 
 
 def build_search_query(question: str) -> str:
-    """Return a `websearch_to_tsquery` string ("a OR b OR c"), or "" when nothing is left."""
+    """Return a `websearch_to_tsquery` string ("a OR b OR c"), or "" when nothing is left.
+
+    Question terms first, then the glossary's document-side terms (Phase 3.2b): a Turkish
+    "finansman" question also ORs `financing`/`facility`/`loan`, so the English page that
+    actually states the figure can rank. Nothing is expanded when no term is known."""
     cleaned = _APOSTROPHE_SUFFIX.sub("", question)
     terms: list[str] = []
     seen: set[str] = set()
@@ -84,4 +90,6 @@ def build_search_query(question: str) -> str:
             continue
         seen.add(key)
         terms.append(token)
-    return " OR ".join(terms)
+    if not terms:
+        return ""
+    return " OR ".join(terms + expand_terms([turkish_lower(t) for t in terms]))

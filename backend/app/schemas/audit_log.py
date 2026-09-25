@@ -28,6 +28,7 @@ class AuditLogListItem(BaseModel):
 
 class AuditLogDetail(AuditLogListItem):
     documents_retrieved: list[UUID]
+    chunks_retrieved: list[dict[str, Any]]
     excel_files_used: list[str]
     answer: str
     sources: list[dict[str, Any]]

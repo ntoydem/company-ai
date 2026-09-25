@@ -15,6 +15,7 @@ Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 | 2.1 | Truth ledger + validator + golden questions v1 | tamamlandı (ledger onaylandı 23.09.2026) | phase-2-1 | [PHASE_2_1_REPORT](reports/PHASE_2_1_REPORT.md) |
 | 3.1 | 15 demo belge + seed/reset | tamamlandı | phase-3-1 | [PHASE_3_1_REPORT](reports/PHASE_3_1_REPORT.md) |
 | 3.2 | AI metadata önerisi + temporal/versiyon mantığı | tamamlandı | phase-3-2 | [PHASE_3_2_REPORT](reports/PHASE_3_2_REPORT.md) |
+| 3.2b | Retrieval/cevap düzeltmeleri (Phase 4.1 bulguları) | tamamlandı (eşikler kısmen, kalan boşluklar içerik — bkz. rapor §3.2) | phase-3-2b | [PHASE_3_2B_REPORT](reports/PHASE_3_2B_REPORT.md) |
 | 3.3 | Frontend | tamamlandı | phase-3-3 | [PHASE_3_3_REPORT](reports/PHASE_3_3_REPORT.md) |
 | 3.4 | Audit log + embedding (opsiyonel) | tamamlandı | phase-3-4 | [PHASE_3_4_REPORT](reports/PHASE_3_4_REPORT.md) |
 | 4.1 | Eval runner (karne) | tamamlandı (skor eşiği altında, bkz. rapor §7) | phase-4-1 | [PHASE_4_1_REPORT](reports/PHASE_4_1_REPORT.md) |
@@ -122,13 +123,7 @@ Tanım: Doğruluğun ölçülmesi; kesin veriyle aritmetik yapan Excel motoru; p
 **Not (Phase 0.3):** `isolation` kategorisi, alakasız projenin chunk'ları retrieval'a girdiğinde (OR-FTS, ADR-020: "İzmir RES" sorusu Ankara chunk'larını getirir) LLM'in çıkarım yapmayıp "bilgi bulamadım" demesini de kapsamalı; T0'da kriter 3 tam olarak bu yola dayanıyor. Runner Gemini ücretsiz katmanı (5 istek/dk, 503 "high demand") için bekleme/retry ve `MODEL=` override'ı içermeli.
 
 ## Phase 4.2 — Excel motoru `O`
-**Ön koşul (Phase 4.1):** 25.09.2026 eval koşusunda `document` %52,2, `temporal` %33,3, `isolation` %50 — %80/%100
-eşiklerinin altında; PHASES.md'nin kendi kuralı bu Phase'e geçmeden Phase 3.2'ye dönülmesini gerektiriyor. Kök
-nedenler tespit edildi: (1) FTS'in Türkçe soru ↔ İngilizce finans belgesi kelime uyumsuzluğu (retrieval doğru
-belgeyi buluyor ama doğru sayfayı top-k'ya sokamıyor), (2) aynı soru/kaynak bağlamında modelin bazen doğru cevap
-verip bazen "bilgi bulamadım" demesi (cevap üretimi tutarsızlığı, retrieval'dan bağımsız). Embedding/hibrit
-retrieval denemesi bu koşuda net bir iyileşme göstermedi (küçük örneklem, sonuç belirsiz). **Güvenlik sınırı
-sağlam kaldı** — 43 sorunun hiçbirinde yasak kaynak/proje karışması yok. Ayrıntı: `docs/reports/PHASE_4_1_REPORT.md`.
+**Ön koşul (Phase 4.1 → 3.2b, 25.09.2026):** Phase 3.2b sonrası eval: authorization %100, hallucination %100, isolation %75 (3/4), document %69,6 (16/23), temporal %66,7 (6/9) — eşikler hâlâ tam karşılanmıyor. Kök neden kodda değil: kalan başarısızlıkların tamamı demo belge **içeriğine** (prose) ve soru setine gidiyor — yerli/ECA kredi tutarları etiketsiz basılmış, "DSCR" kelimesi Facility Agreement'ta hiç geçmiyor, financial close tarihi ve COD erteleme sebebi hiçbir belgede yok, `IZM-DEV-005/006` negatif-olgu soruları NO OPINION kuralıyla çelişiyor (`docs/reports/PHASE_3_2B_REPORT.md` §3.2/§8, belge-sayfa kanıtlı). Retrieval (sözlük, eşitlik bozucu, top_k=40) ve prompt (kural 2/5) düzeltildi; tutarlılık 0/18 → 15/24. **Karar (Naci):** Phase 4.2'den önce küçük bir prose yaması (~5 cümle, `seed_data/generator/prose/`, reseed + 43 çağrılık eval) mı, yoksa Phase 5.1'in tam dataset üretimine mi bırakılacak? Güvenlik sınırı iki koşuda da sağlam (sıfır yasak kaynak).
 **Kapsam:** SPEC_04. Dört workbook ledger'dan (openpyxl) + build-time LibreOffice headless recalc (`seed_data/generator/recalc.sh`). Inspection (openpyxl), hesap DuckDB read-only; LLM yalnızca SELECT (whitelist) + predefined fonksiyonlar; timeout 10 s; kaynak dosya+sheet+range; `CalculationEngine` interface'i.
 **Kabul kriterleri:** cached değerler dolu (`data_only` boş hücre yok); "Ankara RES 2026 Q2 DSCR kaç?" → DuckDB + `Covenant_Report.xlsx Q2_2026!D14` tarzı kaynak; `DROP/;/COPY/çoklu statement` reddedilir; `.xlsm` macro çalışmaz; audit'te excel kaynakları.
 

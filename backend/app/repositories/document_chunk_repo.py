@@ -55,7 +55,11 @@ def search_fts(
                 DocumentChunk.tsv_simple.op("@@")(simple_query),
             )
         )
-        .order_by(rank.desc())
+        # Deterministic tie-break: with OR queries many chunks share the exact same
+        # `ts_rank_cd` (28 of 42 tied at 0.2 on a typical finance question, Phase 3.2b T1);
+        # without it Postgres picks the LIMIT winners by heap order, so the same question
+        # could reach the LLM with a different page set from one call to the next.
+        .order_by(rank.desc(), DocumentChunk.document_id, DocumentChunk.chunk_index)
         .limit(top_k)
     )
     return [
@@ -91,7 +95,7 @@ def search_vector(
         select(DocumentChunk, distance.label("distance"))
         .where(DocumentChunk.document_id.in_(allowed))
         .where(DocumentChunk.embedding.is_not(None))
-        .order_by(distance)
+        .order_by(distance, DocumentChunk.document_id, DocumentChunk.chunk_index)
         .limit(top_k)
     )
     return [

@@ -62,7 +62,10 @@ class Settings(BaseSettings):
 
     # Phase 0.2
     max_upload_size_mb: int = 50
-    retrieval_top_k: int = 20
+    # 40 (Phase 3.2b): a page-per-chunk corpus of ~450 chars/chunk makes 40 chunks ~10k
+    # tokens — cheap for the answer model, and it clears the wide rank ties an OR query
+    # produces (SORU 2, docs/plans/PHASE_3_2B_PLAN.md).
+    retrieval_top_k: int = 40
 
     # Phase 3.2: background metadata-suggestion scan (app/main.py lifespan). Never runs
     # against a `_test` database (see `_background_enabled` there) — `make test` never

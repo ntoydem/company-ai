@@ -15,6 +15,7 @@ from app.core.config import Settings
 from app.core.request_id import get_request_id
 from app.models.user import User
 from app.repositories import audit_log_repo, document_repo
+from app.repositories.document_chunk_repo import RetrievedChunk
 from app.repositories.document_repo import SqlDocumentIdsProvider
 from app.schemas.ask import AskRequest, SourceCard
 from app.schemas.authorization import AuthorizationScope
@@ -89,6 +90,7 @@ def _write_audit_log(
     request: AskRequest,
     *,
     retrieved_ids: list[UUID],
+    chunks: list[RetrievedChunk],
     answer: str,
     sources: list[SourceCard],
     model: str | None,
@@ -110,6 +112,10 @@ def _write_audit_log(
             scope_department=request.department,
             scope_project=request.project_id,
             documents_retrieved=retrieved_ids,
+            chunks_retrieved=[
+                {"document_id": str(c.document_id), "page_number": c.page_number, "rank": c.rank}
+                for c in chunks
+            ],
             answer=answer,
             sources=[card.model_dump(mode="json") for card in sources],
             model=model,
@@ -162,6 +168,7 @@ def answer_question(
                 user,
                 request,
                 retrieved_ids=retrieved_ids,
+                chunks=chunks,
                 answer="",
                 sources=[],
                 model=None,
@@ -216,6 +223,7 @@ def answer_question(
         user,
         request,
         retrieved_ids=result.retrieved_document_ids,
+        chunks=chunks,
         answer=result.answer,
         sources=result.sources,
         model=result.model,

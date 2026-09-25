@@ -36,6 +36,7 @@ def create(
     request_id: str | None,
     error: str | None,
     excel_files_used: list[str] | None = None,
+    chunks_retrieved: list[dict[str, Any]] | None = None,
 ) -> AuditLog:
     row = AuditLog(
         user_id=user_id,
@@ -44,6 +45,7 @@ def create(
         scope_department=scope_department,
         scope_project=scope_project,
         documents_retrieved=documents_retrieved,
+        chunks_retrieved=chunks_retrieved or [],
         excel_files_used=excel_files_used or [],
         answer=answer,
         sources=sources,
@@ -62,6 +64,10 @@ def create(
 
 def get(session: Session, audit_log_id: uuid.UUID) -> AuditLog | None:
     return session.get(AuditLog, audit_log_id)
+
+
+def get_by_request_id(session: Session, request_id: str) -> AuditLog | None:
+    return session.scalar(select(AuditLog).where(AuditLog.request_id == request_id))
 
 
 def list_filtered(

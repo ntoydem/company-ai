@@ -72,7 +72,7 @@ def test_resolve_expected_formats_date_like_the_prompt_instructs() -> None:
     )
     expected = resolve_expected(question, raws)
     assert not expected.skip
-    assert expected.required == (("15.06.2020", "2020-06-15"),)
+    assert expected.required == (("15.06.2020", "2020-06-15", "June 15, 2020"),)
 
 
 def test_resolve_expected_formats_ratio_with_a_dot_decimal_alias() -> None:
@@ -207,6 +207,20 @@ def test_source_satisfied_matches_by_document_type() -> None:
     assert not _source_satisfied("Facility Agreement", cited, catalog)
     cited = frozenset({"Facility Agreement"})
     assert _source_satisfied("Facility Agreement", cited, catalog)
+
+
+def test_source_name_that_is_both_a_title_and_a_type_accepts_either_reading() -> None:
+    catalog = DocumentCatalog(
+        title_to_type={
+            "Facility Agreement": "Facility Agreement",
+            "Facility Agreement — Draft": "Facility Agreement",
+        },
+        title_to_project={},
+    )
+    assert _source_satisfied(
+        "Facility Agreement", frozenset({"Facility Agreement — Draft"}), catalog
+    )
+    assert not _source_satisfied("Facility Agreement", frozenset({"EPC Contract"}), catalog)
 
 
 def test_source_satisfied_matches_by_project_name() -> None:
@@ -393,3 +407,75 @@ def test_render_markdown_and_report_to_json_do_not_raise() -> None:
     assert payload["ok"] is True  # the one question in this report passes
     assert payload["partial"] is True
     assert len(payload["questions"]) == 1
+
+
+# ---------------------------------------------------------------- Phase 3.2b
+
+
+def test_target_index_finds_the_page_that_prints_a_key_fact() -> None:
+    from scripts.eval_lib import build_target_index, target_pages
+
+    raws = {
+        "ankara_res": {
+            "documents": [
+                {"id": "DOC-X", "key_facts": {"total_debt": "project.finance.total_debt.value"}}
+            ]
+        }
+    }
+    manifest = {
+        "documents": [
+            {
+                "external_ref": "DOC-X",
+                "title": "FA",
+                "key_facts_used": {"total_debt": "50,400,000 EUR"},
+            }
+        ]
+    }
+    page_texts = {"FA": [(1, "cover"), (4, "structured as 50,400,000 EUR in total")]}
+    index = build_target_index(raws, manifest, page_texts)
+    question = _question(expected_answer="ledger:ankara_res.project.finance.total_debt.value")
+    assert target_pages(question, index) == {("FA", 4)}
+    # A compound path (initial/current) is matched by prefix.
+    question = _question(expected_answer="ledger:ankara_res.project.finance.total_debt")
+    assert target_pages(question, index) == {("FA", 4)}
+
+
+def test_target_pages_falls_back_to_expected_text_in_required_sources() -> None:
+    from scripts.eval_lib import ExpectedValue, TargetIndex, target_pages
+
+    catalog = DocumentCatalog(title_to_type={"FA": "Facility Agreement"}, title_to_project={})
+    question = _question(
+        expected_answer="ledger:ankara_res.project.timeline.financial_close.date",
+        required_sources=["Facility Agreement"],
+    )
+    expected = ExpectedValue(required=(("15.11.2021", "2021-11-15", "November 15, 2021"),))
+    page_texts = {"FA": [(1, "Financial close occurred on November 15, 2021."), (2, "other")]}
+    pages = target_pages(
+        question, TargetIndex({}), expected=expected, catalog=catalog, page_texts=page_texts
+    )
+    assert pages == {("FA", 1)}
+
+
+def test_name_path_resolves_to_a_literal_spelling() -> None:
+    raws = load_ledger_raws()
+    question = _question(id="ANK-ISO-002", expected_answer="ledger:ankara_res.project.name")
+    expected = resolve_expected(question, raws)
+    assert expected.required == (("Ankara RES",),)
+
+
+def test_summarize_consistency_separates_retrieval_from_model() -> None:
+    from scripts.eval_lib import RepeatOutcome, summarize_consistency
+
+    outcomes = [
+        RepeatOutcome("Q1", 1, True, True, True, None),
+        RepeatOutcome("Q1", 2, True, False, False, None),  # page present, model refused
+        RepeatOutcome("Q1", 3, True, True, True, None),
+        RepeatOutcome("Q2", 1, True, True, True, None),
+        RepeatOutcome("Q2", 2, False, False, False, None),  # retrieval miss
+        RepeatOutcome("Q2", 3, True, True, True, None),
+        RepeatOutcome("Q3", 1, None, False, None, "http 503"),
+    ]
+    s = summarize_consistency(outcomes)
+    assert (s.retrieval_stable, s.retrieval_measurable) == (1, 2)
+    assert (s.model_answered, s.model_measurable) == (4, 5)
+    assert (s.value_ok, s.value_measurable) == (4, 6)

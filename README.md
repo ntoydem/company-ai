@@ -3,7 +3,7 @@
 Kurumsal doküman + Excel + AI bilgi platformu. Şirket bilgisinin **kaynağını, erişim yetkisini, tarihini,
 versiyonunu ve ilişkilerini** koruyarak AI tarafından güvenilir kullanılmasını sağlar. Basit bir chatbot değildir.
 
-Bu README Phase 3.4 (Audit log + embedding) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
+Bu README Phase 3.2b (retrieval/cevap düzeltmeleri, Phase 4.1 eval sonrası) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
 `docs/PHASES.md`. Mimari kararlar: `docs/ARCHITECTURE.md`. Alan modeli: `docs/DOMAIN_MODEL.md`.
 
 ## Gereksinimler (VM)
@@ -157,6 +157,12 @@ Yüklemede zincir kurmak için `effective_date`, `version`, `supersedes_document
 Sistem promptu `backend/app/services/answer_prompt.py`'dedir; kopyası `docs/prompts/ANSWER_SYSTEM_PROMPT.md`
 (`make prompt-doc` ile yenilenir, `make lint` eşitliği denetler).
 
+Retrieval (Phase 3.2b): soru kelimeleri `backend/app/services/search_glossary.py`'deki alan sözlüğüyle genişletilir
+(Türkçe "finansman/kredi/faiz…" → İngilizce belgedeki "financing/loan/interest…", ve tersi), böylece Türkçe soru
+İngilizce finans belgesinin **doğru sayfasını** bulur; en iyi `RETRIEVAL_TOP_K` (varsayılan 40) chunk (sayfa) prompt'a
+girer, eşit skorlu sayfalar deterministik sırayla (belge, sayfa) seçilir. Her cevabın prompt'a giren sayfaları
+`audit_log.chunks_retrieved`'da saklanır.
+
 Canlı LLM testleri `make test`'in dışındadır: `make test-llm` (ücretsiz katman 5 istek/dk — testler kendini yavaşlatır;
 model saturasyonunda `make test-llm MODEL=gemini-3.5-flash`).
 
@@ -222,6 +228,10 @@ atlanır (yalnızca kaynak+`answered` ile puanlanır; hangi sorular atlandığı
 make eval                          # .env'deki mevcut LLM_MODEL_ANSWER ile
 make eval MODEL=gemini-3.5-flash   # backend'i geçici olarak bu modelle yeniden başlatır, koşar, .env'e geri döner
 ```
+İki teşhis modu (Phase 3.2b): `make eval EVAL_ARGS="--retrieval-only"` LLM çağırmadan, her sorunun **hedef sayfasının**
+(`manifest.json key_facts_used` literal'inden türetilir) prompt'a girip girmediğini ölçer (recall@k, saniyeler, kota
+harcamaz); `make eval EVAL_ARGS="--repeat 3 --ids ANK-FIN-002,ANK-FIN-007"` aynı soruyu tekrar sorup retrieval
+kararlılığı ile model kararlılığını ayrı raporlar (`audit_log.chunks_retrieved` üzerinden).
 Kategori eşikleri: `isolation`/`hallucination`/`authorization` %100, diğerleri ≥%80 (PHASES.md); altında kalınırsa
 `make eval` sıfırdan farklı çıkar. Gemini ücretsiz katmanına uyum: istekler arası en az 13 sn (paylaşılan, tüm
 demo kullanıcılar arasında), 503'te 3 kez artan gecikmeyle yeniden deneme, 5 ardışık hata sonrası koşu güvenli
@@ -303,8 +313,7 @@ docs/         SPEC_0x, PHASES.md, ARCHITECTURE.md (ADR), DOMAIN_MODEL.md, plans/
   bağlı, `supersedes` değil (Phase 3.1) — bu yüzden "güncel"/"ilk" zincir mekanizmasına hiç girmiyor; SPEC_02
   §11'in kapasite örneği bu çift için değil, gerçek bir `supersedes` zinciri (örn. Facility Agreement) için
   geçerlidir.
-- **Eval skoru %80/%100 eşiğinin altında (Phase 4.1, 24.09.2026 ölçümü):** `document` %47.8, `temporal` %33.3,
-  `isolation` %50 — kök nedenler tespit edildi (FTS'in Türkçe soru ↔ İngilizce finans belgesi kelime eşleşmesi
-  zayıflığı, ve aynı soru/kaynak kombinasyonunda modelin bazen doğru bazen "bilgi bulamadım" demesi — retrieval
-  değil üretim adımı kararsızlığı). Ayrıntı ve öneriler `docs/reports/PHASE_4_1_REPORT.md`; PHASES.md'nin kendi
-  kuralı gereği Phase 4.2'ye geçmeden Phase 3.2'ye (retrieval/answer-prompt) dönülmesi gerekiyor.
+- **Eval skoru (Phase 3.2b, 25.09.2026):** authorization/hallucination %100, isolation %75, document %69,6, temporal %66,7 —
+  4.1'deki %50 / %52 / %33'ten yukarı ama %80/%100 eşiklerinin altında. Kod tarafı düzeltildi (sözlük, deterministik
+  sıralama, top_k=40, kural 2/5); kalan başarısızlıkların tamamı demo belge içeriğine gidiyor (etiketsiz kredi
+  tutarları, "DSCR" kelimesinin geçmemesi, basılmayan tarihler) — bkz. `docs/reports/PHASE_3_2B_REPORT.md` §3.2/§8.

@@ -41,6 +41,12 @@ class AuditLog(Base):
     excel_files_used: Mapped[list[str]] = mapped_column(
         ARRAY(String(255)), default=list, server_default="{}"
     )
+    # (document_id, page_number, rank) of every chunk that reached the prompt — page
+    # level, unlike `documents_retrieved`; lets a retrieval miss be told apart from a
+    # model refusal after the fact (Phase 3.2b).
+    chunks_retrieved: Mapped[list[dict[str, Any]]] = mapped_column(
+        JSONB, default=list, server_default="[]"
+    )
     answer: Mapped[str] = mapped_column(Text)
     sources: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
     model: Mapped[str | None] = mapped_column(String(64), nullable=True)

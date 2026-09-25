@@ -176,3 +176,34 @@ def test_hybrid_retrieval_falls_back_to_fts_when_embedding_call_fails(
     results = retrieve(db_session, admin_user, "DSCR covenant", RetrievalFilters())
 
     assert document.id in {c.document_id for c in results}
+
+
+def test_fts_tied_ranks_come_back_in_a_deterministic_order(
+    db_session: Session, admin_user: User
+) -> None:
+    """Phase 3.2b: an OR query gives many chunks the exact same `ts_rank_cd`; without an
+    explicit tie-break Postgres picked the `LIMIT` winners by heap order, so the same
+    question could reach the LLM with a different page set on each call."""
+    import uuid as _uuid
+
+    from app.repositories.document_chunk_repo import search_fts
+
+    document = _make_document(db_session, title="Tied")
+    for page in range(1, 8):
+        db_session.add(
+            DocumentChunk(
+                document_id=document.id,
+                chunk_index=page,
+                page_number=page,
+                text=f"facility agreement page {page} covenant",
+            )
+        )
+    db_session.commit()
+
+    first = search_fts(db_session, allowed_ids=[document.id], query="facility OR covenant", top_k=3)
+    second = search_fts(
+        db_session, allowed_ids=[document.id], query="facility OR covenant", top_k=3
+    )
+    assert len({c.rank for c in first}) == 1  # genuinely tied
+    assert [c.page_number for c in first] == [c.page_number for c in second] == [1, 2, 3]
+    assert isinstance(document.id, _uuid.UUID)

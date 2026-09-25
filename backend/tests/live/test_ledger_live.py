@@ -192,3 +192,25 @@ def test_why_question_without_stated_reason_returns_fixed_text(
     # Case-insensitive: a sentence-initial "Belgelerde..." is expected, not a mismatch.
     assert NO_REASON_TEXT in turkish_lower(answer)
     _assert_turkish(answer)
+
+
+def test_value_stated_only_in_a_superseded_chain_member_is_still_answered(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    """Phase 3.2b root cause: Amendment 01 supersedes the Facility Agreement but restates
+    none of the unchanged terms (the loan amount lives only in the superseded base). Rule 5
+    used to make the model base itself on the GÜNCEL document alone and refuse — 0/18 in the
+    Phase 3.2b consistency baseline. An amendment only changes what it states."""
+    load_ledger_documents(db_session, [_FACILITY_REF, _AMENDMENT_REF])
+    total_debt = ledger_value("ankara_res.project.finance.total_debt.value")
+
+    body = _ask(client, "Ankara RES'in toplam finansman (kredi) tutarı nedir?")
+
+    assert body["answered"] is True, body["answer"]
+    answer = str(body["answer"])
+    grouped_en = f"{int(total_debt):,}"
+    grouped_tr = grouped_en.replace(",", ".")
+    assert grouped_en in answer or grouped_tr in answer, answer
+    titles = {source["title"] for source in body["sources"]}
+    assert "Facility Agreement" in titles
+    _assert_turkish(answer)

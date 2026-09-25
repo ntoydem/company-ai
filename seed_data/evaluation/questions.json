@@ -673,7 +673,7 @@
       "id": "ANK-ISO-002",
       "category": "isolation",
       "question": "Hangi projenin üretim lisansı var?",
-      "expected_answer": "ledger:ankara_res.project.timeline.licence.date",
+      "expected_answer": "ledger:ankara_res.project.name",
       "expected_answer_aliases": [],
       "expected_project": "Ankara RES",
       "expected_department": "enerji_grubu",

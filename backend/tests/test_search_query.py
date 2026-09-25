@@ -23,13 +23,18 @@ _FACILITY_REF, _AMENDMENT_REF = "DOC-ANK-FIN-004", "DOC-ANK-FIN-005"
 
 
 def test_apostrophe_suffixes_and_question_words_are_dropped() -> None:
-    assert build_search_query(Q_CURRENT) == "Ankara OR RES OR güncel OR minimum OR DSCR OR covenant"
-    assert build_search_query(Q_INITIAL) == "İlk OR DSCR OR covenant"
-    assert build_search_query("Kredinin vadesi kaç yıl?") == "Kredinin OR vadesi OR yıl"
+    # Question terms first, glossary expansions (Phase 3.2b) after them.
+    assert build_search_query(Q_CURRENT).startswith(
+        "Ankara OR RES OR güncel OR minimum OR DSCR OR covenant OR "
+    )
+    assert build_search_query(Q_INITIAL).startswith("İlk OR DSCR OR covenant OR ")
+    assert build_search_query("Kredinin vadesi kaç yıl?").startswith(
+        "Kredinin OR vadesi OR yıl OR "
+    )
 
 
 def test_duplicates_short_tokens_and_punctuation() -> None:
-    assert build_search_query("DSCR, dscr; DSCR!! x 1,25x") == "DSCR OR 25x"
+    assert build_search_query("DSCR, dscr; DSCR!! x 1,25x").startswith("DSCR OR 25x")
 
 
 def test_only_stopwords_yields_empty_query() -> None:

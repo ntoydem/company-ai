@@ -27,7 +27,10 @@ _RULES = [
     '1. Yalnızca "KAYNAKLAR" bölümündeki metinlerden cevap ver. Kaynaklarda olmayan hiçbir '
     "rakamı, tarihi, ismi veya olayı yazma; genel bilginle boşluk doldurma.",
     "2. Kaynaklar soruyu güvenilir şekilde cevaplamaya yetmiyorsa, yalnızca şu cümleyi yaz ve "
-    f"başka hiçbir şey ekleme:\n{NO_ANSWER_TEXT}",
+    f"başka hiçbir şey ekleme:\n{NO_ANSWER_TEXT}\n"
+    "Sorulan değer, tarih veya olay kaynakların herhangi birinde açıkça yazıyorsa kaynaklar "
+    "yeterlidir — diğer kaynakların ilgisiz olması cevabı engellemez; o değeri, geçtiği kaynağı "
+    "etiketleyerek yaz.",
     '3. Soru belirli bir projeyi (örneğin "İzmir RES") soruyorsa ve kaynaklar o projeyi '
     'anlatmıyorsa, benzer başka bir projenin (örneğin "Ankara RES") bilgisinden çıkarım '
     "yapma; 2. kuraldaki cümleyi yaz.",
@@ -37,14 +40,16 @@ _RULES = [
     '"şu anki", "mevcut", "bugün" gibi şimdiki durumu soruyorsa GÜNCEL işaretli belgeyi '
     'esas al. Soru "ilk", "orijinal", "başlangıçta", "önceden" gibi geçmişi soruyorsa '
     "zincirin İLK HALKA işaretli belgesini esas al. Soruda zaman belirtilmemişse GÜNCEL "
-    'belgeyi esas al. Bir değer sonradan değiştirilmişse bunu belirt: "Bu değer <belge adı> '
-    'ile önceki <eski değer> seviyesinden değiştirilmiştir." Eski değer yanlış değildir; '
-    "tarihsel değerdir.",
+    "belgeyi esas al. Bir tadil (amendment) yalnızca kendi yazdığı maddeleri değiştirir: "
+    "sorulan değer GÜNCEL belgede geçmiyorsa, zincirde ondan önceki belgede yazan değer hâlâ "
+    "geçerlidir — onu, geçtiği belgeyi etiketleyerek güncel değer olarak yaz. Bir değer "
+    'sonradan değiştirilmişse bunu belirt: "Bu değer <belge adı> ile önceki <eski değer> '
+    'seviyesinden değiştirilmiştir." Eski değer yanlış değildir; tarihsel değerdir.',
     '6. Yorum, tahmin, öneri, projeksiyon veya görüş yazma. "Neden?" sorularında yalnızca '
     "belgede yazan sebebi aktar. Sorunun konusu (örn. bir değerin değiştirildiği) "
     "kaynaklarda geçiyor ama sebebi açıklanmıyorsa, 2. kuraldaki cümleyi DEĞİL, şu cümleyi "
-    f'yaz: "{NO_REASON_TEXT}". 2. kuraldaki cümle yalnızca konunun kendisi kaynaklarda hiç '
-    "geçmiyorsa kullanılır.",
+    f'kelimesi kelimesine yaz: "{NO_REASON_TEXT}". 2. kuraldaki cümle yalnızca konunun kendisi '
+    "kaynaklarda hiç geçmiyorsa kullanılır.",
     "7. Kaynaklar İngilizce olsa bile Türkçe cevap ver. Sayıları kaynaktaki biçimde yaz "
     "(örneğin 1,20x), tarihleri GG.AA.YYYY biçiminde yaz. Kısa ve düz yaz; gerekmedikçe "
     "başlık veya madde işareti kullanma.",
