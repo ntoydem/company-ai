@@ -20,6 +20,7 @@ from seed_data.generator import ledger_schema as ls
 from seed_data.generator.validate_ledger import DEFAULT_MASTER, DEFAULT_QUESTIONS, resolve_path
 
 DEFAULT_MANIFEST = DEFAULT_MASTER.parent / "documents" / "manifest.json"
+DEFAULT_EXCEL_MANIFEST = DEFAULT_MASTER.parent / "excel" / "manifest.json"
 DEFAULT_RESULTS_DIR = DEFAULT_MASTER.parent / "evaluation" / "results"
 
 # Categories PHASES.md requires 100% on; every other category needs >= 80%.
@@ -51,11 +52,14 @@ def load_ledger_raws(master_dir: Path = DEFAULT_MASTER) -> dict[str, Any]:
 
 @dataclass(frozen=True)
 class DocumentCatalog:
-    """`seed_data/documents/manifest.json`, indexed for required/forbidden source checks
-    — read once, locally; no API round trip (Phase 4.1 plan T5)."""
+    """`seed_data/documents/manifest.json` + `seed_data/excel/manifest.json`, indexed for
+    required/forbidden source checks — read once, locally; no API round trip (Phase 4.1
+    plan T5). Workbooks (Phase 4.3) are cited by file name in `excel_sources`, so
+    `file_to_title` maps them back to the ledger title the golden set names."""
 
     title_to_type: dict[str, str]
     title_to_project: dict[str, str]
+    file_to_title: dict[str, str] = field(default_factory=dict)
 
     @property
     def titles(self) -> frozenset[str]:
@@ -69,18 +73,34 @@ class DocumentCatalog:
     def project_names(self) -> frozenset[str]:
         return frozenset(_PROJECT_NAME_BY_CODE.values())
 
+    def cited_titles(self, titles: tuple[str, ...], files: tuple[str, ...]) -> frozenset[str]:
+        """Document titles cited directly plus the titles of cited workbook files."""
+        return frozenset(titles) | frozenset(
+            self.file_to_title[f] for f in files if f in self.file_to_title
+        )
 
-def build_document_catalog(manifest_path: Path = DEFAULT_MANIFEST) -> DocumentCatalog:
+
+def build_document_catalog(
+    manifest_path: Path = DEFAULT_MANIFEST, excel_manifest_path: Path = DEFAULT_EXCEL_MANIFEST
+) -> DocumentCatalog:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    entries = list(manifest["documents"])
+    if excel_manifest_path.exists():
+        entries += json.loads(excel_manifest_path.read_text(encoding="utf-8"))["workbooks"]
     title_to_type: dict[str, str] = {}
     title_to_project: dict[str, str] = {}
-    for entry in manifest["documents"]:
+    file_to_title: dict[str, str] = {}
+    for entry in entries:
         title = entry["title"]
         title_to_type[title] = entry["document_type"]
         project_code = entry.get("project_code")
         if project_code in _PROJECT_NAME_BY_CODE:
             title_to_project[title] = _PROJECT_NAME_BY_CODE[project_code]
-    return DocumentCatalog(title_to_type=title_to_type, title_to_project=title_to_project)
+        if entry.get("source_type") == "xlsx":
+            file_to_title[entry["file"]] = title
+    return DocumentCatalog(
+        title_to_type=title_to_type, title_to_project=title_to_project, file_to_title=file_to_title
+    )
 
 
 def _source_satisfied(name: str, cited_titles: frozenset[str], catalog: DocumentCatalog) -> bool:
@@ -147,6 +167,9 @@ def _classify_and_format(value: Any, path: str, parent: Any) -> tuple[str, ...] 
         money_alias = _money_en_grouping_alias(formatted, value)
         if money_alias is not None:
             alts.append(money_alias)
+        mwh_alias = _mwh_grouped_alias(formatted, value)
+        if mwh_alias is not None:
+            alts.append(mwh_alias)
         return tuple(alts)
     return None  # list / dict / None
 
@@ -198,6 +221,18 @@ def _money_en_grouping_alias(formatted: str, value: Any) -> str | None:
     return f"{round(value):,} {match.group(2)}"
 
 
+_UNGROUPED_MWH = re.compile(r"^\d{4,} MWh$")
+
+
+def _mwh_grouped_alias(formatted: str, value: Any) -> str | None:
+    """The generated documents print MWh ungrouped (`13538 MWh`, `format_value("mwh")`),
+    the Excel engine's Turkish formatting groups thousands (`13.538 MWh`, Phase 4.2
+    `format_value`). A DATA answer relays the engine's form — accept both."""
+    if _UNGROUPED_MWH.match(formatted) is None or not isinstance(value, int | float):
+        return None
+    return f"{round(value):,}".replace(",", ".") + " MWh"
+
+
 _WHITESPACE = re.compile(r"\s+")
 
 
@@ -224,6 +259,8 @@ class AskOutcome:
     answered: bool = False
     answer_text: str = ""
     cited_titles: tuple[str, ...] = ()
+    cited_files: tuple[str, ...] = ()  # `excel_sources[].file` (Phase 4.3)
+    query_type: str | None = None
     model: str | None = None
     tokens_in: int = 0
     tokens_out: int = 0
@@ -253,6 +290,7 @@ class QuestionResult:
     tokens_in: int
     tokens_out: int
     model: str | None
+    query_type: str | None = None  # router decision (Phase 4.3), informational
 
 
 def score_question(
@@ -281,7 +319,7 @@ def score_question(
             model=None,
         )
 
-    cited = frozenset(outcome.cited_titles)
+    cited = catalog.cited_titles(outcome.cited_titles, outcome.cited_files)
     answered_ok = outcome.answered == (not question.expect_no_answer)
 
     missing_required = ()
@@ -316,7 +354,7 @@ def score_question(
         expect_no_answer=question.expect_no_answer,
         answered=outcome.answered,
         answer_text=outcome.answer_text,
-        cited_titles=tuple(outcome.cited_titles),
+        cited_titles=tuple(sorted(cited)),
         answered_ok=answered_ok,
         required_sources_missing=missing_required,
         forbidden_sources_hit=forbidden_hit,
@@ -328,6 +366,7 @@ def score_question(
         tokens_in=outcome.tokens_in,
         tokens_out=outcome.tokens_out,
         model=outcome.model,
+        query_type=outcome.query_type,
     )
 
 
@@ -449,6 +488,7 @@ def report_to_json(report: EvalReport) -> dict[str, Any]:
                 "answered": r.answered,
                 "answer_text": r.answer_text,
                 "cited_titles": list(r.cited_titles),
+                "query_type": r.query_type,
                 "answered_ok": r.answered_ok,
                 "required_sources_missing": list(r.required_sources_missing),
                 "forbidden_sources_hit": list(r.forbidden_sources_hit),

@@ -76,6 +76,9 @@ lint: env-check ## ruff + mypy (backend), ruff (ocr-worker), eslint + tsc (front
 	@$(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-excel-prompts 2>/dev/null \
 		| diff -q - <(sed -n '/^```text$$/,/^```$$/{//!p}' docs/prompts/EXCEL_PROMPTS.md) >/dev/null \
 		|| { echo "docs/prompts/EXCEL_PROMPTS.md güncel değil: make prompt-doc"; exit 1; }
+	@$(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-router-prompts 2>/dev/null \
+		| diff -q - <(sed -n '/^```text$$/,/^```$$/{//!p}' docs/prompts/ROUTER_PROMPTS.md) >/dev/null \
+		|| { echo "docs/prompts/ROUTER_PROMPTS.md güncel değil: make prompt-doc"; exit 1; }
 	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_ledger
 	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_documents --prose-only
 	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_excel
@@ -106,6 +109,10 @@ prompt-doc: env-check ## /api/ask sistem promptunu docs/prompts/ANSWER_SYSTEM_PR
 	   printf '%s\n\n' 'Kaynak: `backend/app/services/excel_ask.py::PLAN_SYSTEM_PROMPT` ve `ANSWER_SYSTEM_PROMPT`. Gözden geçirme kopyası; `make lint` eşitliği denetler, değişiklik Python sabitinde yapılır.'; \
 	   echo '```text'; $(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-excel-prompts 2>/dev/null; echo '```'; } \
 	   > docs/prompts/EXCEL_PROMPTS.md && echo "yazıldı: docs/prompts/EXCEL_PROMPTS.md"
+	@{ printf '%s\n\n' '# Router + GENERAL promptları (Phase 4.3)'; \
+	   printf '%s\n\n' 'Kaynak: `backend/app/services/router.py::ROUTER_SYSTEM_PROMPT` ve `general_answer.py::GENERAL_SYSTEM_PROMPT`. Gözden geçirme kopyası; `make lint` eşitliği denetler, değişiklik Python sabitinde yapılır.'; \
+	   echo '```text'; $(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-router-prompts 2>/dev/null; echo '```'; } \
+	   > docs/prompts/ROUTER_PROMPTS.md && echo "yazıldı: docs/prompts/ROUTER_PROMPTS.md"
 
 format: env-check ## ruff format + autofix (backend + ocr-worker)
 	$(COMPOSE) run --rm -T --no-deps backend sh -c 'ruff format . && ruff check --fix .'

@@ -347,14 +347,14 @@ def test_audit_log_write_failure_never_breaks_the_response(
 ) -> None:
     """ADR-006 pattern: a broken audit write must not break the answer the user already
     has — `/api/ask` still returns 200, no exception propagates."""
-    from app.services import ask as ask_module
+    from app.services import audit_writer
 
     _document(db_session, title="A", department=None, text="DSCR covenant 1,25x")
 
     def _boom(*_args: object, **_kwargs: object) -> None:
         raise RuntimeError("db is on fire")
 
-    monkeypatch.setattr(ask_module.audit_log_repo, "create", _boom)
+    monkeypatch.setattr(audit_writer.audit_log_repo, "create", _boom)
 
     response = client.post("/api/ask", json={"question": "DSCR covenant nedir?"})
 

@@ -48,7 +48,8 @@ def _question(**overrides: object) -> ls.Question:
 
 def test_load_questions_returns_the_committed_43_questions() -> None:
     question_set = load_questions()
-    assert len(question_set.questions) == 43
+    assert len(question_set.questions) == 48  # v2: +3 data +2 mixed (Phase 4.3)
+    assert question_set.version == 2
 
 
 def test_build_document_catalog_maps_title_type_and_project() -> None:
@@ -58,8 +59,48 @@ def test_build_document_catalog_maps_title_type_and_project() -> None:
     facility_titles = {t for t, k in catalog.title_to_type.items() if k == "Facility Agreement"}
     assert len(facility_titles) >= 3
     assert catalog.title_to_project["Ankara RES Üretim Lisansı"] == "Ankara RES"
+    # Phase 4.3: workbooks join the catalog; `excel_sources` cite them by file name.
+    assert catalog.file_to_title["Covenant_Report.xlsx"] == "Covenant Report (workbook)"
+    assert catalog.title_to_type["Budget vs Actual 2026"] == "Budget vs Actual"
+    assert catalog.title_to_project["Monthly Production 2026"] == "Ankara RES"
     assert catalog.title_to_project["İzmir RES Önlisans Belgesi"] == "İzmir RES"
     assert catalog.project_names == {"Ankara RES", "İzmir RES"}
+
+
+def test_cited_workbook_file_satisfies_a_required_workbook_title() -> None:
+    """A MIXED answer cites the amendment page *and* `Covenant_Report.xlsx` — both
+    required sources are satisfied, and the report lists the workbook's title."""
+    from scripts.eval_lib import ExpectedValue
+
+    catalog = DocumentCatalog(
+        title_to_type={
+            "Facility Agreement Amendment 01": "Facility Agreement",
+            "Covenant Report (workbook)": "Covenant Report",
+        },
+        title_to_project={},
+        file_to_title={"Covenant_Report.xlsx": "Covenant Report (workbook)"},
+    )
+    question = _question(
+        category="mixed",
+        required_sources=["Facility Agreement Amendment 01", "Covenant Report (workbook)"],
+    )
+    outcome = AskOutcome(
+        answered=True,
+        answer_text="Belgelere göre: 1,20x [K1].\n\nExcel verisine göre: 1,37x.",
+        cited_titles=("Facility Agreement Amendment 01",),
+        cited_files=("Covenant_Report.xlsx",),
+        query_type="MIXED_QUERY",
+    )
+    result = score_question(question, ExpectedValue(required=(("1,20x",),)), catalog, outcome)
+    assert result.passed and result.required_sources_missing == ()
+    assert result.cited_titles == ("Covenant Report (workbook)", "Facility Agreement Amendment 01")
+    assert result.query_type == "MIXED_QUERY"
+
+    without_excel = AskOutcome(
+        answered=True, answer_text="1,20x [K1]", cited_titles=("Facility Agreement Amendment 01",)
+    )
+    result = score_question(question, ExpectedValue(skip=True), catalog, without_excel)
+    assert not result.passed and result.required_sources_missing == ("Covenant Report (workbook)",)
 
 
 # ---------------------------------------------------------------- resolve_expected (real ledger)
@@ -83,6 +124,17 @@ def test_resolve_expected_formats_ratio_with_a_dot_decimal_alias() -> None:
     )
     expected = resolve_expected(question, raws)
     assert expected.required == (("1,20x", "1.20x"),)
+
+
+def test_resolve_expected_accepts_grouped_and_ungrouped_mwh() -> None:
+    """Documents print `13538 MWh`, the Excel engine relays `13.538 MWh` (Phase 4.3 eval)."""
+    raws = load_ledger_raws()
+    question = _question(
+        id="ANK-DAT-002",
+        expected_answer="ledger:ankara_res.project.operations.monthly_production[33].mwh",
+    )
+    expected = resolve_expected(question, raws)
+    assert expected.required == (("13538 MWh", "13.538 MWh"),)
 
 
 def test_resolve_expected_formats_money_with_the_ledgers_own_currency() -> None:

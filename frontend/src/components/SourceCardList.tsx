@@ -1,5 +1,5 @@
 import { downloadUrl } from "../api/documents";
-import type { SourceCard } from "../api/types";
+import type { ExcelSourceCard, SourceCard } from "../api/types";
 import { STATUS_LABELS, formatDate } from "../lib/format";
 import { S } from "../lib/strings";
 
@@ -39,6 +39,33 @@ export function SourceCardList({
           </div>
         );
       })}
+    </div>
+  );
+}
+
+/** One card per cited workbook range — SPEC_04 §5: dosya, sheet, aralık (Phase 4.3). */
+export function ExcelSourceCardList({ sources }: { sources: ExcelSourceCard[] }) {
+  if (sources.length === 0) return <p className="muted">{S.ask.noSources}</p>;
+  return (
+    <div>
+      {sources.map((s) => (
+        <div className="source" key={s.label}>
+          <span className="ref">
+            <span className="badge neutral">{S.ask.queryType.DATA_QUERY}</span>
+          </span>
+          <strong>{s.file}</strong> — {S.ask.sheet} {s.sheet}
+          <div className="meta">
+            {S.ask.range}: {s.range}
+            {s.document_id && (
+              <div>
+                <a href={downloadUrl(s.document_id)} target="_blank" rel="noreferrer">
+                  {S.ask.downloadWorkbook}
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

@@ -136,6 +136,18 @@ export interface SourceCard {
   superseded_by_title: string | null;
 }
 
+// ADR-010 (Phase 4.3).
+export type QueryType = "DOCUMENT_QUERY" | "DATA_QUERY" | "MIXED_QUERY" | "GENERAL_QUERY";
+
+/** One cited workbook range (SPEC_04 §5): file + sheet + range, no page. */
+export interface ExcelSourceCard {
+  document_id: string | null;
+  file: string;
+  sheet: string;
+  range: string;
+  label: string;
+}
+
 export interface AskResponse {
   answer: string;
   answered: boolean;
@@ -145,4 +157,6 @@ export interface AskResponse {
   tokens_in: number;
   tokens_out: number;
   notice: string;
+  query_type: QueryType;
+  excel_sources: ExcelSourceCard[];
 }

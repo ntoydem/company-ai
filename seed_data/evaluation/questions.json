@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "demo_today": "2026-09-15",
   "questions": [
     {
@@ -770,6 +770,97 @@
       "ask_as_user": "enerji",
       "expect_no_answer": true,
       "notes": null
+    },
+    {
+      "id": "ANK-DAT-001",
+      "category": "data",
+      "question": "Ankara RES 2026 Q2 DSCR kaç?",
+      "expected_answer": "ledger:ankara_res.project.finance.covenant_tests[10].dscr",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Covenant Report (workbook)"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "DATA: gerçekleşen DSCR; Covenant_Report.xlsx Q2_2026!D14, hesap DuckDB/Python (ADR-011)"
+    },
+    {
+      "id": "ANK-DAT-002",
+      "category": "data",
+      "question": "Ankara RES Ağustos 2026 üretimi kaç MWh?",
+      "expected_answer": "ledger:ankara_res.project.operations.monthly_production[33].mwh",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Monthly Production 2026"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "DATA: aylık üretim named range Production_2026_08"
+    },
+    {
+      "id": "ANK-DAT-003",
+      "category": "data",
+      "question": "Ankara RES'in bugün itibarıyla kalan kredi borcu kaç?",
+      "expected_answer": "ledger:ankara_res.project.finance.outstanding_debt_as_of_demo_today.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Financial Model 2026"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "yonetim",
+      "expect_no_answer": false,
+      "notes": "DATA: Outstanding_DemoToday named range yalnızca Financial Model 2026'da (confidentiality=restricted → employee `finans` göremez, `yonetim` görür; ilk iki eval koşusunda finans ile soruldu, Excel bulamayınca belge hattına düştü ve Covenant Compliance Report'tan doğru cevap verdi — soru seti hatası, 25.09.2026 düzeltildi)"
+    },
+    {
+      "id": "ANK-MIX-001",
+      "category": "mixed",
+      "question": "Güncel DSCR kaç?",
+      "expected_answer": "ledger:ankara_res.project.finance.dscr_covenant.current.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement Amendment 01",
+        "Covenant Report (workbook)"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "MIXED (belirsiz): covenant 1,20x belgeden + gerçekleşen 1,37x Excel'den; iki kaynak türü zorunlu"
+    },
+    {
+      "id": "ANK-MIX-002",
+      "category": "mixed",
+      "question": "Ankara RES Q3 2024 bütçe sapması neydi ve sebebi belgelerde yazıyor mu?",
+      "expected_answer": "ledger:ankara_res.project.operations.budget_vs_actual[3]",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Budget vs Actual 2026"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "MIXED: Excel farkı -894.000 TRY (Summary!D5) + belgelerde sebep yok -> kural 6 sabit cümlesi; değer kontrolü atlanır (dict), kaynak+answered puanlanır"
     }
   ]
 }

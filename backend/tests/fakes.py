@@ -5,8 +5,10 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from app.models.document_chunk import EMBEDDING_DIM
+from app.schemas.ask import QueryType
 from app.services.embedding_client import EmbeddingError
 from app.services.llm import LLMError, LLMRequest, LLMResponse
+from app.services.router import RoutedQuestion
 
 
 class FakeLLMClient:
@@ -40,6 +42,35 @@ class FakeLLMClient:
     def prompt_text(self, index: int = 0) -> str:
         request = self.requests[index]
         return request.system + "\n" + request.user
+
+
+class FakeRouter:
+    """Routes every question to `query_type` (default DOCUMENT — the pre-4.3 `/api/ask`
+    behaviour, so older endpoint tests see exactly the LLM requests they always did).
+    MIXED sub-questions default to the original question unless set."""
+
+    def __init__(
+        self,
+        query_type: QueryType = "DOCUMENT_QUERY",
+        *,
+        document_question: str | None = None,
+        data_question: str | None = None,
+    ) -> None:
+        self.query_type: QueryType = query_type
+        self.document_question = document_question
+        self.data_question = data_question
+        self.questions: list[str] = []
+
+    def route(self, question: str) -> RoutedQuestion:
+        self.questions.append(question)
+        wants_document = self.query_type in ("DOCUMENT_QUERY", "MIXED_QUERY")
+        wants_data = self.query_type in ("DATA_QUERY", "MIXED_QUERY")
+        return RoutedQuestion(
+            query_type=self.query_type,
+            document_question=(self.document_question or question) if wants_document else None,
+            data_question=(self.data_question or question) if wants_data else None,
+            reason="fake",
+        )
 
 
 class FakeEmbeddingClient:

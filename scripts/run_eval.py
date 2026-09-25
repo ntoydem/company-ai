@@ -3,7 +3,7 @@
 by `backend/tests/test_eval_lib.py` without a running server).
 
 Usage (inside the backend container, `postgres`+`backend` already up — see `make eval`):
-    python -m scripts.run_eval [--min-interval-s 13] [--model-label gemini-3.5-flash]
+    python -m scripts.run_eval [--min-interval-s 26] [--model-label gemini-3.5-flash]
 """
 
 from __future__ import annotations
@@ -100,6 +100,8 @@ def ask_with_retry(
                 answered=data["answered"],
                 answer_text=data["answer"],
                 cited_titles=tuple(s["title"] for s in data["sources"]),
+                cited_files=tuple(s["file"] for s in data.get("excel_sources", [])),
+                query_type=data.get("query_type"),
                 model=data["model"],
                 tokens_in=data["tokens_in"],
                 tokens_out=data["tokens_out"],
@@ -140,7 +142,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--manifest", type=Path, default=eval_lib.DEFAULT_MANIFEST)
     parser.add_argument("--out-dir", type=Path, default=eval_lib.DEFAULT_RESULTS_DIR)
     parser.add_argument("--base-url", default="http://backend:8000")
-    parser.add_argument("--min-interval-s", type=float, default=13.0)
+    # Gemini free tier: 5 requests/min per model. Since Phase 4.3 every `/api/ask` call is
+    # at least two LLM requests (router + answer; MIXED = 4), 26 s keeps a DOCUMENT/DATA
+    # question under the limit; MIXED questions rely on the 503 retry/backoff.
+    parser.add_argument("--min-interval-s", type=float, default=26.0)
     parser.add_argument("--max-retries", type=int, default=3)
     parser.add_argument("--retry-base-delay-s", type=float, default=10.0)
     parser.add_argument("--consecutive-error-limit", type=int, default=5)

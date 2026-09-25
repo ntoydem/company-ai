@@ -7,7 +7,7 @@ import { projectNameById, useProjects } from "../api/projects";
 import type { AskResponse, Department } from "../api/types";
 import { S } from "../lib/strings";
 import { ErrorBox } from "./ErrorBox";
-import { SourceCardList } from "./SourceCardList";
+import { ExcelSourceCardList, SourceCardList } from "./SourceCardList";
 
 /** Shared by "Genel Sor" (no scope) and each department's Sor tab (`department` set).
  * The backend answers only from documents the user may see (ADR-004); scope only narrows. */
@@ -68,8 +68,14 @@ export function AskPanel({ department }: { department?: Department }) {
       {result && (
         <>
           <section className="card">
-            <h2>{S.ask.answerTitle}</h2>
-            <p className="notice">{result.notice}</p>
+            <h2>
+              {S.ask.answerTitle}{" "}
+              <span className={`badge ${result.query_type === "GENERAL_QUERY" ? "warn" : "neutral"}`}>
+                {S.ask.queryType[result.query_type]}
+              </span>
+            </h2>
+            {/* GENERAL answers already start with the same sentence (ADR-010). */}
+            {result.query_type !== "GENERAL_QUERY" && <p className="notice">{result.notice}</p>}
             <div className={`answer${result.answered ? "" : " no"}`}>{result.answer}</div>
             {result.model && (
               <div className="meta">
@@ -77,11 +83,21 @@ export function AskPanel({ department }: { department?: Department }) {
               </div>
             )}
           </section>
-          {result.answered && (
-            <section className="card">
-              <h2>{S.ask.sourcesTitle}</h2>
-              <SourceCardList sources={result.sources} projectOfDocument={projectOfDocument} />
-            </section>
+          {result.answered && result.query_type !== "GENERAL_QUERY" && (
+            <>
+              {result.query_type !== "DATA_QUERY" && (
+                <section className="card">
+                  <h2>{S.ask.sourcesTitle}</h2>
+                  <SourceCardList sources={result.sources} projectOfDocument={projectOfDocument} />
+                </section>
+              )}
+              {result.query_type !== "DOCUMENT_QUERY" && (
+                <section className="card">
+                  <h2>{S.ask.excelSourcesTitle}</h2>
+                  <ExcelSourceCardList sources={result.excel_sources} />
+                </section>
+              )}
+            </>
           )}
         </>
       )}

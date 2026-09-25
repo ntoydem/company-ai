@@ -148,6 +148,18 @@ def cmd_print_excel_prompts() -> int:
     return 0
 
 
+def cmd_print_router_prompts() -> int:
+    """Print the router + GENERAL prompts (Phase 4.3) for docs/prompts/ROUTER_PROMPTS.md."""
+    from app.services.general_answer import GENERAL_SYSTEM_PROMPT
+    from app.services.router import ROUTER_SYSTEM_PROMPT
+
+    print("=== ROUTER (LLM_MODEL_CLASSIFY, json_object) ===")
+    print(ROUTER_SYSTEM_PROMPT)
+    print("=== GENERAL (LLM_MODEL_ANSWER) ===")
+    print(GENERAL_SYSTEM_PROMPT)
+    return 0
+
+
 def cmd_print_answer_prompt() -> int:
     """Print the `/api/ask` system prompt (source of truth) so `make prompt-doc` can mirror
     it into docs/prompts/ANSWER_SYSTEM_PROMPT.md and `make lint` can diff the two."""
@@ -210,6 +222,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     sub.add_parser("print-answer-prompt", help="print the /api/ask system prompt")
     sub.add_parser("print-excel-prompts", help="print the /api/excel/ask plan + answer prompts")
+    sub.add_parser("print-router-prompts", help="print the /api/ask router + GENERAL prompts")
     sub.add_parser(
         "cleanup-audit-log", help="delete audit_log rows older than AUDIT_LOG_RETENTION_DAYS"
     )
@@ -240,6 +253,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_print_answer_prompt()
     if args.command == "print-excel-prompts":
         return cmd_print_excel_prompts()
+    if args.command == "print-router-prompts":
+        return cmd_print_router_prompts()
     if args.command == "cleanup-audit-log":
         return cmd_cleanup_audit_log()
     if args.command == "backfill-embeddings":

@@ -22,7 +22,10 @@ _QUARTER = re.compile(
     r"|(?:(?P<q3>[1-4])\.?\s*çeyrek\D{0,6}(?P<y3>20\d{2}))",
     re.IGNORECASE,
 )
-_MONTH = re.compile(r"\b(?P<y>20\d{2})[-/.](?P<m>0[1-9]|1[0-2])\b")
+_MONTH = re.compile(
+    r"\b(?P<y>20\d{2})[-/.](?P<m>0[1-9]|1[0-2])\b"  # 2026-09, 2026/09, 2026.09(-15)
+    r"|\b(?:[0-3]?\d)\.(?P<m2>0[1-9]|1[0-2])\.(?P<y2>20\d{2})\b"  # TR date 15.09.2026
+)
 _YEAR = re.compile(r"\b(?P<y>20\d{2})\b")
 
 
@@ -40,7 +43,11 @@ def normalize_quarter(text: str) -> str | None:
 
 def normalize_month(text: str) -> str | None:
     match = _MONTH.search(text)
-    return f"{match.group('y')}-{match.group('m')}" if match else None
+    if match is None:
+        return None
+    if match.group("y"):
+        return f"{match.group('y')}-{match.group('m')}"
+    return f"{match.group('y2')}-{match.group('m2')}"
 
 
 def normalize_year(text: str) -> str | None:

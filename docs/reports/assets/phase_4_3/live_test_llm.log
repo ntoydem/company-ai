@@ -1,0 +1,89 @@
+docker compose --project-directory . -f infra/docker-compose.yml --env-file .env run --rm -T -e LLM_LIVE_TESTS=1  backend \
+	sh -c 'export DATABASE_URL="$TEST_DATABASE_URL"; python -m app.cli wait-for-db --timeout 60 && pytest -q -s -m live_llm tests/live tests/live/test_router_live.py'
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+
+SORU: Ankara RES'in güncel minimum DSCR covenant'ı nedir?
+CEVAP: Ankara RES'in güncel minimum DSCR covenant'ı 1,20x seviyesindedir [K1]. Bu değer Facility Agreement Amendment 01 ile önceki 1,25x seviyesinden değiştirilmiştir [K1, K5].
+KAYNAKLAR: [{'ref': 'K1', 'document_id': '737f9965-f485-4b65-b344-32c042ef6883', 'title': 'Facility Agreement Amendment 01', 'page_number': 4, 'document_date': '2025-03-15', 'effective_date': '2025-03-15', 'version': 5, 'status': 'superseded', 'is_current': True, 'supersedes_title': 'Facility Agreement', 'superseded_by_title': None}, {'ref': 'K5', 'document_id': 'b085c6f3-420d-4406-87f4-7c832e91f2b0', 'title': 'Facility Agreement', 'page_number': 7, 'document_date': '2021-09-30', 'effective_date': '2021-09-30', 'version': 4, 'status': 'superseded', 'is_current': False, 'supersedes_title': None, 'superseded_by_title': 'Facility Agreement Amendment 01'}]
+.
+SORU: Ankara RES'in güncel minimum DSCR covenant'ı nedir?
+CEVAP: Ankara RES'in güncel minimum DSCR covenant'ı 1,20x'tir [K1]. Bu değer Facility Agreement Amendment 01 ile önceki 1,25x seviyesinden değiştirilmiştir [K1, K5].
+KAYNAKLAR: [{'ref': 'K1', 'document_id': '438fa5ad-61b8-4805-a14f-d69ad5a99d7a', 'title': 'Facility Agreement Amendment 01', 'page_number': 4, 'document_date': '2025-03-15', 'effective_date': '2025-03-15', 'version': 5, 'status': 'superseded', 'is_current': True, 'supersedes_title': 'Facility Agreement', 'superseded_by_title': None}, {'ref': 'K5', 'document_id': 'ccfa2120-159c-44ea-90a7-6e4c5e8eeba9', 'title': 'Facility Agreement', 'page_number': 7, 'document_date': '2021-09-30', 'effective_date': '2021-09-30', 'version': 4, 'status': 'superseded', 'is_current': False, 'supersedes_title': None, 'superseded_by_title': 'Facility Agreement Amendment 01'}]
+
+SORU: İlk DSCR covenant neydi?
+CEVAP: İLK HALKA işaretli belgede ilk DSCR covenant 1,25x olarak belirtilmiştir [K2].
+KAYNAKLAR: [{'ref': 'K2', 'document_id': 'ccfa2120-159c-44ea-90a7-6e4c5e8eeba9', 'title': 'Facility Agreement', 'page_number': 7, 'document_date': '2021-09-30', 'effective_date': '2021-09-30', 'version': 4, 'status': 'superseded', 'is_current': False, 'supersedes_title': None, 'superseded_by_title': 'Facility Agreement Amendment 01'}]
+.
+SORU: İzmir RES'in COD tarihi nedir?
+CEVAP: Mevcut şirket kaynaklarında bu soruyu güvenilir şekilde cevaplamak için yeterli bilgi bulamadım.
+KAYNAKLAR: []
+.
+SORU: Ankara RES Facility Agreement'ının güncel vadesi kaç yıldır?
+CEVAP: Ankara RES Facility Agreement'ının güncel vadesi 14 yıldır [K1]. Bu değer Facility Agreement Amendment 01 ile önceki 12 yıl seviyesinden değiştirilmiştir [K1, K8].
+KAYNAKLAR: [{'ref': 'K1', 'document_id': '388018ab-cd10-441f-a747-d36e5c2b1a07', 'title': 'Facility Agreement Amendment 01', 'page_number': 4, 'document_date': '2025-03-15', 'effective_date': '2025-03-15', 'version': 5, 'status': 'superseded', 'is_current': True, 'supersedes_title': 'Facility Agreement', 'superseded_by_title': None}, {'ref': 'K8', 'document_id': '8d0770fa-79d2-4257-a973-da3979fe207e', 'title': 'Facility Agreement', 'page_number': 6, 'document_date': '2021-09-30', 'effective_date': '2021-09-30', 'version': 4, 'status': 'superseded', 'is_current': False, 'supersedes_title': None, 'superseded_by_title': 'Facility Agreement Amendment 01'}]
+
+SORU: Ankara RES Facility Agreement'ının ilk vadesi kaç yıldı?
+CEVAP: Ankara RES Facility Agreement'ının ilk vadesi 12 yıldır [K8].
+KAYNAKLAR: [{'ref': 'K8', 'document_id': '8d0770fa-79d2-4257-a973-da3979fe207e', 'title': 'Facility Agreement', 'page_number': 6, 'document_date': '2021-09-30', 'effective_date': '2021-09-30', 'version': 4, 'status': 'superseded', 'is_current': False, 'supersedes_title': None, 'superseded_by_title': 'Facility Agreement Amendment 01'}]
+.
+SORU: Ankara RES'in güncel minimum DSCR covenant'ı neden değiştirildi?
+CEVAP: Belgelerde sebep belirtilmemiş [K1].
+KAYNAKLAR: [{'ref': 'K1', 'document_id': '13b9ec65-2fe3-4417-b88c-17c2c5f40410', 'title': 'Facility Agreement Amendment 01', 'page_number': 4, 'document_date': '2025-03-15', 'effective_date': '2025-03-15', 'version': 5, 'status': 'superseded', 'is_current': True, 'supersedes_title': 'Facility Agreement', 'superseded_by_title': None}]
+.
+SORU: Ankara RES'in toplam finansman (kredi) tutarı nedir?
+CEVAP: Ankara RES'in toplam finansman tutarı 50.400.000 EUR'dur [K7]. Bu yapı, PQR Bank tarafından sağlanan 20.400.000 EUR tutarında yerel banka kredisi ve ihracat kredi kuruluşu tarafından sağlanan 30.000.000 EUR tutarında ihracat kredi kuruluşu (ECA) kredisinden oluşmaktadır [K7].
+KAYNAKLAR: [{'ref': 'K7', 'document_id': 'f5d82223-2367-4dc5-a419-8a12e9aa702a', 'title': 'Facility Agreement', 'page_number': 4, 'document_date': '2021-09-30', 'effective_date': '2021-09-30', 'version': 4, 'status': 'superseded', 'is_current': False, 'supersedes_title': None, 'superseded_by_title': 'Facility Agreement Amendment 01'}]
+.
+PLAN: {'kind': 'function', 'name': 'dscr', 'params': {'period': 'Q2_2026'}}
+CEVAP: Ankara RES 2026 Q2 DSCR 1,37x olarak gerçekleşmiştir.
+KAYNAK: [{'document_id': '8b6dfdc8-4dff-4ead-8523-1178787d8907', 'file': 'Covenant_Report.xlsx', 'sheet': 'Q2_2026', 'range': 'D14', 'label': 'Covenant_Report.xlsx Q2_2026!D14'}]
+.
+ROUTE: Kredi sözleşmesindeki DSCR covenant nedir? -> DOCUMENT_QUERY (contract term) doc='Kredi sözleşmesindeki DSCR covenant nedir?' data=None
+.
+ROUTE: Ankara RES 2026 Q2 DSCR kaç? -> DATA_QUERY (computed figure for a specific period and project) doc=None data='Ankara RES 2026 Q2 DSCR kaç?'
+.
+ROUTE: Güncel DSCR kaç? -> MIXED_QUERY (ambiguous between contractual covenant threshold and realised figure) doc="Kredi sözleşmesindeki güncel minimum DSCR covenant'ı nedir?" data='En son dönemdeki gerçekleşen DSCR değeri kaç?'
+.
+ROUTE: DSCR ne demek? -> GENERAL_QUERY (definition of a financial concept with no specific company or document reference) doc=None data=None
+.
+ROUTE: İzmir RES'in COD tarihi nedir? -> DOCUMENT_QUERY (COD date from project documents) doc="İzmir RES'in COD tarihi nedir?" data=None
+.
+SORU: Güncel DSCR kaç?
+TİP: MIXED_QUERY
+CEVAP: Belgelere göre:
+Kredi sözleşmesindeki güncel minimum DSCR covenant'ı 1,20x seviyesindedir [K1]. Bu değer Facility Agreement Amendment 01 ile önceki 1,25x seviyesinden değiştirilmiştir [K1, K6].
+
+Excel verisine göre:
+En son dönemdeki gerçekleşen DSCR değeri 1,37x olarak gerçekleşmiştir.
+KAYNAKLAR: [{'ref': 'K1', 'document_id': 'f54d5c1e-e9aa-4697-8b55-4e18290aae4f', 'title': 'Facility Agreement Amendment 01', 'page_number': 4, 'document_date': '2025-03-15', 'effective_date': '2025-03-15', 'version': 5, 'status': 'superseded', 'is_current': True, 'supersedes_title': 'Facility Agreement', 'superseded_by_title': None}, {'ref': 'K6', 'document_id': 'b089a52d-cd3b-4c41-ba14-ccadcf5a5085', 'title': 'Facility Agreement', 'page_number': 7, 'document_date': '2021-09-30', 'effective_date': '2021-09-30', 'version': 4, 'status': 'superseded', 'is_current': False, 'supersedes_title': None, 'superseded_by_title': 'Facility Agreement Amendment 01'}]
+EXCEL: [{'document_id': '1f937424-0f93-430e-98ff-d4a2dfe1e50f', 'file': 'Covenant_Report.xlsx', 'sheet': 'Q2_2026', 'range': 'D14', 'label': 'Covenant_Report.xlsx Q2_2026!D14'}]
+TOKEN: 5887/172
+.
+SORU: Ankara RES Q3 2024 bütçe sapması neydi ve sebebi belgelerde yazıyor mu?
+TİP: MIXED_QUERY
+CEVAP: Belgelere göre:
+Mevcut şirket kaynaklarında bu soruyu güvenilir şekilde cevaplamak için yeterli bilgi bulamadım.
+
+Excel verisine göre:
+Ankara RES Q3 2024 bütçe sapması -894.000 TRY olmuştur.
+KAYNAKLAR: []
+EXCEL: [{'document_id': 'c1dbd31a-100b-4215-8f9e-6d59e319acc1', 'file': 'Budget_vs_Actual_2026.xlsx', 'sheet': 'Summary', 'range': 'D5', 'label': 'Budget_vs_Actual_2026.xlsx Summary!D5'}]
+TOKEN: 3753/174
+.
+SORU: DSCR ne demek?
+TİP: GENERAL_QUERY
+CEVAP: Bu cevap genel bilgidir; şirket belgeleri veya verileri kullanılmamıştır.
+
+DSCR (Debt Service Coverage Ratio), Türkçede "Borç Servis Oranı" olarak bilinir. Bir işletmenin elde ettiği net faaliyet gelirinin, anapara ve faiz dahil toplam borç ödemelerini karşılama yeteneğini ölçen finansal bir göstergedir. Genellikle kredi verenler tarafından, borçlunun borcunu geri ödeme gücünü değerlendirmek için kullanılır.
+KAYNAKLAR: []
+EXCEL: []
+TOKEN: 790/127
+.
+=============================== warnings summary ===============================
+../opt/venv/lib/python3.12/site-packages/starlette/testclient.py:53
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+15 passed, 1 warning in 475.32s (0:07:55)
+exit=0

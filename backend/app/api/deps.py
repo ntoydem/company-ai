@@ -14,6 +14,7 @@ from app.models.user import User, UserRole
 from app.repositories import user_repo
 from app.services.llm import LLMClient, build_llm_client
 from app.services.rate_limit import LoginRateLimiter
+from app.services.router import LLMRouter, Router
 from app.services.security import ACCESS_TOKEN_COOKIE_NAME, AccessTokenError, decode_access_token
 
 
@@ -75,3 +76,12 @@ def get_calculation_engine() -> CalculationEngine:
     """Phase 4.2 (ADR-011): the one `CalculationEngine` implementation, `CachedValueEngine`.
     Stateless apart from its limits, so a process-wide instance is fine."""
     return _cached_calculation_engine()
+
+
+def get_router(
+    llm: Annotated[LLMClient, Depends(get_llm_client)],
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> Router:
+    """Phase 4.3 (ADR-010): the question router. Tests override this with a `FakeRouter`
+    so `/api/ask` branches are exercised without a classification call."""
+    return LLMRouter(llm, settings)

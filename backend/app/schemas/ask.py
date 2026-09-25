@@ -1,13 +1,23 @@
 from datetime import date
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.document import DocumentStatus
+from app.schemas.excel import ExcelSourceCard
+
+# ADR-010. Stored verbatim in `audit_log.query_type`.
+QueryType = Literal["DOCUMENT_QUERY", "DATA_QUERY", "MIXED_QUERY", "GENERAL_QUERY"]
 
 NO_INTERPRETATION_NOTICE = (
     "Bu cevap yorum içermez; yalnızca şirket belgelerinde yazanı kaynak göstererek aktarır."
 )
+MIXED_NOTICE = (
+    "Bu cevap yorum içermez; belge kısmı kaynak göstererek aktarılır, Excel kısmının hesabını "
+    "DuckDB/Python yapar. İki kısım birleştirilmiş, yorumlanmamıştır."
+)
+GENERAL_NOTICE = "Bu cevap genel bilgidir; şirket belgeleri veya verileri kullanılmamıştır."
 
 
 class AskRequest(BaseModel):
@@ -37,6 +47,10 @@ class SourceCard(BaseModel):
 
 
 class AskResponse(BaseModel):
+    """Phase 4.3: `query_type`, `excel_sources` and a type-specific `notice` were added;
+    `sources` keeps its Phase 0.3 meaning (document pages only) so older clients, the eval
+    runner and the audit rows read the same."""
+
     answer: str
     answered: bool
     sources: list[SourceCard]
@@ -45,3 +59,5 @@ class AskResponse(BaseModel):
     tokens_in: int
     tokens_out: int
     notice: str = NO_INTERPRETATION_NOTICE
+    query_type: QueryType = "DOCUMENT_QUERY"
+    excel_sources: list[ExcelSourceCard] = Field(default_factory=list)

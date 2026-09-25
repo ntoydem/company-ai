@@ -38,9 +38,10 @@ def _require_live(settings: Settings) -> None:
         pytest.skip("LLM_API_KEY not set")
 
 
-# Gemini free tier: 5 requests / minute on the answer model. Space calls out and, on a
-# 503 (rate limit mapped by the API), wait for the window to reset and try once more.
-_CALL_SPACING_S = 13
+# Gemini free tier: 5 requests / minute per model. Since Phase 4.3 one `/api/ask` is two
+# LLM requests (router + answer, same model in `.env`), so space calls ~26 s apart and, on
+# a 503 (rate limit mapped by the API), wait for the window to reset and try once more.
+_CALL_SPACING_S = 26
 _RATE_LIMIT_WAIT_S = 65
 
 

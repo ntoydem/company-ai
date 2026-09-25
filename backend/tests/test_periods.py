@@ -28,3 +28,7 @@ def test_month_and_year() -> None:
     assert normalize_period("2025-12 kaç MWh?") == "2025-12"
     assert normalize_period("2025 yılı") == "2025"
     assert normalize_period("DSCR kaç?") is None
+    # Phase 4.3: a Turkish date is a month, not a bare year (planner emitted `15.09.2026`).
+    assert normalize_month("15.09.2026") == "2026-09"
+    assert normalize_period("15.09.2026 itibarıyla") == "2026-09"
+    assert normalize_period("2026-09-15") == "2026-09"

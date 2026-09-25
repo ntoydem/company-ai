@@ -3,7 +3,7 @@
 Kurumsal doküman + Excel + AI bilgi platformu. Şirket bilgisinin **kaynağını, erişim yetkisini, tarihini,
 versiyonunu ve ilişkilerini** koruyarak AI tarafından güvenilir kullanılmasını sağlar. Basit bir chatbot değildir.
 
-Bu README Phase 4.2 (Excel motoru) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
+Bu README Phase 4.3 (Mixed query / router) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
 `docs/PHASES.md`. Mimari kararlar: `docs/ARCHITECTURE.md`. Alan modeli: `docs/DOMAIN_MODEL.md`.
 
 ## Gereksinimler (VM)
@@ -39,7 +39,9 @@ Caddy imajının içindedir (`infra/caddy/Dockerfile`, çok aşamalı build); ay
   AI önerisi) / **Belge Yükle** (form → OCR durumu → AI önerisi) / **Projeler** (admin: oluştur/düzenle). Enerji'de
   Geliştirme / EPC-İnşaat / Bakım alt kartları yalnızca belge listesini filtreler.
 - **Sor**: cevap + `[K#]` kaynak kartları (belge, **sayfa**, tarih, versiyon, durum, GÜNCEL rozeti, proje, indir).
-  Her cevabın üstünde "yorum içermez" notu. Kaynak yoksa gri "bilgi bulamadım".
+  Her cevabın üstünde "yorum içermez" notu. Kaynak yoksa gri "bilgi bulamadım". Phase 4.3: cevap başlığında soru
+  tipi rozeti (**Belge** / **Excel** / **Belge + Excel** / **Genel bilgi**); Excel kaynakları ayrı "Excel kaynakları"
+  kartında (dosya, sheet, aralık, indir); Genel bilgi cevabı "şirket verisi kullanılmamıştır" cümlesiyle başlar.
 - **AI önerisi**: `ready` belgede otomatik (arka plan taraması) ya da admin'in "Şimdi üret"i ile; admin alanları
   düzenler, **yalnızca işaretlediği** alanları uygular ya da reddeder; diğer roller salt-okunur görür.
 - Hatalar: backend'in Türkçe `detail`'i + küçük "İstek no" satırı; ağ hatasında "Sunucuya ulaşılamadı."
@@ -166,6 +168,35 @@ girer, eşit skorlu sayfalar deterministik sırayla (belge, sayfa) seçilir. Her
 Canlı LLM testleri `make test`'in dışındadır: `make test-llm` (ücretsiz katman 5 istek/dk — testler kendini yavaşlatır;
 model saturasyonunda `make test-llm MODEL=gemini-3.5-flash`).
 
+## Soru yönlendirme — router (Phase 4.3)
+`/api/ask` tek giriş noktasıdır (ADR-010). Her soru önce ucuz bir sınıflandırma çağrısından geçer
+(`LLM_MODEL_CLASSIFY`, JSON) ve dört tipten birine yönlenir; tip cevapta `query_type` olarak döner ve
+`audit_log.query_type`'a yazılır:
+
+| Tip | Ne olur | Kaynak |
+|---|---|---|
+| `DOCUMENT_QUERY` | eskisi gibi belge hattı (retrieval → prompt → `[K#]`) | `sources` (belge + sayfa) |
+| `DATA_QUERY` | `POST /api/excel/ask` ile **aynı** kod (plan → DuckDB/Python → aktarım); Excel'de bulunamazsa soru **belge hattına düşer** (cevap `DOCUMENT_QUERY` olarak döner) | `excel_sources` (dosya + sheet + aralık) |
+| `MIXED_QUERY` | router iki alt soru üretir; belge hattı + Excel hattı **ikisi de** koşar; iki cevap "Belgelere göre: / Excel verisine göre:" başlıklarıyla **yorumsuz** birleştirilir (üçüncü LLM çağrısı yok) | ikisi birden |
+| `GENERAL_QUERY` | retrieval yok, Excel yok, yetki sorgusu yok — kısa genel tanım; cevap kodla eklenen "Bu cevap genel bilgidir; şirket belgeleri veya verileri kullanılmamıştır." cümlesiyle başlar; cevapta proje adı veya para tutarı görünürse cevap düşürülür | yok |
+
+Belirsiz sorular ("Güncel DSCR kaç?") MIXED'dir: belge tarafı sözleşmedeki covenant'ı (1,20x, Amendment 01),
+Excel tarafı gerçekleşen değeri (1,37x, `Covenant_Report.xlsx Q2_2026!D14`) verir. Router hatası/bozuk JSON →
+`DOCUMENT_QUERY` (asla kaynaksız GENERAL'e düşmez). Bir `/api/ask` çağrısı = **bir** audit satırı (`sources` JSON'unda
+her kart `kind: document|excel` taşır, `excel_files_used` dolu). `/api/excel/ask` router'sız DATA ucu olarak kalır.
+```bash
+curl -s -X POST localhost:8080/api/ask -b cookies.txt -H 'content-type: application/json' \
+  -d '{"question": "Güncel DSCR kaç?"}'
+# {"query_type":"MIXED_QUERY","answer":"Belgelere göre:\n... 1,20x ... [K1]\n\nExcel verisine göre:\n... 1,37x ...",
+#  "sources":[{"ref":"K1","title":"Facility Agreement Amendment 01","page_number":3,...}],
+#  "excel_sources":[{"file":"Covenant_Report.xlsx","sheet":"Q2_2026","range":"D14","label":"Covenant_Report.xlsx Q2_2026!D14"}],...}
+curl -s -X POST localhost:8080/api/ask -b cookies.txt -H 'content-type: application/json' -d '{"question": "DSCR ne demek?"}'
+# {"query_type":"GENERAL_QUERY","answer":"Bu cevap genel bilgidir; şirket belgeleri veya verileri kullanılmamıştır.\n\n...","sources":[],"excel_sources":[],...}
+```
+Router ve GENERAL promptları `backend/app/services/router.py` / `general_answer.py`; kopyası
+`docs/prompts/ROUTER_PROMPTS.md` (`make prompt-doc`, `make lint` eşitliği denetler). Maliyet: soru başına LLM çağrısı
+DOCUMENT 2, DATA 3, MIXED 4, GENERAL 2 — ücretsiz katmanda (5 istek/dk) `make eval` istek aralığı bu yüzden 26 sn.
+
 ## Audit log (Phase 3.4)
 Her `/api/ask` çağrısı (cevaplı, "bilgi bulamadım" veya LLM hatası — hepsi) `audit_log` tablosuna bir satır yazar:
 kim sordu, ne zaman, hangi kapsamda, hangi belgeler getirildi, cevap, kaynaklar, model, token, süre, `request_id`,
@@ -206,7 +237,8 @@ yazılmaz; sheet'ler soru anında DuckDB tablolarına (`<dosya>__<sheet>`, `_row
 (`dscr`, `outstanding_debt`, `budget_variance`, `capacity_factor`, `production`) ya da tek bir read-only `SELECT`
 seçer; hesabı DuckDB/Python yapar; ikinci çağrı sonucu Türkçe aktarır — cevapta motorun rakamı aynen yoksa
 şablon cevap döner. Her cevap **dosya + sheet + range** gösterir (`Covenant_Report.xlsx Q2_2026!D14`) ve
-`audit_log`'a `excel_files_used` ile yazılır. `/api/ask` bu fazda DOCUMENT-only; router Phase 4.3.
+`audit_log`'a `excel_files_used` ile yazılır. Phase 4.3'ten itibaren `/api/ask` DATA sorularını da aynı koda
+yönlendirir (bkz. "Soru yönlendirme"); `/api/excel/ask` router'sız doğrudan uç olarak kalır.
 ```bash
 curl -s -X POST localhost:8080/api/excel/ask -b cookies.txt -H 'content-type: application/json' \
   -d '{"question": "Ankara RES 2026 Q2 DSCR kaç?"}'
@@ -252,9 +284,11 @@ akıştan geçer. Onay tablosu `docs/reports/PHASE_2_1_REPORT.md §10`. `make li
 bozan bir düzenleme lint'i kırar.
 
 ## Eval (Phase 4.1)
-`scripts/run_eval.py`: `seed_data/evaluation/questions.json` (43 soru) → gerçek `/api/ask` çağrıları (`ask_as_user`
-ile giriş yapılmış demo kullanıcı) → skor → `seed_data/evaluation/results/<model>_<tarih>/results.{md,json}`
-(git-ignored). Kaynak (required/forbidden) kontrolü `seed_data/documents/manifest.json`'dan; beklenen değer,
+`scripts/run_eval.py`: `seed_data/evaluation/questions.json` (v2: 48 soru — 43 + Phase 4.3'ün 3 `data` + 2 `mixed`
+sorusu) → gerçek `/api/ask` çağrıları (`ask_as_user` ile giriş yapılmış demo kullanıcı) → skor →
+`seed_data/evaluation/results/<model>_<tarih>/results.{md,json}` (git-ignored). Kaynak (required/forbidden)
+kontrolü `seed_data/documents/manifest.json` + `seed_data/excel/manifest.json`'dan (`excel_sources[].file` →
+workbook başlığı); beklenen değer,
 ledger yolunu `seed_data/generator/facts.py::format_ledger_leaf` ile demo belgelere gömülen **aynı** biçimde
 formatlayıp cevap metninde arar — liste/sözlük/`DOC-*` referansı/"henüz olmadı" tipi değerler için bu kontrol
 atlanır (yalnızca kaynak+`answered` ile puanlanır; hangi sorular atlandığı raporda açıkça listelenir).
@@ -267,8 +301,9 @@ make eval MODEL=gemini-3.5-flash   # backend'i geçici olarak bu modelle yeniden
 harcamaz); `make eval EVAL_ARGS="--repeat 3 --ids ANK-FIN-002,ANK-FIN-007"` aynı soruyu tekrar sorup retrieval
 kararlılığı ile model kararlılığını ayrı raporlar (`audit_log.chunks_retrieved` üzerinden).
 Kategori eşikleri: `isolation`/`hallucination`/`authorization` %100, diğerleri ≥%80 (PHASES.md); altında kalınırsa
-`make eval` sıfırdan farklı çıkar. Gemini ücretsiz katmanına uyum: istekler arası en az 13 sn (paylaşılan, tüm
-demo kullanıcılar arasında), 503'te 3 kez artan gecikmeyle yeniden deneme, 5 ardışık hata sonrası koşu güvenli
+`make eval` sıfırdan farklı çıkar. Gemini ücretsiz katmanına uyum: istekler arası en az 26 sn (paylaşılan, tüm
+demo kullanıcılar arasında; her `/api/ask` router + cevap = ≥ 2 LLM isteği), 503'te 3 kez artan gecikmeyle yeniden
+deneme, 5 ardışık hata sonrası koşu güvenli
 şekilde durur ("günlük kota tükenmiş olabilir" uyarısıyla) — bkz. `docs/reports/PHASE_4_1_REPORT.md`.
 
 ## Demo veri (Phase 3.1)
@@ -335,7 +370,9 @@ docs/         SPEC_0x, PHASES.md, ARCHITECTURE.md (ADR), DOMAIN_MODEL.md, plans/
 - Yalnızca LAN, düz HTTP; HTTPS/Tailscale V0 sonrası.
 - Embedding opsiyonel (`EMBEDDINGS_ENABLED=false` varsayılan); sistem yalnızca full-text + metadata ile çalışır.
 - Consume klasörü, Word/e-posta ingest, SSO yok.
-- `/api/ask` yalnızca belge sorularını cevaplar (DOCUMENT); DATA soruları ayrı `POST /api/excel/ask` ucunda (Phase 4.2), MIXED ve router Phase 4.3.
+- Router bir LLM sınıflandırmasıdır (Phase 4.3): yanlış tip mümkündür; hata yönü DOCUMENT'a (kaynaklı) doğru
+  tasarlanmıştır, GENERAL'e yanlış düşen bir soru yine de "şirket verisi kullanılmadı" der. MIXED birleştirme
+  deterministik (iki parça, başlık), sentez yok.
 - Gemini ücretsiz katmanı: `gemini-3.8-flash` için 5 istek/dk; yoğunlukta "high demand" 503 dönebilir — `/api/ask`
   bunu Türkçe 503 mesajıyla iletir, sistem çalışmaya devam eder.
 - `documents.department` bir FK değil, serbest slug string'idir (upload/apply endpoint'leri bilinen slug'a

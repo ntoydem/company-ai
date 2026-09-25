@@ -52,7 +52,7 @@ User ──< AuditLog
 | `ingestion_status` | `uploaded`, `ocr`, `ready`, `failed` | pipeline state |
 | `ingestion_job_status` | `queued`, `running`, `done`, `failed` | queue state |
 | `project_stage` | `development`, `construction`, `operation` | |
-| `query_type` | `DOCUMENT_QUERY`, `DATA_QUERY`, `MIXED_QUERY`, `GENERAL_QUERY` | router output; every `audit_log` row is `DOCUMENT_QUERY` until the router (ADR-010) lands in Phase 4.3 |
+| `query_type` | `DOCUMENT_QUERY`, `DATA_QUERY`, `MIXED_QUERY`, `GENERAL_QUERY` | router output (ADR-010, Phase 4.3): stored on every `audit_log` row and returned by `/api/ask`; `/api/excel/ask` always writes `DATA_QUERY` |
 | `ledger_tag` | `USER_FACT`, `AI_ASSUMPTION` | truth ledger only, never in the app DB |
 
 ## 5. Authorization rules (summary; implementation in `allowed_document_ids`, ADR-004)

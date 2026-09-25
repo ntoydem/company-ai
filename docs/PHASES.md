@@ -21,7 +21,7 @@ Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 | 3.4 | Audit log + embedding (opsiyonel) | tamamlandı | phase-3-4 | [PHASE_3_4_REPORT](reports/PHASE_3_4_REPORT.md) |
 | 4.1 | Eval runner (karne) | tamamlandı (skor eşiği altında, bkz. rapor §7) | phase-4-1 | [PHASE_4_1_REPORT](reports/PHASE_4_1_REPORT.md) |
 | 4.2 | Excel motoru | tamamlandı | phase-4-2 | [PHASE_4_2_REPORT](reports/PHASE_4_2_REPORT.md) |
-| 4.3 | Mixed query | bekliyor | – | – |
+| 4.3 | Mixed query (router) | tamamlandı | phase-4-3 | [PHASE_4_3_REPORT](reports/PHASE_4_3_REPORT.md) |
 | 5.1 | Tam dataset (~70) + consistency checks | bekliyor | – | – |
 | 5.2 | Admin panel | bekliyor | – | – |
 | 5.3 | Backup / restore | bekliyor | – | – |
@@ -131,8 +131,9 @@ Tanım: Doğruluğun ölçülmesi; kesin veriyle aritmetik yapan Excel motoru; p
 
 ## Phase 4.3 — Mixed query `S`
 **Kapsam:** Router `DOCUMENT|DATA|MIXED|GENERAL`; MIXED = iki alt sorgu + birleştirme (yorum yok). Belirsiz "güncel DSCR kaç?" → covenant (belge) + gerçekleşen (Excel).
-**Kabul kriterleri:** EBITDA sorusu → Excel farkı + belge kaynağı + yalnızca belgedeki sebep; belirsiz DSCR → iki değer iki kaynak türü; GENERAL sorularda şirket verisi kullanılmaz ve bu belirtilir.
-**Naci karar noktası:** Gemini yeterli mi / yerel model gündemi.
+**Kabul kriterleri:** Q3 2024 bütçe sapması + "sebebi belgelerde var mı?" sorusu → Excel farkı (`Summary!D5`) + belge kaynağı + yalnızca belgedeki sebep (belgede sebep yoksa kural 6'nın sabit cümlesi — Phase 4.3 planı SORU 1, 25.09.2026: "EBITDA sorusu" ledger'da EBITDA ve sebep anlatan belge olmadığı için bu şekilde yeniden ifade edildi); belirsiz DSCR → iki değer iki kaynak türü; GENERAL sorularda şirket verisi kullanılmaz ve bu belirtilir.
+**Naci karar noktası:** Gemini yeterli mi / yerel model gündemi (ölçüm: `docs/reports/PHASE_4_3_REPORT.md` §9).
+**Not (Phase 4.3):** `questions.json` v2 = 48 soru (3 `data` + 2 `mixed`); `general` kategorisi ve "sebep belgede pozitif olarak yazıyor" örneği (Bakım Raporu Temmuz 2024 gibi bir belge gerektirir) Phase 5.1'e.
 
 ---
 
@@ -142,6 +143,7 @@ Tanım: Gösterilebilir, yedeklenebilir, sıfırdan kurulabilir sistem.
 ## Phase 5.1 — Tam dataset + consistency checks `S`
 **Kapsam:** ~70 belge (SPEC_05 §6 dağılımı), 8–10 görüntü PDF, `validate_dataset.py` (SPEC_05 §11), `questions.json` v2 (≥ 60).
 **Kabul kriterleri:** validator 0 hata; görüntü PDF'ler `ready`; eval isolation/hallucination/authorization %100, diğerleri ≥ %80; belge ≤ 80.
+**Ertelenen (Phase 4.3, 25.09.2026):** (a) `QuestionCategory`'ye `general` eklenmesi + GENERAL soruları (eval bugün yalnızca pytest+canlı testle kanıtlıyor); (b) MIXED'in "sebep belgede yazıyor" pozitif dalı — arıza/duruş sebebini anlatan bir belge (örn. Bakım Raporu Temmuz 2024, ledger `incidents` üzerinden) üretilince `ANK-MIX-002` benzeri bir soru eklenmeli.
 **Ertelenen (Phase 3.2c, 25.09.2026, Naci kararı):** (1) `IZM-DEV-005/006` gibi negatif-olgu soruları ("lisans alındı mı?") NO OPINION kuralıyla çelişiyor — soru seti v2'de ya `expect_no_answer` beklenmeli ya da belgeler açıkça "henüz alınmamıştır" demeli; (2) `ANK-EPC-004`/`IZM-DEV-007`: cevap doğru ama `required_sources` listesindeki ikinci belge gösterilmiyor — v2 şemasında "hepsi / en az biri" ayrımı (`required_sources_all`) tanımlanmalı ve eval runner'a yansıtılmalı; (3) elle düzenlenmiş prose dosyaları `hand_edited:` işaretli, `generate_prose.py` bunları `--force` ile bile ezmez — yeni belgeler üretilirken bu 6 dosya korunur (`docs/reports/PHASE_3_2C_REPORT.md`).
 
 ## Phase 5.2 — Admin panel `S`

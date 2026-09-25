@@ -17,7 +17,6 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
-from app.core.request_id import get_request_id
 from app.excel.calc import (
     CalcResult,
     CalculationEngine,
@@ -31,10 +30,11 @@ from app.excel.functions import FUNCTIONS, FunctionError, run_function
 from app.excel.sql_guard import SqlRejectedError
 from app.models.document import Document
 from app.models.user import User
-from app.repositories import audit_log_repo, document_repo
+from app.repositories import document_repo
 from app.repositories.document_repo import SqlDocumentIdsProvider
 from app.schemas.authorization import AuthorizationScope
 from app.schemas.excel import ExcelAskRequest, ExcelSourceCard
+from app.services.audit_writer import write_audit_row
 from app.services.authorization import allowed_document_ids
 from app.services.llm import LLMClient, LLMRequest
 
@@ -212,7 +212,10 @@ def answer_data_question(
     llm: LLMClient,
     settings: Settings,
     engine: CalculationEngine,
+    *,
+    write_audit: bool = True,
 ) -> ExcelAskResult:
+    """`write_audit=False` (Phase 4.3): the router owns the call's single audit row."""
     started = time.perf_counter()
     scope = AuthorizationScope(department=request.department, project_id=request.project_id)
     allowed = allowed_document_ids(user, scope, SqlDocumentIdsProvider(session))
@@ -222,7 +225,8 @@ def answer_data_question(
     workbooks, needs_recalc = _load_workbooks(documents, engine, settings.documents_dir)
 
     def finish(result: ExcelAskResult, *, error: str | None = None) -> ExcelAskResult:
-        _write_audit(session, user, request, result, started, error)
+        if write_audit:
+            _write_audit(session, user, request, result, started, error)
         return result
 
     if not workbooks:
@@ -381,30 +385,28 @@ def _write_audit(
     started: float,
     error: str | None,
 ) -> None:
-    try:
-        audit_log_repo.create(
-            session,
-            user_id=user.id,
-            question=request.question,
-            query_type=QUERY_TYPE,
-            scope_department=request.department,
-            scope_project=request.project_id,
-            documents_retrieved=[
-                s.document_id for s in result.sources if s.document_id is not None
-            ],
-            answer=result.answer,
-            sources=[card.model_dump(mode="json") for card in result.sources],
-            model=result.model,
-            tokens_in=result.tokens_in,
-            tokens_out=result.tokens_out,
-            cost_estimate=None,
-            execution_ms=round((time.perf_counter() - started) * 1000),
-            request_id=get_request_id(),
-            error=error,
-            excel_files_used=result.excel_files,
-        )
-    except Exception:
-        log.exception("audit log write failed")
+    write_audit_row(
+        session,
+        user,
+        question=request.question,
+        query_type=QUERY_TYPE,
+        scope_department=request.department,
+        scope_project=request.project_id,
+        documents_retrieved=excel_document_ids(result.sources),
+        chunks=[],
+        answer=result.answer,
+        sources=[],
+        excel_sources=result.sources,
+        model=result.model,
+        tokens_in=result.tokens_in,
+        tokens_out=result.tokens_out,
+        execution_ms=round((time.perf_counter() - started) * 1000),
+        error=error,
+    )
+
+
+def excel_document_ids(sources: list[ExcelSourceCard]) -> list[UUID]:
+    return list(dict.fromkeys(s.document_id for s in sources if s.document_id is not None))
 
 
 def workbook_document_ids(session: Session, user: User) -> list[UUID]:
