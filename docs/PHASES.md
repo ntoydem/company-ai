@@ -141,6 +141,7 @@ Tanım: Gösterilebilir, yedeklenebilir, sıfırdan kurulabilir sistem.
 ## Phase 5.1 — Tam dataset + consistency checks `S`
 **Kapsam:** ~70 belge (SPEC_05 §6 dağılımı), 8–10 görüntü PDF, `validate_dataset.py` (SPEC_05 §11), `questions.json` v2 (≥ 60).
 **Kabul kriterleri:** validator 0 hata; görüntü PDF'ler `ready`; eval isolation/hallucination/authorization %100, diğerleri ≥ %80; belge ≤ 80.
+**Ertelenen (Phase 3.2c, 25.09.2026, Naci kararı):** (1) `IZM-DEV-005/006` gibi negatif-olgu soruları ("lisans alındı mı?") NO OPINION kuralıyla çelişiyor — soru seti v2'de ya `expect_no_answer` beklenmeli ya da belgeler açıkça "henüz alınmamıştır" demeli; (2) `ANK-EPC-004`/`IZM-DEV-007`: cevap doğru ama `required_sources` listesindeki ikinci belge gösterilmiyor — v2 şemasında "hepsi / en az biri" ayrımı (`required_sources_all`) tanımlanmalı ve eval runner'a yansıtılmalı; (3) elle düzenlenmiş prose dosyaları `hand_edited:` işaretli, `generate_prose.py` bunları `--force` ile bile ezmez — yeni belgeler üretilirken bu 6 dosya korunur (`docs/reports/PHASE_3_2C_REPORT.md`).
 
 ## Phase 5.2 — Admin panel `S`
 **Kapsam:** kullanıcı ekle/disable/rol, departman izinleri, proje CRUD, metadata düzenleme, "bu belgeyi kim görebilir", audit log (filtre).

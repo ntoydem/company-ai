@@ -1,6 +1,7 @@
 doc_id: DOC-ANK-FIN-005
 model: gemini-3.5-flash-lite
 tag: AI_ASSUMPTION
+hand_edited: Phase 3.2c (25.09.2026) — icerik boslugu kapatan cumleler elle eklendi; generate_prose bu dosyayi --force ile bile yeniden uretmez
 sections:
 - heading: 1. Background
   paragraphs:

@@ -135,6 +135,20 @@ def generate_one(client: OpenAI, model: str, doc_id: str, raws: dict[str, Any]) 
     return last_errors
 
 
+HAND_EDITED_KEY = "hand_edited"
+
+
+def is_hand_edited(prose_path: Path) -> bool:
+    """A prose file carrying a top-level `hand_edited:` note was corrected by hand after
+    generation (Phase 3.2c: seven sentences that close real content gaps). Regenerating
+    it — even with `--force` — would silently undo those corrections, so it is never
+    overwritten; delete the key deliberately if you really want a fresh LLM draft."""
+    if not prose_path.exists():
+        return False
+    data = yaml.safe_load(prose_path.read_text(encoding="utf-8"))
+    return isinstance(data, dict) and bool(data.get(HAND_EDITED_KEY))
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="generate_prose")
     parser.add_argument("--only", action="append", default=None, help="tek belge, tekrarlanabilir")
@@ -150,6 +164,9 @@ def main(argv: list[str] | None = None) -> int:
     failures: dict[str, list[str]] = {}
     for i, doc_id in enumerate(doc_ids):
         prose_path = PROSE_DIR / f"{doc_id}.yaml"
+        if is_hand_edited(prose_path):
+            print(f"atlandı (elle düzenlenmiş, `{HAND_EDITED_KEY}:`; --force ezmez): {doc_id}")
+            continue
         if prose_path.exists() and not args.force:
             print(f"atlandı (zaten var): {doc_id}")
             continue

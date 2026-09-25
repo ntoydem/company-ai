@@ -74,9 +74,11 @@ Yasak kaynak/proje karışması: **0/43** (üç koşuda da). `make eval` sıfır
 - `ANK-EPC-004` ve `IZM-DEV-007`'nin `required_sources` listeleri artık içerikten daha katı (cevap doğru, ikinci atıf
   yok); Phase 5.1'in soru seti v2'sinde "en az biri" / "hepsi" ayrımı (`required_sources_all: bool`?) düşünülebilir —
   bu fazda soru seti **değiştirilmedi**.
-- Prose yaması elle yazıldı; Phase 5.1'de `make prose` yeniden koşulursa bu 7 cümle LLM tarafından yeniden
-  üretilir ve kaybolabilir — `generate_prose.py`'nin mevcut prose'u koruması ya da bu cümlelerin şablona
-  taşınması gerekir (5.1 planına not).
+- Prose yaması elle yazıldı. **Koruma kod seviyesinde (Naci'nin şartı, aynı gün eklendi):** 6 dosya top-level
+  `hand_edited:` notu taşıyor; `generate_prose.py::is_hand_edited()` bu dosyaları `--force` verilse bile atlar
+  (mevcut koruma yalnızca "dosya varsa atla" idi, `--force` ezerdi). `tests/test_generate_prose_guard.py` hem
+  işaretin algılanmasını hem 6 dosyanın işaretli olduğunu doğrular; `validate_documents`/`generate_documents`
+  ekstra anahtarı yok sayar (prose P1/P2 0 hata).
 
 ## 7. Kaynak kullanımı
 - LLM: 43 çağrı (eval); reseed LLM'siz.
