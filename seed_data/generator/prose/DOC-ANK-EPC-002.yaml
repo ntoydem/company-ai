@@ -6,8 +6,10 @@ sections:
   paragraphs:
   - This document certifies that the project named [[project_name]], developed by
     [[spv_name]], has successfully achieved its commercial operation milestone on
-    [[cod_actual]]. All obligations pursuant to the agreement with [[counterparty]]
-    have been thoroughly fulfilled in accordance with the technical specifications.
+    [[cod_actual]]. The commercial operation date was deferred from the initially
+    expected [[cod_expected]], the recorded reason being [[cod_deferral_reason]]. All
+    obligations pursuant to the agreement with [[counterparty]] have been thoroughly
+    fulfilled in accordance with the technical specifications.
   - The facility, boasting a nominal capacity of [[capacity_mw]], has demonstrated
     full operational readiness during the preliminary evaluation phase. Representatives
     from [[parties_list]] have reviewed the operational parameters and confirmed compliance

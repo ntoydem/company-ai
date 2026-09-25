@@ -154,7 +154,7 @@ documents:
     version: EXECUTED
     status: amended
     parties: ["DEF Enerji Üretim A.Ş."]
-    key_facts: {capacity_mw: project.capacity_mw.initial.value, licence_date: project.timeline.licence.date}
+    key_facts: {capacity_mw: project.capacity_mw.initial.value, licence_date: project.timeline.licence.date, development_start: project.timeline.development_start.date}
     supersedes: null
     superseded_by: null
     related: [DOC-ANK-DEV-002]
@@ -267,6 +267,7 @@ documents:
       tenor_years: project.finance.tenor_years.initial.value
       grace_months: project.finance.grace_months.value
       dscr_covenant: project.finance.dscr_covenant.initial.value
+      financial_close_date: project.timeline.financial_close.date
     supersedes: DOC-ANK-FIN-003
     superseded_by: DOC-ANK-FIN-005
     related: [DOC-CO-ADM-001, DOC-ANK-EPC-001]
@@ -287,7 +288,7 @@ documents:
     version: AMD01
     status: superseded
     parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
-    key_facts: {dscr_covenant: project.finance.dscr_covenant.current.value, tenor_years: project.finance.tenor_years.current.value}
+    key_facts: {dscr_covenant: project.finance.dscr_covenant.current.value, tenor_years: project.finance.tenor_years.current.value, financial_close_date: project.timeline.financial_close.date}
     supersedes: DOC-ANK-FIN-004
     superseded_by: DOC-ANK-FIN-006
     related: []
@@ -373,7 +374,7 @@ documents:
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş.", "MNO Teknik Danışmanlık Ltd."]
-    key_facts: {cod_actual: project.timeline.cod_actual.date, capacity_mw: project.capacity_mw.current.value}
+    key_facts: {cod_actual: project.timeline.cod_actual.date, capacity_mw: project.capacity_mw.current.value, cod_expected: project.timeline.cod_expected_initial.date, cod_deferral_reason: "project.construction.change_orders[0].subject.value"}
     supersedes: null
     superseded_by: null
     related: [DOC-ANK-EPC-001]

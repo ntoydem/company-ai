@@ -111,7 +111,7 @@ documents:
     version: EXECUTED
     status: active
     parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "MNO Teknik Danışmanlık Ltd."]
-    key_facts: {ced_status: project.development.ced_status.value, latest_event: project.development.latest_event.date}
+    key_facts: {ced_status: project.development.ced_status.value, latest_event: project.development.latest_event.date, pre_licence_date: project.timeline.pre_licence.date, land_acquisition_start: project.timeline.land_acquisition_start.date}
     supersedes: null
     superseded_by: null
     related: [DOC-IZM-DEV-004]

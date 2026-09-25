@@ -182,8 +182,11 @@ def validate_generated(manifest_path: Path) -> Report:
         if "Bursa" in text:
             report.error(f"{doc_id}: 'Bursa' geçiyor (G3)")
 
+        # Whitespace-insensitive: PyMuPDF returns one line per rendered line, so a fact
+        # that wraps ("June\n30, 2023") is still the same printed fact (Phase 3.2c).
+        flat_text = " ".join(text.split())
         for field_name, value in entry["key_facts_used"].items():
-            if str(value) not in text:
+            if " ".join(str(value).split()) not in flat_text:
                 report.error(
                     f"{doc_id}: key_facts_used[{field_name}]={value!r} PDF metninde yok (G4)"
                 )

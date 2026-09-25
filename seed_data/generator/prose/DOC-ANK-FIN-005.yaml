@@ -9,11 +9,13 @@ sections:
   - The primary obligor, [[spv_name]], together with [[counterparty]], previously
     executed the primary financing documents under reference [[document_no]].
   - The current operational status is designated as [[status_label]] pursuant to the
-    latest compliance review under version [[version_label]].
+    latest compliance review under version [[version_label]]. Financial close under the
+    original agreement was achieved on [[financial_close_date]].
 - heading: 2. Amendments to the Original Agreement
   paragraphs:
   - The parties hereby agree to modify the financial covenants, specifically updating
-    the minimum debt service coverage ratio to [[dscr_covenant]].
+    the minimum debt service coverage ratio (DSCR) to [[dscr_covenant]] with effect from
+    [[effective_date]].
   - Furthermore, the maturity schedule is extended, such that the tenor of the facility
     is adjusted to [[tenor_years]].
   - All references to the designated [[title]] within the principal clauses are amended

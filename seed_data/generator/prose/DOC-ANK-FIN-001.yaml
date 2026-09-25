@@ -18,7 +18,7 @@ sections:
     to the terms and conditions set forth in this document. The tenor of the facility
     is established as [[tenor_years]] from the closing date. Utilization of funds
     shall strictly support the approved project milestones.
-  - The borrower shall maintain compliance with the financial ratio known as [[dscr_covenant]]
+  - The borrower shall maintain a minimum debt service coverage ratio (DSCR) of [[dscr_covenant]]
     throughout the active lifecycle of the credit. Interest rates and repayment schedules
     are detailed in the subsequent schedules of this agreement. Funds must be drawn
     in accordance with the operational drawdown mechanism.

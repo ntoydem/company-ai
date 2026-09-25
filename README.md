@@ -3,7 +3,7 @@
 Kurumsal doküman + Excel + AI bilgi platformu. Şirket bilgisinin **kaynağını, erişim yetkisini, tarihini,
 versiyonunu ve ilişkilerini** koruyarak AI tarafından güvenilir kullanılmasını sağlar. Basit bir chatbot değildir.
 
-Bu README Phase 3.2b (retrieval/cevap düzeltmeleri, Phase 4.1 eval sonrası) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
+Bu README Phase 3.2c (eval eşikleri geçildi) durumunu anlatır; her phase sonunda güncellenir. Plan ve kabul kriterleri:
 `docs/PHASES.md`. Mimari kararlar: `docs/ARCHITECTURE.md`. Alan modeli: `docs/DOMAIN_MODEL.md`.
 
 ## Gereksinimler (VM)
@@ -313,7 +313,6 @@ docs/         SPEC_0x, PHASES.md, ARCHITECTURE.md (ADR), DOMAIN_MODEL.md, plans/
   bağlı, `supersedes` değil (Phase 3.1) — bu yüzden "güncel"/"ilk" zincir mekanizmasına hiç girmiyor; SPEC_02
   §11'in kapasite örneği bu çift için değil, gerçek bir `supersedes` zinciri (örn. Facility Agreement) için
   geçerlidir.
-- **Eval skoru (Phase 3.2b, 25.09.2026):** authorization/hallucination %100, isolation %75, document %69,6, temporal %66,7 —
-  4.1'deki %50 / %52 / %33'ten yukarı ama %80/%100 eşiklerinin altında. Kod tarafı düzeltildi (sözlük, deterministik
-  sıralama, top_k=40, kural 2/5); kalan başarısızlıkların tamamı demo belge içeriğine gidiyor (etiketsiz kredi
-  tutarları, "DSCR" kelimesinin geçmemesi, basılmayan tarihler) — bkz. `docs/reports/PHASE_3_2B_REPORT.md` §3.2/§8.
+- **Eval skoru (Phase 3.2c, 25.09.2026):** authorization/hallucination/isolation %100, document %87,0, temporal %88,9 —
+  PHASES.md eşikleri (%100 / ≥%80) geçildi. Kalan 4 başarısızlık: iki negatif-olgu sorusu (NO OPINION kuralıyla çelişiyor,
+  karar bekliyor) ve iki doğru cevabın soru setindeki ikinci atıf beklentisi — bkz. `docs/reports/PHASE_3_2C_REPORT.md`.

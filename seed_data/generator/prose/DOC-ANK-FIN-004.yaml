@@ -13,8 +13,9 @@ sections:
 - heading: 2. The Facility
   paragraphs:
   - The total financial accommodation provided to [[spv_name]] is structured as [[total_debt]].
-    This structure incorporates specific allocations for [[eca_debt]] and [[local_debt]]
-    as outlined in the financial plan.
+    This structure comprises a local bank facility of [[local_debt]] provided by [[counterparty]]
+    and an export credit agency (ECA) facility of [[eca_debt]] provided by the export credit
+    agency party, as outlined in the financial plan.
   - The applicable interest rate shall be determined by the baseline index plus [[margin_pct]].
     Funds shall be disbursed in accordance with the milestones established for [[project_name]].
 - heading: 3. Conditions Precedent
@@ -23,7 +24,8 @@ sections:
     precedent by [[counterparty]]. These prerequisites ensure full compliance with
     the framework of [[project_name]].
   - Legal opinions and corporate authorizations must be delivered prior to [[effective_date]].
-    Failure to meet these criteria may result in a revision of [[status_label]].
+    Financial close is scheduled for [[financial_close_date]] upon satisfaction of these
+    conditions. Failure to meet these criteria may result in a revision of [[status_label]].
 - heading: 4. Repayment and Prepayment
   paragraphs:
   - The repayment schedule shall commence following the expiry of [[grace_months]].
@@ -33,8 +35,8 @@ sections:
     review under the agreement.
 - heading: 5. Financial Covenants
   paragraphs:
-  - The borrower must maintain financial ratios that satisfy the minimum threshold
-    set for [[dscr_covenant]]. Compliance with these metrics will be tested at each
+  - The borrower must maintain a minimum debt service coverage ratio (DSCR) of
+    [[dscr_covenant]]. Compliance with this DSCR covenant will be tested at each
     reporting period.
   - Any breach of the specified financial covenants shall constitute an event of default.
     [[counterparty]] reserves the right to review the facility status upon such occurrence.

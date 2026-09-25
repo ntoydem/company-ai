@@ -9,8 +9,9 @@ sections:
     tarafından sunulan bilgi ve belgeler, ilgili idare tarafından detaylı bir incelemeye
     tabi tutulmuştur.'
   - Mevcut aşamada [[ced_status]] durumu geçerliliğini korumakta olup, [[latest_event]]
-    gelişmesi resmi kayıtlarımıza intikal etmiştir. Kurumsal paydaşlarımız ve [[parties_list]]
-    ile yürütülen koordinasyon aralıksız olarak devam etmektedir.
+    gelişmesi resmi kayıtlarımıza intikal etmiştir. Bugüne kadar önlisans ([[pre_licence_date]])
+    ve arazi edinimi ([[land_acquisition_start]] itibarıyla) adımları tamamlanmıştır. Kurumsal
+    paydaşlarımız ve [[parties_list]] ile yürütülen koordinasyon aralıksız olarak devam etmektedir.
 - heading: Bekleyen Adımlar
   paragraphs:
   - Planlanan takvimin aksamadan yürütülmesi amacıyla [[counterparty]] nezdindeki
