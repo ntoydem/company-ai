@@ -379,6 +379,13 @@ docs/         SPEC_0x, PHASES.md, ARCHITECTURE.md (ADR), DOMAIN_MODEL.md, plans/
   deterministik (iki parça, başlık), sentez yok.
 - Gemini ücretsiz katmanı: `gemini-3.8-flash` için 5 istek/dk; yoğunlukta "high demand" 503 dönebilir — `/api/ask`
   bunu Türkçe 503 mesajıyla iletir, sistem çalışmaya devam eder.
+- **Ücretsiz katmanın ayrı bir sınırı daha var: günlük 500 istek/proje/model** (`GenerateRequestsPerDayPerProjectPerModel-FreeTier`,
+  dakika bazlı 5 istek/dk sınırından bağımsız). Phase 5.1'de tek bir yoğun geliştirme/test gününde (55 belgelik
+  `make prose` + birkaç `make eval` denemesi + canlı testler) `gemini-3.5-flash-lite` bu kotayı tüketti; kota
+  tükenince her çağrı 429 alıyor, uygulama bunu 503 olarak yansıtıyor (backend log'unda `quotaId`/`quotaValue`
+  görünür). Kota genelde Pasifik gece yarısı civarı sıfırlanıyor. **Sonuç:** ücretsiz katman yoğun bir geliştirme
+  gününü (özellikle içerik üretimi + eval + canlı test'in aynı güne denk geldiği fazları) tek başına kaldırmıyor —
+  ücretli bir katman/kota artışı ya da işi birden fazla güne yaymak gerekebilir; bkz. `docs/PHASES.md` Phase 5.1 notu.
 - `documents.department` bir FK değil, serbest slug string'idir (upload/apply endpoint'leri bilinen slug'a
   karşı doğrular, ama DB'ye doğrudan yazılan bir kayıt bunu atlayabilir); yanlış yazılmış bir slug güvenli
   yönde başarısız olur (belge admin dışında kimseye görünmez) ama sessizce.
