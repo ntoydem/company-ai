@@ -27,6 +27,17 @@ saniyede bir yoklar.
 Veri kökü `.env` içindeki `DATA_ROOT` altındadır (dev: `./data`, prod: `/srv/company-ai`):
 `postgres/ documents/ excel/ app-data/ backups/`. Container'ları silmek veri kaybettirmez.
 
+## `.env` değiştikten sonra
+`.env`'i düzenledikten sonra (örn. `LLM_API_KEY` girme/rotasyon) sıradan `docker compose restart <servis>`
+**YETMEZ** — container'ın yeniden oluşturulması (recreate) gerekir:
+```bash
+docker compose --project-directory . -f infra/docker-compose.yml --env-file .env up -d --force-recreate backend
+```
+Neden: `docker-compose.yml`'da `env_file: .env` kullanılıyor, ama `env_file`'ın içeriği compose'un "değişti mi"
+karşılaştırmasına dahil değil (yalnızca `environment:` bloğunda açıkça yazılan değişkenler diff'lenir) — bu
+yüzden `.env` değişse bile `docker compose up -d` container'ı kendiliğinden yeniden oluşturmaz, `--force-recreate`
+şart. `<servis>` yerine `backend`, `ocr-worker` gibi etkilenen servisin adı yazılır.
+
 ## Arayüz (Phase 3.3)
 `make up` artık Caddy'yi de başlatır: **`http://<vm-ip>:8080`** tek giriş noktasıdır — React arayüzü (Vite + React 18 +
 TypeScript + react-router + TanStack Query; `frontend/`) ve `/api/*`, `/health`, `/ask` proxy'si. Backend'in 8000
@@ -181,6 +192,10 @@ alanları (`supersedes_document_id` vb.) burada yoktur — o bağlantılar yaln�
 `LLM_API_KEY` `.env`'de dolu olmalı (varsayılan Gemini, OpenAI-uyumlu endpoint; model adları `LLM_MODEL_ANSWER` /
 `LLM_MODEL_CLASSIFY`, thinking bütçesi `LLM_REASONING_EFFORT=low`). Anahtar yoksa yalnızca `/api/ask` 503 döner
 ("Yapay zeka servisi yapılandırılmamış."), belge hattı çalışmaya devam eder.
+
+**Gemini API key alma:** `https://aistudio.google.com/apikey` adresine Google hesabınızla giriş yapın, "Create
+API key" butonuna tıklayın; ücretsiz katman için kredi kartı gerekmez. Aldığınız değeri `.env`'deki
+`LLM_API_KEY=` satırına yapıştırın, sonra ilgili container'ı yeniden oluşturun (bkz. "`.env` değiştikten sonra").
 ```bash
 # Demo belgeler yüklüyse (bkz. "Demo veri (Phase 3.1)"), doğrudan soru sorulabilir:
 curl -s -X POST localhost:8080/api/ask -b cookies.txt -H 'content-type: application/json' \
