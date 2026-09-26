@@ -391,10 +391,41 @@ kendi belgelerine sahip (Ankara 3, İzmir 4 — Phase 5.1, bkz. `docs/reports/PH
 | `make psql`, `make shell` | Postgres'e psql / backend container'ında bash |
 | `make eval`, `make eval MODEL=...` | Eval runner (bkz. "Eval (Phase 4.1)") |
 | `make excel` / `make validate-excel` | Demo workbook'ları üret+recalc+doğrula / yalnızca doğrula (bkz. "Excel analizi (Phase 4.2)") |
-| `make backup`, `make restore` | Sonraki phase'lerde (şimdilik "henüz uygulanmadı") |
+| `make backup`, `make backup ARGS="--sync-secondary"` | Yedek al (bkz. "Backup / restore (Phase 5.3)") |
+| `make restore ARGS="2026-09-26"` | Yedekten geri yükle — **YIKICI** (bkz. "Backup / restore (Phase 5.3)") |
 
 Postgres portu host'a açılmaz; `make psql` kullanın. Backend'in 8000 portu da Phase 3.3'ten beri host'a
 açık değildir (`BACKEND_PORT` yalnızca compose ağı içindir); her şey Caddy'nin `CADDY_PORT`'u (8080) üzerinden.
+
+## Backup / restore (Phase 5.3)
+```bash
+make backup                        # $DATA_ROOT/backups/<bugün>/: postgres.dump, documents.tar.gz,
+                                    # excel.tar.gz, app-data.tar.gz, env.backup — 14 gün rotasyon
+make backup ARGS="--sync-secondary" # yukarıdakinin yanı sıra backups/'ı BACKUP_SECONDARY_PATH'e (yerel
+                                    # 8 TB disk) rsync ile aynalar; bunu ne zaman çalıştıracağınız
+                                    # (disk spindown'dan önce) kendi cron'unuz — bu repo bir cron kurmaz
+make restore ARGS="2026-09-26"      # YIKICI: mevcut tüm veriyi siler, yedekle değiştirir, onay ister
+make restore ARGS="2026-09-26 --yes" # onaysız (otomasyon için)
+```
+Neler yedekleniyor: Postgres (`pg_dump -Fc`, `pg_restore --clean --if-exists` ile geri yüklenir —
+docker-compose.yml'a hiç dokunmadan, çalışan `postgres` servisine stdin/stdout ile), `$DATA_ROOT/documents`,
+`$DATA_ROOT/excel` (bugün fiilen boş — Excel workbook'ları da `documents/` altında saklanıyor),
+`$DATA_ROOT/app-data` (**`models/` alt dizini hariç** — bge-m3 embedding ağırlıkları, HuggingFace'ten yeniden
+inebilen bir önbellek, kurumsal veri değil; `EMBEDDINGS_ENABLED=true` ile ilk açılışta kendini yeniden indirir).
+
+`.env` **ayrı bir dosya** olarak (`env.backup`, `chmod 600`) yedeklenir, **şifrelenmemiş** olarak durur — bu
+dosya `LLM_API_KEY`, `JWT_SECRET`, DB şifresi gibi sırlar içerir. İkincil diske veya başka bir yere taşımadan
+önce kendi anahtarınızla şifreleyin, örn.:
+```bash
+gpg --symmetric --cipher-algo AES256 env.backup   # env.backup.gpg üretir; orijinali elle silin
+```
+`restore.sh` `.env`'i **hiçbir zaman otomatik değiştirmez** — geri yüklenen ortamın sırları (farklı bir host'a
+restore ediliyor olabilir) kasıtlı olarak farklı olabilir; script yalnızca yedeğin `env.backup`'ının yolunu
+yazdırır, taşımak size kalır.
+
+`restore.sh`, Postgres verisini host'tan değil kısa ömürlü bir `--user root` konteynerinden siler — bind
+mount'un sahibi container-içi `postgres` kullanıcısıdır (uid farklı), host kullanıcısının o dizine doğrudan
+yazma izni yoktur.
 
 ## Repo düzeni
 ```
@@ -437,3 +468,7 @@ docs/         SPEC_0x, PHASES.md, ARCHITECTURE.md (ADR), DOMAIN_MODEL.md, plans/
 - **Eval skoru (Phase 3.2c, 25.09.2026):** authorization/hallucination/isolation %100, document %87,0, temporal %88,9 —
   PHASES.md eşikleri (%100 / ≥%80) geçildi. Kalan 4 başarısızlık: iki negatif-olgu sorusu (NO OPINION kuralıyla çelişiyor,
   karar bekliyor) ve iki doğru cevabın soru setindeki ikinci atıf beklentisi — bkz. `docs/reports/PHASE_3_2C_REPORT.md`.
+- **`make backup`'ın `.env` kopyası şifrelenmemiş** (`env.backup`, yalnızca `chmod 600` ile izinle kilitli) —
+  script otomatik şifreleme yapmıyor (gpg/age gibi bir aracın VM'de kurulu olduğu doğrulanmadı); ikincil diske
+  veya başka bir yere taşımadan önce elle şifrelemek operatörün sorumluluğunda (bkz. "Backup / restore (Phase
+  5.3)").

@@ -25,7 +25,7 @@ Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 | 5.1 | Tam dataset (~70) + consistency checks | tamamlandı (eval kısmen eşik altında kaldı, devamı Phase 5.1b'de — bkz. rapor) | phase-5-1 | [PHASE_5_1_REPORT](reports/PHASE_5_1_REPORT.md) |
 | 5.1b | Eval eşik ihlalini kapatma (`RETRIEVAL_TOP_K` 40→80, `ANK-FIN-010` düzeltmesi) | tamamlandı (document/mixed/data eşiği geçti; **isolation %75, temporal %60 — bilinen sınırlama, kabul edildi (26.09.2026, Naci kararı)**, bkz. Phase 5.1 notu ve rapor §7/§8) | phase-5-1b | [PHASE_5_1B_REPORT](reports/PHASE_5_1B_REPORT.md) |
 | 5.2 | Admin panel | tamamlandı | phase-5-2 | [PHASE_5_2_REPORT](reports/PHASE_5_2_REPORT.md) |
-| 5.3 | Backup / restore | bekliyor | – | – |
+| 5.3 | Backup / restore | tamamlandı | phase-5-3 | [PHASE_5_3_REPORT](reports/PHASE_5_3_REPORT.md) |
 | 5.4 | Temiz kurulum doğrulaması + README final | bekliyor | – | – |
 
 Durum değerleri: bekliyor / planlandı / devam / tamamlandı.
@@ -166,6 +166,20 @@ seed-only (Phase 1.2 kararı yeniden açılmadı). Şifre sıfırlama kapsam dı
 ## Phase 5.3 — Backup / restore `S`
 **Kapsam:** `backup.sh` (Postgres dump, `documents/`, `excel/`, app-data, config) → `$DATA_ROOT/backups/` günlük, 14 gün; haftalık `BACKUP_SECONDARY_PATH` (spindown'dan önce); `restore.sh`; README prosedürü.
 **Kabul kriterleri:** backup → `make down` → volume sil → restore → aynı belgeler/kullanıcılar; eval skoru aynı.
+**Kapandı (Phase 5.3, 26.09.2026):** `scripts/backup.sh`/`scripts/restore.sh` (yeni), `make backup`/`make restore`
+stub'ları gerçek script'lere bağlandı. Canlı dev VM'de gerçek bir yıkıcı döngü çalıştırıldı: `make backup` →
+`make restore ARGS="<tarih> --yes"` (kendi içinde `compose down` + volume temizliği + geri yükleme + `compose
+up` yapıyor) → `make test` (383/383 yeşil) + `make eval EVAL_ARGS="--retrieval-only"` (recall@80 36/36,
+restore öncesiyle birebir aynı) + belge/kullanıcı/proje sayıları (74/5/3, birebir aynı) — hepsi doğrulandı
+(SORU 4 kararına göre tam LLM eval'i çalıştırılmadı). Yol boyunca iki gerçek izin sorunu keşfedildi ve çözüldü:
+(1) Postgres'in veri dizini container-içi bir kullanıcıya ait, host kullanıcısı doğrudan silemiyor/okuyamıyor —
+hem `pg_dump`/`pg_restore` (stdin/stdout pipe) hem silme işlemleri kısa ömürlü bir `--user root` konteynerinden
+yapılıyor; (2) `app-data/caddy` da aynı sebeple (Caddy container'ı root çalışıyor) host'tan okunamıyor — o da
+aynı root-konteyner yöntemiyle arşivleniyor/geri yükleniyor (yalnızca `app-data/models`, 2,2 GB'lık yeniden
+inebilir embedding önbelleği, hariç tutuluyor). Bu ikisi planda öngörülmemişti, uygulama sırasında ölçülerek
+bulundu. Ayrıca Phase 5.2'den kalan, `make lint`'in daha önce hiç yakalamadığı gerçek bir mypy hatası
+(`SingleDocumentIdsProvider`'da `str | None` daraltması eksikti) bu fazda bulunup düzeltildi. Detay:
+`docs/reports/PHASE_5_3_REPORT.md`.
 
 ## Phase 5.4 — Temiz kurulum + README final `S` — prod klonunda
 **Kapsam:** Proxmox'ta `company-ai-prod` (temiz klon veya sıfır VM). Yalnızca README izlenir; kod değişikliği beklenmez.

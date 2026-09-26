@@ -103,6 +103,8 @@ class SingleDocumentIdsProvider:
     ) -> Iterable[UUID]:
         if self._document.confidentiality not in confidentiality_levels:
             return ()
-        if department_slugs is not None and self._document.department not in department_slugs:
+        if department_slugs is not None and (
+            self._document.department is None or self._document.department not in department_slugs
+        ):
             return ()
         return (self._document.id,)

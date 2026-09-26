@@ -157,10 +157,11 @@ eval: dirs ## eval runner: questions.json -> /api/ask -> skor. make eval MODEL=g
 	echo "== backend .env'deki LLM_MODEL_ANSWER'a geri alınıyor =="; \
 	$(COMPOSE) up -d --wait --build backend >/dev/null; \
 	exit $$status
-backup: ## yedek (Phase 5.3)
-	@echo "Henüz uygulanmadı (Phase 5.3)."; exit 1
-restore: ## geri yükleme (Phase 5.3)
-	@echo "Henüz uygulanmadı (Phase 5.3)."; exit 1
+backup: dirs ## yedek al: postgres dump + documents/excel/app-data + .env (ayrı dosya). make backup ARGS="--sync-secondary"
+	bash scripts/backup.sh $(ARGS)
+restore: dirs ## yedekten geri yükle (YIKICI). make restore ARGS="2026-09-26" (veya ARGS="<yol> --yes")
+	@test -n "$(ARGS)" || { echo "ARGS=<tarih|yol> gerekli, örn: make restore ARGS=2026-09-26"; exit 1; }
+	bash scripts/restore.sh $(ARGS)
 
 clean: env-check ## container + image sil; DATA_ROOT'a dokunmaz
 	$(COMPOSE) --profile full --profile web down --rmi local --remove-orphans
