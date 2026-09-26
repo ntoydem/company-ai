@@ -13,23 +13,36 @@ Bu süreçte README'de iki gerçek eksik bulundu ve düzeltildi (bkz. §2). Bu, 
 doğrulamasının **yerine geçmez** — aşağıdaki kabul kriterleri tablosu hangi kısmın karşılandığını, hangisinin
 karşılanmadığını kelimesi kelimesine gösteriyor. Durum bu yüzden **kısmen tamamlandı** olarak işaretlendi.
 
+**Naci'nin ek onayı ve talimatı (aynı gün, ikinci tur):** resmi eval kategorilerini (document/temporal/
+isolation/hallucination) canlı LLM ile atlama kararı onaylandı — kota riski, zaten `company-ai-dev`'de
+kanıtlanmış durumda. Buna karşılık iki ek iş istendi: (1) Excel/DuckDB hattının en az bir gerçek soruyla bu
+VM'de de doğrulanması, (2) tarayıcı UI testinin Naci tarafından elle yapılacağının rapora/PHASES.md'ye not
+düşülmesi. (1) denendi ama **günlük Gemini kotası bu VM'de de tükendiği için başarısız oldu** — bkz. §2/§3'ün
+sonu; bu aslında §7'de zaten işaretlenen "iki VM aynı kotayı paylaşıyor" riskinin gerçekleştiğinin canlı kanıtı.
+(2) Naci'nin kendisi yapacak; rapor/PHASES.md'de "elle yapılacak" olarak işaretlendi, tamamlandı diye
+işaretlenmedi.
+
 ## 1. Kabul kriterleri
 | # | Kriter (PHASES.md'den kelimesi kelimesine) | Durum | Kanıt |
 |---|---|---|---|
 | 1 | `git clone` → `.env` (`DATA_ROOT=/srv/company-ai`) → `make up` → `make seed` → çalışır | ⏭ kısmen | `git clone` yapılmadı (repo bu VM'de zaten vardı); `.env` `cp infra/.env.example .env` ile oluşturuldu, 4 şifre rotate edildi; `DATA_ROOT` prod yolu (`/srv/company-ai`) değil dev varsayılanı (`./data`) kullanıldı — bu bir `company-ai-prod` VM'i değil. `make up` → `curl localhost:8080/health` → `{"status":"ok","version":"0.1.0","database":"ok"}` (README'deki örnekle birebir). `make seed` → 70 belge + 4 workbook, hepsi `ready`, "demo veri hazır." |
-| 2 | Türkçe UI | ❌ test edilmedi | Bu oturumda yalnızca `curl`/API kullanıldı; tarayıcıda `http://<vm-ip>:8080` hiç açılmadı |
-| 3 | `enerji` finansa ulaşamaz (UI+API+AI) | ⏭ kısmen | API: `/api/documents` finans içermiyor (36 belge, tek departman `enerji_grubu`), finans belgesini indirme → `403`. AI: aynı DSCR sorusu `enerji` ile sorulunca `answered:false`, `sources:[]`, sabit "...bulamadım" cevabı — sıfır kaynak sızıntısı. UI kısmı test edilmedi (bkz. #2) |
+| 2 | Türkçe UI | ⏭ Naci elle yapacak | Bu oturumda yalnızca `curl`/API kullanıldı; tarayıcıda `http://<vm-ip>:8080` hiç açılmadı. Naci'nin talimatıyla: bu test Naci tarafından elle yapılacak, Claude Code kapsamı dışına alındı (bkz. §7) |
+| 3 | `enerji` finansa ulaşamaz (UI+API+AI) | ⏭ kısmen | API: `/api/documents` finans içermiyor (36 belge, tek departman `enerji_grubu`), finans belgesini indirme → `403`. AI: aynı DSCR sorusu `enerji` ile sorulunca `answered:false`, `sources:[]`, sabit "...bulamadım" cevabı — sıfır kaynak sızıntısı. UI kısmı Naci elle yapacak (bkz. #2) |
 | 4 | güncel/ilk DSCR farklı ve doğru | ⏭ kısmen | Yalnızca **güncel** DSCR test edildi: "Ankara RES'in güncel minimum DSCR covenant'ı nedir?" → **1,20x**, `[K76]`/`[K75]`/`[K53]`/`[K68]` kaynaklarıyla (Facility Agreement → Amendment 01 → Amendment 02 zinciri doğru okundu, `is_current` doğru). **İlk** DSCR (1,25x, EXECUTED) sorusu bu oturumda sorulmadı |
-| 5 | Ankara/İzmir karışmaz | ❌ test edilmedi | Bu oturumda canlı bir LLM sorgusuyla doğrudan test edilmedi. Dolaylı kanıt: `--retrieval-only` eval'de `IZM-ISO-001`/`ANK-ISO-002`/`ANK-ISO-003` (isolation kategorisi) hedef sayfaları %100 prompt'a giriyor, ama bu yalnızca retrieval recall'u ölçer, LLM'in cevapta projeleri karıştırmadığını değil |
-| 6 | en az bir DuckDB analizi | ❌ yapılmadı | Bu oturumda `/api/excel/ask` hiç çağrılmadı |
-| 7 | kaynaksız soru uydurmaz | ⏭ kısmen | Resmi `GEN-HAL-*` soru seti canlı LLM ile koşulmadı (bkz. §3, eval kararı). Dolaylı gözlem: alakasız bir test sorusu ("key hala calisiyor mu") ve yetkisiz DSCR sorusu, ikisi de kaynak uydurmadan doğru şekilde "bulamadım" dedi |
+| 5 | Ankara/İzmir karışmaz | ❌ test edilmedi (Naci onayıyla atlandı) | Bu oturumda canlı bir LLM sorgusuyla doğrudan test edilmedi. Dolaylı kanıt: `--retrieval-only` eval'de `IZM-ISO-001`/`ANK-ISO-002`/`ANK-ISO-003` (isolation kategorisi) hedef sayfaları %100 prompt'a giriyor, ama bu yalnızca retrieval recall'u ölçer, LLM'in cevapta projeleri karıştırmadığını değil. Naci resmi eval kategorilerini (isolation dahil) kota riski nedeniyle atlamayı onayladı — bkz. §0/§3 |
+| 6 | en az bir DuckDB analizi | ❌ denendi, günlük kota nedeniyle başarısız | "Ankara RES 2026 Q2 DSCR kaç?" `/api/excel/ask`'a soruldu, 5 kez (40 sn arayla) yeniden denendi — hepsi `503`. Backend logu kök nedeni doğruluyor: `gemini-3.5-flash-lite` (LLM_MODEL_CLASSIFY) için `RESOURCE_EXHAUSTED`, `quotaId: GenerateRequestsPerDayPerProjectPerModel-FreeTier`, `quotaValue: 500` — 5 denemenin 5'i de aynı hata, yani bu dakikalık değil **günlük** bir tükenme (muhtemelen `company-ai-dev`'in paralel kullanımından). §7'de zaten işaretlenen "iki VM aynı kotayı paylaşıyor" riskinin canlı, gerçekleşmiş kanıtı |
+| 7 | kaynaksız soru uydurmaz | ⏭ kısmen (Naci onayıyla kısıtlı) | Resmi `GEN-HAL-*` soru seti canlı LLM ile koşulmadı — Naci kota riski nedeniyle onayladı (bkz. §0/§3). Dolaylı gözlem: alakasız bir test sorusu ("key hala calisiyor mu") ve yetkisiz DSCR sorusu, ikisi de kaynak uydurmadan doğru şekilde "bulamadım" dedi |
 | 8 | README'de kurulum, model değiştirme, backup/restore, bilinen sınırlar (embedding opsiyonel, HTTPS yok, consume yok, Word/e-posta yok, Gemini ücretsiz katman günlük kota, eval isolation/temporal eşik altı) | ✅ | Bu oturumda bulunan 2 eksik (Gemini key alma, `.env` sonrası recreate) eklendi; geri kalanı önceki fazlardan zaten mevcut ve güncel (model değiştirme: `make eval MODEL=...`, backup/restore: Phase 5.3, "Bilinen sınırlar (V0)" bölümü embedding/HTTPS/consume/Word-e-posta/Gemini kota/eval eşiklerinin hepsini kapsıyor) |
 
 **Genel sonuç:** README'nin "hiçbir bağlamı olmayan biri için yeterli mi" testinde iki gerçek eksik bulundu ve
-düzeltildi; bulunan/düzeltilen kısımların hepsi gerçek, canlı bir ortamda (bu VM) doğrulandı. Ancak
-`docs/PHASES.md`'nin orijinal Phase 5.4 planı — `company-ai-prod`'da sıfırdan `git clone`, tarayıcı UI'ı, en az
-bir Excel/DuckDB analizi, Ankara/İzmir'in canlı bir soruda karışmadığının kontrolü, ilk DSCR — bu oturumda
-**karşılanmadı**. Bu iş kapsam dışı bırakılmadı, yapılmadı; aşağıda §7'de açıkça not düşüldü.
+düzeltildi; bulunan/düzeltilen kısımların hepsi gerçek, canlı bir ortamda (bu VM) doğrulandı. İkinci turda
+Naci resmi eval kategorilerini kota riski nedeniyle atlamayı onayladı ve tarayıcı UI testini kendisi elle
+yapacağını belirtti; buna karşılık istediği Excel/DuckDB testi **denendi ama günlük Gemini kotası (bu VM'in
+`company-ai-dev` ile paylaştığı aynı key) tükendiği için başarısız oldu** — §1 satır 6, §2. `docs/PHASES.md`'nin
+orijinal Phase 5.4 planı — `company-ai-prod`'da sıfırdan `git clone`, en az bir başarılı Excel/DuckDB analizi,
+Ankara/İzmir'in canlı bir soruda karışmadığının kontrolü, ilk DSCR — bu oturumda **karşılanmadı**. Bu iş kapsam
+dışı bırakılmadı; UI hariç geri kalanı ya denendi ve engellendi ya da Naci'nin açık onayıyla atlandı, hepsi
+§7'de not düşüldü.
 
 ## 2. Yapılanlar
 - **`README.md` — iki eksik giderildi** (Naci'nin "hiçbir bağlamı olmayan biri için README yeterli mi" testi
@@ -58,9 +71,19 @@ bir Excel/DuckDB analizi, Ankara/İzmir'in canlı bir soruda karışmadığını
   - `make test`: 383 backend + 9 ocr-worker, tamamı yeşil.
   - `make eval EVAL_ARGS="--retrieval-only"`: recall@80 **36/36 (%100.0)** — Phase 5.3'teki temel çizgiyle
     birebir aynı.
+  - **Excel/DuckDB testi (ikinci tur, Naci'nin talimatıyla):** `POST /api/excel/ask` ile "Ankara RES 2026 Q2
+    DSCR kaç?" soruldu → `503`. 40 sn arayla 5 kez yeniden denendi (toplam ~3 dk) → 5/5 `503`. Backend logu:
+    her denemede `gemini-3.5-flash-lite` (LLM_MODEL_CLASSIFY, Excel akışının plan çağrısı) için `429
+    RESOURCE_EXHAUSTED`, `quotaId: GenerateRequestsPerDayPerProjectPerModel-FreeTier`, `quotaValue: 500` —
+    API'nin döndürdüğü "N sn sonra tekrar dene" mesajına rağmen 5 ayrı denemenin hepsi aynı hatayı verdi, yani
+    bu geçici/dakikalık bir sınır değil, **o günkü 500 istek/model kotası gerçekten tükenmiş** durumda (bu
+    key `company-ai-dev` VM'iyle paylaşıldığı için muhtemelen oradaki eşzamanlı kullanımdan). Sonuç: bu
+    kriter bu oturumda **karşılanamadı** — atlanmadı, denendi ve engellendi.
 
-## 3. Eval kararı: `--retrieval-only`, tam `make eval` değil
-Tam `make eval` (61 soru, canlı LLM) yerine `--retrieval-only` çalıştırıldı. Gerekçe:
+## 3. Eval kararı: `--retrieval-only`, tam `make eval` değil (Naci onayladı)
+Tam `make eval` (61 soru, canlı LLM) yerine `--retrieval-only` çalıştırıldı; bu karar ilk turda Claude Code
+tarafından gerekçelendirildi, ikinci turda **Naci açıkça onayladı** ("tam eval kategorilerini atla, kota
+riski, zaten company-ai-dev'de kanıtlandı"). Gerekçe:
 - `LLM_API_KEY`, company-ai-dev VM'iyle **paylaşılan aynı key** — o VM'de aktif geliştirme sürüyor olabilir;
   günlük kota (README "Bilinen sınırlar": `GenerateRequestsPerDayPerProjectPerModel-FreeTier`, 500/gün/model)
   25-26.09.2026'da zaten bir kez tükenmişti (Phase 5.1 notu). Tam eval, dakika başına 5 istek sınırına uymak
@@ -93,14 +116,21 @@ değişikliği beklenmez" notuyla tutarlı. Migration yok.
 | `LLM_API_KEY` rotate edilmedi, company-ai-dev'deki mevcut key aynen kopyalandı | Naci'nin talebi buydu; key üretimi/rotasyonu bu oturumun kapsamında değildi | İki VM aynı Gemini kotasını paylaşıyor — ileride biri diğerinin kotasını tüketebilir, ayrı key önerilir (bkz. §7) |
 
 ## 7. Açık sorular / riskler (Naci değerlendirmeli)
-- **`docs/PHASES.md`'nin orijinal Phase 5.4 planı henüz tam karşılanmadı**: `company-ai-prod`'da sıfırdan
-  `git clone` + `DATA_ROOT=/srv/company-ai`, tarayıcı UI testi, en az bir Excel/DuckDB analizi, ilk DSCR
-  (1,25x), Ankara/İzmir'in canlı bir soruda karışmadığının kontrolü, resmi `GEN-HAL-*`/`isolation` eval
-  kategorilerinin canlı LLM ile koşulması — bunların hiçbiri bu oturumda yapılmadı. `SORU:` Bu kalan iş ayrı
-  bir faz olarak mı planlanacak (ör. "Phase 5.5 — prod klon doğrulaması"), yoksa Phase 5.4 kapsamı bilinçli
-  olarak bu oturumdaki dar anlamıyla mı kabul edilecek?
-- İki VM (`company-ai-dev` 192.168.8.70, `company-ai-test` 192.168.8.72) aynı `LLM_API_KEY`'i (dolayısıyla
-  aynı günlük Gemini kotasını) paylaşıyor — biri diğerinin kotasını tüketebilir. Ayrı key önerilir.
+- **Tarayıcı UI testi (Türkçe UI, `enerji`↔finans UI kısmı) Naci tarafından elle yapılacak** — Naci'nin
+  talimatı; bu oturumda (Claude Code, yalnızca `curl`/API) hiç yapılmadı, kapsam dışı bırakıldı. `docs/PHASES.md`
+  §5.4'te ve bu raporda "elle yapılacak" olarak işaretli, tamamlandı denmedi.
+- **`docs/PHASES.md`'nin orijinal Phase 5.4 planı hâlâ tam karşılanmadı**: `company-ai-prod`'da sıfırdan
+  `git clone` + `DATA_ROOT=/srv/company-ai`, en az bir Excel/DuckDB analizi (denendi, kota nedeniyle
+  başarısız — bkz. §1 satır 6/§2), ilk DSCR (1,25x), Ankara/İzmir'in canlı bir soruda karışmadığının
+  kontrolü, resmi `GEN-HAL-*`/`isolation` eval kategorilerinin canlı LLM ile koşulması (Naci onayıyla
+  atlandı) — bunların hiçbiri bu oturumda tamamlanamadı. `SORU:` Bu kalan iş ayrı bir faz olarak mı
+  planlanacak (ör. "Phase 5.5 — prod klon doğrulaması"), yoksa Phase 5.4 kapsamı bilinçli olarak bu
+  oturumdaki dar anlamıyla mı kabul edilecek?
+- **İki VM'nin aynı `LLM_API_KEY`'i (dolayısıyla aynı günlük Gemini kotasını) paylaşması artık teorik değil,
+  bu oturumda canlı olarak gerçekleşti**: Excel/DuckDB testi tam bu yüzden 5/5 başarısız oldu
+  (`gemini-3.5-flash-lite`, `GenerateRequestsPerDayPerProjectPerModel-FreeTier`, `quotaValue: 500` tükendi —
+  §1 satır 6/§2). Ayrı bir `LLM_API_KEY` (VM başına) önerilir; aksi halde `company-ai-test`'teki gelecekteki
+  testler `company-ai-dev`'deki geliştirmeyi kesintiye uğratabilir ve tam tersi.
 - `env.backup`/`.env` şifrelemesi ve `BACKUP_SECONDARY_PATH` durumu bu fazın kapsamı dışında, Phase 5.3'ten
   değişmedi.
 
@@ -115,8 +145,12 @@ değişikliği beklenmez" notuyla tutarlı. Migration yok.
   eval sonrası `/api/ask` sorunsuz çalışmaya devam etti.
 
 ## 9. Kaynak kullanımı
-- LLM çağrısı: 1 gerçek DSCR sorusu (admin, router+answer = 2 çağrı) + 1 aynı soru (`enerji`, router+answer =
-  2 çağrı, sıfır kaynakla sonuçlandı) + 1 kısa test sorusu (router+answer = 2 çağrı) — toplam ~6 LLM çağrısı,
-  günlük 500/model kotasının küçük bir kısmı. `--retrieval-only` eval LLM çağırmadı.
+- Başarılı LLM çağrısı: 1 gerçek DSCR sorusu (admin, router+answer = 2 çağrı) + 1 aynı soru (`enerji`,
+  router+answer = 2 çağrı, sıfır kaynakla sonuçlandı) + 1 kısa test sorusu (router+answer = 2 çağrı) —
+  toplam ~6 başarılı LLM çağrısı. `--retrieval-only` eval LLM çağırmadı.
+- Başarısız/reddedilen LLM çağrısı: Excel/DuckDB testi 5 kez denendi, hepsi `gemini-3.5-flash-lite`
+  kotasında `429`'a takıldı (§1 satır 6/§2) — bunlar Google tarafında işlenmediği için muhtemelen günlük
+  kotaya sayılmıyor, ama bu VM'in tarafında 5 ayrı istek+2 retry (SDK'nın kendi retry mantığı) anlamına
+  geliyor.
 - Docker: `make test` ~3,5 dk (206 sn backend + 6 sn ocr-worker); `make eval --retrieval-only` birkaç saniye
   (LLM yok) + backend'in sonundaki `--build` yeniden başlatması ~1 dk.

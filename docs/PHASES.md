@@ -26,7 +26,7 @@ Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 | 5.1b | Eval eşik ihlalini kapatma (`RETRIEVAL_TOP_K` 40→80, `ANK-FIN-010` düzeltmesi) | tamamlandı (document/mixed/data eşiği geçti; **isolation %75, temporal %60 — bilinen sınırlama, kabul edildi (26.09.2026, Naci kararı)**, bkz. Phase 5.1 notu ve rapor §7/§8) | phase-5-1b | [PHASE_5_1B_REPORT](reports/PHASE_5_1B_REPORT.md) |
 | 5.2 | Admin panel | tamamlandı | phase-5-2 | [PHASE_5_2_REPORT](reports/PHASE_5_2_REPORT.md) |
 | 5.3 | Backup / restore | tamamlandı | phase-5-3 | [PHASE_5_3_REPORT](reports/PHASE_5_3_REPORT.md) |
-| 5.4 | Temiz kurulum doğrulaması + README final | kısmen tamamlandı — README'nin 2 eksiği kapatıldı + `company-ai-test` VM'inde doğrulandı; `company-ai-prod`'da tam temiz kurulum (UI, DuckDB analizi, Ankara/İzmir canlı ayrımı, ilk DSCR, hallucination seti) henüz koşulmadı, bkz. rapor §0/§7 | phase-5-4 | [PHASE_5_4_REPORT](reports/PHASE_5_4_REPORT.md) |
+| 5.4 | Temiz kurulum doğrulaması + README final | kısmen tamamlandı — README'nin 2 eksiği kapatıldı + `company-ai-test` VM'inde doğrulandı; Excel/DuckDB testi **denendi, günlük Gemini kotası tükendiği için başarısız oldu**; tarayıcı UI testi Naci elle yapacak; eval isolation/hallucination/temporal kategorileri Naci onayıyla atlandı; ilk DSCR ve Ankara/İzmir canlı ayrımı hâlâ eksik, bkz. rapor §0/§7 | phase-5-4 | [PHASE_5_4_REPORT](reports/PHASE_5_4_REPORT.md) |
 
 Durum değerleri: bekliyor / planlandı / devam / tamamlandı.
 
@@ -192,10 +192,16 @@ eklendi (`aistudio.google.com/apikey`); (2) `.env` değiştikten sonra sıradan 
 yetmediği, `--force-recreate` gerektiği (env_file compose'un değişiklik takibine dahil değil) belgelenmemişti,
 yeni bir bölüm eklendi. Güncel DSCR (1,20x) + `enerji`↔finans izolasyonu (liste/indirme-403/`/api/ask`) canlı
 LLM ile doğrulandı; `make test` 383+9 yeşil; `make eval --retrieval-only` recall@80 36/36 (Phase 5.3 ile aynı).
-**Planın geri kalanı karşılanmadı:** prod VM'de sıfırdan `git clone`, tarayıcı UI testi, en az bir Excel/DuckDB
-analizi, ilk DSCR (1,25x), Ankara/İzmir'in canlı bir soruda karışmadığının kontrolü, resmi eval kategorilerinin
-(`isolation`/`hallucination`/`temporal`) canlı LLM ile koşulması — hiçbiri yapılmadı, kapsam dışı bırakılmadı,
-eksik kaldı (Naci kararı bekleniyor: ayrı bir faz mı, yoksa bu dar kapsam mı kabul edilecek). Detay:
-`docs/reports/PHASE_5_4_REPORT.md`.
+Naci ikinci turda resmi eval kategorilerini (kota riski, zaten `company-ai-dev`'de kanıtlandı) atlamayı
+onayladı ve **tarayıcı UI testini kendisi elle yapacak** (bu oturumun kapsamında değil). Buna karşılık istenen
+Excel/DuckDB testi ("Ankara RES 2026 Q2 DSCR kaç?", `/api/excel/ask`) denendi — 5 kez, 40 sn arayla — ama
+`gemini-3.5-flash-lite`'ın günlük kotası (`GenerateRequestsPerDayPerProjectPerModel-FreeTier`, 500/gün)
+gerçekten tükendiği için 5/5 başarısız oldu; bu, `company-ai-dev`/`company-ai-test`'in aynı `LLM_API_KEY`'i
+paylaşmasının teorik değil **canlı, gerçekleşmiş bir riski** olduğunu kanıtladı (ayrı key önerilir).
+**Planın geri kalanı karşılanmadı:** prod VM'de sıfırdan `git clone`, tarayıcı UI testi (Naci elle yapacak),
+başarılı bir Excel/DuckDB analizi (denendi, kota nedeniyle engellendi), ilk DSCR (1,25x), Ankara/İzmir'in
+canlı bir soruda karışmadığının kontrolü, resmi eval kategorilerinin (`isolation`/`hallucination`/`temporal`,
+Naci onayıyla atlandı) canlı LLM ile koşulması — hiçbiri bu oturumda tamamlanamadı (Naci kararı bekleniyor:
+ayrı bir faz mı, yoksa bu dar kapsam mı kabul edilecek). Detay: `docs/reports/PHASE_5_4_REPORT.md`.
 
 **Olası gelecek faz önerisi (kapsam dışı, planlanmadı):** Phase 5.1b'nin kabul edilen bilinen sınırlaması (`isolation` %75, `temporal` %60) ileride ayrı, dar kapsamlı bir "prompt tuning" fazıyla ele alınabilir — `answer_prompt.py`'nin model-cevaplama güvenilirliğine odaklı, retrieval/routing'e dokunmayan bir faz. V0 kapsamında zorunlu değil; yalnızca unutulmasın diye not düşülüyor.
