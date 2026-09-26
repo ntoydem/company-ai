@@ -14,7 +14,7 @@ from collections.abc import Iterable
 from typing import Protocol
 from uuid import UUID
 
-from app.models.document import Confidentiality
+from app.models.document import Confidentiality, Document
 from app.models.user import User, UserRole
 from app.schemas.authorization import AuthorizationScope
 
@@ -79,3 +79,30 @@ def allowed_document_ids(
         )
     )
     return scoped_ids & role_ids
+
+
+class SingleDocumentIdsProvider:
+    """Wraps one document so `allowed_document_ids` can be run in reverse: "can this user
+    see this document" instead of "which documents can this user see" (Phase 5.2, the "bu
+    belgeyi kim görebilir" admin feature). Reuses the same three-tier rule engine rather
+    than writing a second one — the single gate stays the only place permission logic
+    lives (ADR-004)."""
+
+    def __init__(self, document: Document) -> None:
+        self._document = document
+
+    def list_document_ids(self, scope: AuthorizationScope) -> Iterable[UUID]:
+        del scope  # a single document has nothing left to narrow
+        return (self._document.id,)
+
+    def list_document_ids_for_departments(
+        self,
+        *,
+        department_slugs: Iterable[str] | None,
+        confidentiality_levels: Iterable[Confidentiality],
+    ) -> Iterable[UUID]:
+        if self._document.confidentiality not in confidentiality_levels:
+            return ()
+        if department_slugs is not None and self._document.department not in department_slugs:
+            return ()
+        return (self._document.id,)

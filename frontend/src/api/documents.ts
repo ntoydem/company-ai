@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { ApiError, getJson, postForm, postJson, queryString } from "./client";
+import { ApiError, getJson, patchJson, postForm, postJson, queryString } from "./client";
 import type {
   DocumentDetail,
   DocumentListItem,
+  DocumentMetadataEdit,
   DocumentStatusResponse,
   DocumentUploadResponse,
+  DocumentVisibility,
   MetadataSuggestion,
   MetadataSuggestionApply,
 } from "./types";
@@ -95,3 +97,20 @@ export function rejectSuggestion(id: string): Promise<MetadataSuggestion> {
 }
 
 export const downloadUrl = (id: string) => `/api/documents/${id}/download`;
+
+/** Admin-only manual metadata edit (Phase 5.2), independent of the AI-suggestion flow. */
+export function editDocumentMetadata(
+  id: string,
+  body: DocumentMetadataEdit,
+): Promise<DocumentDetail> {
+  return patchJson<DocumentDetail>(`/api/documents/${id}`, body);
+}
+
+/** Admin-only "bu belgeyi kim görebilir" lookup (Phase 5.2). */
+export function useDocumentVisibility(id: string | null, enabled: boolean) {
+  return useQuery({
+    queryKey: ["document-visibility", id],
+    queryFn: () => getJson<DocumentVisibility>(`/api/documents/${id as string}/visibility`),
+    enabled: enabled && id !== null,
+  });
+}

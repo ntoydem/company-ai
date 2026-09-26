@@ -22,8 +22,7 @@ DEPARTMENT_NOT_FOUND_MESSAGE = "Departman bulunamadı."
 
 
 def _check_department_ids(session: Session, department_ids: list[uuid.UUID]) -> None:
-    found = department_repo.get_many_by_ids(session, department_ids)
-    if len(found) != len(set(department_ids)):
+    if not department_repo.all_exist(session, department_ids):
         raise HTTPException(404, DEPARTMENT_NOT_FOUND_MESSAGE)
 
 

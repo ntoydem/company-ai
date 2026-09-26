@@ -1,6 +1,8 @@
 import { downloadUrl, useDocument } from "../api/documents";
 import { CONFIDENTIALITY_LABELS, INGESTION_LABELS, STATUS_LABELS, formatDate } from "../lib/format";
 import { S } from "../lib/strings";
+import { DocumentMetadataEditForm } from "./DocumentMetadataEditForm";
+import { DocumentVisibilityCard } from "./DocumentVisibilityCard";
 import { ErrorBox } from "./ErrorBox";
 import { MetadataSuggestionPanel } from "./MetadataSuggestionPanel";
 import { Spinner } from "./Spinner";
@@ -76,6 +78,8 @@ export function DocumentDetailPanel({
           </a>
         </div>
       </section>
+      {isAdmin && <DocumentVisibilityCard documentId={d.id} />}
+      {isAdmin && <DocumentMetadataEditForm current={d} />}
       {d.ingestion_status === "ready" && (
         <MetadataSuggestionPanel documentId={d.id} poll={false} isAdmin={isAdmin} current={d} />
       )}

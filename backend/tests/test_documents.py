@@ -12,9 +12,10 @@ from app.models.document import Confidentiality, Document, IngestionStatus
 from app.models.document_metadata_suggestion import DocumentMetadataSuggestion, SuggestionStatus
 from app.models.ingestion_job import IngestionJob, IngestionJobStatus
 from app.models.project import Project
-from app.models.user import User
-from app.repositories import document_metadata_suggestion_repo
+from app.models.user import User, UserRole
+from app.repositories import document_metadata_suggestion_repo, user_repo
 from app.services.document_store import LocalFileSystemStore
+from app.services.security import hash_password
 from tests.department_fixtures import add_user_to_department, make_department
 from tests.fakes import FakeLLMClient
 
@@ -608,3 +609,175 @@ def test_download_unknown_document_returns_403(client: TestClient, admin_user: U
     defensive fallback."""
     response = client.get(f"/api/documents/{uuid.uuid4()}/download")
     assert response.status_code == 403
+
+
+# --- Phase 5.2: manual metadata edit (kapsam 4) ---
+
+
+def test_edit_metadata_requires_admin(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    document = _document(db_session)
+    response = client.patch(f"/api/documents/{document.id}", json={"title": "Yeni Başlık"})
+    assert response.status_code == 403
+
+
+def test_admin_can_edit_metadata_without_prior_suggestion(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    """Works even when no AI suggestion was ever generated — independent of that flow."""
+    make_department(db_session, slug="finans")
+    document = _document(db_session)
+
+    response = client.patch(
+        f"/api/documents/{document.id}",
+        json={
+            "title": "Güncellenmiş Başlık",
+            "department": "finans",
+            "effective_date": "2024-01-01",
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["title"] == "Güncellenmiş Başlık"
+    assert body["department"] == "finans"
+    assert body["effective_date"] == "2024-01-01"
+
+
+def test_edit_metadata_version_chain_fields_are_not_accepted(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    """ADR-012: the manual edit endpoint has no `supersedes_document_id` field at all —
+    sending one is silently ignored (Pydantic drops unknown fields), never applied."""
+    document = _document(db_session)
+    other = _document(db_session)
+
+    response = client.patch(
+        f"/api/documents/{document.id}",
+        json={"title": "x", "supersedes_document_id": str(other.id)},
+    )
+
+    assert response.status_code == 200
+    db_session.refresh(document)
+    assert document.supersedes_document_id is None
+
+
+def test_edit_metadata_unknown_department_returns_422(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    document = _document(db_session)
+    response = client.patch(
+        f"/api/documents/{document.id}", json={"department": "hayali_departman"}
+    )
+    assert response.status_code == 422
+
+
+def test_edit_metadata_can_clear_effective_date(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    document = _document(db_session)
+    document.effective_date = date(2023, 1, 1)
+    db_session.commit()
+
+    response = client.patch(f"/api/documents/{document.id}", json={"effective_date": None})
+
+    assert response.status_code == 200
+    assert response.json()["effective_date"] is None
+
+
+def test_edit_metadata_null_title_returns_422(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    document = _document(db_session)
+    response = client.patch(f"/api/documents/{document.id}", json={"title": None})
+    assert response.status_code == 422
+
+
+# --- Phase 5.2: "bu belgeyi kim görebilir" (kapsam 5) ---
+
+
+def test_visibility_requires_admin(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    document = _document(db_session)
+    response = client.get(f"/api/documents/{document.id}/visibility")
+    assert response.status_code == 403
+
+
+def test_visibility_lists_users_with_access_and_excludes_others(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    finans = make_department(db_session, slug="finans")
+    hukuk = make_department(db_session, slug="hukuk")
+    user_repo.create(
+        db_session,
+        username="finans-cal",
+        password_hash=hash_password("gecerli-sifre"),
+        display_name="Finans Çalışan",
+        role=UserRole.employee,
+        department_ids=[finans.id],
+    )
+    user_repo.create(
+        db_session,
+        username="hukuk-cal",
+        password_hash=hash_password("gecerli-sifre"),
+        display_name="Hukuk Çalışan",
+        role=UserRole.employee,
+        department_ids=[hukuk.id],
+    )
+    db_session.commit()
+    document = _document(db_session, department="finans")
+
+    response = client.get(f"/api/documents/{document.id}/visibility")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["department"] == "finans"
+    usernames = {u["username"] for u in body["users"]}
+    assert "finans-cal" in usernames
+    assert "hukuk-cal" not in usernames
+    assert admin_user.username in usernames  # admin sees every document
+
+
+def test_visibility_excludes_employee_from_restricted_document_in_own_department(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    finans = make_department(db_session, slug="finans")
+    user_repo.create(
+        db_session,
+        username="finans-cal2",
+        password_hash=hash_password("gecerli-sifre"),
+        display_name="Finans Çalışan 2",
+        role=UserRole.employee,
+        department_ids=[finans.id],
+    )
+    db_session.commit()
+    document = _document(
+        db_session, department="finans", confidentiality=Confidentiality.restricted
+    )
+
+    response = client.get(f"/api/documents/{document.id}/visibility")
+
+    usernames = {u["username"] for u in response.json()["users"]}
+    assert "finans-cal2" not in usernames
+
+
+def test_visibility_includes_management_regardless_of_department(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    make_department(db_session, slug="finans")
+    user_repo.create(
+        db_session,
+        username="yonetim-test",
+        password_hash=hash_password("gecerli-sifre"),
+        display_name="Yönetim",
+        role=UserRole.management,
+    )
+    db_session.commit()
+    document = _document(db_session, department="finans")
+
+    response = client.get(f"/api/documents/{document.id}/visibility")
+
+    usernames = {u["username"] for u in response.json()["users"]}
+    assert "yonetim-test" in usernames

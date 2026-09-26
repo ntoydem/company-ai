@@ -99,6 +99,33 @@ Departmanların CRUD ucu yok (V0'da yalnızca seed); admin'in proje formunda dep
 departmanlarına bağlı (`mali_isler`/`idari_isler` şirket geneli, proje-spesifik değil) — bu bağlantı yalnızca
 organizasyonel/filtreleme amaçlıdır, belge yetkisini etkilemez.
 
+## Yönetim paneli (Phase 5.2)
+Arayüzde yalnızca `admin` rolüne görünen bir "Yönetim" bağlantısı (`/yonetim/kullanicilar`,
+`/yonetim/denetim-kaydi`); başka bir rol bu yollara giderse anasayfaya sessizce yönlendirilir
+(`enerji`/`finans`/`hukuk` gibi ayrı bir 403 sayfası yok, `DepartmentPage`'in bilinmeyen slug
+davranışıyla tutarlı). Tüm uçlar `require_admin` arkasında; employee 403 alır.
+
+```bash
+curl http://localhost:8080/api/users -b admin_cookies.txt   # kullanıcı listesi (yalnızca admin)
+curl -i -X POST http://localhost:8080/api/users -b admin_cookies.txt \
+  -H 'content-type: application/json' \
+  -d '{"username":"yeni_calisan","password":"...","display_name":"Yeni Çalışan","role":"employee","department_ids":["<departman-uuid>"]}'
+curl -i -X PATCH http://localhost:8080/api/users/<id> -b admin_cookies.txt \
+  -H 'content-type: application/json' -d '{"role":"management","is_active":true}'
+```
+Kullanıcı ekleme/rol/aktiflik/departman üyeliği admin panelinden yönetilir; şifre sıfırlama V0 kapsamı
+dışında (yalnızca oluşturma sırasında bir şifre girilir). Bir admin kendi hesabının rolünü düşüremez veya
+hesabını devre dışı bırakamaz (`409`) — V0'da şifre kurtarma akışı olmadığı için kimsenin admin
+endpoint'lerine erişemeyeceği bir kilitlenmeyi önler. "Departman izinleri" burada yalnızca kullanıcı↔departman
+üyeliği ataması anlamına gelir; departmanların kendisi (isim/ağaç) hâlâ seed-only'dir (Phase 1.2).
+
+Belge detay ekranında admin'e iki ek bölüm görünür: **"Bu belgeyi kim görebilir"**
+(`GET /api/documents/{id}/visibility`, `allowed_document_ids`'i tersinden çalıştırarak o belgeyi görebilen
+kullanıcıları listeler) ve **manuel metadata düzenleme** (`PATCH /api/documents/{id}`, AI öneri akışından
+bağımsız — öneri hiç üretilmemiş/reddedilmiş bir belgede de çalışır; versiyon zinciri alanları burada yoktur,
+bkz. "AI metadata önerisi" bölümü). Denetim kaydının filtrelenebilir admin arayüzü "Audit log (Phase 3.4)"
+bölümünde anlatılan uçları birebir kullanır.
+
 ## Belge yükleme (Phase 0.2, 3.2)
 Tüm `/api/documents/*` ve `/api/ask` istekleri artık giriş yapılmış olmayı gerektirir (yukarıdaki `cookies.txt`).
 ```bash
@@ -140,6 +167,15 @@ curl -X POST http://localhost:8080/api/documents/<id>/metadata-suggestion/reject
 LLM hatası (kota, bağlantı) önerinin `status:"failed"` olmasına yol açar, upload'ı hiçbir zaman bozmaz. Arka plan
 taraması yalnızca `LLM_API_KEY` doluyken ve `_test` veritabanına karşı çalışmıyorken başlar (`make test`
 sırasında hiç çalışmaz).
+
+Öneri hiç üretilmemiş/reddedilmiş bir belgede de metadata elle düzeltilebilir (Phase 5.2, yalnızca admin):
+```bash
+curl -X PATCH http://localhost:8080/api/documents/<id> -b admin_cookies.txt \
+  -H 'content-type: application/json' -d '{"title":"Düzeltilmiş Başlık","effective_date":"2024-01-01"}'
+```
+Aynı 9 alan + `title`/`effective_date`/`expiration_date`; `null` gönderilen alan temizlenir. Versiyon zinciri
+alanları (`supersedes_document_id` vb.) burada yoktur — o bağlantılar yalnızca upload sırasında kurulur
+(ADR-012, zincir bütünlüğü).
 
 ## Soru sorma (Phase 0.3)
 `LLM_API_KEY` `.env`'de dolu olmalı (varsayılan Gemini, OpenAI-uyumlu endpoint; model adları `LLM_MODEL_ANSWER` /
@@ -209,8 +245,9 @@ curl "http://<vm-ip>:8080/api/audit-log?limit=20" -b admin_cookies.txt        # 
 curl "http://<vm-ip>:8080/api/audit-log?has_error=true" -b admin_cookies.txt # yalnızca hatalı çağrılar
 curl "http://<vm-ip>:8080/api/audit-log/<id>" -b admin_cookies.txt           # tam kayıt (cevap + kaynaklar)
 ```
-Filtreli görüntüleme arayüzü Phase 5.2'nin admin panelinde; bu fazda yalnızca API var. `cost_estimate` V0'da her
-zaman `null` — gerçek model fiyatları doğrulanmadan uydurulmuyor.
+Filtreli görüntüleme arayüzü admin panelinde (`/yonetim/denetim-kaydi`, Phase 5.2) — yukarıdaki filtreleri
+birebir bir form + sayfalanmış tablo + satır tıklayınca tam kayıt paneli olarak sunar, backend değişmedi.
+`cost_estimate` V0'da her zaman `null` — gerçek model fiyatları doğrulanmadan uydurulmuyor.
 
 ## Embedding (Phase 3.4, opsiyonel)
 `EMBEDDINGS_ENABLED=false` varsayılan ve **referans yapılandırma**: sistem ve test paketi `embed` servisi hiç

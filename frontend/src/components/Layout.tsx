@@ -24,6 +24,9 @@ export function Layout() {
             {S.nav.home}
           </NavLink>
           <NavLink to="/sor">{S.nav.ask}</NavLink>
+          {user?.role === "admin" && (
+            <NavLink to="/yonetim/kullanicilar">{S.admin.nav}</NavLink>
+          )}
         </nav>
         <div className="user">
           {user && (

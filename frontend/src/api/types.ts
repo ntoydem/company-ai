@@ -116,6 +116,101 @@ export interface MetadataSuggestionApply {
   tags?: string[];
 }
 
+/** `PATCH /api/documents/{id}` (Phase 5.2): manual edit, independent of the AI-suggestion
+ * flow above. No version-chain fields — those stay upload/apply-only (ADR-012). */
+export interface DocumentMetadataEdit {
+  title?: string;
+  department?: string | null;
+  subdepartment?: string | null;
+  project_code?: string | null;
+  document_type?: string;
+  counterparty?: string;
+  document_date?: string;
+  status?: DocumentStatus;
+  confidentiality?: Confidentiality;
+  tags?: string[];
+  effective_date?: string | null;
+  expiration_date?: string | null;
+}
+
+export interface DocumentVisibilityUser {
+  id: string;
+  username: string;
+  display_name: string;
+  role: UserRole;
+}
+
+export interface DocumentVisibility {
+  document_id: string;
+  department: string | null;
+  confidentiality: Confidentiality;
+  users: DocumentVisibilityUser[];
+}
+
+/** Admin user management (Phase 5.2). */
+export interface AdminUser {
+  id: string;
+  username: string;
+  display_name: string;
+  role: UserRole;
+  is_active: boolean;
+  department_ids: string[];
+  department_slugs: string[];
+}
+
+export interface UserCreate {
+  username: string;
+  password: string;
+  display_name: string;
+  role: UserRole;
+  department_ids: string[];
+}
+
+export interface UserUpdate {
+  display_name?: string;
+  role?: UserRole;
+  is_active?: boolean;
+  department_ids?: string[];
+}
+
+/** `GET /api/audit-log` (Phase 3.4/5.2) — no `answer`/`sources`, those are detail-only. */
+export interface AuditLogListItem {
+  id: string;
+  timestamp: string;
+  user_id: string | null;
+  question: string;
+  query_type: string;
+  scope_department: string | null;
+  scope_project: string | null;
+  model: string | null;
+  tokens_in: number;
+  tokens_out: number;
+  execution_ms: number;
+  error: string | null;
+}
+
+export interface AuditLogDetail extends AuditLogListItem {
+  documents_retrieved: string[];
+  chunks_retrieved: Record<string, unknown>[];
+  excel_files_used: string[];
+  answer: string;
+  sources: Record<string, unknown>[];
+  cost_estimate: string | null;
+  request_id: string | null;
+}
+
+export interface AuditLogFilter {
+  user_id?: string;
+  department?: string;
+  project_id?: string;
+  query_type?: string;
+  from_ts?: string;
+  to_ts?: string;
+  has_error?: boolean;
+  limit?: number;
+  offset?: number;
+}
+
 export interface AskRequest {
   question: string;
   department?: string;

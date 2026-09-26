@@ -23,19 +23,23 @@ from app.repositories import (
     document_metadata_suggestion_repo,
     document_repo,
     project_repo,
+    user_repo,
 )
 from app.repositories.document_repo import SqlDocumentIdsProvider
 from app.schemas.authorization import AuthorizationScope
 from app.schemas.document import (
     DocumentDetailResponse,
     DocumentListItem,
+    DocumentMetadataEditRequest,
     DocumentStatusResponse,
     DocumentUploadResponse,
+    DocumentVisibilityResponse,
+    DocumentVisibilityUser,
     MetadataSuggestionApplyRequest,
     MetadataSuggestionResponse,
 )
 from app.services import metadata_suggestion
-from app.services.authorization import allowed_document_ids
+from app.services.authorization import SingleDocumentIdsProvider, allowed_document_ids
 from app.services.document_store import LocalFileSystemStore
 from app.services.llm import LLMClient
 
@@ -64,6 +68,41 @@ SUGGESTION_NOT_FOUND_MESSAGE = "Öneri bulunamadı."
 FIELD_CANNOT_BE_NULL_MESSAGE = "Bu alan boş bırakılamaz."
 # Nullable on `documents` — an explicit `null` in the apply request clears the field.
 _CLEARABLE_FIELDS = frozenset({"department", "subdepartment", "project_code"})
+# The manual edit endpoint (Phase 5.2) also exposes `effective_date`/`expiration_date`,
+# both nullable on `documents` — `title` is not nullable, so it stays out of this set.
+_EDIT_CLEARABLE_FIELDS = _CLEARABLE_FIELDS | frozenset({"effective_date", "expiration_date"})
+
+
+def _resolve_metadata_updates(
+    session: Session,
+    provided: set[str],
+    body: MetadataSuggestionApplyRequest | DocumentMetadataEditRequest,
+    *,
+    clearable_fields: frozenset[str],
+) -> dict[str, object]:
+    """Shared by the AI-suggestion apply flow and the manual edit endpoint (Phase 5.2):
+    only fields present in `body` are written (SPEC_02 §4), `department`/`project_code`
+    resolve to the same validated slug/id lookups either way."""
+    updates: dict[str, object] = {}
+    for field in provided:
+        value = getattr(body, field)
+        if value is None and field not in clearable_fields:
+            raise HTTPException(422, FIELD_CANNOT_BE_NULL_MESSAGE)
+        if field == "department":
+            if value is not None and department_repo.get_by_slug(session, value) is None:
+                raise HTTPException(422, UNKNOWN_DEPARTMENT_MESSAGE)
+            updates["department"] = value
+        elif field == "project_code":
+            if value is None:
+                updates["project_id"] = None
+            else:
+                project = project_repo.get_by_code(session, value)
+                if project is None:
+                    raise HTTPException(404, UNKNOWN_PROJECT_MESSAGE)
+                updates["project_id"] = project.id
+        else:
+            updates[field] = value
+    return updates
 
 
 def _detect_extension(content: bytes, filename: str | None = None) -> str | None:
@@ -345,27 +384,9 @@ def apply_metadata_suggestion(
     if suggestion is None:
         raise HTTPException(404, SUGGESTION_NOT_FOUND_MESSAGE)
 
-    provided = body.model_fields_set
-    updates: dict[str, object] = {}
-    for field in provided:
-        value = getattr(body, field)
-        if value is None and field not in _CLEARABLE_FIELDS:
-            raise HTTPException(422, FIELD_CANNOT_BE_NULL_MESSAGE)
-        if field == "department":
-            if value is not None and department_repo.get_by_slug(session, value) is None:
-                raise HTTPException(422, UNKNOWN_DEPARTMENT_MESSAGE)
-            updates["department"] = value
-        elif field == "project_code":
-            if value is None:
-                updates["project_id"] = None
-            else:
-                project = project_repo.get_by_code(session, value)
-                if project is None:
-                    raise HTTPException(404, UNKNOWN_PROJECT_MESSAGE)
-                updates["project_id"] = project.id
-        else:
-            updates[field] = value
-
+    updates = _resolve_metadata_updates(
+        session, body.model_fields_set, body, clearable_fields=_CLEARABLE_FIELDS
+    )
     document_repo.apply_partial_update(session, document, updates)
     document_metadata_suggestion_repo.mark_applied(
         session, suggestion, applied_by_id=current_user.id
@@ -389,3 +410,46 @@ def reject_metadata_suggestion(
     document_metadata_suggestion_repo.mark_rejected(session, suggestion)
     session.commit()
     return MetadataSuggestionResponse.model_validate(suggestion)
+
+
+@router.patch("/{document_id}", response_model=DocumentDetailResponse)
+def edit_document_metadata(
+    document_id: uuid.UUID,
+    body: DocumentMetadataEditRequest,
+    session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[User, Depends(require_admin)],
+) -> DocumentDetailResponse:
+    """Admin-only manual metadata edit (Phase 5.2, SORU 1), independent of the
+    AI-suggestion flow above — works whether or not a suggestion was ever generated.
+    Version-chain fields are not exposed here (ADR-012, see schema docstring)."""
+    document = _get_authorized_document(session, current_user, document_id)
+    updates = _resolve_metadata_updates(
+        session, body.model_fields_set, body, clearable_fields=_EDIT_CLEARABLE_FIELDS
+    )
+    document_repo.apply_partial_update(session, document, updates)
+    session.commit()
+    return DocumentDetailResponse.model_validate(document)
+
+
+@router.get("/{document_id}/visibility", response_model=DocumentVisibilityResponse)
+def get_document_visibility(
+    document_id: uuid.UUID,
+    session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[User, Depends(require_admin)],
+) -> DocumentVisibilityResponse:
+    """Admin-only "bu belgeyi kim görebilir" lookup (Phase 5.2) — reuses
+    `allowed_document_ids` in reverse via `SingleDocumentIdsProvider` rather than a second
+    permission engine (ADR-004)."""
+    document = _get_authorized_document(session, current_user, document_id)
+    provider = SingleDocumentIdsProvider(document)
+    visible_users = [
+        user
+        for user in user_repo.list_all(session)
+        if document.id in allowed_document_ids(user, AuthorizationScope(), provider)
+    ]
+    return DocumentVisibilityResponse(
+        document_id=document.id,
+        department=document.department,
+        confidentiality=document.confidentiality,
+        users=[DocumentVisibilityUser.model_validate(user) for user in visible_users],
+    )

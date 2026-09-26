@@ -36,6 +36,12 @@ class User(TimestampMixin, Base):
     departments: Mapped[list[Department]] = relationship("Department", secondary="user_departments")
 
     @property
+    def department_ids(self) -> list[uuid.UUID]:
+        """`ProjectResponse.department_ids` ile simetrik (Phase 5.2): admin kullanıcı
+        formunun departman checkbox'larını önceden işaretlemesi için."""
+        return [department.id for department in self.departments]
+
+    @property
     def department_slugs(self) -> list[str]:
         """Direct membership slugs only (empty for admin/management, who need no rows —
         SPEC_02 §5). Exposed via `/api/auth/me` so the UI can hide department cards

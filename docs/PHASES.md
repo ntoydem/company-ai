@@ -24,7 +24,7 @@ Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 | 4.3 | Mixed query (router) | tamamlandı | phase-4-3 | [PHASE_4_3_REPORT](reports/PHASE_4_3_REPORT.md) |
 | 5.1 | Tam dataset (~70) + consistency checks | tamamlandı (eval kısmen eşik altında kaldı, devamı Phase 5.1b'de — bkz. rapor) | phase-5-1 | [PHASE_5_1_REPORT](reports/PHASE_5_1_REPORT.md) |
 | 5.1b | Eval eşik ihlalini kapatma (`RETRIEVAL_TOP_K` 40→80, `ANK-FIN-010` düzeltmesi) | tamamlandı (document/mixed/data eşiği geçti; **isolation %75, temporal %60 — bilinen sınırlama, kabul edildi (26.09.2026, Naci kararı)**, bkz. Phase 5.1 notu ve rapor §7/§8) | phase-5-1b | [PHASE_5_1B_REPORT](reports/PHASE_5_1B_REPORT.md) |
-| 5.2 | Admin panel | bekliyor | – | – |
+| 5.2 | Admin panel | tamamlandı | phase-5-2 | [PHASE_5_2_REPORT](reports/PHASE_5_2_REPORT.md) |
 | 5.3 | Backup / restore | bekliyor | – | – |
 | 5.4 | Temiz kurulum doğrulaması + README final | bekliyor | – | – |
 
@@ -152,6 +152,16 @@ Tanım: Gösterilebilir, yedeklenebilir, sıfırdan kurulabilir sistem.
 ## Phase 5.2 — Admin panel `S`
 **Kapsam:** kullanıcı ekle/disable/rol, departman izinleri, proje CRUD, metadata düzenleme, "bu belgeyi kim görebilir", audit log (filtre).
 **Kabul kriterleri:** admin her işlemi UI'dan; employee admin endpoint'lerinde 403; audit'te gizli veri yok.
+**Kapandı (Phase 5.2, 26.09.2026):** Proje CRUD ve audit log backend'i zaten tamamdı (Phase 1.2/3.4) — yalnızca
+admin UI'ları eklendi. Yeni: `/api/users` (kullanıcı ekle/liste/rol/aktiflik/departman üyeliği, admin kendi
+rolünü düşüremez/hesabını kapatamaz — 409), `PATCH /api/documents/{id}` (öneri akışından bağımsız manuel
+metadata düzenleme, versiyon zinciri alanları hariç), `GET /api/documents/{id}/visibility` ("kim görebilir",
+`allowed_document_ids`'i `SingleDocumentIdsProvider` ile tersinden çalıştırır — ikinci bir yetki motoru yok).
+Frontend: `/yonetim/kullanicilar`, `/yonetim/denetim-kaydi` (yalnızca admin nav'da görünür, `RequireAdmin`
+guard'ı diğer rolleri sessizce anasayfaya yönlendirir), belge detayına "kim görebilir" kartı + manuel metadata
+formu. "Departman izinleri" = yalnızca kullanıcı↔departman üyeliği ataması; departman ağacının kendisi hâlâ
+seed-only (Phase 1.2 kararı yeniden açılmadı). Şifre sıfırlama kapsam dışı bırakıldı (SORU 2). Detay:
+`docs/reports/PHASE_5_2_REPORT.md`.
 
 ## Phase 5.3 — Backup / restore `S`
 **Kapsam:** `backup.sh` (Postgres dump, `documents/`, `excel/`, app-data, config) → `$DATA_ROOT/backups/` günlük, 14 gün; haftalık `BACKUP_SECONDARY_PATH` (spindown'dan önce); `restore.sh`; README prosedürü.

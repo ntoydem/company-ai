@@ -83,3 +83,4 @@ export const SUGGESTION_FIELD_ORDER = [
 export const SELECTABLE_STATUSES: DocumentStatus[] = ["draft", "executed", "amended"];
 export const CONFIDENTIALITY_VALUES: Confidentiality[] = ["normal", "restricted", "board"];
 export const STAGE_VALUES: ProjectStage[] = ["development", "construction", "operation"];
+export const ROLE_VALUES: UserRole[] = ["admin", "management", "employee"];

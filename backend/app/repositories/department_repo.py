@@ -29,3 +29,12 @@ def get_many_by_ids(session: Session, ids: Iterable[uuid.UUID]) -> list[Departme
     if not id_list:
         return []
     return list(session.scalars(select(Department).where(Department.id.in_(id_list))).all())
+
+
+def all_exist(session: Session, ids: Iterable[uuid.UUID]) -> bool:
+    """Shared by `projects.py` and `users.py` (Phase 5.2) so both routers validate
+    `department_ids` the same way instead of duplicating the check."""
+    id_list = list(ids)
+    if not id_list:
+        return True
+    return len(get_many_by_ids(session, id_list)) == len(set(id_list))
