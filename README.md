@@ -161,9 +161,10 @@ Sistem promptu `backend/app/services/answer_prompt.py`'dedir; kopyası `docs/pro
 
 Retrieval (Phase 3.2b): soru kelimeleri `backend/app/services/search_glossary.py`'deki alan sözlüğüyle genişletilir
 (Türkçe "finansman/kredi/faiz…" → İngilizce belgedeki "financing/loan/interest…", ve tersi), böylece Türkçe soru
-İngilizce finans belgesinin **doğru sayfasını** bulur; en iyi `RETRIEVAL_TOP_K` (varsayılan 40) chunk (sayfa) prompt'a
-girer, eşit skorlu sayfalar deterministik sırayla (belge, sayfa) seçilir. Her cevabın prompt'a giren sayfaları
-`audit_log.chunks_retrieved`'da saklanır.
+İngilizce finans belgesinin **doğru sayfasını** bulur; en iyi `RETRIEVAL_TOP_K` (varsayılan 80 — Phase 3.2b'de 40,
+Phase 5.1b'de 70 belgelik korpus için 80'e çıkarıldı) chunk (sayfa) prompt'a girer, eşit skorlu sayfalar
+deterministik sırayla (belge, sayfa) seçilir. Her cevabın prompt'a giren sayfaları `audit_log.chunks_retrieved`'da
+saklanır.
 
 Canlı LLM testleri `make test`'in dışındadır: `make test-llm` (ücretsiz katman 5 istek/dk — testler kendini yavaşlatır;
 model saturasyonunda `make test-llm MODEL=gemini-3.5-flash`).

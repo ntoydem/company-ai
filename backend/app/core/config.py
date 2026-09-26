@@ -69,7 +69,13 @@ class Settings(BaseSettings):
     # 40 (Phase 3.2b): a page-per-chunk corpus of ~450 chars/chunk makes 40 chunks ~10k
     # tokens — cheap for the answer model, and it clears the wide rank ties an OR query
     # produces (SORU 2, docs/plans/PHASE_3_2B_PLAN.md).
-    retrieval_top_k: int = 40
+    # 80 (Phase 5.1b): the corpus grew 15->70 documents (86->310 chunks) without a matching
+    # top_k increase; `--retrieval-only` recall@40 stayed 35/36, recall@80 reached 36/36
+    # (ANK-OPS-001's page was ranked 61-80th against 8 new competing Operations documents).
+    # Token cost is request-count-free on the Gemini free tier (the daily quota is per
+    # request, not per token) and still trivial in absolute terms (~20-27k tokens/question,
+    # measured after the change — docs/plans/PHASE_5_1B_PLAN.md).
+    retrieval_top_k: int = 80
 
     # Phase 3.2: background metadata-suggestion scan (app/main.py lifespan). Never runs
     # against a `_test` database (see `_background_enabled` there) — `make test` never

@@ -329,21 +329,21 @@
     },
     {
       "id": "ANK-FIN-010",
-      "category": "document",
+      "category": "data",
       "question": "Ankara RES'in son covenant testi sonucu nedir?",
       "expected_answer": "ledger:ankara_res.project.finance.covenant_tests[-1].result",
       "expected_answer_aliases": [],
       "expected_project": "Ankara RES",
       "expected_department": "finans",
       "required_sources": [
-        "Covenant Compliance Report Q2 2026"
+        "Covenant Report (workbook)"
       ],
       "forbidden_sources": [
         "İzmir RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
-      "notes": "Dönem + DSCR + pass/fail"
+      "notes": "Phase 5.1b: önce mixed'e taşınmıştı (SORU 3), ama questions.json'daki kategori yalnızca EVAL PUANLAMASINI etkiliyor — router'ın kendi sınıflandırmasını değiştirmiyor. --repeat 3 ölçümü router'ın bu soruyu 3/3 kararlılıkla DATA_QUERY'e yönlendirdiğini gösterdi (Excel'den doğru \"pass\" sonucu). Golden set gerçek, gözlemlenen davranışa göre 'data' olarak düzeltildi (router promptuna dokunulmadı, SORU 3 kararına uygun); artık kararlı şekilde geçiyor."
     },
     {
       "id": "ANK-FIN-011",
