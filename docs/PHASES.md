@@ -22,7 +22,7 @@ Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 | 4.1 | Eval runner (karne) | tamamlandı (skor eşiği altında, bkz. rapor §7) | phase-4-1 | [PHASE_4_1_REPORT](reports/PHASE_4_1_REPORT.md) |
 | 4.2 | Excel motoru | tamamlandı | phase-4-2 | [PHASE_4_2_REPORT](reports/PHASE_4_2_REPORT.md) |
 | 4.3 | Mixed query (router) | tamamlandı | phase-4-3 | [PHASE_4_3_REPORT](reports/PHASE_4_3_REPORT.md) |
-| 5.1 | Tam dataset (~70) + consistency checks | tamamlandı (eval kriteri Gemini kesintisi nedeniyle doğrulanamadı, bkz. rapor §1/§4) | phase-5-1 | [PHASE_5_1_REPORT](reports/PHASE_5_1_REPORT.md) |
+| 5.1 | Tam dataset (~70) + consistency checks | tamamlandı (eval kriteri doğrulanamadı — Gemini ücretsiz katman günlük kotası (500 istek/gün/model) 25.09.2026 akşamı tükendi, bkz. rapor §1/§4/§9) | phase-5-1 | [PHASE_5_1_REPORT](reports/PHASE_5_1_REPORT.md) |
 | 5.2 | Admin panel | bekliyor | – | – |
 | 5.3 | Backup / restore | bekliyor | – | – |
 | 5.4 | Temiz kurulum doğrulaması + README final | bekliyor | – | – |
