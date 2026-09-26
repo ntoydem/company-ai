@@ -22,7 +22,7 @@ Adım 0 ve Adım 4 sonunda Naci "devam mı" kararı verir.
 | 4.1 | Eval runner (karne) | tamamlandı (skor eşiği altında, bkz. rapor §7) | phase-4-1 | [PHASE_4_1_REPORT](reports/PHASE_4_1_REPORT.md) |
 | 4.2 | Excel motoru | tamamlandı | phase-4-2 | [PHASE_4_2_REPORT](reports/PHASE_4_2_REPORT.md) |
 | 4.3 | Mixed query (router) | tamamlandı | phase-4-3 | [PHASE_4_3_REPORT](reports/PHASE_4_3_REPORT.md) |
-| 5.1 | Tam dataset (~70) + consistency checks | tamamlandı (eval kriteri doğrulanamadı — Gemini ücretsiz katman günlük kotası (500 istek/gün/model) 25.09.2026 akşamı tükendi, bkz. rapor §1/§4/§9) | phase-5-1 | [PHASE_5_1_REPORT](reports/PHASE_5_1_REPORT.md) |
+| 5.1 | Tam dataset (~70) + consistency checks | tamamlandı (eval koştu 26.09.2026: authorization/hallucination/isolation/data/general %100-%100, **document/mixed/temporal eşik altında** — kök neden ve Naci karar noktası rapor §1/§4/§8) | phase-5-1 | [PHASE_5_1_REPORT](reports/PHASE_5_1_REPORT.md) |
 | 5.2 | Admin panel | bekliyor | – | – |
 | 5.3 | Backup / restore | bekliyor | – | – |
 | 5.4 | Temiz kurulum doğrulaması + README final | bekliyor | – | – |
@@ -145,6 +145,7 @@ Tanım: Gösterilebilir, yedeklenebilir, sıfırdan kurulabilir sistem.
 **Kabul kriterleri:** validator 0 hata; görüntü PDF'ler `ready`; eval isolation/hallucination/authorization %100, diğerleri ≥ %80; belge ≤ 80.
 **Kapandı (Phase 5.1, 25.09.2026):** Phase 4.3'ün ertelediği (a) `QuestionCategory` += `general` + 3 GENERAL sorusu (`eval_lib.py` artık `query_type`/kaynak-yokluğu üzerinden puanlıyor) ve (b) MIXED'in pozitif "sebep belgede yazıyor" dalı — yeni `DOC-ANK-OPS-005` (Bakım Raporu — Temmuz 2024) `incidents[0]`'ı `monthly_production[8]`'e bağlıyor, `ANK-MIX-002` artık pozitif; negatif örnek (Q1 2025, belgesiz kalan Ocak 2025 kesintisi) yeni `ANK-MIX-003`'e taşındı.
 **Ertelenen (Phase 3.2c, 25.09.2026, Naci kararı — Phase 5.1 kapsamı dışında kaldı):** (1) `IZM-DEV-005/006` gibi negatif-olgu soruları ("lisans alındı mı?") NO OPINION kuralıyla çelişiyor — soru seti v2'de ya `expect_no_answer` beklenmeli ya da belgeler açıkça "henüz alınmamıştır" demeli; (2) `ANK-EPC-004`/`IZM-DEV-007`: cevap doğru ama `required_sources` listesindeki ikinci belge gösterilmiyor — v2 şemasında "hepsi / en az biri" ayrımı (`required_sources_all`) tanımlanmalı ve eval runner'a yansıtılmalı; (3) elle düzenlenmiş prose dosyaları `hand_edited:` işaretli, `generate_prose.py` bunları `--force` ile bile ezmez — yeni belgeler üretilirken bu 6 dosya korunur (`docs/reports/PHASE_3_2C_REPORT.md`).
+**Yeni açık bulgu (eval, 26.09.2026):** kota sıfırlandıktan sonra koşan tam `make eval` (61 soru, 0 istek hatası) `document` (%74,2), `mixed` (%66,7), `temporal` (%60,0) eşiklerini geçemedi — 4'ü yukarıdaki bilinen Phase 3.2c kalıntısı, **9'u yeni**: korpus 15→70 belgeye büyüyünce (`--retrieval-only` hâlâ %97,2 recall veriyor) modelin daha kalabalık bağlamda doğru belgeye atıf yapması zorlaştı (ör. `IZM-DEV-008` kendi yeni belgelerini atıfla gösterip beklenen eski belgeyi atlıyor). Naci karar noktası: `--repeat` ile tekrar ölç / `RETRIEVAL_TOP_K` artır / ayrı bir takip fazı (bkz. `docs/reports/PHASE_5_1_REPORT.md` §4/§8).
 
 ## Phase 5.2 — Admin panel `S`
 **Kapsam:** kullanıcı ekle/disable/rol, departman izinleri, proje CRUD, metadata düzenleme, "bu belgeyi kim görebilir", audit log (filtre).
