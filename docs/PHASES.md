@@ -205,3 +205,7 @@ Naci onayıyla atlandı) canlı LLM ile koşulması — hiçbiri bu oturumda tam
 ayrı bir faz mı, yoksa bu dar kapsam mı kabul edilecek). Detay: `docs/reports/PHASE_5_4_REPORT.md`.
 
 **Olası gelecek faz önerisi (kapsam dışı, planlanmadı):** Phase 5.1b'nin kabul edilen bilinen sınırlaması (`isolation` %75, `temporal` %60) ileride ayrı, dar kapsamlı bir "prompt tuning" fazıyla ele alınabilir — `answer_prompt.py`'nin model-cevaplama güvenilirliğine odaklı, retrieval/routing'e dokunmayan bir faz. V0 kapsamında zorunlu değil; yalnızca unutulmasın diye not düşülüyor.
+
+**Bağımsız güvenlik yaması (30.09.2026, `d588487`):** Yükleme yetki açığı kapatıldı, Tansu incelemesinden
+(`docs/notes/TANSU_GERI_BILDIRIM_2026-09-30.md` §2 B-26/3, §7.1). Ayrı bir phase değil; plan
+`docs/plans/GUVENLIK_YAMA_2026-09-30_PLAN.md`'de.
