@@ -1,6 +1,6 @@
 # Aşama B Raporu — `file_kind`, indirme adı + `?inline=1`, `project_id` kaldırma
 
-**Tarih:** 30.09.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit + `docs/PHASES.md` notu)  **Commit:** `<commit>`
+**Tarih:** 30.09.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit + `docs/PHASES.md` notu)  **Commit:** `9d83227`
 **Plan:** `docs/plans/ASAMA_B_PLAN.md` · **ADR:** ADR-011 ve ADR-015 concretization (B-13/B-17), ADR-010 notu (B-20/6); yeni ADR yok · **Migration:** yok
 
 Naci'nin SORU cevapları (hepsi planın önerisi yönünde): (1) bilinmeyen uzantı → `null`; (2) `filename*`-only kabul, ASCII fallback yok; (3) Excel indirme adı = başlık + uzantı; (4) görüntü inline = orijinal PNG/JPG; (5) `ExcelAskRequest.project_id` de kaldırıldı; (6) etiketsiz düz commit.
