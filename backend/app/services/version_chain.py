@@ -26,6 +26,10 @@ class ChainPosition:
     has_successor: bool
     supersedes_title: str | None
     superseded_by_title: str | None
+    # Ids of the *loaded* neighbours only — a link the user may not see is never loaded
+    # (`document_repo.load_with_chains`), so it stays `None` here exactly like its title.
+    supersedes_document_id: UUID | None = None
+    superseded_by_document_id: UUID | None = None
 
 
 def is_in_force(document: Document, today: date) -> bool:
@@ -93,5 +97,7 @@ def evaluate_version_chains(
                 has_successor=document.superseded_by_document_id is not None,
                 supersedes_title=predecessor.title if predecessor else None,
                 superseded_by_title=successor.title if successor else None,
+                supersedes_document_id=predecessor.id if predecessor else None,
+                superseded_by_document_id=successor.id if successor else None,
             )
     return result

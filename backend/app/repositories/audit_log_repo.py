@@ -37,6 +37,8 @@ def create(
     error: str | None,
     excel_files_used: list[str] | None = None,
     chunks_retrieved: list[dict[str, Any]] | None = None,
+    product_level: str | None = None,
+    warnings: list[dict[str, Any]] | None = None,
 ) -> AuditLog:
     row = AuditLog(
         user_id=user_id,
@@ -56,6 +58,8 @@ def create(
         execution_ms=execution_ms,
         request_id=request_id,
         error=error,
+        product_level=product_level,
+        warnings=warnings or [],
     )
     session.add(row)
     session.commit()

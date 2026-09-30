@@ -1,5 +1,5 @@
 """`POST /api/ask` — the one question entry point: router (ADR-010, Phase 4.3) →
-document / Excel / mixed / general answer with page-level and cell-level sources."""
+document / Excel / mixed answer with page-level and cell-level sources."""
 
 from typing import Annotated
 
@@ -43,4 +43,7 @@ def ask(
         notice=result.notice,
         query_type=result.query_type,
         excel_sources=result.excel_sources,
+        audit_log_id=result.audit_log_id,
+        product_level=result.product_level,
+        warnings=result.warnings,
     )

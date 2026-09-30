@@ -34,3 +34,5 @@ class AuditLogDetail(AuditLogListItem):
     sources: list[dict[str, Any]]
     cost_estimate: Decimal | None
     request_id: str | None
+    product_level: str | None
+    warnings: list[dict[str, Any]]

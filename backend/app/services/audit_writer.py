@@ -15,7 +15,7 @@ from app.core.request_id import get_request_id
 from app.models.user import User
 from app.repositories import audit_log_repo
 from app.repositories.document_chunk_repo import RetrievedChunk
-from app.schemas.ask import SourceCard
+from app.schemas.ask import AskWarning, SourceCard
 from app.schemas.excel import ExcelSourceCard
 
 log = logging.getLogger(__name__)
@@ -56,11 +56,14 @@ def write_audit_row(
     tokens_out: int,
     execution_ms: int,
     error: str | None,
-) -> None:
+    product_level: str | None = None,
+    warnings: list[AskWarning] | None = None,
+) -> UUID | None:
     """SPEC_06 §1. `cost_estimate` stays `NULL` in V0 — no invented per-model pricing
-    (Phase 3.2 SORU 2)."""
+    (Phase 3.2 SORU 2). Returns the new row's id (`AskResponse.audit_log_id`), or `None`
+    when the write failed — the answer is still returned."""
     try:
-        audit_log_repo.create(
+        row = audit_log_repo.create(
             session,
             user_id=user.id,
             question=question,
@@ -79,6 +82,10 @@ def write_audit_row(
             request_id=get_request_id(),
             error=error,
             excel_files_used=sorted({card.file for card in excel_sources}),
+            product_level=product_level,
+            warnings=[w.model_dump(mode="json") for w in warnings or []],
         )
     except Exception:
         log.exception("audit log write failed")
+        return None
+    return row.id

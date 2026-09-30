@@ -10,6 +10,11 @@ unchanged → merge deterministically → one audit row.
 
 GENERAL_QUERY (general-knowledge answers with no company source) was removed 30.09.2026 —
 see `router.py`'s module docstring.
+
+Aşama A (30.09.2026, B-25): the product layer of an answer is a function of its *final*
+query type (`PRODUCT_LEVEL_BY_TYPE`). When P2 is not enabled, a DATA/MIXED routing is
+degraded to DOCUMENT with the original question — the safe direction of ADR-010 — and the
+answer carries a `product_limit` warning instead of a refusal.
 """
 
 from __future__ import annotations
@@ -23,14 +28,19 @@ from sqlalchemy.orm import Session
 
 from app.core.config import Settings
 from app.excel.calc import CalculationEngine
+from app.models.company_settings import ProductLevel
 from app.models.user import User
+from app.repositories import company_settings_repo
 from app.repositories.document_chunk_repo import RetrievedChunk
 from app.schemas.ask import (
     MIXED_NOTICE,
     NO_INTERPRETATION_NOTICE,
     AskRequest,
+    AskWarning,
     QueryType,
     SourceCard,
+    missing_data_warning,
+    product_limit_warning,
 )
 from app.schemas.excel import NO_INTERPRETATION_NOTICE as EXCEL_NOTICE
 from app.schemas.excel import ExcelAskRequest, ExcelSourceCard
@@ -51,6 +61,14 @@ NOTICE_BY_TYPE: dict[str, str] = {
     "MIXED_QUERY": MIXED_NOTICE,
 }
 
+# docs/notes/TANSU_GERI_BILDIRIM_2026-09-30.md §6.1 — the mapping lives in code, not in a
+# table: which layer a capability belongs to is a property of the system.
+PRODUCT_LEVEL_BY_TYPE: dict[QueryType, ProductLevel] = {
+    "DOCUMENT_QUERY": "P1",
+    "DATA_QUERY": "P2",
+    "MIXED_QUERY": "P2",
+}
+
 
 @dataclass(frozen=True)
 class RoutedAnswer:
@@ -65,6 +83,9 @@ class RoutedAnswer:
     model: str | None = None
     tokens_in: int = 0
     tokens_out: int = 0
+    product_level: ProductLevel = "P1"
+    warnings: list[AskWarning] = field(default_factory=list)
+    audit_log_id: UUID | None = None
 
 
 def merge_mixed_answer(document_answer: str, data_answer: str) -> str:
@@ -72,6 +93,26 @@ def merge_mixed_answer(document_answer: str, data_answer: str) -> str:
         f"{DOCUMENT_PART_HEADING}\n{document_answer.strip()}\n\n"
         f"{DATA_PART_HEADING}\n{data_answer.strip()}"
     )
+
+
+def degrade_for_products(
+    routed: RoutedQuestion, enabled_products: list[ProductLevel], question: str
+) -> tuple[RoutedQuestion, list[AskWarning]]:
+    """P2 closed + router chose a computing branch → answer from documents only, with the
+    original question (the router's DOCUMENT/DATA branches always run the original
+    question anyway), and say so in a fixed warning. The request is never refused."""
+    if routed.query_type == "DOCUMENT_QUERY" or "P2" in enabled_products:
+        return routed, []
+    degraded = RoutedQuestion(
+        query_type="DOCUMENT_QUERY",
+        document_question=question,
+        data_question=None,
+        reason=f"product_limit: {routed.query_type} needs P2",
+        model=routed.model,
+        tokens_in=routed.tokens_in,
+        tokens_out=routed.tokens_out,
+    )
+    return degraded, [product_limit_warning()]
 
 
 def _run(
@@ -82,6 +123,7 @@ def _run(
     llm: LLMClient,
     settings: Settings,
     engine: CalculationEngine,
+    warnings: list[AskWarning],
 ) -> RoutedAnswer:
     query_type = routed.query_type
     notice = NOTICE_BY_TYPE[query_type]
@@ -152,6 +194,8 @@ def _run(
         model=(doc.model if doc else None) or (data.model if data else None),
         tokens_in=(doc.tokens_in if doc else 0) + (data.tokens_in if data else 0),
         tokens_out=(doc.tokens_out if doc else 0) + (data.tokens_out if data else 0),
+        product_level=PRODUCT_LEVEL_BY_TYPE[query_type],
+        warnings=warnings + ([missing_data_warning()] if not answered else []),
     )
 
 
@@ -168,13 +212,16 @@ def answer_routed_question(
     failure the row is written with `error` and the exception propagates (→ 503, as
     before)."""
     started = time.perf_counter()
-    routed = router.route(request.question)
+    enabled_products = company_settings_repo.enabled_products(session)
+    routed, warnings = degrade_for_products(
+        router.route(request.question), enabled_products, request.question
+    )
 
     def elapsed_ms() -> int:
         return round((time.perf_counter() - started) * 1000)
 
     try:
-        result = _run(session, user, request, routed, llm, settings, engine)
+        result = _run(session, user, request, routed, llm, settings, engine, warnings)
     except LLMError as exc:
         write_audit_row(
             session,
@@ -193,6 +240,8 @@ def answer_routed_question(
             tokens_out=routed.tokens_out,
             execution_ms=elapsed_ms(),
             error=str(exc),
+            product_level=PRODUCT_LEVEL_BY_TYPE[routed.query_type],
+            warnings=warnings,
         )
         raise
 
@@ -203,6 +252,8 @@ def answer_routed_question(
         extra={
             "user_id": str(user.id),
             "query_type": result.query_type,
+            "product_level": result.product_level,
+            "warnings": [w.kind for w in result.warnings],
             "answered": result.answered,
             "document_sources": len(result.sources),
             "excel_sources": len(result.excel_sources),
@@ -211,7 +262,7 @@ def answer_routed_question(
             "duration_ms": elapsed_ms(),
         },
     )
-    write_audit_row(
+    audit_log_id = write_audit_row(
         session,
         user,
         question=request.question,
@@ -228,6 +279,8 @@ def answer_routed_question(
         tokens_out=tokens_out,
         execution_ms=elapsed_ms(),
         error=None,
+        product_level=result.product_level,
+        warnings=result.warnings,
     )
     return RoutedAnswer(
         query_type=result.query_type,
@@ -241,4 +294,7 @@ def answer_routed_question(
         model=result.model or routed.model,
         tokens_in=tokens_in,
         tokens_out=tokens_out,
+        product_level=result.product_level,
+        warnings=result.warnings,
+        audit_log_id=audit_log_id,
     )

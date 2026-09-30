@@ -214,3 +214,11 @@ ayrı bir faz mı, yoksa bu dar kapsam mı kabul edilecek). Detay: `docs/reports
 **GENERAL_QUERY kaldırıldı (30.09.2026, `0b891fb`):** Naci + Tansu kararı — bkz. Phase 4.3 notu (üstte).
 Ayrı bir phase değil; plan `docs/plans/GENERAL_QUERY_KALDIRMA_PLAN.md`, rapor
 `docs/reports/GENERAL_QUERY_KALDIRMA_REPORT.md`.
+
+**Aşama A — "Balbal cevap döngüsü" (30.09.2026, `<commit>`):** AI-BalBal'ın `/api/ask` etrafında beklediği sözleşme
+kapatıldı — `audit_log_id`, `product_level`, `warnings` (`missing_data`/`product_limit`; Tansu #1'in reddettiği
+beğen/hatalı butonlarının yerine, `/api/ask/feedback` yazılmadı), `SourceCard` versiyon id'leri + `is_initial` (B-07),
+`company_settings.enabled_products` + `/login`/`/me` alanı + `require_product("P2")` (`/api/excel/ask`) + P1'de
+belgeye düşürme kuralı + `GET/PATCH /api/admin/settings` + `make set-products` (B-25, ADR-022), migration `0009`.
+Ayrı bir phase değil; plan `docs/plans/ASAMA_A_BALBAL_DONGUSU_PLAN.md`, rapor
+`docs/reports/ASAMA_A_BALBAL_DONGUSU_REPORT.md`. company-ai `frontend/` emekli, dokunulmadı.

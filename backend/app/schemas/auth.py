@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import uuid
 
 from pydantic import BaseModel, ConfigDict
 
-from app.models.user import UserRole
+from app.models.company_settings import ProductLevel
+from app.models.user import User, UserRole
 
 
 class LoginRequest(BaseModel):
@@ -11,6 +14,10 @@ class LoginRequest(BaseModel):
 
 
 class CurrentUserResponse(BaseModel):
+    """Returned by both `POST /api/auth/login` and `GET /api/auth/me`. `enabled_products`
+    (B-25) is company-wide state, not a user attribute, so it is not `from_attributes`
+    on the user row — see `from_user`."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
@@ -18,3 +25,15 @@ class CurrentUserResponse(BaseModel):
     display_name: str
     role: UserRole
     department_slugs: list[str]
+    enabled_products: list[ProductLevel]
+
+    @classmethod
+    def from_user(cls, user: User, enabled_products: list[ProductLevel]) -> CurrentUserResponse:
+        return cls(
+            id=user.id,
+            username=user.username,
+            display_name=user.display_name,
+            role=user.role,
+            department_slugs=user.department_slugs,
+            enabled_products=enabled_products,
+        )

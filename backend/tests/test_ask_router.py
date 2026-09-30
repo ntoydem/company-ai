@@ -18,7 +18,13 @@ from app.core.errors import LLM_UNAVAILABLE_MESSAGE
 from app.main import app
 from app.models.audit_log import AuditLog
 from app.models.user import User
-from app.schemas.ask import MIXED_NOTICE, NO_INTERPRETATION_NOTICE
+from app.repositories import company_settings_repo
+from app.schemas.ask import (
+    MISSING_DATA_WARNING,
+    MIXED_NOTICE,
+    NO_INTERPRETATION_NOTICE,
+    PRODUCT_LIMIT_WARNING,
+)
 from app.schemas.excel import NO_INTERPRETATION_NOTICE as EXCEL_NOTICE
 from app.services import excel_ask as excel_ask_module
 from app.services.answer_prompt import NO_ANSWER_TEXT, NO_REASON_TEXT
@@ -339,3 +345,117 @@ def test_llm_failure_inside_a_mixed_call_writes_one_error_row_and_503s(
     rows = _audit_rows(db_session)
     assert len(rows) == 1 and rows[0].query_type == "MIXED_QUERY"
     assert rows[0].error and "quota" in rows[0].error
+
+
+# ---------------------------------------------------------------- Aşama A (30.09.2026)
+# `audit_log_id`, `product_level`, `warnings` and the P1-only degrade rule — the
+# AI-BalBal answer-loop contract (docs/plans/ASAMA_A_BALBAL_DONGUSU_PLAN.md).
+
+
+def test_answer_returns_the_id_of_its_single_audit_row_with_product_level(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    fake_router: FakeRouter,
+) -> None:
+    _upload_workbook(client)
+    fake_router.query_type = "DATA_QUERY"
+    fake_llm.replies = [
+        json.dumps({"kind": "function", "name": "dscr", "params": {"period": "Q2_2026"}}),
+        "Ankara RES'in 2026 Q2 DSCR değeri 1,37x.",
+    ]
+    body = _ask(client, "Ankara RES 2026 Q2 DSCR kaç?")
+    rows = _audit_rows(db_session)
+    assert len(rows) == 1
+    assert body["audit_log_id"] == str(rows[0].id)
+    assert body["product_level"] == "P2" and rows[0].product_level == "P2"
+    assert body["warnings"] == [] and rows[0].warnings == []
+
+
+def test_product_level_follows_the_final_query_type(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    fake_router: FakeRouter,
+) -> None:
+    """DOCUMENT → P1. A DATA routing that misses and falls through to documents is a
+    document answer, so it is P1 too — the level describes what was produced, not what
+    the router guessed."""
+    from tests.test_ask import _document
+
+    _document(db_session, title="A", department=None, text="Yerli banka kredisi 20.400.000 EUR.")
+    fake_llm.replies = ["Yerli banka kredisi 20.400.000 EUR'dur [K1]."]
+    body = _ask(client, "Yerli banka kredisi ne kadar?")
+    assert body["query_type"] == "DOCUMENT_QUERY" and body["product_level"] == "P1"
+
+    _upload_workbook(client)
+    fake_router.query_type = "DATA_QUERY"
+    fake_llm.replies = [
+        json.dumps({"kind": "none", "reason": "not in workbooks"}),
+        "Yerli banka kredisi 20.400.000 EUR'dur [K1].",
+    ]
+    body = _ask(client, "Ankara RES finansmanında yerli banka kredisi ne kadar?")
+    assert body["query_type"] == "DOCUMENT_QUERY" and body["product_level"] == "P1"
+    rows = _audit_rows(db_session)
+    assert [row.product_level for row in rows] == ["P1", "P1"]
+
+
+def test_no_answer_carries_a_missing_data_warning_with_the_request_data_action(
+    client: TestClient, admin_user: User, fake_llm: FakeLLMClient
+) -> None:
+    body = _ask(client, "İzmir RES'in COD tarihi nedir?")  # nothing to retrieve
+    assert body["answered"] is False
+    assert body["warnings"] == [
+        {"kind": "missing_data", "message": MISSING_DATA_WARNING, "action": "request_data"}
+    ]
+
+
+def test_p1_only_degrades_a_data_routing_to_documents_with_a_product_limit_warning(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    fake_router: FakeRouter,
+) -> None:
+    """NOT §6.2: P2 closed → the question is not refused; it is answered from documents
+    only (the covenant report PDF, not the workbook), the answer says why, and the Excel
+    engine is never consulted."""
+    from tests.test_ask import _document
+
+    _document(
+        db_session,
+        title="Covenant Report Q2 2026",
+        department=None,
+        text="2026 Q2 DSCR 1,37x olarak hesaplanmıştır.",
+    )
+    _upload_workbook(client)
+    company_settings_repo.set_enabled_products(db_session, ["P1"])
+    fake_router.query_type = "DATA_QUERY"
+    fake_llm.replies = ["2026 Q2 DSCR 1,37x'tir [K1]."]
+
+    body = _ask(client, "Ankara RES 2026 Q2 DSCR kaç?")
+
+    assert fake_router.questions == ["Ankara RES 2026 Q2 DSCR kaç?"]  # still classified
+    assert body["query_type"] == "DOCUMENT_QUERY" and body["product_level"] == "P1"
+    assert body["answered"] is True and body["excel_sources"] == []
+    assert body["sources"][0]["title"] == "Covenant Report Q2 2026"  # type: ignore[index]
+    assert body["warnings"] == [
+        {"kind": "product_limit", "message": PRODUCT_LIMIT_WARNING, "action": None}
+    ]
+    assert all(r.system != PLAN_SYSTEM_PROMPT for r in fake_llm.requests)
+    rows = _audit_rows(db_session)
+    assert len(rows) == 1 and rows[0].query_type == "DOCUMENT_QUERY"
+    assert rows[0].product_level == "P1" and rows[0].warnings[0]["kind"] == "product_limit"
+
+
+def test_p1_only_leaves_a_document_routing_untouched(
+    client: TestClient, db_session: Session, admin_user: User, fake_llm: FakeLLMClient
+) -> None:
+    from tests.test_ask import _document
+
+    _document(db_session, title="A", department=None, text="DSCR covenant 1,25x")
+    company_settings_repo.set_enabled_products(db_session, ["P1"])
+    body = _ask(client, "DSCR covenant nedir?")
+    assert body["query_type"] == "DOCUMENT_QUERY" and body["warnings"] == []

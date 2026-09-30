@@ -58,6 +58,11 @@ class AuditLog(Base):
     request_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     # System/LLM failure only — "no source found" is a normal outcome, not an error.
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Product layer the answer was produced in (B-25) and the structured warnings the
+    # user saw (missing_data / product_limit) — stored, not derived, so a later change to
+    # the query_type→product mapping never rewrites history. NULL / [] before migration 0009.
+    product_level: Mapped[str | None] = mapped_column(String(2), nullable=True)
+    warnings: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list, server_default="[]")
 
     def __repr__(self) -> str:
         return f"AuditLog(user_id={self.user_id!r}, timestamp={self.timestamp!r})"

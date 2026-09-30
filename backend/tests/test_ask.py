@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_llm_client
 from app.core.errors import LLM_NOT_CONFIGURED_MESSAGE, LLM_UNAVAILABLE_MESSAGE
 from app.main import app
-from app.models.document import Document, DocumentStatus
+from app.models.document import Confidentiality, Document, DocumentStatus
 from app.models.document_chunk import DocumentChunk
 from app.models.user import User
 from app.repositories import audit_log_repo
@@ -173,6 +173,11 @@ def test_sources_come_from_citations_with_page_and_chain(
     assert second["title"] == facility.title and second["page_number"] == facility_page
     assert second["is_current"] is False and second["superseded_by_title"] == amendment.title
     assert second["status"] == "superseded"
+    # B-07 (Aşama A): the neighbour ids travel with the titles so the UI can link them.
+    assert first["supersedes_document_id"] == str(facility.id) and first["is_initial"] is False
+    assert first["superseded_by_document_id"] is None
+    assert second["superseded_by_document_id"] == str(amendment.id) and second["is_initial"] is True
+    assert second["supersedes_document_id"] is None
     # The prompt carried the chain flags computed in code, current document first.
     prompt = fake_llm.requests[0].user
     assert prompt.index("Zincir: GÜNCEL") < prompt.index("Zincir: İLK HALKA")
@@ -360,3 +365,41 @@ def test_audit_log_write_failure_never_breaks_the_response(
 
     assert response.status_code == 200
     assert response.json()["answered"] is True
+
+
+def test_hidden_successor_yields_no_id_and_no_title(
+    client: TestClient, db_session: Session, employee_user: User, fake_llm: FakeLLMClient
+) -> None:
+    """B-07's condition — "güncel versiyonun id'si dönmeden önce kullanıcının o belgeyi görme
+    yetkisi kontrol edilir; yoksa None" — holds because the chain is loaded through
+    `allowed_document_ids` at every hop (ADR-021): a `finans` employee sees the executed
+    facility agreement (normal) but not its restricted amendment, so the card neither
+    names nor identifies the successor, and the document is not called current either."""
+    manifest = ensure_generated_documents()
+    facility_entry = next(
+        e for e in manifest["documents"] if e["external_ref"] == "DOC-ANK-FIN-004"
+    )
+    documents = load_ledger_documents(db_session, ["DOC-ANK-FIN-004", "DOC-ANK-FIN-005"])
+    facility, amendment = documents["DOC-ANK-FIN-004"], documents["DOC-ANK-FIN-005"]
+    amendment.confidentiality = Confidentiality.restricted
+    db_session.commit()
+    add_user_to_department(db_session, employee_user, make_department(db_session, slug="finans"))
+    facility_page = facility_entry["page_map"]["5. Financial Covenants"]
+
+    def reply(request: LLMRequest) -> str:
+        assert amendment.title not in request.user  # never reached the prompt
+        match = re.search(
+            rf"\[(K\d+)\] Belge: {re.escape(facility.title)} \|.*?Sayfa: {facility_page}\n",
+            request.user,
+        )
+        assert match, request.user
+        return f"Minimum DSCR covenant'ı [{match.group(1)}]'de belirtilmiştir."
+
+    fake_llm.reply_fn = reply
+    body = _ask(client, "Ankara RES minimum DSCR covenant'ı nedir?")
+
+    assert body["answered"] is True
+    card = body["sources"][0]  # type: ignore[index]
+    assert card["document_id"] == str(facility.id) and card["is_initial"] is True
+    assert card["superseded_by_title"] is None and card["superseded_by_document_id"] is None
+    assert card["is_current"] is False  # a hidden successor exists; the link is not current

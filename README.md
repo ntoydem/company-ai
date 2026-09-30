@@ -222,32 +222,58 @@ model saturasyonunda `make test-llm MODEL=gemini-3.5-flash`).
 
 ## Soru yönlendirme — router (Phase 4.3)
 `/api/ask` tek giriş noktasıdır (ADR-010). Her soru önce ucuz bir sınıflandırma çağrısından geçer
-(`LLM_MODEL_CLASSIFY`, JSON) ve dört tipten birine yönlenir; tip cevapta `query_type` olarak döner ve
-`audit_log.query_type`'a yazılır:
+(`LLM_MODEL_CLASSIFY`, JSON) ve üç tipten birine yönlenir; tip cevapta `query_type` olarak döner ve
+`audit_log.query_type`'a yazılır (`GENERAL_QUERY` 30.09.2026'da kaldırıldı — sistem hiçbir soruyu modelin genel
+bilgisinden cevaplamaz, tanım soruları da belgelere bakar):
 
 | Tip | Ne olur | Kaynak |
 |---|---|---|
 | `DOCUMENT_QUERY` | eskisi gibi belge hattı (retrieval → prompt → `[K#]`) | `sources` (belge + sayfa) |
 | `DATA_QUERY` | `POST /api/excel/ask` ile **aynı** kod (plan → DuckDB/Python → aktarım); Excel'de bulunamazsa soru **belge hattına düşer** (cevap `DOCUMENT_QUERY` olarak döner) | `excel_sources` (dosya + sheet + aralık) |
 | `MIXED_QUERY` | router iki alt soru üretir; belge hattı + Excel hattı **ikisi de** koşar; iki cevap "Belgelere göre: / Excel verisine göre:" başlıklarıyla **yorumsuz** birleştirilir (üçüncü LLM çağrısı yok) | ikisi birden |
-| `GENERAL_QUERY` | retrieval yok, Excel yok, yetki sorgusu yok — kısa genel tanım; cevap kodla eklenen "Bu cevap genel bilgidir; şirket belgeleri veya verileri kullanılmamıştır." cümlesiyle başlar; cevapta proje adı veya para tutarı görünürse cevap düşürülür | yok |
 
 Belirsiz sorular ("Güncel DSCR kaç?") MIXED'dir: belge tarafı sözleşmedeki covenant'ı (1,20x, Amendment 01),
 Excel tarafı gerçekleşen değeri (1,37x, `Covenant_Report.xlsx Q2_2026!D14`) verir. Router hatası/bozuk JSON →
-`DOCUMENT_QUERY` (asla kaynaksız GENERAL'e düşmez). Bir `/api/ask` çağrısı = **bir** audit satırı (`sources` JSON'unda
-her kart `kind: document|excel` taşır, `excel_files_used` dolu). `/api/excel/ask` router'sız DATA ucu olarak kalır.
+`DOCUMENT_QUERY`. Bir `/api/ask` çağrısı = **bir** audit satırı (`sources` JSON'unda her kart `kind: document|excel`
+taşır, `excel_files_used` dolu); satırın id'si cevapta `audit_log_id` olarak döner. `/api/excel/ask` router'sız DATA
+ucu olarak kalır (Ürün 2 kapısı, aşağıda).
 ```bash
 curl -s -X POST localhost:8080/api/ask -b cookies.txt -H 'content-type: application/json' \
   -d '{"question": "Güncel DSCR kaç?"}'
 # {"query_type":"MIXED_QUERY","answer":"Belgelere göre:\n... 1,20x ... [K1]\n\nExcel verisine göre:\n... 1,37x ...",
 #  "sources":[{"ref":"K1","title":"Facility Agreement Amendment 01","page_number":3,...}],
 #  "excel_sources":[{"file":"Covenant_Report.xlsx","sheet":"Q2_2026","range":"D14","label":"Covenant_Report.xlsx Q2_2026!D14"}],...}
-curl -s -X POST localhost:8080/api/ask -b cookies.txt -H 'content-type: application/json' -d '{"question": "DSCR ne demek?"}'
-# {"query_type":"GENERAL_QUERY","answer":"Bu cevap genel bilgidir; şirket belgeleri veya verileri kullanılmamıştır.\n\n...","sources":[],"excel_sources":[],...}
 ```
-Router ve GENERAL promptları `backend/app/services/router.py` / `general_answer.py`; kopyası
-`docs/prompts/ROUTER_PROMPTS.md` (`make prompt-doc`, `make lint` eşitliği denetler). Maliyet: soru başına LLM çağrısı
-DOCUMENT 2, DATA 3, MIXED 4, GENERAL 2 — ücretsiz katmanda (5 istek/dk) `make eval` istek aralığı bu yüzden 26 sn.
+Router promptu `backend/app/services/router.py`; kopyası `docs/prompts/ROUTER_PROMPTS.md` (`make prompt-doc`,
+`make lint` eşitliği denetler). Maliyet: soru başına LLM çağrısı DOCUMENT 2, DATA 3, MIXED 4 — ücretsiz katmanda
+(5 istek/dk) `make eval` istek aralığı bu yüzden 26 sn.
+
+## Ürün paketi ve cevap alanları — Aşama A (30.09.2026, B-25 / B-04 / B-07)
+Müşteride hangi ürün katmanlarının açık olduğu tek satırlık `company_settings.enabled_products` tablosunda tutulur
+(`P1` Tanıma, `P2` Birleştirme, `P3` Yorumlama; demo'da üçü de açık, ADR-022). Değer `/api/auth/login` ve
+`/api/auth/me` cevabında `enabled_products` olarak döner; AI-BalBal arayüzü buna göre ekran açar/kapatır.
+```bash
+make set-products PRODUCTS=P1              # demo/test: yalnızca Ürün 1 (CLI: python -m app.cli set-enabled-products P1)
+make set-products PRODUCTS=P1,P2,P3        # geri al
+curl -s localhost:8080/api/admin/settings -b admin_cookies.txt                       # {"enabled_products":["P1","P2","P3"]}
+curl -s -X PATCH localhost:8080/api/admin/settings -b admin_cookies.txt \
+  -H 'content-type: application/json' -d '{"enabled_products":["P1","P2"]}'          # yalnızca admin
+```
+Ürün 2 kapalıyken: `POST /api/excel/ask` → `403 {"detail":"product_not_enabled"}`; `/api/ask`'ta router DATA/MIXED
+seçse bile soru **reddedilmez**, yalnızca belgelerden cevaplanır (`query_type: DOCUMENT_QUERY`, `product_level: P1`)
+ve cevaba `product_limit` uyarısı eklenir. Excel yükleme ve `/inspect` Ürün 1'de açık kalır (hesap yapmazlar).
+
+`/api/ask` cevabındaki ek alanlar (hepsi eklemeli, eski istemciler etkilenmez):
+
+| Alan | Anlamı |
+|---|---|
+| `audit_log_id` | Bu cevabın `audit_log` satırı (yalnızca admin API'siyle okunur; id'yi bilmek yetki vermez) |
+| `product_level` | Cevabın üretildiği katman: `DOCUMENT_QUERY → P1`, `DATA/MIXED → P2` (nihai tipe göre) |
+| `warnings[]` | `{kind, message, action?}` — `missing_data` (kaynak yok; `action: request_data`, B-11 butonu) veya `product_limit`; metinler sabit, LLM üretmez |
+| `sources[].supersedes_document_id`, `superseded_by_document_id`, `is_initial` | Versiyon zinciri komşularının id'si (yetkisiz komşu → `null`, başlığı gibi) ve "ilk halka" işareti |
+
+Denetim kaydı satırı da `product_level` ve `warnings` taşır (`GET /api/audit-log/{id}`). "Beğendim / hatalı" geri
+bildirim ucu **yoktur** (Tansu, 30.09.2026): uyarılar onun yerini alır.
 
 ## Audit log (Phase 3.4)
 Her `/api/ask` çağrısı (cevaplı, "bilgi bulamadım" veya LLM hatası — hepsi) `audit_log` tablosuna bir satır yazar:
@@ -399,6 +425,7 @@ kendi belgelerine sahip (Ankara 3, İzmir 4 — Phase 5.1, bkz. `docs/reports/PH
 | `make dev-frontend` | Vite dev server (HMR) `:5173`, `/api` backend'e proxy — günlük arayüz geliştirme |
 | `make migrate`, `make migration NAME=...` | Alembic upgrade / yeni migration |
 | `make seed-admin`, `make seed-demo-users`, `make seed-demo-departments`, `make seed-demo-projects` | Admin/demo kullanıcı/demo departman+üyelik/demo proje oluştur (yoksa) |
+| `make set-products PRODUCTS=P1,P2` | Ürün paketini değiştir (B-25, bkz. "Ürün paketi ve cevap alanları") |
 | `make prose` | LLM ile `seed_data/generator/prose/*.yaml` üret (yalnızca içerik değiştiğinde, elle commit edilir) |
 | `make validate-documents` | Prose (P1/P2) + üretilmiş PDF (G1-G6) doğrulaması; `make lint`'in parçası (`--prose-only`) |
 | `make seed` | 15 demo belgeyi render edip yükler (bkz. "Demo veri (Phase 3.1)"); LLM çağırmaz |

@@ -10,7 +10,7 @@ from app.api.deps import get_current_user, get_login_rate_limiter
 from app.core.config import Settings, get_settings
 from app.core.db import get_session
 from app.models.user import User
-from app.repositories import user_repo
+from app.repositories import company_settings_repo, user_repo
 from app.schemas.auth import CurrentUserResponse, LoginRequest
 from app.services.rate_limit import LoginRateLimiter
 from app.services.security import (
@@ -73,7 +73,7 @@ def login(
         path="/",
     )
     log.info("login succeeded", extra={"username": user.username})
-    return CurrentUserResponse.model_validate(user)
+    return CurrentUserResponse.from_user(user, company_settings_repo.enabled_products(session))
 
 
 @router.post("/logout", status_code=204)
@@ -83,5 +83,10 @@ def logout(response: Response) -> None:
 
 
 @router.get("/me", response_model=CurrentUserResponse)
-def me(current_user: Annotated[User, Depends(get_current_user)]) -> CurrentUserResponse:
-    return CurrentUserResponse.model_validate(current_user)
+def me(
+    session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> CurrentUserResponse:
+    return CurrentUserResponse.from_user(
+        current_user, company_settings_repo.enabled_products(session)
+    )

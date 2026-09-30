@@ -1,5 +1,6 @@
 """FastAPI dependencies shared across routers."""
 
+from collections.abc import Callable
 from functools import lru_cache
 from typing import Annotated
 
@@ -10,8 +11,9 @@ from app.core.config import Settings, get_settings
 from app.core.db import get_session
 from app.core.errors import NOT_AUTHENTICATED_MESSAGE, NOT_AUTHORIZED_MESSAGE
 from app.excel.calc import CachedValueEngine, CalculationEngine
+from app.models.company_settings import ProductLevel
 from app.models.user import User, UserRole
-from app.repositories import user_repo
+from app.repositories import company_settings_repo, user_repo
 from app.services.llm import LLMClient, build_llm_client
 from app.services.rate_limit import LoginRateLimiter
 from app.services.router import LLMRouter, Router
@@ -40,6 +42,25 @@ def require_admin(current_user: Annotated[User, Depends(get_current_user)]) -> U
     if current_user.role != UserRole.admin:
         raise HTTPException(403, NOT_AUTHORIZED_MESSAGE)
     return current_user
+
+
+# Machine-readable, not a Turkish sentence: the contract with the AI-BalBal frontend
+# (BAGLANTI_YOL_HARITASI.md §2.1/3), which renders its own text for a closed layer.
+PRODUCT_NOT_ENABLED_DETAIL = "product_not_enabled"
+
+
+def require_product(level: ProductLevel) -> Callable[..., None]:
+    """Gate for endpoints that belong to a product layer (B-25, ADR-022). Authentication
+    runs first (401 before 403); the layer is read from `company_settings` per request."""
+
+    def dependency(
+        session: Annotated[Session, Depends(get_session)],
+        _user: Annotated[User, Depends(get_current_user)],
+    ) -> None:
+        if level not in company_settings_repo.enabled_products(session):
+            raise HTTPException(403, PRODUCT_NOT_ENABLED_DETAIL)
+
+    return dependency
 
 
 @lru_cache

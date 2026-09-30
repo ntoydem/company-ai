@@ -10,6 +10,7 @@ from app.api import (
     excel,
     health,
     projects,
+    settings,
     users,
 )
 
@@ -24,3 +25,4 @@ router.include_router(ask.router)
 router.include_router(ask_page.router)
 router.include_router(audit_log.router)
 router.include_router(excel.router)
+router.include_router(settings.router)

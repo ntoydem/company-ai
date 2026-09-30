@@ -16,6 +16,7 @@ from app.core.config import Settings, get_settings
 from app.core.db import get_engine, get_session_factory
 from app.main import app
 from app.models import Base
+from app.models.company_settings import SETTINGS_ROW_ID
 from app.models.user import User, UserRole
 from app.repositories import user_repo
 from app.services.admin_seed import ensure_admin_user
@@ -51,6 +52,10 @@ def _clean_tables() -> Iterator[None]:
     with get_engine().begin() as conn:
         for table in reversed(Base.metadata.sorted_tables):
             conn.execute(text(f'TRUNCATE TABLE "{table.name}" CASCADE'))
+        # Migration 0009 inserts the one `company_settings` row; the truncate above removes
+        # it, so restore it exactly as the migration does (demo default: every layer open).
+        # A test that switched to P1-only therefore never leaks into the next one.
+        conn.execute(text(f"INSERT INTO company_settings (id) VALUES ({SETTINGS_ROW_ID})"))
 
 
 @pytest.fixture

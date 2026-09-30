@@ -10,7 +10,8 @@ from pathlib import Path
 from app.core.config import get_settings
 from app.core.db import database_reachable, get_engine, get_session_factory
 from app.core.logging import setup_logging
-from app.repositories import audit_log_repo
+from app.models.company_settings import PRODUCT_LEVELS, ProductLevel
+from app.repositories import audit_log_repo, company_settings_repo
 from app.services import embedding_backfill
 from app.services.admin_seed import ensure_admin_user
 from app.services.demo_departments_seed import (
@@ -178,6 +179,32 @@ def cmd_cleanup_audit_log() -> int:
     return 0
 
 
+def parse_products(raw: str) -> list[ProductLevel]:
+    """`"P1,P2"` → `["P1", "P2"]`; unknown value or empty list → `ValueError`."""
+    wanted = {part.strip() for part in raw.split(",") if part.strip()}
+    unknown = wanted - set(PRODUCT_LEVELS)
+    if unknown or not wanted:
+        raise ValueError(
+            f"enabled products must be a non-empty subset of {','.join(PRODUCT_LEVELS)}"
+        )
+    return [level for level in PRODUCT_LEVELS if level in wanted]
+
+
+def cmd_set_enabled_products(raw: str) -> int:
+    """B-25 product layer key for demo/test package switching (BAGLANTI_YOL_HARITASI §2.1/5);
+    the admin API `PATCH /api/admin/settings` is the runtime equivalent."""
+    try:
+        products = parse_products(raw)
+    except ValueError as exc:
+        log.error(str(exc))
+        return 2
+    with get_session_factory()() as session:
+        row = company_settings_repo.set_enabled_products(session, products)
+        enabled = list(row.enabled_products)
+    log.info("set-enabled-products done", extra={"enabled_products": enabled})
+    return 0
+
+
 def cmd_backfill_embeddings(limit: int) -> int:
     """One backfill batch (Phase 3.4). No-op if `EMBEDDINGS_ENABLED=false` — never calls
     a possibly-absent `embed` service just because someone ran this command."""
@@ -228,6 +255,10 @@ def main(argv: list[str] | None = None) -> int:
         "backfill-embeddings", help="embed one batch of document_chunks with no vector yet"
     )
     backfill.add_argument("--limit", type=int, default=20)
+    products = sub.add_parser(
+        "set-enabled-products", help="B-25: set company_settings.enabled_products, e.g. P1,P2"
+    )
+    products.add_argument("products", help="comma-separated subset of P1,P2,P3")
     args = parser.parse_args(argv)
 
     setup_logging(get_settings().log_level)
@@ -257,6 +288,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_cleanup_audit_log()
     if args.command == "backfill-embeddings":
         return cmd_backfill_embeddings(args.limit)
+    if args.command == "set-enabled-products":
+        return cmd_set_enabled_products(args.products)
     return 2
 
 

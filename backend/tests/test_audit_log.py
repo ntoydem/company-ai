@@ -94,3 +94,19 @@ def test_admin_gets_full_detail(client: TestClient, db_session: Session, admin_u
 def test_detail_unknown_id_returns_404(client: TestClient, admin_user: User) -> None:
     response = client.get(f"/api/audit-log/{uuid.uuid4()}")
     assert response.status_code == 404
+
+
+def test_detail_carries_product_level_and_warnings(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    """Aşama A: stored per row (not derived), so the admin sees what the user saw."""
+    plain = _row(db_session, admin_user)
+    limited = _row(
+        db_session,
+        admin_user,
+        product_level="P1",
+        warnings=[{"kind": "product_limit", "message": "paket", "action": None}],
+    )
+    assert client.get(f"/api/audit-log/{plain.id}").json()["product_level"] is None
+    body = client.get(f"/api/audit-log/{limited.id}").json()
+    assert body["product_level"] == "P1" and body["warnings"][0]["kind"] == "product_limit"

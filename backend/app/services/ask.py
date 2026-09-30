@@ -80,6 +80,9 @@ def _source_cards(
                 is_current=source.position.is_current,
                 supersedes_title=source.position.supersedes_title,
                 superseded_by_title=source.position.superseded_by_title,
+                supersedes_document_id=source.position.supersedes_document_id,
+                superseded_by_document_id=source.position.superseded_by_document_id,
+                is_initial=source.position.is_initial,
             )
         )
     return cards, unknown

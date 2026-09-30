@@ -137,6 +137,10 @@ seed-demo-departments: dirs ## demo departmanlarını + demo kullanıcı üyelik
 seed-demo-projects: dirs ## demo projelerini oluştur (yoksa): Ankara RES, İzmir RES
 	$(COMPOSE) run --rm -T backend python -m app.cli seed-demo-projects
 
+set-products: dirs ## ürün paketini değiştir (B-25): make set-products PRODUCTS=P1  |  PRODUCTS=P1,P2,P3
+	@test -n "$(PRODUCTS)" || { echo "PRODUCTS=P1[,P2[,P3]] gerekli"; exit 1; }
+	$(COMPOSE) run --rm -T backend python -m app.cli set-enabled-products $(PRODUCTS)
+
 seed-demo-documents: dirs ## demo belgelerini yükle (yoksa; önce `make seed` içindeki generate/validate adımları)
 	$(COMPOSE) run --rm -T backend python -m app.cli seed-demo-documents
 	$(COMPOSE) run --rm -T backend python -m app.cli wait-for-documents --timeout 600

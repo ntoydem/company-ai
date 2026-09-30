@@ -1,5 +1,7 @@
 """`POST /api/excel/ask` and `GET /api/excel/{document_id}/inspect` (Phase 4.2, SPEC_04).
-DATA questions only; `/api/ask` stays DOCUMENT-only until the router (Phase 4.3)."""
+DATA questions only; `/api/ask` reaches the same code through the router (Phase 4.3).
+`/ask` computes, so it is a P2 capability (B-25); `/inspect` only reads and stays open in
+P1 ("veri yükleyecek" covers workbooks — docs/notes/TANSU_GERI_BILDIRIM_2026-09-30.md §6.2)."""
 
 from __future__ import annotations
 
@@ -9,7 +11,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_calculation_engine, get_current_user, get_llm_client
+from app.api.deps import (
+    get_calculation_engine,
+    get_current_user,
+    get_llm_client,
+    require_product,
+)
 from app.core.config import Settings, get_settings
 from app.core.db import get_session
 from app.excel.calc import CalculationEngine, table_name
@@ -43,6 +50,7 @@ def ask_excel(
     current_user: Annotated[User, Depends(get_current_user)],
     llm: Annotated[LLMClient, Depends(get_llm_client)],
     engine: Annotated[CalculationEngine, Depends(get_calculation_engine)],
+    _p2: Annotated[None, Depends(require_product("P2"))],
 ) -> ExcelAskResponse:
     result = answer_data_question(session, current_user, body, llm, settings, engine)
     return ExcelAskResponse(

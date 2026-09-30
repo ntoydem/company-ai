@@ -2,6 +2,7 @@
 
 from app.models.audit_log import AuditLog
 from app.models.base import Base
+from app.models.company_settings import CompanySettings
 from app.models.department import Department
 from app.models.document import (
     Confidentiality,
@@ -22,6 +23,7 @@ from app.models.user_department import UserDepartment
 __all__ = [
     "AuditLog",
     "Base",
+    "CompanySettings",
     "Confidentiality",
     "Department",
     "Document",
