@@ -11,13 +11,32 @@ Kısaltmalar: **kural N** = `CLAUDE.md`'deki N numaralı değişmez kural. **ADR
 
 ---
 
+## 0. Güncelleme — Tansu'nun cevapları (30.09.2026, Word yorumları, özet)
+
+Tansu notun sade özetine on cevap verdi. Aşağıdaki tablo her cevabın bu nottaki karşılığını ve yeni durumunu gösterir; ayrıntı ilgili bölümde **Durum (30.09)** satırlarındadır. Cevaplar özet halinde alındı; tam metin gerekirse Naci'den istenir.
+
+| # | Tansu'nun cevabı (özet) | Etkilenen madde | Durum |
+|---|---|---|---|
+| 1 | "Beğendim / yanlış" geri bildirim butonları **reddedildi**. Yerine üç bildirim türü: **veri eksikliği**, **veri uyuşmazlığı** (departmanlar arası çelişki → "diğer departmandan veri/bilgi talep et" butonu), **yetkilendirme uyarısı** (talep ürün sınırını aşıyorsa). | B-04, B-11, B-25 | **DEĞİŞTİ** — §1 B-04 satırı yeniden yazıldı; §5.3 |
+| 2 | "Şirketteki tüm yetkilendirmeleri müşteri kendi yönetim arayüzünden belirler; Balbal yalnızca gerekli araçları sağlar." | B-08, B-20, B-26, B-28, ADR-004 Phase 1.2 notu | **YENİ TASARIM KARARI** — §5.1 |
+| 3 | Sohbet geçmişi ertelemesi onaylandı ("şimdilik gerek yok"). | B-03 | **ERTELENDİ** — §2 B-03 |
+| 4 | İzin/yazışma belgelerinde bireysel erişim: "kendisi görecek, İK herkesi görecek." | B-22/3, B-23/2 | **NETLEŞTİ** — §2 B-22, §5.1 |
+| 5 | Belge onayı: "Yönetici kendi belgesini eklerse onay gerekmez; personel eklerse kendi onayı + departman yetkilisinden 2. onay." | B-28, Phase 3.2 SORU 2 | **YENİ TASARIM KARARI** — §5.2; §3.3 güncellendi |
+| 6 | Yükleme yetki açığı "öncelikli giderilmeli". | §2 B-26/3 ara düzeltme | **KABUL** — Naci'nin faz planı onayı bekler |
+| 7 | "Şimdilik Ürün 2'den başlayacak. Ürün 1 yalnızca veri yükleyecek, yüklenen veriyi bulup bilgilendirecek." DuckDB/Excel hesabı Ürün 2. | B-25, §3.1, eval seti, örnek sorular | **NETLEŞTİ** — §6 |
+| 8 | İnternet/HTTPS: "Şimdilik web'de görüntülenecek, detaylar ileride şekillenecek." | B-27, §3.2 | **AÇIK — netleştirme gerekiyor** (aşağıda "Açık kalanlar") |
+| 9 | Kural 3'ün ("LLM hesap yapmaz") BACKEND_GAPS'a P-11 olarak eklenmesi onaylandı ("Ürün 1 için uygun"). | §3.9 | **KABUL** — ekleme ürün sahibi tarafının reposunda yapılır; backend dokunmaz |
+| 10 | Çelişki önceliği: "Anayasaya (`CLAUDE.md`/kurallar) eklenecek, GitHub üzerinden çözüm aranacak, çözülmezse Tansu ve Naci karar verir. Frontend'in talebi backend'in kabiliyetlerini karşılamalı ve anayasa içinde olmalı." | Eski karar listesi #11 | **NETLEŞTİ** — öncelik `CLAUDE.md` ve ADR'lerde; BACKEND_GAPS §1.6'nın "bağlayıcı çerçeve" ifadesi buna göre okunur |
+
+---
+
 ## 1. Benimseyeceğimiz talepler ve yöntemi
 
 Bu maddeler mevcut kurallarla ve ADR'lerle çelişmiyor; her biri var olan bir deseni genişletir. Sıra, `BACKEND_GAPS` §12 ile uyumludur; bağımlılığı olanlar belirtilmiştir.
 
 | Kod | Talep | Yöntem (hangi mevcut kod / desen genişletilir) | Bağımlılık |
 |---|---|---|---|
-| **B-04** | `AskResponse.audit_log_id`; `POST /api/ask/feedback {audit_log_id, rating, comment?}` | `audit_writer.write_audit_row` zaten satırı yazıyor, id'sini döndürmesi yeterli (`services/audit_writer.py`). `audit_log` tablosuna `rating`, `feedback_comment`, `feedback_at` sütunları (migration 0009). Feedback ucu yalnızca satırın `user_id`'si ile eşleşen kullanıcıdan kabul eder; admin listesi (`GET /api/audit-log`) `has_feedback` filtresi alır. ADR-016 korunur: geri bildirim denetim kaydında kalır, retrieval'a ve prompt'a girmez; "eval setini büyütme" (§3.4) admin'in kaydı okuyup soru setine elle eklemesi demektir, otomatik akış yoktur. | Yok |
+| **B-04** — **DEĞİŞTİ (Tansu #1)** | ~~`audit_log_id` + `POST /api/ask/feedback` (beğendim/yanlış)~~ → cevaba bağlı **üç bildirim türü**: `missing_data`, `data_conflict`, `product_limit` | Geri bildirim ucu ve `rating` sütunu **yazılmaz**; `audit_log_id` alanına da ihtiyaç kalmadı. Yerine `AskResponse.warnings: [{kind, message, action?}]` alanı: (a) **`missing_data`** = bugünkü `answered=false` sabit metninin (ADR-014) yapılandırılmış hali, ek iş yok; (b) **`data_conflict`** = kullanıcının **görebildiği** kaynaklar arasında aynı olgu için farklı değer bulunduğunda; cevap iki değeri de kaynağıyla aktarır, hangisinin doğru olduğunu **söylemez** (kural 6), `action: request_data` ile B-11 evrak/bilgi talebi butonuna bağlanır; (c) **`product_limit`** = router'ın seçtiği dal kapalı üründeyse (§6). Uygulama notları §5.3'te. Denetim kaydı (ADR-016) her uyarıyı `sources`/`answer` gibi satırda saklar; retrieval'a girmez. | (b) için prompt fazı, (c) için B-25 |
 | **B-07** | `SourceCard`'a `supersedes_document_id` / `superseded_by_document_id` | `services/ask.py` kaynak kartını `load_with_chains` ile yüklenen zincirden kuruyor; ADR-021'e göre zincir **her halkada** `allowed_document_ids` ile kısıtlı yüklenir, görünmeyen komşu hiç yüklenmez. Dolayısıyla id'yi eklemek yetki kontrolünü kendiliğinden taşır: yüklenmemiş komşu → `None`. `schemas/ask.py:31-46`'ya iki alan; `SourceCardList.tsx:38-43`'teki uyarı linke dönüşür. | Yok |
 | **B-09** | `users.primary_department_id`, `/me` ve `/login`'de `primary_department_slug` | Migration: sütun + mevcut kullanıcılar için ilk üyelikten backfill. `schemas/auth.py::CurrentUserResponse`'a alan. `api/users.py` create/update'te "ana departman üyeliklerden biri olmalı, management/admin için boş olabilir" doğrulaması. ADR-003 concretization notu. Frontend `Home.tsx:33`, `BalbalChat.tsx:32`, `ShellContext.tsx:19`'daki `department_slugs[0]` varsayımı kalkar. | Yok |
 | **B-13** | `file_kind` alanı | `documents.file_name` (migration 0008, ADR-011) ve `storage_path` uzantısı zaten var; `DocumentListItem`/`DocumentDetailResponse`'a türetilmiş `file_kind: pdf\|image\|xlsx\|xlsm\|csv` eklenir, migration gerekmez. `WorkbookInspectCard.tsx:7`'nin her belge için attığı 422 çağrısı kalkar. | Yok |
@@ -25,13 +44,13 @@ Bu maddeler mevcut kurallarla ve ADR'lerle çelişmiyor; her biri var olan bir d
 | **B-05** | `users.title`; `GET /api/directory?q=&department=` | Migration: `users.title` (nullable). Yeni uç `api/departments.py` deseniyle (her kimlikli kullanıcı, `get_current_user`), dar şema: `id, display_name, title, department_slug, department_name`. `password_hash`, rol, aktiflik dönmez. `users.manager_id` (§2.3) aynı migration'da eklenebilir, kullanımı B-22'ye kalır. | Yok |
 | **B-14** | `GET /api/search?q=` içerik araması | `services/search_query.build_search_query` (ADR-020, sözlük genişletmeli OR sorgusu) + `retrieval.py`'nin FTS bacağı zaten var; `allowed_document_ids` önce (ADR-004). Dönüş: belge + `snippet` + `page_number` (chunk'tan), proje eşleşmesi. `people` kısmı B-05'e bağlı. `SearchPanel.tsx:22-24`'teki istemci tarafı başlık süzmesi yerini alır. | B-05 (people için) |
 | **B-20/6** | Tek sohbette çok proje; `project_id` zorunlu değil | Backend'de `AskRequest.project_id` zaten opsiyonel (`schemas/ask.py:28`); değişiklik gerekmez. Ek olarak `SourceCard`'a `project_code`/`project_name` eklenir ki arayüz projeyi `/api/documents` listesinden türetmek zorunda kalmasın (`AskPanel.tsx:21-24`, `BalbalChat.tsx:35-38`). **Uyarı:** proje ayrımı bugün retrieval'da `project_id` filtresi + prompt disipliniyle sağlanıyor (ADR-020/021); filtre kaldırılınca `isolation` eval kategorisi (bugün %75, bilinen sınırlama) daha da zorlanır. Kaldırma kararı eval ile birlikte alınır. Frontend'in kendi içinde tutarsızlık: `AskPanel.tsx:16,31,46-58` hâlâ proje çipi gösterip `project_id` gönderiyor, yalnızca `BalbalChat` göndermiyor. | Yok |
-| **B-11** | Evrak talebi, varlık ele vermeden | Bugünkü "bilgi bulamadım" sabit metni (ADR-014, ADR-021: chunk yoksa LLM çağrılmadan döner) zaten belge varlığını ele vermez; bu kısım yapılmış durumda. Yeni: `document_requests(id, from_user_id, to_department_id, description, status)` tablosu + `POST /api/document-requests`; departmanı kullanıcı seçer. Hedef departmanın görmesi B-01 gündemine bağlı. | B-01 |
+| **B-11** — **kapsamı büyüdü (Tansu #1)** | Evrak/bilgi talebi, varlık ele vermeden; artık `data_conflict` ve `missing_data` uyarılarının "diğer departmandan veri/bilgi talep et" butonunun hedefi | Bugünkü "bilgi bulamadım" sabit metni (ADR-014, ADR-021: chunk yoksa LLM çağrılmadan döner) zaten belge varlığını ele vermez; bu kısım yapılmış durumda. Yeni: `document_requests(id, from_user_id, to_department_id, description, status, source_audit_log_id?)` tablosu + `POST /api/document-requests`; departmanı kullanıcı seçer (Balbal önermez, P-2). Talebin hangi cevaptan doğduğu, denetim kaydı satırına referansla saklanabilir (kural 4); bu, reddedilen `audit_log_id`'nin tek meşru kullanımı olur ve yalnızca sunucu tarafında kalır. Hedef departmanın görmesi B-01 gündemine bağlı. | B-01 |
 | **B-01** (ilk kısım) | Gündem: süresi dolacak belgeler | Deterministik SQL: `documents.expiration_date` 60 gün içinde ve `allowed_document_ids` içinde. LLM yok. `GET /api/me/agenda` döner `kind: deadline`. "Onay bekleyen öneri" kalemi B-28 kararına, diğer kalemler B-06a/B-11/B-22/B-23'e bağlı. Ürün 2 kapısı B-25'e bağlı. | B-25 (kapı için) |
 | **B-19** | Arayüz incelemesi + tersine liste | Bu not. Tersine liste §4.3'te. | — |
-| **B-27** (yalnızca "AI-BalBal'ı sun" kısmı) | Caddy'nin `ftansu/AI-BalBal/frontend` build'ini sunması, tek komutla güncelleme | `infra/caddy/Dockerfile` bugün `./frontend` bağlamından build alıyor (ADR-018). Build bağlamını bir `FRONTEND_DIR` değişkeniyle seçilebilir yapmak ve `make update-frontend` (git pull + build + `up -d caddy`) eklemek küçük iş. Bu kısım LAN'da düz HTTP ile bugün yapılabilir. HTTPS/internet kısmı §3'te. | Yok |
+| **B-27** (yalnızca "AI-BalBal'ı sun" kısmı) | Caddy'nin `ftansu/AI-BalBal/frontend` build'ini sunması, tek komutla güncelleme | `infra/caddy/Dockerfile` bugün `./frontend` bağlamından build alıyor (ADR-018). Build bağlamını bir `FRONTEND_DIR` değişkeniyle seçilebilir yapmak ve `make update-frontend` (git pull + build + `up -d caddy`) eklemek küçük iş. Bu kısım LAN'da düz HTTP ile bugün yapılabilir. HTTPS/internet kısmı §3.2'de ve **hâlâ açık** (Tansu #8 "şimdilik web'de görüntülenecek" — "web" LAN mı, VPN mi, internet mi belirsiz). | Yok |
 | **B-18** (yöntem olarak) | Demo veri seti genişletme, 15 kişilik personel, kurgu şirket | Mevcut üretim hattı genişletilir: ledger (`seed_data/master/*.yaml`) → `make prose` (LLM bir kez, `[[token]]` ile, rakam görmez) → `generate_documents.py` (deterministik) → `validate_documents.py` → `manifest.json` → `make seed` (ADR-013). Personel listesi ledger'a `personnel` bölümü olarak girer; `demo_users_seed.py` ve `demo_departments_seed.py` ledger'dan okur. Excel seti `generate_excel.py` + LibreOffice recalc hattıyla (ADR-011). **Şirket adı:** ledger'daki "ABC Enerji A.Ş." `USER_FACT` olarak onaylı (Phase 2.1, 23.09.2026); canvas'taki "NATA" ledger'a uydurulur, tersi değil. Her yeni rakam/tarih/isim `AI_ASSUMPTION` etiketiyle girer ve Naci onayı bekler; bu kural ürün sahibinin de kabul ettiği P-9 ile aynı yöndedir. | B-20 (İK belgeleri için) |
 
-Bu tablodaki maddeler için ADR gerekmez; B-04, B-07, B-09, B-13, B-17, B-05 tek bir küçük phase'e sığar ("Balbal cevap döngüsü"). Naci'nin faz planı onayı gerekir; bu not onun yerine geçmez.
+Bu tablodaki maddeler için ADR gerekmez; B-07, B-09, B-13, B-17, B-05 ve B-04'ün `missing_data`/`product_limit` kısımları tek bir küçük phase'e sığar ("Balbal cevap döngüsü"; B-25'in `product_level` eşlemesi §6 ile artık yazılabilir). Yükleme yetki açığının ara düzeltmesi (§2 B-26/3, Tansu #6 "öncelikli") aynı faza ya da ondan önceki tek başına bir düzeltmeye alınır. Naci'nin faz planı onayı gerekir; bu not onun yerine geçmez.
 
 ---
 
@@ -39,17 +58,19 @@ Bu tablodaki maddeler için ADR gerekmez; B-04, B-07, B-09, B-13, B-17, B-05 tek
 
 Talebin özü kabul; şu noktalar değişmeden uygulanamaz.
 
-### B-25 mekanizması — ürün anahtarı (sınıflandırma sorunu §3'te)
+### B-25 mekanizması — ürün anahtarı — **NETLEŞTİ (Tansu #7, ayrıntı §6)**
 - **Kabul:** `company_settings.enabled_products` (tek satır, `text[]`, değerler `P1|P2|P3`), `require_product("P2")` FastAPI bağımlılığı (`require_admin` deseni, `api/deps.py:38`), `enabled_products` hem `/me` hem `/login` cevabında, `set-enabled-products` CLI komutu. Alan adı ve değerler `frontend/src/api/products.ts` ile birebir.
-- **Değişmesi gereken:** `AskResponse.product_level` için "bugün her cevap P1" varsayımı (BAGLANTI §2.1/4) yapılamaz; bkz. §3.1. Karar gelene kadar `product_level` alanı eklenmez, yalnızca `enabled_products` ve `require_product` yazılır.
+- **Durum (30.09):** "Bugün her cevap P1" varsayımı düştü; eşleme §6'da: `DOCUMENT_QUERY → P1`, `DATA_QUERY`/`MIXED_QUERY → P2`. `product_level` artık yazılabilir. **Tansu #2** gereği `enabled_products`'ı müşteri kendi yönetim arayüzünden değiştirebilmeli → CLI'ya ek olarak admin ucu (`PATCH /api/admin/settings`) ve Yönetim panelinde bir sekme; bu, BAGLANTI §2.1/5'in "admin arayüzü şimdilik gerekmez" notunu geçersiz kılar.
 
-### B-20 (1–5) — departman yapısı
+### B-20 (1–5) — departman yapısı — **etkilendi (Tansu #2, bkz. §5.1)**
 - **Kabul:** Görünen ad değişiklikleri, İK ve Üretim/Piyasa, Mali İşler alt birimleri, `finans` üyelik düzeltmesi. Slug'lar sabit (BAGLANTI §3.1 önerisi doğru).
+- **Durum (30.09):** Tansu #2 ("yetkilendirmeyi müşteri arayüzden belirler") departman ağacını **veri** yapar: demo yapısı seed/migration ile gelir, ama müşteri departman ekleyip düzenleyebilmeli. Bu, Phase 1.2'nin "departmanlar seed-only, CRUD yok" kararını (ADR-004 Phase 1.2 notu; `api/departments.py:3`) açar. Backend tarafı bunu yapabilir (proje CRUD deseni, `require_admin`); V0 kapsamına alınması **Naci'nin kararı**.
 - **Değişmesi gereken:** Üç yer birlikte değişmek zorunda: Alembic **veri** migration'ı (seed "varsa dokunma" davranışlı, `demo_departments_seed.py:49`), seed dosyası ve ledger (`seed_data/master/company.yaml` departmanları slug olarak taşır, ADR-013; `validate_ledger` slug'ları denetler). BAGLANTI ilk ikisini görmüş, ledger'ı görmemiş. Ayrıca `search_glossary.py`'de departman adı geçen bir sözlük satırı yok, o tarafta iş çıkmaz. `README.md`'deki demo hesap tablosu güncellenir.
 
-### B-08 — departman yöneticisi rolü
+### B-08 — departman yöneticisi rolü — **önceliği yükseldi (Tansu #2 ve #5, bkz. §5)**
 - **Kabul:** Kural yalnızca `allowed_document_ids` içinde (P-2 = ADR-004). Önerilen iki seçenekten **rol** (`UserRole.department_manager`) tercih edilir: `user_departments.max_confidentiality` alternatifi, gizlilik kararını üyelik satırına dağıtır ve `SingleDocumentIdsProvider` (`authorization.py:84-110`) ile "kim görebilir" ucunu ikinci bir kural kaynağına bağlar.
 - **Değişmesi gereken:** `user_role` Postgres enum'una değer eklemek migration ister; `ROLE_LABELS`/`ROLE_VALUES` (frontend `lib/format.ts`) ve `UserForm` ürün sahibi tarafında güncellenir. ADR-004'e concretization satırı. "Departman müdürü kendi departmanının `restricted` belgelerini görür, `board` görmez" varsayımı ürün sahibince teyit edilmeli; §2.4 yalnızca `restricted` diyor.
+- **Durum (30.09):** İki yeni karar bu rolü ön koşul yapıyor: iki aşamalı belge onayında "departman yetkilisi" ikinci onaycıdır (§5.2) ve rolün kime verileceğini müşteri admin arayüzünden belirler (§5.1; `PATCH /api/users/{id}` zaten `role` alıyor, yalnızca enum genişler). Sıra: B-08, B-28'den **önce** gelir. "Yönetici" kelimesinin `management` rolü mü, `department_manager` mı olduğu açık soru (aşağıda).
 
 ### B-26 — klasörler ve departman erişim yetkileri
 - **Kabul:** `folders`, `folder_grants`, `documents.folder_id`; yetki yalnızca gate içinde; her belge tek klasörde ve belgenin `department`'ı klasörün sahibi departmanı (ADR-004'ün "yetki departmandan gelir" ilkesi korunur); yetki kaldırılınca anında geçerli (gate her istekte hesaplanır, ek iş yok); `SingleDocumentIdsProvider` aynı kuralı taşıdığı için "kim görebilir" ucu tutarlı kalır.
@@ -58,10 +79,12 @@ Talebin özü kabul; şu noktalar değişmeden uygulanamaz.
   2. Yetki değişikliği geçmişi (`§2.6.1/8`) `audit_log`'a **yazılmaz**; o tablo soru-cevap kaydıdır (ADR-016, satır başına bir `/api/ask`). Ayrı `folder_grant_events` tablosu; `GET /api/admin/folders/audit` oradan okur.
   3. `POST /api/documents/upload` `folder_id` alır ve `write` yetkisi yoksa 403 döner. Bu, bugün her iki repoda da bulunan **yazma tarafı yetki boşluğunu** kapatır: `api/documents.py:113` yüklemeyi her kimlikli kullanıcıya açıyor, `:137-138` departman slug'ını yalnızca "var mı" diye kontrol ediyor; Enerji çalışanı `department=finans` ile belge yükleyebilir ve o belge Finans kullanıcılarının Balbal cevaplarına kaynak olur. Kural 1 okumayı korur, yazmayı korumaz. B-26 gelene kadar ara düzeltme olarak "yüklenen belgenin departmanı ⊆ yükleyenin üyelikleri (management/admin hariç)" kuralı önerilir; kararı Naci verir.
   4. `documents.department` FK'sız serbest string (ADR-004 Phase 1.2 notu) klasör sahibiyle çift kaynak olur; ADR'de "klasörün `owner_department`'ı belirleyici, `documents.department` ondan türetilir" yazılmalı.
+- **Durum (30.09):** Tansu #6 ile 3. madde (yükleme yetki açığı) **öncelikli**: B-26 beklenmeden ara düzeltme yapılır. Tansu #2 ile klasör yetkilerinin admin arayüzünden yönetilmesi (zaten B-26'nın tasarımı) teyit edildi; §5.1.
 
-### B-03 — sohbet geçmişi ve çok turlu soru
-- **Kabul:** `ask_conversations` / `ask_turns` ayrı tablolar, kullanıcıya özel, 90 gün, retrieval'a girmez (ADR-016 ile aynı disiplin; temizlik döngüsü paylaşılır). Her turda retrieval yeniden `allowed_document_ids` üzerinden.
-- **Değişmesi gereken:** "Önceki turun sorusu sınıflandırıcıya bağlam olarak verilir" (§3.2) router prompt'unu değiştirir (`services/router.py`, kopyası `docs/prompts/ROUTER_PROMPTS.md`, `make lint` eşitliğini denetler). Phase 5.1b'de Naci prompt ayarını bilinçli olarak dondurdu (isolation/temporal bilinen sınırlama kararı, 26.09.2026); bu değişiklik ayrı bir prompt fazında, `--repeat 3` ölçümüyle yapılır. Ürün sahibinin "takip sorusu" örneği ("peki ya Yeşilova?") canvas projelerini varsayıyor; demo verisi iki projeyle sınırlı (BAGLANTI §6/1 kararı).
+### B-03 — sohbet geçmişi ve çok turlu soru — **ERTELENDİ (Tansu #3)**
+- **Durum (30.09):** "Şimdilik gerek yok." Backend'de iş yok; frontend'in bellek-içi geçmişi (`components/balbal/sessions.tsx`) kalır. Aşağıdaki notlar ileride açıldığında geçerlidir.
+- **Kabul (ileride):** `ask_conversations` / `ask_turns` ayrı tablolar, kullanıcıya özel, 90 gün, retrieval'a girmez (ADR-016 ile aynı disiplin; temizlik döngüsü paylaşılır). Her turda retrieval yeniden `allowed_document_ids` üzerinden.
+- **Değişmesi gereken (ileride):** "Önceki turun sorusu sınıflandırıcıya bağlam olarak verilir" (§3.2) router prompt'unu değiştirir (`services/router.py`, kopyası `docs/prompts/ROUTER_PROMPTS.md`, `make lint` eşitliğini denetler). Phase 5.1b'de Naci prompt ayarını bilinçli olarak dondurdu (isolation/temporal bilinen sınırlama kararı, 26.09.2026); bu değişiklik ayrı bir prompt fazında, `--repeat 3` ölçümüyle yapılır. B-22'nin sohbet içi eksik-bilgi sorma akışı (§8.1.1/2) bu altyapıya bağlıdır; B-03 ertelenince B-22'nin o kısmı da ertelenmiş olur.
 
 ### B-02 — bildirimler
 - **Kabul:** `notifications` tablosu, 60 sn polling, push yok.
@@ -76,7 +99,7 @@ Talebin özü kabul; şu noktalar değişmeden uygulanamaz.
 - **Değişmesi gereken:**
   1. Niyet ayrımı (§3.5) router'a yeni bir tür ekler (`ACTION`); ADR-010'un "her hata DOCUMENT'a düşer" güvenli yönü korunmalı: tereddütte soru olarak işlenir, işlem olarak değil.
   2. Alan çıkarma `metadata_suggestion.py` deseniyle (JSON modu, beyaz liste dışı değerler düşürülür, `metadata_suggestion.py:99-118`) yapılır; tarihler kodda doğrulanır.
-  3. İzin bakiyesinin İK klasöründeki belgelerden türetilmesi (§8.1.6) bireysel erişim ister: personel yalnızca **kendi** izin belgesini görmeli. Bugünkü model departman bazlıdır (ADR-004); bireysel erişim ne B-26'da ne başka yerde tanımlı (§2.6.1/10 "ayrıca ele alınacak"). B-22, bu tanım yapılmadan başlayamaz.
+  3. İzin bakiyesinin İK klasöründeki belgelerden türetilmesi (§8.1.6) bireysel erişim ister. **Netleşti (Tansu #4): "kendisi görecek, İK herkesi görecek."** Model: `documents.owner_user_id` (nullable) + gate'e bir dal: belge sahibinin kendisi **veya** İK departmanı üyesi görür; `management` dahil başkası görmez (§8.1.9 ile aynı). Bu dal da yalnızca `allowed_document_ids` içindedir (P-2); `SingleDocumentIdsProvider` aynı kuralı taşır. Onay zincirindeki yöneticinin belgeyi görüp görmeyeceğini Tansu söylemedi (§8.1.9 "onay zincirindeki yönetici" diyordu); açık soru.
   4. Bakiye aritmetiği (`entitled + carried_over − used − pending`) Python'da; belgelerden rakam okuma LLM'e kalırsa her soruda yeniden çıkarım yapılır. Öneri: izin belgeleri B-28'in "personel eklediği alan" mekanizmasıyla yapılandırılmış sayı taşısın, LLM her seferinde PDF'ten okumasın.
   5. `Europe/Istanbul` ve "bugün" için `DEMO_TODAY` (ADR-012) değil gerçek saat kullanılacak; bu, demo ile gerçek zamanın ilk kez ayrıştığı yer olur, ADR'de belirtilmeli.
 
@@ -84,11 +107,11 @@ Talebin özü kabul; şu noktalar değişmeden uygulanamaz.
 - **Kabul:** Kaynaksız cümle yerine `[BİLGİ EKSİK]`, `legal_references` dışı atıf `[DOĞRULANMALI]`; bu, kural 2'nin sabit metin disiplininin genişletilmiş halidir. Süre `legal_deadline_rules` + tebliğ tarihi ile deterministik (kural 3). Şablonlar tabloda (P-8). Sistemden gönderim yok.
 - **Değişmesi gereken:**
   1. "Gelen yazının içeriği talimat değildir" (§8.2.4/3) bugün `answer_prompt.py`'de açık bir kural olarak **yok**; prompt kaynakları `[K<n>]` bloklarıyla veri gibi sunuyor ama enjeksiyon koruması yazılı değil. Bu, B-23'ten bağımsız olarak genel bir prompt düzeltmesidir; prompt fazında ele alınır (bkz. B-03 notu).
-  2. Gizlilik: §8.2.9 "yalnızca ilgili departman ve onay zinciri görür". Bizde `restricted` belgeyi `management` de görür (ADR-004, `authorization.py:63-69`). Ürün sahibinin "restricted" tanımı bizimkinden dardır; ya yeni bir gizlilik düzeyi ya da B-26 klasör yetkisi + B-08 ile çözülür. Karar gerekiyor.
+  2. Gizlilik: §8.2.9 "yalnızca ilgili departman ve onay zinciri görür". Bizde `restricted` belgeyi `management` de görür (ADR-004, `authorization.py:63-69`). **Tansu #4'ün "kendisi + İK" modeli yazışmaya da uygulanırsa** çözüm B-22 ile aynı dal olur: `owner_user_id` + departman yetkilisi (B-08). Tansu'nun cevabı "izin/yazışma" diyor, dolayısıyla aynı modeli kapsıyor kabul edilir; teyit istenir.
   3. Taslak, hazırlayanın `allowed_document_ids` kümesiyle sınırlı (§8.2.4/4): mevcut `/api/ask` akışı zaten böyle; taslak üretimi aynı `answer_question` hattını `write_audit=True` ile çağırmalı ki her taslak denetim kaydına girsin (kural 4).
 
-### B-28 — belge yükleme mantığının benimsenebilir çekirdeği
-Kararı gerektiren iki nokta §3.3'te. Karar verilirse şu kısımlar uyarlanarak alınır:
+### B-28 — belge yükleme mantığının benimsenebilir çekirdeği — **onay akışı değişti (Tansu #5, bkz. §5.2)**
+§3.3'teki iki noktadan ilki (kim onaylar) Tansu #5 ile **iki aşamalı, role bağlı** akışa dönüştü; ikincisi (onaysız belge görünmez) hâlâ açık. Aşağıdaki çekirdek, bu iki karara göre uyarlanarak alınır:
 - **Kayıt defteri:** `document_metadata_suggestions` tek satırlı ve üzerine yazılan bir tablo (`models/document_metadata_suggestion.py:21-23`, ADR-006 "V0'da öneri geçmişi yok"). B-28 §4.7.6 değiştirilemez, çok satırlı kayıt ister. Mevcut tablo korunur (öneri durumu), yanına yalnızca ekleme yapılan `document_intake_events(document_id, actor, kind: suggested|edited|added|approved, field, before, after, confidence, created_at)` tablosu gelir. `audit_log`'a yazılmaz (ADR-016).
 - **%80 eşiği sunucuda:** `metadata_suggestion.py` güveni zaten 0–1 aralığında üretiyor (`:58`); `apply` ucu, `confidence < threshold` olan alanı gövdede açık `confirmed: true` olmadan reddeder. Eşik `Settings` parametresi (P-8; `.env.example`'a girer).
 - **Belge türüne göre değişen alan seti:** Bugün sabit 9 alan (`metadata_suggestion.py:43`). Tür bazlı "hangi alanlar önemli" rehberi bir tablo olur (P-8), prompt rehberi okur; dönen JSON şeması genişler ama beyaz liste doğrulaması korunur.
@@ -110,22 +133,25 @@ Kararı gerektiren iki nokta §3.3'te. Karar verilirse şu kısımlar uyarlanara
 
 "Benimsemiyoruz" = **mevcut haliyle**. Her maddede hangi kural/ADR'nin engellediği ve hangi kararla açılabileceği yazılıdır. Bunlar ürün sahibine sorudur, ret değildir.
 
-### 3.1 B-25 katman sınıflandırması: "bugünkü her cevap Ürün 1"
+### 3.1 B-25 katman sınıflandırması: "bugünkü her cevap Ürün 1" — **NETLEŞTİ (Tansu #7), artık §2/§6'da**
+- **Durum (30.09):** Tansu: "Ürün 1 yalnızca veri yükleyecek, yüklenen veriyi bulup bilgilendirecek; DuckDB/Excel hesabı Ürün 2." Çelişki kalktı; sonuçları §6'da. Aşağıdaki metin kararın gerekçesi olarak korunuyor.
 - **Talep:** BAGLANTI §2.1/4: `AskResponse.product_level` bugün hep `"P1"` döner; BACKEND_GAPS §1.5.1: Ürün 1'de "Hesaplama: **Yok**", Ürün 2'de "yalnızca aritmetik, yalnızca gerçekleşmiş veriyle".
 - **Çelişki:** Backend'in `DATA_QUERY` ve `MIXED_QUERY` cevapları DuckDB ile hesap yapar (ADR-010, ADR-011; `services/excel_ask.py`, `dscr`, `outstanding_debt`, `budget_variance`, `capacity_factor`, `production` fonksiyonları). Ürün sahibinin tablosuna göre bu Ürün 2 yeteneğidir. İkisi aynı anda doğru olamaz: ya bu cevaplar `P2` etiketlenir ve yalnızca-P1 müşteride `require_product("P2")` ile kapanır, ya da §1.5.1 tablosu "Ürün 1: kesin veriyle aritmetik dahil" diye düzeltilir. Arayüzdeki örnek sorular (`strings.ts:49` "Ankara RES 2026 Q2 DSCR kaç?") ve eval setinin `data`/`mixed` kategorileri (`questions.json`) bu karara bağlı.
 - **Ek belirsizlik:** `GENERAL_QUERY` ("DSCR ne demek?", şirket verisi kullanmaz, ADR-010) hiçbir katmana atanmamış.
-- **Açılma koşulu:** Ürün sahibinin tek cümlelik kararı. Karar gelene kadar `product_level` alanı yazılmaz; `enabled_products` ve `require_product` (§2) yazılabilir.
+- **Açılma koşulu:** ~~Ürün sahibinin tek cümlelik kararı.~~ Verildi (Tansu #7). `GENERAL_QUERY`'nin katmanı hâlâ söylenmedi; §6'da öneri var.
 
-### 3.2 B-27 internet'e açık HTTPS test ortamı
+### 3.2 B-27 internet'e açık HTTPS test ortamı — **HÂLÂ AÇIK (Tansu #8 muğlak)**
+- **Durum (30.09):** Tansu: "Şimdilik web'de görüntülenecek, detaylar ileride şekillenecek." Bu cümle üç şeyden hangisini istediğini söylemiyor: (a) LAN'da tarayıcıdan (bugün var), (b) VPN/Tailscale ile uzaktan (V0 sonrası ama WAN'a açmaz), (c) internete açık alan adı + HTTPS (ADR-015 ve SPEC_06 §6 ile çelişir, Naci'nin V0 kapsam kararı gerekir). Backend tarafı netleşene kadar yalnızca (a)'yı hazırlar (§1 B-27 satırı). **Bu, listedeki en önemli açık soru**, çünkü ürün sahibinin B-27'deki test takvimi buna bağlı.
 - **Talep:** §1.8.1/1 "sabit web adresi ve HTTPS", §1.8.1/4 "ortam internete açık".
 - **Çelişki:** `CLAUDE.md` stack kararı "V0'da LAN üzerinde düz HTTP", kapsam dışı listesi "HTTPS/Tailscale (V0 sonrası)"; ADR-015 "Network: LAN only, plain HTTP … V0"; `docs/SPEC_06` §6 "V0 internete açık değildir … Public WAN exposure yok". Üç belge aynı şeyi söylüyor; bu bir V0 kapsam kararıdır, teknik zorluk değildir.
 - **Açılma koşulu:** Naci'nin V0 kapsamını değiştirmesi (ADR-015 superseded) **veya** ürün sahibinin LAN/VPN erişimini kabul etmesi. Öneri: Tailscale/WireGuard ile ürün sahibinin VM'e LAN gibi ulaşması; bu, CLAUDE.md'nin "V0 sonrası" dediği Tailscale'i öne çeker ama WAN'a açmaz ve TLS'siz cookie riskini (ADR-003 `secure=false`) yalnızca VPN içinde tutar. "AI-BalBal'ı Caddy'den sunma" kısmı §1'de kabul edildi; bu kısım ondan bağımsızdır.
 
-### 3.3 B-28'in iki kararı: onay yetkisi ve onaysız belgenin görünmezliği
-- **Talep 1 (§4.7.5, §4.2 güncellemesi):** Etiket önerisini **yükleyen personel** onaylar.
-- **Çelişki:** Phase 3.2 planında SORU 2 (`docs/plans/PHASE_3_2_PLAN.md:207-209`) tam bu soruyu sordu: "yalnızca admin mi, yükleyen de mi?" Naci "admin" dedi; `api/documents.py:337` ve `:380` buna göre `require_admin`. B-28 bu kararı tersine çevirir. Tersine çevirmek mümkündür, ama Naci'nin açık kararıyla ve `docs/PHASES.md`'ye "Phase 3.2 SORU 2 kararı B-28 ile değiştirildi" notuyla; sessiz değişiklik olmaz. Ayrıca yükleyen onayı, §3'teki yazma boşluğuyla birleşince (herkes her departmana yükleyip kendi onayıyla yayınlar) riski büyütür; B-26 yazma yetkisi veya ara düzeltme **önce** gelmeli.
+### 3.3 B-28'in iki kararı: onay yetkisi ve onaysız belgenin görünmezliği — **1. karar değişti (Tansu #5), 2. karar açık**
+- **Talep 1 (§4.7.5, §4.2 güncellemesi):** ~~Etiket önerisini yükleyen personel onaylar.~~ **Tansu #5:** "Yönetici kendi belgesini eklerse onay gerekmez; personel eklerse kendi onayı + departman yetkilisinden 2. onay." Bu, B-28'in tek onaylı akışını da, Phase 3.2'nin admin-onayı kararını da değiştirir; tasarımı ve etkileri §5.2'de.
+- **Çelişki (hâlâ geçerli olan kısım):** Phase 3.2 planında SORU 2 (`docs/plans/PHASE_3_2_PLAN.md:207-209`) tam bu soruyu sordu: "yalnızca admin mi, yükleyen de mi?" Naci "admin" dedi; `api/documents.py:337` ve `:380` buna göre `require_admin`. Yeni akış bu kararın yerine geçer; Naci'nin açık kararı ve `docs/PHASES.md`'ye "Phase 3.2 SORU 2 kararı, Tansu'nun 30.09.2026 iki aşamalı onay kararıyla değiştirildi" notu gerekir; sessiz değişiklik olmaz. Yazma boşluğunun (Tansu #6 "öncelikli") **önce** kapatılması gerektiği değişmedi: ikinci onay, yanlış departmana yüklenmiş belgeyi durdurur ama admin'in onaysız akışını (yönetici → onay yok) durdurmaz.
 - **Talep 2 (§4.7.5 son madde):** "Onaylanmamış belge ne aramada ne Balbal'ın cevaplarında yer alır."
 - **Çelişki:** Bugün belge `ready` olduğu anda `allowed_document_ids` içindedir ve retrieval'a girer (ADR-006, ADR-021); metadata önerisi belgenin görünürlüğünü etkilemez (SPEC_02 §4: "kullanıcı kabul/düzenleyene kadar belge metadata'sı değişmez", görünürlük değil). B-28 bir **yayın durumu** ekler. Bu yalnızca `allowed_document_ids` içinde uygulanabilir (P-2 = ADR-004), yani gate'e `documents.published` benzeri bir koşul girer ve `SingleDocumentIdsProvider`, eval seed'i (`make seed` sonrası 74 belgenin hepsi yayınlanmış olmalı) ve mevcut testler etkilenir. Yapılabilir; ama "ürün kararı" olduğu için Naci onayı ve ADR-004 concretization ister. Kendi başımıza uygulamayız.
+- **Durum (30.09):** Tansu #5 bu ikinci noktaya değinmedi. İki aşamalı onay (§5.2) bir "onay bekliyor" durumu **zaten üretir**; sorunun yeni hali: "ikinci onay gelene kadar personelin yüklediği belge aramada/Balbal'da görünsün mü?" Backend önerisi: görünmesin (yayın durumu = onay durumu, tek kaynak); yöneticinin kendi yüklediği belge onay gerektirmediği için hemen görünür. **Naci ve Tansu'nun teyidi gerekir.**
 
 ### 3.4 Ürün 3'ün tamamı: yorum, görüş, projeksiyon, sapma analizi
 - **Talep:** §1.1 "Ürün 3 — Yorumlama", §7'deki departman yol haritaları, B-23'ün "hukuki gerekçe, savunma argümanı, risk değerlendirmesi" kısmı (§8.2.4/7), B-21'in tahmini KGÜP/KÜPST/gelecek ödeme öngörüsü (§8.3), §7.6.4 "yıl sonu gelir projeksiyonu".
@@ -150,7 +176,7 @@ Kod düzeyinde **hayır**. Kontrol edilenler:
 - **LLM'e hesap yaptırma (kural 3):** `frontend/src/**` içinde finansal aritmetik yok; tek `Math.round` güven çubuğu genişliği (`MetadataSuggestionPanel.tsx:278`), tek `Math.max` sayfalama (`AdminAuditLogPage.tsx:209`). Sözleşmeler hesabı backend'e bırakıyor (`proposed.ts:283,285,430`). Arayüz metni de aynı şeyi söylüyor (`strings.ts:97,185`).
 - **Yetki kontrolünü atlama (kural 1):** Arama `/api/documents` (zaten süzülmüş) listesini süzüyor (`SearchPanel.tsx:17,22`); sohbet ekleri kullanıcının kendi listesinden (`TeamConversation.tsx:18,40`); dosya linkleri `/download`'a gidiyor, 403 sunucuda. `FileLink` `document_id` yoksa linki üretmiyor (`FileLink.tsx:16-21`); bu P-4'ün "her kaynak yetki kontrolünden geçmiş id taşır" kuralını arayüz tarafında zorlar. Klasör görünümünde "yetki süzmesini backend yapar" notu doğru (`DocumentsTab.tsx:79-80`).
 - **Audit log'u hafıza gibi kullanma (ADR-016):** Talep yok. B-03 geçmişi ayrı tabloda ve retrieval dışı (§3.2); B-04 geri bildirimi denetim kaydına yazıyor, oradan yalnızca admin okuyor; "her soru-cevabı kaydet" fikri ertelenmiş (§4.5). Uyumlu.
-- **Doküman düzeyinde iki risk (kod değil):** (1) P-1…P-10 arasında "LLM hesap yapmaz" ilkesi yok; kural 3'ün karşılığı yalnızca dağınık notlarda (§8.1.2, §8.2.5). Öneri: **P-11** olarak eklensin ki iki repo arasında sözleşme olsun. (2) §8.1.2 örnek diyalogda Balbal "kalan yıllık izniniz 11 gün görünüyor" diyor; bu sayı kodun ürettiği bir alan olmalı, LLM'in cümlesi değil. Metin bunu satır 837'de söylüyor; sözleşmede `LeaveBalance.remaining_estimated` alanı var (`proposed.ts:324`); tutarlı, ama ADR'de "cevaptaki her sayı bir alan adından gelir, modelden değil" diye yazılmalı (ADR-011'in "final number never comes from the model" cümlesinin izin akışına taşınması).
+- **Doküman düzeyinde iki risk (kod değil):** (1) P-1…P-10 arasında "LLM hesap yapmaz" ilkesi yok; kural 3'ün karşılığı yalnızca dağınık notlarda (§8.1.2, §8.2.5). Öneri: **P-11** olarak eklensin ki iki repo arasında sözleşme olsun. **Durum (30.09): Tansu #9 ile kabul edildi** ("Ürün 1 için uygun"); Tansu'nun "Ürün 1 için" kaydı önemli: ilke Ürün 2 ve 3 için de geçerlidir (ADR-011 "final number never comes from the model" ürün katmanından bağımsızdır), P-11 metni bunu açıkça söylemeli. Ekleme ürün sahibinin reposunda yapılır. (2) §8.1.2 örnek diyalogda Balbal "kalan yıllık izniniz 11 gün görünüyor" diyor; bu sayı kodun ürettiği bir alan olmalı, LLM'in cümlesi değil. Metin bunu satır 837'de söylüyor; sözleşmede `LeaveBalance.remaining_estimated` alanı var (`proposed.ts:324`); tutarlı, ama ADR'de "cevaptaki her sayı bir alan adından gelir, modelden değil" diye yazılmalı (ADR-011'in "final number never comes from the model" cümlesinin izin akışına taşınması).
 - **Kural 1'in yazma tarafı:** `UploadTab.tsx:82` belgenin departmanını klasörden alıp gönderiyor ve backend'in klasör yazma yetkisini kontrol etmesine güveniyor; o kontrol bugün yok (§2, B-26/3). Bu arayüzün hatası değil, iki tarafın ortak boşluğudur.
 
 ---
@@ -174,7 +200,7 @@ Kod düzeyinde **hayır**. Kontrol edilenler:
 | `model`, `tokens_in`, `tokens_out` | company-ai `AskPanel.tsx:80-84` gösteriyordu; AI-BalBal `AnswerView` **göstermiyor** | Kaldırılmış | P-7 sadelik kararı olabilir; denetim kaydında duruyor (kural 4 korunur). Bilinçli olduğu teyit edilmeli. |
 | `retrieved_document_ids` | Kullanılmıyor | — | Gerekmez (eval/test alanı) |
 | Denetim kaydı listesi + detay (ADR-016) | `AdminAuditLogPage.tsx` company-ai kopyası | Gösteriliyor | Detayda `sources` `JSON.stringify` ile ham; `chunks_retrieved` ve `documents_retrieved` **gösterilmiyor**; `rating` sütunu B-04 ile gelir |
-| Geri bildirim | `AnswerView.tsx:61-91` butonlar var | UI hazır, backend yok | `audit_log_id` (B-04) |
+| Geri bildirim | `AnswerView.tsx:61-91` butonlar var | **Tansu #1: bu butonlar istenmiyor** | Ürün sahibi tarafı `FeedbackRow`'u kaldırır; yerine `AskResponse.warnings` (§5.3) için üç uyarı görünümü ve "diğer departmandan bilgi talep et" butonu (B-11) gelir |
 | Belge detayı versiyon zinciri | `DocumentDetailPanel.tsx:65-67` id'ler `FileLink` | Gösteriliyor | Link metni sabit "Belgeyi aç", belge başlığı değil (`strings.ts:221`); `useDocument` ile başlık çekilebilir |
 | Excel yapısı (`/inspect`) | `WorkbookInspectCard.tsx` | Gösteriliyor | Her belge detayı için bir 422 çağrısı (B-13 kapatır) |
 | Metadata önerisi üret/uygula/reddet | `MetadataSuggestionPanel.tsx` (aynı) | Gösteriliyor | Onay yetkisi B-28 kararına bağlı |
@@ -189,16 +215,17 @@ Kod düzeyinde **hayır**. Kontrol edilenler:
 | Ekran | Eklenecek / değişecek alan | Kaynak |
 |---|---|---|
 | Balbal cevabı, kaynak kartı | `SourceCard.supersedes_document_id`, `superseded_by_document_id` (link), `is_initial` (İLK rozeti), `project_code`/`project_name` | B-07, ADR-012/021 |
-| Balbal cevabı | `AskResponse.audit_log_id` (geri bildirim), `product_level` (karar sonrası), `conversation_id` (B-03) | B-04, B-25, B-03 |
+| Balbal cevabı | `AskResponse.warnings[]` (`missing_data` / `data_conflict` / `product_limit`, §5.3), `product_level` (eşleme §6, artık yazılabilir); ~~`audit_log_id`~~ (Tansu #1 ile düştü); `conversation_id` ertelendi (Tansu #3) | B-04 (yeni hali), B-25 |
 | Balbal cevabı | `model` ve token sayısının bilinçli kaldırıldığının teyidi | P-7 |
 | Belge listesi / detayı | `file_kind`; indirme adı; `?inline=1` | B-13, B-17 |
 | Belge detayı versiyon linkleri | Link metni belge başlığı | — |
 | Departman "Balbal'a Sor" sekmesi | `project_id` çipi kaldırılsın ya da belge güncellensin (`AskPanel.tsx:16,31`) | §1.4/1, §3.3 |
-| Denetim kaydı detayı | `chunks_retrieved` (belge, sayfa, sıra) ve `documents_retrieved` gösterimi; `rating` sütunu | ADR-016, B-04 |
+| Denetim kaydı detayı | `chunks_retrieved` (belge, sayfa, sıra) ve `documents_retrieved` gösterimi; ~~`rating`~~ yerine cevabın `warnings` ve `product_level` alanları | ADR-016, B-04 (yeni hali), B-25 |
 | Üst bar arama | `/api/search` snippet + sayfa; `/api/directory` | B-14, B-05 |
 | Kullanıcı menüsü, üst bar | `primary_department_slug`, `title` | B-09, §2.3 |
 | Yükleme | `folder_id` (B-26 sonrası), `department` seçiminin yükleyenin yetkisiyle sınırlanması | §2, B-26 |
 | Yönetim › Kullanıcılar | `department_manager` rolü (B-08 sonrası), `title`, `manager_id`, ana departman | B-08, B-09, §2.3 |
+| Yönetim › (yeni) Departmanlar, Ürün paketi, Onay kuralları | Departman CRUD (Naci'nin V0 kararı), `enabled_products` düzenleme, onay akışı parametreleri (§5.2) | Tansu #2, §5.1 |
 
 ### 4.3 Tersine liste: backend'de olup arayüzde olmayanlar (B-19)
 
@@ -223,18 +250,140 @@ Kod düzeyinde **hayır**. Kontrol edilenler:
 
 ---
 
-## Karar bekleyen maddeler (özet, ürün sahibi ve Naci)
+## 5. Yeni tasarım kararları (Tansu, 30.09.2026) ve etkileri
 
-1. §3.1 — DuckDB hesaplı `DATA`/`MIXED` cevapları Ürün 1 mi Ürün 2 mi? `GENERAL` hangi katman?
-2. §3.2 — B-27 için internet/HTTPS mi, VPN/LAN mı? (V0 kapsam kararı, Naci)
-3. §3.3 — B-28: Phase 3.2 SORU 2'nin tersine çevrilmesi ve "onaysız belge görünmez" yayın durumu. (Naci)
-4. §2 B-26/3 — B-26 gelene kadar yüklemede departmanın yükleyenin üyelikleriyle sınırlanması. (Naci)
-5. §2 B-08 — rol mü, üyelik alanı mı; müdür `board` görür mü?
-6. §2 B-02 — "departmana belge yüklendi" bildiriminin alıcısı kim?
-7. §2 B-06a — görüş talebi belgesinin departmanı ve gizliliği.
-8. §2 B-23/2 — "yalnızca ilgili departman görür" için yeni gizlilik düzeyi mi, klasör yetkisi mi?
-9. §3.9 — P-11 "LLM hesap yapmaz" ilkesinin BACKEND_GAPS'a eklenmesi.
-10. §4.1 — `model`/token bilgisinin arayüzden kaldırılmasının bilinçli olduğu.
-11. Genel — `BACKEND_GAPS.md` ile `CLAUDE.md`/`PHASES.md` çelişirse öncelik; ilk backend fazının bağlanacağı BACKEND_GAPS sürümü (iki günde v5→v7.9).
+Bu iki karar BACKEND_GAPS'ta yoktu; B-08, B-20, B-26, B-28 ve B-22 planlarını değiştiriyor. Her ikisi de mevcut kurallarla uyumludur; ikisi de ADR ister.
 
-Backend tarafı bu cevaplar gelmeden §3'teki hiçbir maddeye kod yazmaz; §1'deki maddeler Naci'nin faz planı onayıyla başlar (`CLAUDE.md` çalışma biçimi 2–3).
+### 5.1 "Yetkilendirmeyi müşteri kendi yönetim arayüzünden belirler; Balbal yalnızca araçları sağlar"
+
+**Anlamı:** Departman ağacı, roller, klasör yetkileri, onay zinciri ve ürün paketi **veridir, kod değildir** (P-8 ile aynı yönde). Backend'in işi kural motorunu tek yerde tutmak (ADR-004: `allowed_document_ids`) ve o motorun okuduğu tabloları admin uçlarıyla düzenlenebilir kılmaktır. Demo yapısı seed ile gelir ama müşteri için başlangıç noktasıdır, sabit değildir.
+
+**Kurallarla ilişkisi:** ADR-004 değişmez; motor tektir, yalnızca girdileri tablo olur. Kural 1'in "önce yetki" sırası korunur. Yeni bir yetki yolu açılmaz.
+
+**Etkilenen maddeler:**
+
+| Madde | Eski plan | Yeni durum |
+|---|---|---|
+| B-20 (1–5) departman yapısı | Migration + seed ile sabit ağaç | Migration + seed **başlangıç** verisi; ayrıca `POST/PATCH /api/departments` admin CRUD (proje CRUD deseni). Phase 1.2'nin "seed-only" kararı açılır → **Naci'nin V0 kapsam kararı**. Slug üretimi ve silme kuralı (belgesi olan departman silinemez, 409) ADR'de. |
+| B-08 departman yöneticisi | Rol enum'a eklenir, kim olduğu seed'den | Rolü admin `PATCH /api/users/{id}` ile verir (uç zaten var). Ek: "hangi rol hangi gizliliği görür" tablosu mu, sabit kural mı? Önerimiz: V0'da sabit kural (`employee: normal`, `department_manager: normal+restricted`, `management: hepsi`), tablo değil; müşteri kişileri role atar, kuralı değiştirmez. Aksi, kural motorunu tabloya taşımak demektir ve ayrı ADR ister. |
+| B-26 klasör yetkileri | Zaten admin sayfası | Değişmez; bu karar B-26'nın tasarımını teyit eder. |
+| B-25 ürün paketi | CLI ile ayar, admin UI "şimdilik gerekmez" | Admin ucu ve Yönetim sekmesi gerekir (§2 B-25). |
+| B-28 / §5.2 onay zinciri | Belgede sabit ("yükleyen onaylar") | Onay kuralı role bağlı (§5.2); "hangi rol onaysız yükler, kim ikinci onaycıdır" parametresi admin arayüzünden. |
+| B-22 onay mercii (§8.1.5) | `manager_id → department_manager → İK` zinciri kodda | Zincir aynı, ama kişileri (`manager_id`, roller) müşteri arayüzden atar; B-05'in `users.manager_id` alanı admin `UserForm`'a girer. |
+| ADR-004 Phase 1.2 notu | "departments/projects are seed-only in V0" | Superseded olacak (departmanlar için); ADR concretization satırı. |
+
+**Backend tarafının sınırı:** "Balbal araç sağlar" cümlesi, yetki **kararlarını** LLM'in vermediğini de içerir. Yetki değişiklikleri yalnızca admin uçlarından, denetim kaydına yazılarak (§2 B-26/2 `folder_grant_events` deseni, roller için de aynı) yapılır; Balbal'a "X'e Y klasörünü aç" demek işlem başlatmaz (P-1).
+
+### 5.2 İki aşamalı, role bağlı belge onayı
+
+**Tansu #5:** "Yönetici kendi belgesini eklerse onay gerekmez; personel eklerse kendi onayı + departman yetkilisinden 2. onay gerekir."
+
+**Backend yorumu (teyit gerekir):** "Yönetici" = belgenin departmanının `department_manager`'ı (B-08) veya `management`/`admin`. "Departman yetkilisi" = aynı departmanın `department_manager`'ı. İkisi de aynı role işaret ediyorsa akış şudur:
+
+```
+yükleyen = department_manager / management / admin
+   → belge doğrudan `approved` (yayınlanır), kayıt defterine "auto: role" olayı
+
+yükleyen = employee
+   → 1. aşama: yükleyen metadata'yı (Balbal önerisi + kendi alanları) onaylar → `pending_review`
+   → 2. aşama: departmanın department_manager'ı onaylar → `approved`; ya da yorumla geri gönderir → `changes_requested`
+   → onaydan sonra içerik/metadata değişirse onay düşer (P-1/4)
+```
+
+**Kurallarla ilişkisi:**
+- Phase 3.2 SORU 2 (admin-only apply) bu akışla **değiştirilir**; Naci'nin kararı ve PHASES.md notu gerekir (§3.3).
+- Durum geçişleri kodda, LLM tetiklemez (P-1/5, kural 6). `document_metadata_suggestions.status` bunun için yetmez (öneri durumu ≠ belge onay durumu); `documents.review_status` + `document_review_events` (kayıt defteri, §2 B-28) gelir.
+- P-1'in dört testi burada da yazılır: personel onayı olmadan `pending_review` olunmaz; başkası adına 1. aşama onayı 403; onaydan sonra değişiklik onayı düşürür; onaylanmamış belge başkasının listesinde görünmez (**bu son madde §3.3'ün açık sorusunu "evet" yönünde zorlar**; teyit gerekir).
+- Yazma boşluğu (Tansu #6): ikinci onay personelin yanlış departmana yüklediği belgeyi durdurur; ama `department_manager`/`management`/`admin` onaysız yayınlar, dolayısıyla "yüklenen belgenin departmanı ⊆ yükleyenin yetkili olduğu departmanlar" kontrolü **ayrıca** şarttır, onay akışı onun yerine geçmez.
+- Yetkilendirme müşteride (§5.1): "hangi roller onaysız yükler" ve "ikinci onaycı kim" `company_settings` parametresi olur; varsayılan yukarıdaki akış.
+
+**Etkilenen maddeler:** B-28 (onay çekirdeği yeniden yazılır; %80 eşiği 1. aşamada uygulanır: personel %80 altı alanı açıkça onaylamadan 1. aşamayı geçemez), B-12 (kapanmıştı, öyle kalır), B-08 (ön koşul oldu), B-01 gündem (`approval` kalemi = departman yetkilisinin bekleyen 2. aşama kuyruğu; "kimin göreceği B-12'ye bağlı" notu çözüldü), B-02 bildirim (`changes_requested`, `approved` olayları), B-26 (klasör `write` yetkisi 1. aşamanın ön koşulu).
+
+**Açık noktalar:** (1) "Yönetici" kelimesinin kapsamı (yalnızca `department_manager` mı, `management` da mı). (2) `department_manager` tanımlı olmayan departmanda personel yüklemesi ne olur (öneri: `409 approver_not_configured` + admin'e bildirim, §8.1.5 deseni). (3) Excel yüklemeleri de aynı akışa mı girer (öneri: evet; Ürün 2 hesabı onaysız workbook'a dayanmamalı).
+
+### 5.3 Üç bildirim türü (Tansu #1) — uygulama notları
+
+| Tür | Ne zaman | Nereden gelir | Kural sınırı |
+|---|---|---|---|
+| `missing_data` | `answered=false` | ADR-021: chunk yoksa LLM çağrılmadan; chunk var ama model "bulamadım" dediğinde (ADR-014 kanonik metin) | Var olan davranış, yalnızca yapılandırılmış alan eklenir. Buton: B-11 evrak talebi (departmanı kullanıcı seçer). |
+| `data_conflict` | Kullanıcının **görebildiği** kaynaklar aynı olgu için farklı değer veriyorsa | Cevap prompt'una tek kural: "iki kaynak aynı şey için farklı değer veriyorsa ikisini de kaynağıyla yaz ve `[ÇELİŞKİ]` işaretle, hangisinin doğru olduğunu söyleme"; `parse_citations` işareti alana çevirir. **Versiyon zinciri farkları çelişki değildir** (ADR-012 "eski ≠ yanlış"; `version_chain.py` GÜNCEL/İLK ayrımı prompt'ta zaten var) — aksi halde her tadil "çelişki" görünür. | Kural 6: hangi değerin doğru olduğuna karar verilmez; yalnızca aktarılır. **Kural 1/P-2 sınırı:** "departmanlar arası çelişki" ancak kullanıcı iki departmanın belgesini de görebiliyorsa saptanabilir; görmediği departmanın belgesiyle karşılaştırma yapılamaz, varlığı söylenemez. Tansu'nun "diğer departmandan veri talep et" butonu bu yüzden kullanıcının kendi kararıyla çalışır, Balbal "diğer departmanda farklı değer var" **demez**. Prompt değişikliği → prompt fazı, `--repeat 3` ölçümü, eval'e `conflict` kategorisi. |
+| `product_limit` | Router `DATA`/`MIXED` seçti ama P2 kapalı; ileride `ACTION` niyeti ama P2 kapalı | `require_product` (B-25) + §6'daki düşürme kuralı | Sabit metin ("Bu özellik şirketinizin paketinde yok"), LLM üretmez. |
+
+---
+
+## 6. Ürün 1 / Ürün 2 sınırının netleşmesi: sonuçlar
+
+**Tansu #7:** "Şimdilik Ürün 2'den başlayacak. Ürün 1 yalnızca veri yükleyecek, yüklenen veriyi bulup bilgilendirecek." Backend okuması: mevcut sistem bütünüyle **Ürün 2 seviyesindedir**; Ürün 1, aynı sistemin hesaplama dalları kapatılmış halidir. Bu, §1.5.1 tablosuyla ("Ürün 1: hesaplama yok") tutarlıdır ve BAGLANTI §2.1/4'ün "bugün her cevap P1" varsayımını düşürür.
+
+### 6.1 `product_level` eşlemesi
+
+| `query_type` (ADR-010) | `product_level` | Gerekçe |
+|---|---|---|
+| `DOCUMENT_QUERY` | `P1` | Bul, oku, kaynakla aktar; hesap yok |
+| `DATA_QUERY` | `P2` | DuckDB hesabı (ADR-011) |
+| `MIXED_QUERY` | `P2` | Excel dalı hesap içerir |
+| `GENERAL_QUERY` | **karar gerekiyor** | Şirket verisi kullanmaz; önerimiz `P1` (bilgilendirme), çünkü kapatmanın ürün değeri yok |
+| `ACTION` (ileride, B-22) | `P2` | §3.5 zaten öyle diyor |
+
+Eşleme koddadır (`ask_router.py`), tablo değil; katman tanımı ürün sahibinin değil sistemin özelliğidir.
+
+### 6.2 Ürün 1 paketinde davranış (`enabled_products = ["P1"]`)
+
+- Router `DATA_QUERY`/`MIXED_QUERY` seçerse istek **reddedilmez**; ADR-010'un güvenli yönü uygulanır: soru `DOCUMENT_QUERY` olarak cevaplanır (fall-through zaten var: "DATA miss falls through to documents"), cevaba `warnings: [{kind: "product_limit"}]` eklenir, `product_level: P1` döner. Böylece "Ankara RES 2026 Q2 DSCR kaç?" P1 müşteride belgelerden (covenant raporu PDF'i) cevaplanır, Excel hesabı yapılmaz. Bu, Tansu #1'in "yetkilendirme uyarısı" türünün ilk somut kullanımıdır.
+- `POST /api/excel/ask` `require_product("P2")` ile 403 `product_not_enabled`.
+- **Excel yükleme ve `GET /api/excel/{id}/inspect` P1'de açık kalır**: "veri yükleyecek" ifadesi Excel'i de kapsar; inspect hesap yapmaz (openpyxl okuma, ADR-011). Workbook P1'de bir belgedir; içeriği FTS'e girmez (ADR-006 Phase 4.2: Excel'e chunk yok), yani P1'de Excel yalnızca listelenir ve indirilir. Bu sınırlama ürün sahibine söylenmeli.
+- Metadata önerisi (LLM sınıflandırma) P1'de açık: "bulup bilgilendirme"nin parçası, hesap değil.
+
+### 6.3 Eval ve demo
+
+- Demo ortamında üç ürün açık (§1.5.4); `make eval` değişmez. Ek olarak P1-only için küçük bir kabul testi: `data`/`mixed` kategorisindeki sorular `product_limit` uyarısıyla `DOCUMENT_QUERY` döner ve `product_level: P1` taşır (T-03/T-05'in somut hali).
+- `questions.json`'a `expected_product_level` alanı; `eval_lib.score_question` bunu da puanlar.
+
+### 6.4 Arayüz
+
+- Örnek sorular (`strings.ts:47-52`): "Ankara RES 2026 Q2 DSCR kaç?" ve "Güncel DSCR kaç?" P2 örnekleridir; P1 paketinde gösterilmemeli ya da `product_limit` uyarısıyla cevaplanacağı bilinmeli. Ürün sahibi tarafının kararı.
+- Cevap rozeti (`AnswerView.tsx:33`) `query_type` gösteriyor; `product_level` ayrıca gösterilecekse tip `types.ts`'e eklenir.
+- Balbal footnote (`strings.ts:97` "Hesaplamalar Excel verisinden sistem tarafından yapılır") P1'de yanıltıcı olur; pakete göre metin.
+
+### 6.5 Sıralama
+
+Tansu #7 "şimdilik Ürün 2'den başlayacak" dediği için ilk müşteri/test P2 ile çalışır; P1 kısıtı bir **test senaryosudur**, geliştirme önceliği değil. Bu, B-25'in "küçük, hemen" etiketini korur: `enabled_products` + `require_product` + eşleme + düşürme kuralı tek fazda.
+
+---
+
+## 7. Karar durumu
+
+### 7.1 Cevaplananlar (Tansu, 30.09.2026)
+
+| Eski # | Soru | Cevap |
+|---|---|---|
+| 1 | DuckDB hesaplı `DATA`/`MIXED` Ürün 1 mi 2 mi? | **Ürün 2** (Tansu #7). `GENERAL` hâlâ açık. |
+| 3 (kısmen) | B-28 onay yetkisi | **İki aşamalı, role bağlı** (Tansu #5, §5.2). "Onaysız belge görünmez" kısmı açık. |
+| 4 | B-26 gelene kadar yükleme kısıtı | **Öncelikli** (Tansu #6). Naci'nin faz planı onayı bekler. |
+| 8 (kısmen) | B-23 gizlilik | Bireysel model: **kendisi + İK** (Tansu #4, izin ve yazışma için). |
+| 9 | P-11 | **Kabul** (Tansu #9). |
+| 11 | Çelişkide öncelik | **`CLAUDE.md`/ADR'ler önce**; GitHub üzerinden çözüm; çözülmezse Tansu + Naci (Tansu #10). BACKEND_GAPS sürüm dondurma sorusu cevaplanmadı ama önceliğin bizde olması onu ikincil yapar. |
+| — | B-03 | **Ertelendi** (Tansu #3). |
+| — | Geri bildirim butonları | **Reddedildi**, yerine üç uyarı türü (Tansu #1, §5.3). |
+| — | Yetkilendirmeyi kim yönetir | **Müşteri, admin arayüzünden** (Tansu #2, §5.1). |
+
+### 7.2 Açık kalanlar
+
+**Öncelikli:**
+1. **B-27 / §3.2 — "web'de görüntülenecek" ne demek?** (a) LAN, (b) VPN/Tailscale, (c) internete açık HTTPS. (c) ise ADR-015 ve SPEC_06 §6 değişir; bu **Naci'nin V0 kapsam kararıdır**. Ürün sahibinin test takvimi (B-27 §1.8) buna bağlı; cevap gelmeden yalnızca (a) hazırlanır.
+2. **§3.3 / §5.2 — personelin yüklediği belge 2. onay gelene kadar aramada ve Balbal'da görünmesin mi?** Backend önerisi: görünmesin. Naci + Tansu.
+3. **§5.2 — "Yönetici" ve "departman yetkilisi" tanımı:** ikisi de `department_manager` mı; `management` rolü onaysız yükler mi?
+4. **§5.1 / B-20 — departman CRUD'unun V0'a alınması** (Phase 1.2 "seed-only" kararının açılması). Naci.
+
+**Teyit / ikincil:**
+5. §6.1 — `GENERAL_QUERY` katmanı (öneri: P1).
+6. §2 B-08 — müdür `board` görür mü; "hangi rol neyi görür" sabit kural mı (öneri) yoksa müşteri tablosu mu (§5.1'in sınırı).
+7. §2 B-22/3 — onay zincirindeki yönetici, personelin izin belgesini görür mü (Tansu #4 yalnızca "kendisi + İK" dedi).
+8. §2 B-23/2 — yazışma için de "kendisi + İK" mi, yoksa "kendisi + departman yetkilisi" mi (İK'nın yazışmayla ilgisi yok).
+9. §2 B-02 — "departmana belge yüklendi" bildiriminin alıcısı.
+10. §2 B-06a — görüş talebi belgesinin departmanı ve gizliliği.
+11. §4.1 — `model`/token bilgisinin arayüzden kaldırılmasının bilinçli olduğu.
+12. §5.2 açık nokta 2–3 — `department_manager` yoksa ne olur; Excel yüklemeleri aynı onay akışına girer mi.
+13. §6.4 — P1 paketinde örnek soruların ve footnote'un durumu (ürün sahibi tarafı).
+
+Backend tarafı §3'te kalan maddelere (B-27 internet kısmı, Ürün 3, B-21, B-15/B-24, B-16) kod yazmaz; §1, §2, §5 ve §6'daki maddeler Naci'nin faz planı onayıyla başlar (`CLAUDE.md` çalışma biçimi 2–3). Önerilen ilk faz: yükleme yetki açığı ara düzeltmesi (Tansu #6) + "Balbal cevap döngüsü" (B-07, B-09, B-13, B-17, B-05, B-25 eşlemesi, `warnings` alanının `missing_data`/`product_limit` türleri).
