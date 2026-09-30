@@ -13,7 +13,7 @@ Bu README Phase 5.1 (Tam dataset + consistency checks) durumunu anlatır; her ph
 
 ## Kurulum
 ```bash
-git clone <repo> company-ai && cd company-ai
+git clone --recurse-submodules <repo> company-ai && cd company-ai   # arayüz (AI-BalBal) git submodule'dür; unutulursa `make up` doldurur
 cp infra/.env.example .env      # şifreleri değiştir (POSTGRES_PASSWORD, ADMIN_PASSWORD, JWT_SECRET, DEMO_USER_PASSWORD)
 make up                         # postgres + backend build & start, /health bekler
 curl localhost:8080/health      # {"status":"ok","version":"0.1.0","database":"ok"}
@@ -38,11 +38,27 @@ karşılaştırmasına dahil değil (yalnızca `environment:` bloğunda açıkç
 yüzden `.env` değişse bile `docker compose up -d` container'ı kendiliğinden yeniden oluşturmaz, `--force-recreate`
 şart. `<servis>` yerine `backend`, `ocr-worker` gibi etkilenen servisin adı yazılır.
 
-## Arayüz (Phase 3.3)
-`make up` artık Caddy'yi de başlatır: **`http://<vm-ip>:8080`** tek giriş noktasıdır — React arayüzü (Vite + React 18 +
-TypeScript + react-router + TanStack Query; `frontend/`) ve `/api/*`, `/health`, `/ask` proxy'si. Backend'in 8000
-portu host'a **artık açık değil** (ADR-018); aşağıdaki `curl` örnekleri bu yüzden `:8080` kullanır. Arayüz bundle'ı
-Caddy imajının içindedir (`infra/caddy/Dockerfile`, çok aşamalı build); ayrı bir Node container'ı çalışmaz.
+## Arayüz — AI-BalBal (30.09.2026'dan itibaren; Phase 3.3 altyapısı)
+`make up` Caddy'yi de başlatır: **`http://<vm-ip>:8080`** tek giriş noktasıdır — arayüz ve `/api/*`, `/health`, `/ask`
+proxy'si. Backend'in 8000 portu host'a **açık değil** (ADR-018); aşağıdaki `curl` örnekleri bu yüzden `:8080` kullanır.
+Arayüz bundle'ı Caddy imajının içindedir (`infra/caddy/Dockerfile`, çok aşamalı build); ayrı bir Node container'ı çalışmaz.
+
+**Sunulan arayüz AI-BalBal'dır** (`github.com/ftansu/AI-BalBal`, Tansu'nun reposu): company-ai reposunda
+`frontend-balbal/` git submodule'ü olarak durur ve sabit bir commit'e bağlıdır (`git -C frontend-balbal log -1`).
+Caddy imajı `frontend-balbal/frontend`'den derlenir (`docker-compose.yml` `additional_contexts`, `FRONTEND_DIR`).
+company-ai'ın kendi `frontend/` klasörü **emekli**dir: repoda kalır, geliştirilmez, `make lint` onu artık denetlemez;
+yalnızca geri dönüş için tutulur.
+```bash
+make update-frontend REF=main        # AI-BalBal'ı ilerlet (fetch + checkout + caddy rebuild); sonra pointer'ı commit et:
+git add frontend-balbal && git commit -m "chore: AI-BalBal -> <sha>"
+# Geri dönüş (eski arayüz), tek değişken:
+FRONTEND_DIR=./frontend make up      # ya da .env'e FRONTEND_DIR=./frontend yazıp make up; kaldırınca AI-BalBal'a döner
+```
+Backend, Caddyfile, veri ve oturum cookie'si iki yönde de değişmez (aynı origin). AI-BalBal `fonts.googleapis.com`'dan
+yazı tipi yükler; internete çıkışı olmayan LAN/VPN'de sistem fontuna düşer, uygulama çalışır.
+
+Aşağıdaki ekran açıklamaları company-ai'ın emekli arayüzüne aittir (Phase 3.3); AI-BalBal'ın ekranları için
+`frontend-balbal/README.md`.
 
 - **Giriş** → **Ana sayfa**: departman kartları (yalnızca erişebildikleriniz — `employee` için kendi üyelikleri,
   `management`/`admin` için hepsi; kart gizleme yalnızca kolaylıktır, yetki her zaman sunucuda) + **Genel Sor**.
@@ -420,9 +436,10 @@ kendi belgelerine sahip (Ankara 3, İzmir 4 — Phase 5.1, bkz. `docs/reports/PH
 | `make up-full` | `embed` dahil (profile `full`, 16 GB) |
 | `make ps`, `make logs SVC=backend` | Durum ve loglar |
 | `make test` | pytest: backend → şema doğrulaması → ocr-worker, sırayla; test DB (`company_ai_test`) compose içindeki Postgres'tedir |
-| `make lint` / `make format` | ruff + mypy (backend), ruff (ocr-worker), eslint + tsc (frontend) / otomatik biçimlendirme |
-| `make build-frontend` | React bundle'ı içeren caddy imajını yeniden derle (`make up` zaten yapar) |
-| `make dev-frontend` | Vite dev server (HMR) `:5173`, `/api` backend'e proxy — günlük arayüz geliştirme |
+| `make lint` / `make format` | ruff + mypy (backend), ruff (ocr-worker), prompt/ledger/excel doğrulamaları / otomatik biçimlendirme (frontend lint'i yok — `frontend/` emekli) |
+| `make build-frontend` | Arayüz bundle'ını içeren caddy imajını yeniden derle (`make up` zaten yapar); kaynak `FRONTEND_DIR` (boş = AI-BalBal) |
+| `make update-frontend REF=<sha\|main>` | AI-BalBal submodule'ünü ilerlet + caddy'yi yeniden derle (pointer'ı commit etmek sana kalır) |
+| `make dev-frontend` | Emekli `frontend/` için Vite dev server `:5173` (kalıcı değil; AI-BalBal geliştirmesi Tansu'nun reposunda) |
 | `make migrate`, `make migration NAME=...` | Alembic upgrade / yeni migration |
 | `make seed-admin`, `make seed-demo-users`, `make seed-demo-departments`, `make seed-demo-projects` | Admin/demo kullanıcı/demo departman+üyelik/demo proje oluştur (yoksa) |
 | `make set-products PRODUCTS=P1,P2` | Ürün paketini değiştir (B-25, bkz. "Ürün paketi ve cevap alanları") |

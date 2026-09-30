@@ -222,3 +222,9 @@ beğen/hatalı butonlarının yerine, `/api/ask/feedback` yazılmadı), `SourceC
 belgeye düşürme kuralı + `GET/PATCH /api/admin/settings` + `make set-products` (B-25, ADR-022), migration `0009`.
 Ayrı bir phase değil; plan `docs/plans/ASAMA_A_BALBAL_DONGUSU_PLAN.md`, rapor
 `docs/reports/ASAMA_A_BALBAL_DONGUSU_REPORT.md`. company-ai `frontend/` emekli, dokunulmadı.
+
+**AI-BalBal Caddy'den sunuluyor (30.09.2026, `24ba438`):** `frontend-balbal/` git submodule'ü (`ftansu/AI-BalBal` @ `b219600`),
+caddy imajı `FRONTEND_DIR` ile seçilen kaynaktan derlenir (`additional_contexts`), `FRONTEND_DIR=./frontend` + `make up`
+tek değişkenle geri dönüş; `make update-frontend REF=…`; `make lint`'ten frontend adımı çıkarıldı. Caddyfile/backend
+değişmedi. Ayrı bir phase değil; plan `docs/plans/AIBALBAL_DEPLOY_PLAN.md`, rapor `docs/reports/AIBALBAL_DEPLOY_REPORT.md`.
+Tarayıcı adımları (A2/A3) Naci elle.
