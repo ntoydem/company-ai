@@ -3,6 +3,7 @@
 **Kime:** Ürün sahibi tarafı (`ftansu/AI-BalBal`) ve onun yapay zekası
 **Hazırlayan:** Backend tarafı (`ntoydem/company-ai`, Claude Code ile), Naci'nin talebiyle
 **İncelenen:** `ftansu/AI-BalBal` @ `b219600` (29.09.2026; `docs/BACKEND_GAPS.md` v7.9, `docs/BAGLANTI_YOL_HARITASI.md` 28.09.2026, `frontend/src/**`) ↔ `ntoydem/company-ai` @ `4301968` (Phase 5.4b)
+**İncelenen sürüm donduruldu (30.09.2026, Naci'nin kararı):** `BACKEND_GAPS.md` v7.9, commit `b219600`, 29.09.2026 tarihli — bu nottaki tüm B-N/P-N/§N atıfları bu sürümedir. Bundan sonraki `BACKEND_GAPS.md` güncellemeleri bu notta **otomatik takip edilmeyecek**; ayrı bir inceleme turunda ele alınır (bkz. §7.1).
 **Esas alınan çerçeve:** `CLAUDE.md` altı değişmez kural (1 SECURITY, 2 SOURCE GROUNDING, 3 CALCULATION, 4 AUDITABILITY, 5 TEMPORAL TRUTH, 6 NO OPINION), `docs/ARCHITECTURE.md` ADR-001…ADR-021, `docs/SPEC_06` §6 ağ kuralı, backend'in bugünkü uçları (28 uç, aşağıda §4.3).
 
 Bu not karar gerekçeli bir sınıflandırmadır; kod içermez. Backend'de değişiklik yapılmadı. AI-BalBal çalıştırılmadı; "çalışıyor" ifadeleri kod okumasına dayanır, çalıştırma kanıtı değildir. Backend tarafı, ürün sahibinin BACKEND_GAPS §1.7.1 soru kuralını kabul eder: aşağıdaki her "karar gerekiyor" satırı bir sorudur, tahminle uygulanmayacaktır.
@@ -70,7 +71,7 @@ Talebin özü kabul; şu noktalar değişmeden uygulanamaz.
 ### B-08 — departman yöneticisi rolü — **önceliği yükseldi (Tansu #2 ve #5, bkz. §5)**
 - **Kabul:** Kural yalnızca `allowed_document_ids` içinde (P-2 = ADR-004). Önerilen iki seçenekten **rol** (`UserRole.department_manager`) tercih edilir: `user_departments.max_confidentiality` alternatifi, gizlilik kararını üyelik satırına dağıtır ve `SingleDocumentIdsProvider` (`authorization.py:84-110`) ile "kim görebilir" ucunu ikinci bir kural kaynağına bağlar.
 - **Değişmesi gereken:** `user_role` Postgres enum'una değer eklemek migration ister; `ROLE_LABELS`/`ROLE_VALUES` (frontend `lib/format.ts`) ve `UserForm` ürün sahibi tarafında güncellenir. ADR-004'e concretization satırı. "Departman müdürü kendi departmanının `restricted` belgelerini görür, `board` görmez" varsayımı ürün sahibince teyit edilmeli; §2.4 yalnızca `restricted` diyor.
-- **Durum (30.09):** İki yeni karar bu rolü ön koşul yapıyor: iki aşamalı belge onayında "departman yetkilisi" ikinci onaycıdır (§5.2) ve rolün kime verileceğini müşteri admin arayüzünden belirler (§5.1; `PATCH /api/users/{id}` zaten `role` alıyor, yalnızca enum genişler). Sıra: B-08, B-28'den **önce** gelir. "Yönetici" kelimesinin `management` rolü mü, `department_manager` mı olduğu açık soru (aşağıda).
+- **Durum (30.09):** İki yeni karar bu rolü ön koşul yapıyor: iki aşamalı belge onayında "departman yetkilisi" ikinci onaycıdır (§5.2) ve rolün kime verileceğini müşteri admin arayüzünden belirler (§5.1; `PATCH /api/users/{id}` zaten `role` alıyor, yalnızca enum genişler). Sıra: B-08, B-28'den **önce** gelir. **KAPANDI (30.09.2026, Naci):** İkinci onaycı (ve onaysız yükleyici) hedef **departmanın kendi `department_manager`'ı**'dır — genel `management` rolü ya da sistem `admin`'i değil (bkz. §5.2). Naci: "Finans departmanına yüklenen bir belgeyi Finans departmanının yetkilisi onaylar, sistem admin'i değil."
 
 ### B-26 — klasörler ve departman erişim yetkileri
 - **Kabul:** `folders`, `folder_grants`, `documents.folder_id`; yetki yalnızca gate içinde; her belge tek klasörde ve belgenin `department`'ı klasörün sahibi departmanı (ADR-004'ün "yetki departmandan gelir" ilkesi korunur); yetki kaldırılınca anında geçerli (gate her istekte hesaplanır, ek iş yok); `SingleDocumentIdsProvider` aynı kuralı taşıdığı için "kim görebilir" ucu tutarlı kalır.
@@ -269,7 +270,7 @@ Bu iki karar BACKEND_GAPS'ta yoktu; B-08, B-20, B-26, B-28 ve B-22 planlarını 
 | B-08 departman yöneticisi | Rol enum'a eklenir, kim olduğu seed'den | Rolü admin `PATCH /api/users/{id}` ile verir (uç zaten var). Ek: "hangi rol hangi gizliliği görür" tablosu mu, sabit kural mı? Önerimiz: V0'da sabit kural (`employee: normal`, `department_manager: normal+restricted`, `management: hepsi`), tablo değil; müşteri kişileri role atar, kuralı değiştirmez. Aksi, kural motorunu tabloya taşımak demektir ve ayrı ADR ister. |
 | B-26 klasör yetkileri | Zaten admin sayfası | Değişmez; bu karar B-26'nın tasarımını teyit eder. |
 | B-25 ürün paketi | CLI ile ayar, admin UI "şimdilik gerekmez" | Admin ucu ve Yönetim sekmesi gerekir (§2 B-25). |
-| B-28 / §5.2 onay zinciri | Belgede sabit ("yükleyen onaylar") | Onay kuralı role bağlı (§5.2); "hangi rol onaysız yükler, kim ikinci onaycıdır" parametresi admin arayüzünden. |
+| B-28 / §5.2 onay zinciri | Belgede sabit ("yükleyen onaylar") | Onay kuralı role bağlı (§5.2); "kim onaysız yükler, kim ikinci onaycıdır" artık **sabit kural** — hedef departmanın kendi `department_manager`'ı (KAPANDI 30.09.2026, bkz. §5.2). Admin arayüzünden değişen yalnızca *kimin* o rolde olduğu, kuralın kendisi değil. |
 | B-22 onay mercii (§8.1.5) | `manager_id → department_manager → İK` zinciri kodda | Zincir aynı, ama kişileri (`manager_id`, roller) müşteri arayüzden atar; B-05'in `users.manager_id` alanı admin `UserForm`'a girer. |
 | ADR-004 Phase 1.2 notu | "departments/projects are seed-only in V0" | Superseded olacak (departmanlar için); ADR concretization satırı. |
 
@@ -279,28 +280,32 @@ Bu iki karar BACKEND_GAPS'ta yoktu; B-08, B-20, B-26, B-28 ve B-22 planlarını 
 
 **Tansu #5:** "Yönetici kendi belgesini eklerse onay gerekmez; personel eklerse kendi onayı + departman yetkilisinden 2. onay gerekir."
 
-**Backend yorumu (teyit gerekir):** "Yönetici" = belgenin departmanının `department_manager`'ı (B-08) veya `management`/`admin`. "Departman yetkilisi" = aynı departmanın `department_manager`'ı. İkisi de aynı role işaret ediyorsa akış şudur:
+**KAPANDI (30.09.2026, Naci):** "Yönetici" = **belgenin yüklendiği departmanın kendi `department_manager`'ı** — genel `management` rolü değil, sistem `admin`'i de değil. Naci'nin literal örneği: "Finans departmanına yüklenen bir belgeyi Finans departmanının yetkilisi onaylar, sistem admin'i değil." Yani rol değil, **o belgenin departmanına özgü kişi** belirleyici. "Departman yetkilisi" (2. onaycı) ile "yönetici" (1. onaycı/onaysız yükleyici) aynı kişi/rolü işaret eder: her ikisi de **hedef departmanın `department_manager`'ı**. Akış:
 
 ```
-yükleyen = department_manager / management / admin
-   → belge doğrudan `approved` (yayınlanır), kayıt defterine "auto: role" olayı
+yükleyen = belgenin departmanının kendi department_manager'ı
+   → belge doğrudan `approved` (yayınlanır), kayıt defterine "auto: department_manager" olayı
 
-yükleyen = employee
+yükleyen = employee, ya da department_manager/management/admin ama BAŞKA/genel bir sıfatla
+            (kendi departmanının yetkilisi olmadığı bir belge yüklüyorsa — örn. sistem admin'i
+            Finans'a belge yüklerse, ya da bir başka departmanın department_manager'ı)
    → 1. aşama: yükleyen metadata'yı (Balbal önerisi + kendi alanları) onaylar → `pending_review`
-   → 2. aşama: departmanın department_manager'ı onaylar → `approved`; ya da yorumla geri gönderir → `changes_requested`
+   → 2. aşama: **hedef departmanın kendi `department_manager`'ı** onaylar → `approved`; ya da yorumla geri gönderir → `changes_requested`
    → onaydan sonra içerik/metadata değişirse onay düşer (P-1/4)
 ```
+
+`management`/`admin` rolleri **genel bir onaysız-yükleme ayrıcalığı taşımaz**; onlar da başka bir departmana belge yüklerken o departmanın kendi yetkilisinin 2. onayına tabidir. (Bu, B-08'deki okuma/görünürlük kuralı — "management: hepsini görür" — ile çelişmez; o ayrı bir eksen, salt görüntüleme içindir, yükleme onayı değil.)
 
 **Kurallarla ilişkisi:**
 - Phase 3.2 SORU 2 (admin-only apply) bu akışla **değiştirilir**; Naci'nin kararı ve PHASES.md notu gerekir (§3.3).
 - Durum geçişleri kodda, LLM tetiklemez (P-1/5, kural 6). `document_metadata_suggestions.status` bunun için yetmez (öneri durumu ≠ belge onay durumu); `documents.review_status` + `document_review_events` (kayıt defteri, §2 B-28) gelir.
 - P-1'in dört testi burada da yazılır: personel onayı olmadan `pending_review` olunmaz; başkası adına 1. aşama onayı 403; onaydan sonra değişiklik onayı düşürür; onaylanmamış belge başkasının listesinde görünmez (**bu son madde §3.3'ün açık sorusunu "evet" yönünde zorlar**; teyit gerekir).
-- Yazma boşluğu (Tansu #6): ikinci onay personelin yanlış departmana yüklediği belgeyi durdurur; ama `department_manager`/`management`/`admin` onaysız yayınlar, dolayısıyla "yüklenen belgenin departmanı ⊆ yükleyenin yetkili olduğu departmanlar" kontrolü **ayrıca** şarttır, onay akışı onun yerine geçmez.
-- Yetkilendirme müşteride (§5.1): "hangi roller onaysız yükler" ve "ikinci onaycı kim" `company_settings` parametresi olur; varsayılan yukarıdaki akış.
+- Yazma boşluğu (Tansu #6): ikinci onay personelin yanlış departmana yüklediği belgeyi durdurur; ama hedef departmanın kendi `department_manager`'ı onaysız yayınlar, dolayısıyla "yüklenen belgenin departmanı ⊆ yükleyenin yetkili olduğu departmanlar" kontrolü **ayrıca** şarttır, onay akışı onun yerine geçmez.
+- Yetkilendirme müşteride (§5.1): "ikinci onaycı kim" artık sabit kural (hedef departmanın `department_manager`'ı); `company_settings` parametresi olacak kısım yalnızca "department_manager tanımlı değilse ne olur" gibi istisna durumlar (açık nokta 2, aşağıda).
 
-**Etkilenen maddeler:** B-28 (onay çekirdeği yeniden yazılır; %80 eşiği 1. aşamada uygulanır: personel %80 altı alanı açıkça onaylamadan 1. aşamayı geçemez), B-12 (kapanmıştı, öyle kalır), B-08 (ön koşul oldu), B-01 gündem (`approval` kalemi = departman yetkilisinin bekleyen 2. aşama kuyruğu; "kimin göreceği B-12'ye bağlı" notu çözüldü), B-02 bildirim (`changes_requested`, `approved` olayları), B-26 (klasör `write` yetkisi 1. aşamanın ön koşulu).
+**Etkilenen maddeler:** B-28 (onay çekirdeği yeniden yazılır; %80 eşiği 1. aşamada uygulanır: personel %80 altı alanı açıkça onaylamadan 1. aşamayı geçemez), B-12 (kapanmıştı, öyle kalır), B-08 (ön koşul oldu, **ikinci onaycı tanımı KAPANDI** — bkz. §2), B-01 gündem (`approval` kalemi = hedef departmanın yetkilisinin bekleyen 2. aşama kuyruğu; "kimin göreceği B-12'ye bağlı" notu çözüldü), B-02 bildirim (`changes_requested`, `approved` olayları), B-26 (klasör `write` yetkisi 1. aşamanın ön koşulu).
 
-**Açık noktalar:** (1) "Yönetici" kelimesinin kapsamı (yalnızca `department_manager` mı, `management` da mı). (2) `department_manager` tanımlı olmayan departmanda personel yüklemesi ne olur (öneri: `409 approver_not_configured` + admin'e bildirim, §8.1.5 deseni). (3) Excel yüklemeleri de aynı akışa mı girer (öneri: evet; Ürün 2 hesabı onaysız workbook'a dayanmamalı).
+**Açık noktalar:** ~~(1) "Yönetici" kelimesinin kapsamı~~ **KAPANDI (30.09.2026)** — yalnızca hedef departmanın `department_manager`'ı; `management`/`admin` genel onaysız-yükleme ayrıcalığı taşımaz (yukarıya bkz.). Kalan açık noktalar: (2) `department_manager` tanımlı olmayan departmanda personel yüklemesi ne olur (öneri: `409 approver_not_configured` + admin'e bildirim, §8.1.5 deseni). (3) Excel yüklemeleri de aynı akışa mı girer (öneri: evet; Ürün 2 hesabı onaysız workbook'a dayanmamalı).
 
 ### 5.3 Üç bildirim türü (Tansu #1) — uygulama notları
 
@@ -367,26 +372,28 @@ Tansu #7 "şimdilik Ürün 2'den başlayacak" dediği için ilk müşteri/test P
 | 1 | DuckDB hesaplı `DATA`/`MIXED` Ürün 1 mi 2 mi? | **Ürün 2** (Tansu #7). `GENERAL_QUERY` artık router'da hiç yok (30.09.2026'da tamamen kaldırıldı, §6.6), bu yüzden `product_level` kararı da gerekmiyor. |
 | — | B-27 / §3.2 "web'de görüntülenecek" ne demek? | **KAPANDI (30.09.2026)** — VPN/Tailscale; Tansu'ya erişim verildi, internete açık HTTPS değil. §6.6, §3.2 (güncellendi). |
 | — | §6.1 `GENERAL_QUERY` katmanı kararı | **KAPANDI (30.09.2026)** — GENERAL_QUERY tamamen kaldırıldı, karar gerekmiyor. §6.6, `docs/reports/GENERAL_QUERY_KALDIRMA_REPORT.md`. |
-| 3 (kısmen) | B-28 onay yetkisi | **İki aşamalı, role bağlı** (Tansu #5, §5.2). "Onaysız belge görünmez" kısmı açık. |
+| 3 (kısmen) | B-28 onay yetkisi | **İki aşamalı, role bağlı** (Tansu #5, §5.2). İkinci onaycının kimliği **KAPANDI (30.09.2026)** — hedef departmanın kendi `department_manager`'ı, `management`/`admin` değil (bkz. §5.2, §2 B-08). "Onaysız belge görünmez" kısmı hâlâ açık (§7.2 madde 1). |
+| — | §5.2 — "Yönetici"/"departman yetkilisi" tanımı, onaysız yükleme kuralı | **KAPANDI (30.09.2026, Naci)** — ikisi de hedef departmanın kendi `department_manager`'ı; `management`/`admin` genel onaysız-yükleme ayrıcalığı taşımaz. Naci: "Finans departmanına yüklenen bir belgeyi Finans departmanının yetkilisi onaylar, sistem admin'i değil." §5.2, §2 B-08 güncellendi. |
+| — | BACKEND_GAPS sürüm dondurma | **KAPANDI (30.09.2026, Naci'nin kararı)** — `BACKEND_GAPS.md` v7.9, commit `b219600`, 29.09.2026 donduruldu (bkz. not başlığı). Sonraki güncellemeler bu notta otomatik takip edilmez, ayrı bir inceleme turunda ele alınır. |
 | 4 | ~~B-26 gelene kadar yükleme kısıtı~~ | **KAPANDI** (30.09.2026) — bağımsız güvenlik yaması, `docs/plans/GUVENLIK_YAMA_2026-09-30_PLAN.md`, `docs/PHASES.md` Adım 5 notu. `employee` artık yalnızca kendi üyeliklerindeki departmana yükleyebiliyor; `management`/`admin` muaf, `department=None` değişmedi. B-26 tam klasör yetkisi çözümünün yerini almaz, yalnızca en acil boşluğu kapatır. |
 | 8 (kısmen) | B-23 gizlilik | Bireysel model: **kendisi + İK** (Tansu #4, izin ve yazışma için). |
 | 9 | P-11 | **Kabul** (Tansu #9). |
-| 11 | Çelişkide öncelik | **`CLAUDE.md`/ADR'ler önce**; GitHub üzerinden çözüm; çözülmezse Tansu + Naci (Tansu #10). BACKEND_GAPS sürüm dondurma sorusu cevaplanmadı ama önceliğin bizde olması onu ikincil yapar. |
+| 11 | Çelişkide öncelik | **`CLAUDE.md`/ADR'ler önce**; GitHub üzerinden çözüm; çözülmezse Tansu + Naci (Tansu #10). |
 | — | B-03 | **Ertelendi** (Tansu #3). |
 | — | Geri bildirim butonları | **Reddedildi**, yerine üç uyarı türü (Tansu #1, §5.3). |
 | — | Yetkilendirmeyi kim yönetir | **Müşteri, admin arayüzünden** (Tansu #2, §5.1). |
 
 ### 7.2 Açık kalanlar
 
-**Öncelikli (30.09.2026 güncellendi — B-27/HTTPS ve `GENERAL_QUERY` katmanı kapandı, çıkarıldı; Naci'nin
-şu an en çok önem verdiği iki madde başa alındı):**
-1. **§5.2 — "Yönetici" ve "departman yetkilisi" tanımı, yönetici onaysız yükleme kuralının netliği:**
-   ikisi de `department_manager` mı; `management` rolü onaysız yükler mi?
-2. **BACKEND_GAPS sürüm dondurma:** ilk backend fazı `BACKEND_GAPS.md`'nin hangi sürümüne bağlanacak —
-   belge iki günde v5'ten v7.9'a çıktı ve hâlâ değişiyor; bir sürüm dondurulmadan faz planı istikrarsız kalır.
-3. **§3.3 / §5.2 — personelin yüklediği belge 2. onay gelene kadar aramada ve Balbal'da görünmesin mi?**
+**Öncelikli (30.09.2026 güncellendi — §5.2 "yönetici"/onaysız yükleme tanımı ve BACKEND_GAPS sürüm
+dondurma da kapandı, çıkarıldı; bkz. §7.1):**
+1. **§3.3 / §5.2 — personelin yüklediği belge 2. onay gelene kadar aramada ve Balbal'da görünmesin mi?**
    Backend önerisi: görünmesin. Naci + Tansu.
-4. **§5.1 / B-20 — departman CRUD'unun V0'a alınması** (Phase 1.2 "seed-only" kararının açılması). Naci.
+2. **§5.1 / B-20 — departman CRUD'unun V0'a alınması** (Phase 1.2 "seed-only" kararının açılması). Naci.
+
+Not: Bu kapanışla §7'de açık madde **kalmıyor değil** — yukarıdaki iki öncelikli madde ve aşağıdaki
+sekiz teyit/ikincil madde hâlâ açık. Kapanan yalnızca bu iki maddeydi (§5.2 tanımı, BACKEND_GAPS
+dondurma); §7'nin tamamı kapanmadı.
 
 **Teyit / ikincil:**
 5. §2 B-08 — müdür `board` görür mü; "hangi rol neyi görür" sabit kural mı (öneri) yoksa müşteri tablosu mu (§5.1'in sınırı).
