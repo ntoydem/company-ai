@@ -133,11 +133,7 @@ def _run(
         doc = answer_question(
             session,
             user,
-            AskRequest(
-                question=routed.document_question,
-                department=request.department,
-                project_id=request.project_id,
-            ),
+            AskRequest(question=routed.document_question, department=request.department),
             llm,
             settings,
             write_audit=False,
@@ -146,11 +142,7 @@ def _run(
         data = answer_data_question(
             session,
             user,
-            ExcelAskRequest(
-                question=routed.data_question,
-                department=request.department,
-                project_id=request.project_id,
-            ),
+            ExcelAskRequest(question=routed.data_question, department=request.department),
             llm,
             settings,
             engine,
@@ -229,7 +221,7 @@ def answer_routed_question(
             question=request.question,
             query_type=routed.query_type,
             scope_department=request.department,
-            scope_project=request.project_id,
+            scope_project=None,
             documents_retrieved=[],
             chunks=[],
             answer="",
@@ -268,7 +260,7 @@ def answer_routed_question(
         question=request.question,
         query_type=result.query_type,
         scope_department=request.department,
-        scope_project=request.project_id,
+        scope_project=None,
         documents_retrieved=result.retrieved_document_ids,
         chunks=result.chunks,
         answer=result.answer,

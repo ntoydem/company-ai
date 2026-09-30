@@ -2,6 +2,7 @@
 
 import io
 import logging
+import re
 import uuid
 import zipfile
 from datetime import date
@@ -15,7 +16,13 @@ from app.api.deps import get_current_user, get_llm_client, require_admin
 from app.core.config import Settings, get_settings
 from app.core.db import get_session
 from app.excel.inspect import inspect_file
-from app.models.document import Confidentiality, Document, DocumentStatus, IngestionStatus
+from app.models.document import (
+    Confidentiality,
+    Document,
+    DocumentStatus,
+    FileKind,
+    IngestionStatus,
+)
 from app.models.document_metadata_suggestion import SuggestionStatus
 from app.models.user import User, UserRole
 from app.repositories import (
@@ -130,6 +137,32 @@ def _detect_extension(content: bytes, filename: str | None = None) -> str | None
             return None
         return "csv" if any(d in text for d in (",", ";", "\t", "|")) else None
     return None
+
+
+# B-17: the browser gets the document title, not `original.<ext>`. Extension-keyed
+# because the container's `mimetypes` knows no xlsx/xlsm (would fall to octet-stream).
+MEDIA_TYPE_BY_EXTENSION: dict[str, str] = {
+    "pdf": "application/pdf",
+    "png": "image/png",
+    "jpg": "image/jpeg",
+    "jpeg": "image/jpeg",
+    "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "xlsm": "application/vnd.ms-excel.sheet.macroEnabled.12",
+    "csv": "text/csv; charset=utf-8",
+}
+# Kinds a browser renders itself; everything else is downloaded whatever `?inline` says.
+INLINE_FILE_KINDS: frozenset[FileKind] = frozenset({"pdf", "image"})
+DOWNLOAD_NAME_MAX_CHARS = 120
+_UNSAFE_NAME_CHARS = re.compile(r'[\x00-\x1f\x7f/\\:*?"<>|]')
+
+
+def download_file_name(title: str, extension: str) -> str:
+    """`"Ankara RES Kredi Sözleşmesi" + "pdf"` → `Ankara RES Kredi Sözleşmesi.pdf`. Path
+    separators, control and Windows-reserved characters become spaces; leading/trailing
+    dots and spaces go (Windows); Turkish letters stay — Starlette percent-encodes them
+    into `filename*=utf-8''…` (RFC 5987) by itself."""
+    cleaned = " ".join(_UNSAFE_NAME_CHARS.sub(" ", title).split()).strip(". ")
+    return f"{cleaned[:DOWNLOAD_NAME_MAX_CHARS].rstrip('. ') or 'belge'}.{extension}"
 
 
 def _safe_file_name(filename: str | None, extension: str) -> str:
@@ -285,10 +318,16 @@ def download_document(
     settings: Annotated[Settings, Depends(get_settings)],
     current_user: Annotated[User, Depends(get_current_user)],
     document_id: uuid.UUID,
+    inline: bool = False,
 ) -> FileResponse:
     """403 rather than the 404 the other endpoints below use for an unauthorized id — the
     acceptance criterion text asks for 403 here specifically; a deliberate, documented
-    exception to the "hide existence" pattern (docs/plans/PHASE_1_2_PLAN.md T6)."""
+    exception to the "hide existence" pattern (docs/plans/PHASE_1_2_PLAN.md T6).
+
+    `?inline=1` (B-17): `Content-Disposition: inline` for pdf/image so the browser shows
+    the *original* file (never the OCR'd copy); workbooks/CSV are always attachments.
+    `Content-Type` comes from our own map and `nosniff` is set, so the browser never
+    guesses a type for user-uploaded bytes."""
     allowed = allowed_document_ids(
         current_user, AuthorizationScope(), SqlDocumentIdsProvider(session)
     )
@@ -301,7 +340,15 @@ def download_document(
         path = LocalFileSystemStore(settings.documents_dir).get_file(document.id, kind="original")
     except FileNotFoundError:
         raise HTTPException(404, DOCUMENT_NOT_FOUND_MESSAGE) from None
-    return FileResponse(path, filename=path.name)
+    extension = path.suffix.lstrip(".").lower()
+    disposition = "inline" if inline and document.file_kind in INLINE_FILE_KINDS else "attachment"
+    return FileResponse(
+        path,
+        filename=download_file_name(document.title, extension),
+        media_type=MEDIA_TYPE_BY_EXTENSION.get(extension, "application/octet-stream"),
+        content_disposition_type=disposition,
+        headers={"X-Content-Type-Options": "nosniff"},
+    )
 
 
 @router.get("/{document_id}/status", response_model=DocumentStatusResponse)

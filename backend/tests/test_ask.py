@@ -403,3 +403,36 @@ def test_hidden_successor_yields_no_id_and_no_title(
     assert card["document_id"] == str(facility.id) and card["is_initial"] is True
     assert card["superseded_by_title"] is None and card["superseded_by_document_id"] is None
     assert card["is_current"] is False  # a hidden successor exists; the link is not current
+
+
+# --- Aşama B (30.09.2026, B-20/6): `AskRequest.project_id` removed ---
+
+
+def test_legacy_project_id_is_ignored_not_rejected(
+    client: TestClient, db_session: Session, admin_user: User, fake_llm: FakeLLMClient
+) -> None:
+    """An older client (AI-BalBal's department tab at b219600) still sends `project_id`;
+    Pydantic's default `extra="ignore"` keeps that a 200, and the field no longer narrows
+    retrieval: documents of *both* projects reach the prompt and the audit row records no
+    project scope."""
+    from app.models.project import Project, ProjectStage
+
+    ankara = Project(name="Ankara RES", code="ANK", stage=ProjectStage.operation)
+    izmir = Project(name="İzmir RES", code="IZM", stage=ProjectStage.development)
+    db_session.add_all([ankara, izmir])
+    db_session.commit()
+    a = _document(db_session, title="Ankara Sözleşme", department=None, text="DSCR covenant 1,25x")
+    b = _document(db_session, title="İzmir Sözleşme", department=None, text="DSCR covenant 1,30x")
+    a.project_id, b.project_id = ankara.id, izmir.id
+    db_session.commit()
+    fake_llm.replies = ["Ankara 1,25x [K1], İzmir 1,30x [K2]."]
+
+    response = client.post(
+        "/api/ask", json={"question": "DSCR covenant nedir?", "project_id": str(ankara.id)}
+    )
+
+    assert response.status_code == 200, response.text
+    prompt = fake_llm.requests[0].user
+    assert "Ankara Sözleşme" in prompt and "İzmir Sözleşme" in prompt
+    rows = audit_log_repo.list_filtered(db_session)
+    assert len(rows) == 1 and rows[0].scope_project is None

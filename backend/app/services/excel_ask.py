@@ -217,7 +217,7 @@ def answer_data_question(
 ) -> ExcelAskResult:
     """`write_audit=False` (Phase 4.3): the router owns the call's single audit row."""
     started = time.perf_counter()
-    scope = AuthorizationScope(department=request.department, project_id=request.project_id)
+    scope = AuthorizationScope(department=request.department)
     allowed = allowed_document_ids(user, scope, SqlDocumentIdsProvider(session))
     if request.document_ids:
         allowed = allowed & set(request.document_ids)
@@ -391,7 +391,7 @@ def _write_audit(
         question=request.question,
         query_type=QUERY_TYPE,
         scope_department=request.department,
-        scope_project=request.project_id,
+        scope_project=None,
         documents_retrieved=excel_document_ids(result.sources),
         chunks=[],
         answer=result.answer,

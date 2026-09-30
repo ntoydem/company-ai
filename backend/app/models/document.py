@@ -1,6 +1,7 @@
 import enum
 import uuid
 from datetime import date
+from typing import Literal
 
 from sqlalchemy import Boolean, Date, Enum, ForeignKey, Integer, String, Text, Uuid
 from sqlalchemy import false as sa_false
@@ -8,6 +9,21 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, TimestampMixin
+
+# B-13 (Aşama B): derived from `storage_path`'s extension, never stored — every upload is
+# content-sniffed to one of pdf/png/jpg/xlsx/xlsm/csv (`api/documents.py::_detect_extension`)
+# and written as `<uuid>/original.<ext>`, so the set is closed. `None` only for a
+# hand-edited row with an extension outside it (no silent "pdf" guess).
+FileKind = Literal["pdf", "image", "xlsx", "xlsm", "csv"]
+_FILE_KIND_BY_EXTENSION: dict[str, FileKind] = {
+    "pdf": "pdf",
+    "png": "image",
+    "jpg": "image",
+    "jpeg": "image",
+    "xlsx": "xlsx",
+    "xlsm": "xlsm",
+    "csv": "csv",
+}
 
 
 class DocumentStatus(enum.StrEnum):
@@ -127,6 +143,14 @@ class Document(TimestampMixin, Base):
     # (Phase 3.1); the upload API never sets this. Idempotency key for `make seed` and
     # the matching anchor for Phase 4.1's eval runner.
     external_ref: Mapped[str | None] = mapped_column(String(64), nullable=True, unique=True)
+
+    @property
+    def storage_extension(self) -> str:
+        return self.storage_path.rsplit(".", 1)[-1].lower() if "." in self.storage_path else ""
+
+    @property
+    def file_kind(self) -> FileKind | None:
+        return _FILE_KIND_BY_EXTENSION.get(self.storage_extension)
 
     def __repr__(self) -> str:
         return f"Document(title={self.title!r}, ingestion_status={self.ingestion_status.value!r})"

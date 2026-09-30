@@ -173,6 +173,17 @@ bir departman slug'ına karşı doğrulanır (422); `project_id` verilirse var o
 `supersedes_document_id` ile bir belge başka birinin yerini aldığında, eskisinin `status`'u otomatik olarak
 `superseded` olur (Phase 3.2).
 
+**Dosya türü, indirme adı, tarayıcıda açma (Aşama B, 30.09.2026):** her liste/detay/yükleme cevabında
+`file_kind: pdf | image | xlsx | xlsm | csv` bulunur (saklanan dosyadan türetilir). `GET /api/documents/{id}/download`
+dosyayı **belge başlığıyla** adlandırır (`Ankara RES Kredi Sözleşmesi.pdf`; Türkçe karakterler korunur, RFC 5987) ve
+`?inline=1` ile PDF/görüntüyü tarayıcıda açar (`Content-Disposition: inline`; Excel/CSV her zaman indirilir). Yetki
+davranışı aynıdır (yetkisiz `403`).
+```bash
+# (GET ile; uç HEAD desteklemez -> `curl -I` 405 döner)
+curl -s -D - -o /dev/null -b cookies.txt "http://localhost:8080/api/documents/<id>/download" | grep -i "content-disposition\|content-type"
+curl -s -D - -o /dev/null -b cookies.txt "http://localhost:8080/api/documents/<id>/download?inline=1" | grep -i content-disposition
+```
+
 ## AI metadata önerisi (Phase 3.2)
 Belge `ready` olduktan sonra (yukarıdaki `/status` ile takip edilir) `LLM_MODEL_CLASSIFY` ile bir metadata önerisi
 üretilebilir: departman, alt departman, proje kodu, belge türü, muhatap, tarih, durum, gizlilik, etiketler —
@@ -219,6 +230,8 @@ curl -s -X POST localhost:8080/api/ask -b cookies.txt -H 'content-type: applicat
 # {"answer":"... 1,20x'tir [K1] ...","answered":true,"sources":[{"ref":"K1","title":"Amendment 01","page_number":3,
 #   "document_date":"2025-03-15","version":1,"status":"executed","is_current":true,...}],"model":"...","tokens_in":..}
 ```
+`/api/ask` gövdesi `question` + opsiyonel `department`'tır; `project_id` 30.09.2026'da kaldırıldı (bir sohbet birden çok
+proje içerebilir, kaynak kartları projeyi ayırır; eski istemcinin gönderdiği alan yok sayılır, 422 olmaz).
 Tek sayfalık test arayüzü: `http://<vm-ip>:8080/ask` (Caddy ve build gerektirmez). Cevaplar Türkçe'dir, her olgu
 cümlesi `[K#]` etiketiyle bir belge+sayfaya bağlanır; kaynak yoksa sabit "…yeterli bilgi bulamadım." cevabı döner ve
 LLM hiç çağrılmaz. "Güncel" / "ilk" ayrımı `supersedes` zinciri ve `DEMO_TODAY` ile kodda hesaplanır (ADR-021).

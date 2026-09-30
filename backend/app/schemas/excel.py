@@ -18,7 +18,7 @@ class ExcelAskRequest(BaseModel):
 
     question: str = Field(min_length=3, max_length=1000)
     department: str | None = None
-    project_id: UUID | None = None
+    # `project_id` removed 30.09.2026 with `AskRequest.project_id` (B-20/6, Aşama B).
     # Narrow to specific workbooks (still gated by allowed_document_ids).
     document_ids: list[UUID] | None = None
 

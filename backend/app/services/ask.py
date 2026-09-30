@@ -110,7 +110,7 @@ def _write_audit_log(
         question=request.question,
         query_type=QUERY_TYPE,
         scope_department=request.department,
-        scope_project=request.project_id,
+        scope_project=None,
         documents_retrieved=retrieved_ids,
         chunks=chunks,
         answer=answer,
@@ -136,7 +136,7 @@ def answer_question(
     """`write_audit=False` (Phase 4.3): the caller — the router — owns the one audit row of
     the call and writes it from the returned `AskResult` (SORU 2: one row per call)."""
     started = time.perf_counter()
-    filters = RetrievalFilters(department=request.department, project_id=request.project_id)
+    filters = RetrievalFilters(department=request.department)
     query = build_search_query(request.question)
     chunks = retrieve(session, user, query, filters, raw_question=request.question) if query else []
     retrieved_ids = list(dict.fromkeys(chunk.document_id for chunk in chunks))
@@ -144,7 +144,7 @@ def answer_question(
     if not chunks:
         result = _no_answer()
     else:
-        scope = AuthorizationScope(department=request.department, project_id=request.project_id)
+        scope = AuthorizationScope(department=request.department)
         allowed = allowed_document_ids(user, scope, SqlDocumentIdsProvider(session))
         documents = document_repo.load_with_chains(session, retrieved_ids, allowed_ids=allowed)
         by_id = {document.id: document for document in documents}

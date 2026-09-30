@@ -228,3 +228,8 @@ caddy imajı `FRONTEND_DIR` ile seçilen kaynaktan derlenir (`additional_context
 tek değişkenle geri dönüş; `make update-frontend REF=…`; `make lint`'ten frontend adımı çıkarıldı. Caddyfile/backend
 değişmedi. Ayrı bir phase değil; plan `docs/plans/AIBALBAL_DEPLOY_PLAN.md`, rapor `docs/reports/AIBALBAL_DEPLOY_REPORT.md`.
 Tarayıcı adımları (A2/A3) Naci elle.
+
+**Aşama B (30.09.2026, `<commit>`):** `file_kind` (B-13, `storage_path`'ten türetme, migration yok), indirme adı = başlık + uzantı
++ `?inline=1` (B-17; pdf/görüntü inline, açık `Content-Type` + `nosniff`), `AskRequest`/`ExcelAskRequest.project_id`
+kaldırıldı (B-20/6; eski istemci 422 almaz, eval hiç göndermiyordu — NOT'taki isolation uyarısı geçersizdi). Ayrı bir
+phase değil; plan `docs/plans/ASAMA_B_PLAN.md`, rapor `docs/reports/ASAMA_B_REPORT.md`.

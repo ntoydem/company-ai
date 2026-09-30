@@ -50,11 +50,15 @@ def product_limit_warning() -> AskWarning:
 
 
 class AskRequest(BaseModel):
+    """`project_id` was removed 30.09.2026 (B-20/6, Aşama B): one conversation may span
+    projects, the answer keeps them apart by citing sources. Pydantic's default
+    `extra="ignore"` means an older client still sending it gets a normal answer, not a 422
+    — the field is simply no longer a retrieval filter."""
+
     model_config = ConfigDict(frozen=True)
 
     question: str = Field(min_length=3, max_length=1000)
     department: str | None = None
-    project_id: UUID | None = None
 
 
 class SourceCard(BaseModel):

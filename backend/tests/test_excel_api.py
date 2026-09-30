@@ -55,10 +55,10 @@ def _plan(kind: str, **fields: object) -> str:
 
 def test_xlsx_upload_is_ready_without_an_ocr_job(client: TestClient, admin_user: User) -> None:
     body = _upload_workbook(client)
-    assert body["ingestion_status"] == "ready"
+    assert body["ingestion_status"] == "ready" and body["file_kind"] == "xlsx"
     detail = client.get(f"/api/documents/{body['id']}").json()
     assert detail["page_count"] == 13  # Summary + 11 quarter sheets + hidden _meta
-    assert detail["has_macros"] is False
+    assert detail["has_macros"] is False and detail["file_kind"] == "xlsx"
 
 
 def test_inspect_lists_sheets_named_ranges_and_hidden_meta(

@@ -3,10 +3,12 @@ import json
 import uuid
 from datetime import date
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.api.documents import download_file_name
 from app.core.config import Settings
 from app.models.document import Confidentiality, Document, IngestionStatus
 from app.models.document_metadata_suggestion import DocumentMetadataSuggestion, SuggestionStatus
@@ -51,14 +53,17 @@ def _document_with_file(
     *,
     department: str | None,
     confidentiality: Confidentiality = Confidentiality.normal,
+    title: str = "t",
+    extension: str = "pdf",
+    content: bytes = FAKE_PDF,
 ) -> Document:
     """Like `_document`, but also writes a real file to disk so `/download` succeeds."""
     document_id = uuid.uuid4()
     store = LocalFileSystemStore(settings.documents_dir)
-    stored = store.store(document_id, "original.pdf", io.BytesIO(FAKE_PDF))
+    stored = store.store(document_id, f"original.{extension}", io.BytesIO(content))
     document = Document(
         id=document_id,
-        title="t",
+        title=title,
         document_type="dt",
         counterparty="c",
         document_date=date(2023, 1, 1),
@@ -847,3 +852,124 @@ def test_visibility_includes_management_regardless_of_department(
 
     usernames = {u["username"] for u in response.json()["users"]}
     assert "yonetim-test" in usernames
+
+
+# --- Aşama B (30.09.2026): file_kind (B-13), download name + ?inline=1 (B-17) ---
+
+FAKE_PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 16
+
+
+@pytest.mark.parametrize(
+    ("storage_path", "expected"),
+    [
+        ("x/original.pdf", "pdf"),
+        ("x/original.png", "image"),
+        ("x/original.jpg", "image"),
+        ("x/original.JPEG", "image"),
+        ("x/original.xlsx", "xlsx"),
+        ("x/original.xlsm", "xlsm"),
+        ("x/original.csv", "csv"),
+        ("x/original.docx", None),
+        ("x/original", None),
+    ],
+)
+def test_file_kind_is_derived_from_storage_path(storage_path: str, expected: str | None) -> None:
+    assert Document(storage_path=storage_path).file_kind == expected
+
+
+def test_list_detail_and_upload_carry_file_kind(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    pdf = _upload(client).json()
+    png = _upload(client, filename="scan.png", content=FAKE_PNG, content_type="image/png").json()
+    assert (pdf["file_kind"], png["file_kind"]) == ("pdf", "image")
+    kinds = {row["id"]: row["file_kind"] for row in client.get("/api/documents").json()}
+    assert kinds == {pdf["id"]: "pdf", png["id"]: "image"}
+    assert client.get(f"/api/documents/{png['id']}").json()["file_kind"] == "image"
+
+
+@pytest.mark.parametrize(
+    ("title", "expected"),
+    [
+        ("Ankara RES Kredi Sözleşmesi", "Ankara RES Kredi Sözleşmesi.pdf"),
+        ('a/b:c*d?e"f<g>h|i\\j', "a b c d e f g h i j.pdf"),
+        ("  ..gizli.. ", "gizli.pdf"),
+        ("", "belge.pdf"),
+        ("???", "belge.pdf"),
+        ("tab\there\x00null", "tab here null.pdf"),
+        ("x" * 300, "x" * 120 + ".pdf"),
+    ],
+)
+def test_download_file_name_is_safe_and_keeps_turkish_letters(title: str, expected: str) -> None:
+    assert download_file_name(title, "pdf") == expected
+
+
+def test_download_uses_the_title_and_rfc5987_encodes_it(
+    client: TestClient, db_session: Session, settings: Settings, admin_user: User
+) -> None:
+    turkish = _document_with_file(db_session, settings, department=None, title="Kredi Sözleşmesi")
+    ascii_ = _document_with_file(db_session, settings, department=None, title="Facility Agreement")
+
+    response = client.get(f"/api/documents/{turkish.id}/download")
+    assert response.status_code == 200 and response.content == FAKE_PDF
+    assert response.headers["content-type"] == "application/pdf"
+    assert response.headers["x-content-type-options"] == "nosniff"
+    assert (
+        response.headers["content-disposition"]
+        == "attachment; filename*=utf-8''Kredi%20S%C3%B6zle%C5%9Fmesi.pdf"
+    )
+    # Starlette quotes spaces too, so any title with a space also takes the RFC 5987 form;
+    # the plain `filename="…"` form appears only for titles that need no encoding at all.
+    plain = client.get(f"/api/documents/{ascii_.id}/download")
+    assert (
+        plain.headers["content-disposition"]
+        == "attachment; filename*=utf-8''Facility%20Agreement.pdf"
+    )
+
+
+def test_inline_is_honoured_for_pdf_and_image_only(
+    client: TestClient, db_session: Session, settings: Settings, admin_user: User
+) -> None:
+    pdf = _document_with_file(db_session, settings, department=None, title="Sözleşme")
+    png = _document_with_file(
+        db_session, settings, department=None, title="Tarama", extension="png", content=FAKE_PNG
+    )
+    xlsx = _document_with_file(
+        db_session,
+        settings,
+        department=None,
+        title="Model",
+        extension="xlsx",
+        content=b"PK\x03\x04",
+    )
+    csv = _document_with_file(
+        db_session, settings, department=None, title="Opex", extension="csv", content=b"a;b\n"
+    )
+
+    inline_pdf = client.get(f"/api/documents/{pdf.id}/download?inline=1")
+    assert inline_pdf.headers["content-disposition"].startswith(
+        "inline; filename*=utf-8''S%C3%B6zle"
+    )
+    assert inline_pdf.content == FAKE_PDF  # the original bytes, never the OCR copy
+    inline_png = client.get(f"/api/documents/{png.id}/download?inline=1")
+    assert inline_png.headers["content-disposition"].startswith("inline; ")
+    assert inline_png.headers["content-type"] == "image/png"
+    inline_xlsx = client.get(f"/api/documents/{xlsx.id}/download?inline=1")
+    assert inline_xlsx.headers["content-disposition"] == 'attachment; filename="Model.xlsx"'
+    assert (
+        inline_xlsx.headers["content-type"]
+        == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    inline_csv = client.get(f"/api/documents/{csv.id}/download?inline=1")
+    assert inline_csv.headers["content-disposition"] == 'attachment; filename="Opex.csv"'
+    assert inline_csv.headers["content-type"] == "text/csv; charset=utf-8"
+
+
+def test_inline_does_not_change_authorization(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    enerji = make_department(db_session, slug="enerji_grubu")
+    add_user_to_department(db_session, employee_user, enerji)
+    finans_doc = _document(db_session, department="finans")
+    assert client.get(f"/api/documents/{finans_doc.id}/download?inline=1").status_code == 403
+    assert client.get(f"/api/documents/{uuid.uuid4()}/download?inline=1").status_code == 403

@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-from app.models.document import Confidentiality, DocumentStatus, IngestionStatus
+from app.models.document import Confidentiality, DocumentStatus, FileKind, IngestionStatus
 from app.models.document_metadata_suggestion import SuggestionStatus
 from app.models.user import UserRole
 
@@ -14,6 +14,7 @@ class DocumentUploadResponse(BaseModel):
 
     id: UUID
     ingestion_status: IngestionStatus
+    file_kind: FileKind | None
 
 
 class DocumentListItem(BaseModel):
@@ -32,6 +33,8 @@ class DocumentListItem(BaseModel):
     confidentiality: Confidentiality
     external_ref: str | None
     created_at: datetime
+    # B-13: pdf | image | xlsx | xlsm | csv, derived from the stored file (Document.file_kind).
+    file_kind: FileKind | None
 
 
 class DocumentDetailResponse(DocumentListItem):
