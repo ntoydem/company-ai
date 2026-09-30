@@ -210,3 +210,7 @@ ayrı bir faz mı, yoksa bu dar kapsam mı kabul edilecek). Detay: `docs/reports
 **Bağımsız güvenlik yaması (30.09.2026, `d588487`):** Yükleme yetki açığı kapatıldı, Tansu incelemesinden
 (`docs/notes/TANSU_GERI_BILDIRIM_2026-09-30.md` §2 B-26/3, §7.1). Ayrı bir phase değil; plan
 `docs/plans/GUVENLIK_YAMA_2026-09-30_PLAN.md`'de.
+
+**GENERAL_QUERY kaldırıldı (30.09.2026, `0b891fb`):** Naci + Tansu kararı — bkz. Phase 4.3 notu (üstte).
+Ayrı bir phase değil; plan `docs/plans/GENERAL_QUERY_KALDIRMA_PLAN.md`, rapor
+`docs/reports/GENERAL_QUERY_KALDIRMA_REPORT.md`.
