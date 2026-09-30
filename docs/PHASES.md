@@ -215,7 +215,7 @@ ayrı bir faz mı, yoksa bu dar kapsam mı kabul edilecek). Detay: `docs/reports
 Ayrı bir phase değil; plan `docs/plans/GENERAL_QUERY_KALDIRMA_PLAN.md`, rapor
 `docs/reports/GENERAL_QUERY_KALDIRMA_REPORT.md`.
 
-**Aşama A — "Balbal cevap döngüsü" (30.09.2026, `<commit>`):** AI-BalBal'ın `/api/ask` etrafında beklediği sözleşme
+**Aşama A — "Balbal cevap döngüsü" (30.09.2026, `1199d88`):** AI-BalBal'ın `/api/ask` etrafında beklediği sözleşme
 kapatıldı — `audit_log_id`, `product_level`, `warnings` (`missing_data`/`product_limit`; Tansu #1'in reddettiği
 beğen/hatalı butonlarının yerine, `/api/ask/feedback` yazılmadı), `SourceCard` versiyon id'leri + `is_initial` (B-07),
 `company_settings.enabled_products` + `/login`/`/me` alanı + `require_product("P2")` (`/api/excel/ask`) + P1'de

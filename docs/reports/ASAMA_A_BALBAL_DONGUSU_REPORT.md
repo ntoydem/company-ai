@@ -1,6 +1,6 @@
 # Aşama A Raporu — "Balbal cevap döngüsü" (AI-BalBal `/api/ask` sözleşmesi)
 
-**Tarih:** 30.09.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit, `docs/PHASES.md` çapraz referans notu)  **Commit:** `<commit>`
+**Tarih:** 30.09.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit, `docs/PHASES.md` çapraz referans notu)  **Commit:** `1199d88`
 **Plan:** `docs/plans/ASAMA_A_BALBAL_DONGUSU_PLAN.md` · **ADR:** ADR-022 (yeni), ADR-003/010/016/021 concretization · **Migration:** `0009`
 
 Naci'nin SORU cevapları: (1) **A** — `POST /api/ask/feedback` yazılmadı, `audit_log_id` + `warnings` yeterli (Tansu #1); (2) `company_settings` tablosu (env değil); (3–4) `PATCH /api/admin/settings` dahil, `is_initial` dahil, `project_code/name` hariç; (5) faz etiketi yok. Plan SORU 2'ye (P1 düşürmede denetim satırındaki `query_type`) açık cevap gelmedi → plandaki öneri uygulandı: **nihai tip** (`DOCUMENT_QUERY`) + `warnings`'ta `product_limit` (DATA-miss fall-through ile aynı yaklaşım, bkz. §5).
@@ -35,7 +35,7 @@ Naci'nin SORU cevapları: (1) **A** — `POST /api/ask/feedback` yazılmadı, `a
 
 ## 3. Değişen dosyalar
 
-`git diff --stat 36f06d6..<commit>`: 27 dosya (+~560 / −42). Yeni: `alembic/versions/0009_company_settings_answer_fields.py`, `app/models/company_settings.py`, `app/repositories/company_settings_repo.py`, `app/schemas/settings.py`, `app/api/settings.py`, `tests/test_settings.py`, bu rapor. Değişen: `api/{ask,auth,deps,excel,router}.py`, `cli.py`, `models/{__init__,audit_log}.py`, `repositories/audit_log_repo.py`, `schemas/{ask,audit_log,auth}.py`, `services/{ask,ask_router,audit_writer,version_chain}.py`, `tests/{conftest,test_ask,test_ask_router,test_audit_log,test_migrations}.py`, `Makefile`, `README.md`, `docs/{ARCHITECTURE,PHASES}.md`, `docs/notes/TANSU_…md`. **company-ai `frontend/`: dokunulmadı** (emekli, NOT §4.4). **AI-BalBal: dokunulmadı.**
+`git diff --stat 36f06d6..1199d88`: 27 dosya (+~560 / −42). Yeni: `alembic/versions/0009_company_settings_answer_fields.py`, `app/models/company_settings.py`, `app/repositories/company_settings_repo.py`, `app/schemas/settings.py`, `app/api/settings.py`, `tests/test_settings.py`, bu rapor. Değişen: `api/{ask,auth,deps,excel,router}.py`, `cli.py`, `models/{__init__,audit_log}.py`, `repositories/audit_log_repo.py`, `schemas/{ask,audit_log,auth}.py`, `services/{ask,ask_router,audit_writer,version_chain}.py`, `tests/{conftest,test_ask,test_ask_router,test_audit_log,test_migrations}.py`, `Makefile`, `README.md`, `docs/{ARCHITECTURE,PHASES}.md`, `docs/notes/TANSU_…md`. **company-ai `frontend/`: dokunulmadı** (emekli, NOT §4.4). **AI-BalBal: dokunulmadı.**
 
 ## 4. Testler
 
