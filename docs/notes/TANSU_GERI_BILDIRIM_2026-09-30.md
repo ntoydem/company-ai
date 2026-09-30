@@ -24,7 +24,7 @@ Tansu notun sade özetine on cevap verdi. Aşağıdaki tablo her cevabın bu not
 | 5 | Belge onayı: "Yönetici kendi belgesini eklerse onay gerekmez; personel eklerse kendi onayı + departman yetkilisinden 2. onay." | B-28, Phase 3.2 SORU 2 | **YENİ TASARIM KARARI** — §5.2; §3.3 güncellendi |
 | 6 | Yükleme yetki açığı "öncelikli giderilmeli". | §2 B-26/3 ara düzeltme | **KAPANDI** — bağımsız güvenlik yaması olarak uygulandı, `docs/PHASES.md` Adım 5 notuna bakınız |
 | 7 | "Şimdilik Ürün 2'den başlayacak. Ürün 1 yalnızca veri yükleyecek, yüklenen veriyi bulup bilgilendirecek." DuckDB/Excel hesabı Ürün 2. | B-25, §3.1, eval seti, örnek sorular | **NETLEŞTİ** — §6 |
-| 8 | İnternet/HTTPS: "Şimdilik web'de görüntülenecek, detaylar ileride şekillenecek." | B-27, §3.2 | **AÇIK — netleştirme gerekiyor** (aşağıda "Açık kalanlar") |
+| 8 | İnternet/HTTPS: "Şimdilik web'de görüntülenecek, detaylar ileride şekillenecek." | B-27, §3.2 | **KAPANDI (30.09.2026)** — VPN/Tailscale; Tansu'ya Tailscale ile erişim verildi, bkz. §6.6 |
 | 9 | Kural 3'ün ("LLM hesap yapmaz") BACKEND_GAPS'a P-11 olarak eklenmesi onaylandı ("Ürün 1 için uygun"). | §3.9 | **KABUL** — ekleme ürün sahibi tarafının reposunda yapılır; backend dokunmaz |
 | 10 | Çelişki önceliği: "Anayasaya (`CLAUDE.md`/kurallar) eklenecek, GitHub üzerinden çözüm aranacak, çözülmezse Tansu ve Naci karar verir. Frontend'in talebi backend'in kabiliyetlerini karşılamalı ve anayasa içinde olmalı." | Eski karar listesi #11 | **NETLEŞTİ** — öncelik `CLAUDE.md` ve ADR'lerde; BACKEND_GAPS §1.6'nın "bağlayıcı çerçeve" ifadesi buna göre okunur |
 
@@ -47,7 +47,7 @@ Bu maddeler mevcut kurallarla ve ADR'lerle çelişmiyor; her biri var olan bir d
 | **B-11** — **kapsamı büyüdü (Tansu #1)** | Evrak/bilgi talebi, varlık ele vermeden; artık `data_conflict` ve `missing_data` uyarılarının "diğer departmandan veri/bilgi talep et" butonunun hedefi | Bugünkü "bilgi bulamadım" sabit metni (ADR-014, ADR-021: chunk yoksa LLM çağrılmadan döner) zaten belge varlığını ele vermez; bu kısım yapılmış durumda. Yeni: `document_requests(id, from_user_id, to_department_id, description, status, source_audit_log_id?)` tablosu + `POST /api/document-requests`; departmanı kullanıcı seçer (Balbal önermez, P-2). Talebin hangi cevaptan doğduğu, denetim kaydı satırına referansla saklanabilir (kural 4); bu, reddedilen `audit_log_id`'nin tek meşru kullanımı olur ve yalnızca sunucu tarafında kalır. Hedef departmanın görmesi B-01 gündemine bağlı. | B-01 |
 | **B-01** (ilk kısım) | Gündem: süresi dolacak belgeler | Deterministik SQL: `documents.expiration_date` 60 gün içinde ve `allowed_document_ids` içinde. LLM yok. `GET /api/me/agenda` döner `kind: deadline`. "Onay bekleyen öneri" kalemi B-28 kararına, diğer kalemler B-06a/B-11/B-22/B-23'e bağlı. Ürün 2 kapısı B-25'e bağlı. | B-25 (kapı için) |
 | **B-19** | Arayüz incelemesi + tersine liste | Bu not. Tersine liste §4.3'te. | — |
-| **B-27** (yalnızca "AI-BalBal'ı sun" kısmı) | Caddy'nin `ftansu/AI-BalBal/frontend` build'ini sunması, tek komutla güncelleme | `infra/caddy/Dockerfile` bugün `./frontend` bağlamından build alıyor (ADR-018). Build bağlamını bir `FRONTEND_DIR` değişkeniyle seçilebilir yapmak ve `make update-frontend` (git pull + build + `up -d caddy`) eklemek küçük iş. Bu kısım LAN'da düz HTTP ile bugün yapılabilir. HTTPS/internet kısmı §3.2'de ve **hâlâ açık** (Tansu #8 "şimdilik web'de görüntülenecek" — "web" LAN mı, VPN mi, internet mi belirsiz). | Yok |
+| **B-27** (yalnızca "AI-BalBal'ı sun" kısmı) | Caddy'nin `ftansu/AI-BalBal/frontend` build'ini sunması, tek komutla güncelleme | `infra/caddy/Dockerfile` bugün `./frontend` bağlamından build alıyor (ADR-018). Build bağlamını bir `FRONTEND_DIR` değişkeniyle seçilebilir yapmak ve `make update-frontend` (git pull + build + `up -d caddy`) eklemek küçük iş. Bu kısım LAN'da düz HTTP ile bugün yapılabilir. Erişim yolu artık netleşti (§3.2, §6.6): VPN/Tailscale, internete açık HTTPS değil — Tansu'ya Tailscale ile erişim verildi. | Yok |
 | **B-18** (yöntem olarak) | Demo veri seti genişletme, 15 kişilik personel, kurgu şirket | Mevcut üretim hattı genişletilir: ledger (`seed_data/master/*.yaml`) → `make prose` (LLM bir kez, `[[token]]` ile, rakam görmez) → `generate_documents.py` (deterministik) → `validate_documents.py` → `manifest.json` → `make seed` (ADR-013). Personel listesi ledger'a `personnel` bölümü olarak girer; `demo_users_seed.py` ve `demo_departments_seed.py` ledger'dan okur. Excel seti `generate_excel.py` + LibreOffice recalc hattıyla (ADR-011). **Şirket adı:** ledger'daki "ABC Enerji A.Ş." `USER_FACT` olarak onaylı (Phase 2.1, 23.09.2026); canvas'taki "NATA" ledger'a uydurulur, tersi değil. Her yeni rakam/tarih/isim `AI_ASSUMPTION` etiketiyle girer ve Naci onayı bekler; bu kural ürün sahibinin de kabul ettiği P-9 ile aynı yöndedir. | B-20 (İK belgeleri için) |
 
 Bu tablodaki maddeler için ADR gerekmez; B-07, B-09, B-13, B-17, B-05 ve B-04'ün `missing_data`/`product_limit` kısımları tek bir küçük phase'e sığar ("Balbal cevap döngüsü"; B-25'in `product_level` eşlemesi §6 ile artık yazılabilir). Yükleme yetki açığının ara düzeltmesi (§2 B-26/3, Tansu #6 "öncelikli") **30.09.2026'da bağımsız bir güvenlik yaması olarak zaten uygulandı** (`docs/PHASES.md` Adım 5 notu) — ayrı bir faza gerek kalmadı. Naci'nin faz planı onayı gerekir; bu not onun yerine geçmez.
@@ -137,14 +137,14 @@ Talebin özü kabul; şu noktalar değişmeden uygulanamaz.
 - **Durum (30.09):** Tansu: "Ürün 1 yalnızca veri yükleyecek, yüklenen veriyi bulup bilgilendirecek; DuckDB/Excel hesabı Ürün 2." Çelişki kalktı; sonuçları §6'da. Aşağıdaki metin kararın gerekçesi olarak korunuyor.
 - **Talep:** BAGLANTI §2.1/4: `AskResponse.product_level` bugün hep `"P1"` döner; BACKEND_GAPS §1.5.1: Ürün 1'de "Hesaplama: **Yok**", Ürün 2'de "yalnızca aritmetik, yalnızca gerçekleşmiş veriyle".
 - **Çelişki:** Backend'in `DATA_QUERY` ve `MIXED_QUERY` cevapları DuckDB ile hesap yapar (ADR-010, ADR-011; `services/excel_ask.py`, `dscr`, `outstanding_debt`, `budget_variance`, `capacity_factor`, `production` fonksiyonları). Ürün sahibinin tablosuna göre bu Ürün 2 yeteneğidir. İkisi aynı anda doğru olamaz: ya bu cevaplar `P2` etiketlenir ve yalnızca-P1 müşteride `require_product("P2")` ile kapanır, ya da §1.5.1 tablosu "Ürün 1: kesin veriyle aritmetik dahil" diye düzeltilir. Arayüzdeki örnek sorular (`strings.ts:49` "Ankara RES 2026 Q2 DSCR kaç?") ve eval setinin `data`/`mixed` kategorileri (`questions.json`) bu karara bağlı.
-- **Ek belirsizlik:** `GENERAL_QUERY` ("DSCR ne demek?", şirket verisi kullanmaz, ADR-010) hiçbir katmana atanmamış.
-- **Açılma koşulu:** ~~Ürün sahibinin tek cümlelik kararı.~~ Verildi (Tansu #7). `GENERAL_QUERY`'nin katmanı hâlâ söylenmedi; §6'da öneri var.
+- **Ek belirsizlik (30.09.2026'da tamamen kapandı):** ~~`GENERAL_QUERY` ("DSCR ne demek?", şirket verisi kullanmaz, ADR-010) hiçbir katmana atanmamış.~~ `GENERAL_QUERY` tipi kendisi kaldırıldı (§6.6) — artık bir katman ataması sorusu bile yok.
+- **Açılma koşulu:** ~~Ürün sahibinin tek cümlelik kararı.~~ Verildi (Tansu #7). `GENERAL_QUERY` katmanı sorusu da kendiliğinden kapandı — o tip hiç yok, §6.6.
 
-### 3.2 B-27 internet'e açık HTTPS test ortamı — **HÂLÂ AÇIK (Tansu #8 muğlak)**
-- **Durum (30.09):** Tansu: "Şimdilik web'de görüntülenecek, detaylar ileride şekillenecek." Bu cümle üç şeyden hangisini istediğini söylemiyor: (a) LAN'da tarayıcıdan (bugün var), (b) VPN/Tailscale ile uzaktan (V0 sonrası ama WAN'a açmaz), (c) internete açık alan adı + HTTPS (ADR-015 ve SPEC_06 §6 ile çelişir, Naci'nin V0 kapsam kararı gerekir). Backend tarafı netleşene kadar yalnızca (a)'yı hazırlar (§1 B-27 satırı). **Bu, listedeki en önemli açık soru**, çünkü ürün sahibinin B-27'deki test takvimi buna bağlı.
+### 3.2 B-27 internet'e açık HTTPS test ortamı — **KAPANDI (30.09.2026): (b) VPN/Tailscale seçildi**
+- **Durum (30.09, güncellendi):** Tansu #8'in "şimdilik web'de görüntülenecek" ifadesi netleşti — aşağıdaki üç seçenekten **(b)** seçildi: Tansu'ya **Tailscale ile erişim verildi**. **(c) internete açık HTTPS uygulanmadı**; `CLAUDE.md`/ADR-015/SPEC_06 §6'nın "V0 internete açık değil" kararı **değişmedi, dokunulmadı** — yalnızca VPN üzerinden LAN gibi erişim açıldı, bu zaten CLAUDE.md'nin "V0 sonrası" olarak öngördüğü Tailscale yolu. Aşağıdaki (a)/(b)/(c) analizi, hangi seçeneğin neden uygun olduğunu gösteren gerekçe olarak korunuyor.
 - **Talep:** §1.8.1/1 "sabit web adresi ve HTTPS", §1.8.1/4 "ortam internete açık".
 - **Çelişki:** `CLAUDE.md` stack kararı "V0'da LAN üzerinde düz HTTP", kapsam dışı listesi "HTTPS/Tailscale (V0 sonrası)"; ADR-015 "Network: LAN only, plain HTTP … V0"; `docs/SPEC_06` §6 "V0 internete açık değildir … Public WAN exposure yok". Üç belge aynı şeyi söylüyor; bu bir V0 kapsam kararıdır, teknik zorluk değildir.
-- **Açılma koşulu:** Naci'nin V0 kapsamını değiştirmesi (ADR-015 superseded) **veya** ürün sahibinin LAN/VPN erişimini kabul etmesi. Öneri: Tailscale/WireGuard ile ürün sahibinin VM'e LAN gibi ulaşması; bu, CLAUDE.md'nin "V0 sonrası" dediği Tailscale'i öne çeker ama WAN'a açmaz ve TLS'siz cookie riskini (ADR-003 `secure=false`) yalnızca VPN içinde tutar. "AI-BalBal'ı Caddy'den sunma" kısmı §1'de kabul edildi; bu kısım ondan bağımsızdır.
+- **Uygulandı:** Öneri (b) — Tailscale ile ürün sahibinin VM'e LAN gibi ulaşması — kabul edildi ve Tansu'ya erişim verildi. TLS'siz cookie riski (ADR-003 `secure=false`) yalnızca VPN içinde kalıyor, WAN'a açılmadı. "AI-BalBal'ı Caddy'den sunma" kısmı (§1) hâlâ backend tarafının bağımsız bir işi — Tailscale erişimi tek başına AI-BalBal'ı Caddy'nin sunmasını sağlamaz, `make update-frontend` gibi bir mekanizma hâlâ gerekli.
 
 ### 3.3 B-28'in iki kararı: onay yetkisi ve onaysız belgenin görünmezliği — **1. karar değişti (Tansu #5), 2. karar açık**
 - **Talep 1 (§4.7.5, §4.2 güncellemesi):** ~~Etiket önerisini yükleyen personel onaylar.~~ **Tansu #5:** "Yönetici kendi belgesini eklerse onay gerekmez; personel eklerse kendi onayı + departman yetkilisinden 2. onay." Bu, B-28'in tek onaylı akışını da, Phase 3.2'nin admin-onayı kararını da değiştirir; tasarımı ve etkileri §5.2'de.
@@ -194,7 +194,7 @@ Kod düzeyinde **hayır**. Kontrol edilenler:
 | Proje (ADR-008 "proje" atfı) | `AnswerView` `projectOfDocument` ile `/api/documents` listesinden türetiliyor (`BalbalChat.tsx:35-38`, `AskPanel.tsx:21-24`) | Dolaylı | `SourceCard.project_code/name` eklensin; ek liste isteği ve "kullanıcının listeleyebildiği belge" varsayımı kalkar |
 | `DATA_QUERY` (Excel, ADR-011) | Rozet "Excel"; `ExcelSourceCardList` dosya/sheet/aralık + link + İndir (`AnswerView.tsx:29,49-54`; `SourceCardList.tsx:52-69`) | Gösteriliyor | `ExcelSourceCard.document_id` `None` olabilir (`schemas/excel.py:29`) → `FileLink` "bağlantı yok" işareti. Backend'de cited workbook her zaman `documents` satırıdır; `None` yalnızca teorik, `NOT NULL`'a çekilebilir. |
 | `MIXED_QUERY` (iki başlık, ADR-010) | Rozet "Belge + Excel"; iki kaynak listesi; `.answer { white-space: pre-wrap }` (`styles.css:521-522`) başlıkları korur | Gösteriliyor | — |
-| `GENERAL_QUERY` | Rozet "Genel bilgi" (warn); `notice` gizli çünkü cevap aynı cümleyle başlıyor (`AnswerView.tsx:36`); kaynak listesi gizli | Gösteriliyor | — |
+| ~~`GENERAL_QUERY`~~ | Rozet "Genel bilgi" (warn); `notice` gizli çünkü cevap aynı cümleyle başlıyor (`AnswerView.tsx:36`); kaynak listesi gizli | **Ölü kod (30.09.2026):** backend bu tipi artık hiç üretmiyor (§6.6), bu satır yalnızca frontend'in hâlâ taşıdığı dalı kaydediyor | §4.4'te de not var |
 | `answered=false` sabit metin (ADR-014) | Gri cevap + "belge yükleyebilirsiniz" linki (`AnswerView.tsx:34,37-42`) | Gösteriliyor | Link yalnızca `uploadPath` varsa; birden çok departmanlı kullanıcıda ilk departmana gider |
 | `notice` (yorum içermez) | `AnswerView.tsx:36` | Gösteriliyor | — |
 | `model`, `tokens_in`, `tokens_out` | company-ai `AskPanel.tsx:80-84` gösteriyordu; AI-BalBal `AnswerView` **göstermiyor** | Kaldırılmış | P-7 sadelik kararı olabilir; denetim kaydında duruyor (kural 4 korunur). Bilinçli olduğu teyit edilmeli. |
@@ -241,6 +241,7 @@ Kod düzeyinde **hayır**. Kontrol edilenler:
 | Retrieval-only ölçüm | `make eval EVAL_ARGS="--retrieval-only"` | Ortak (test) | Ürün testinde veri bütünlüğü kanıtı için kullanılabilir |
 
 ### 4.4 Frontend'in kendi içindeki tutarsızlıklar (bilgi)
+- **(30.09.2026, backend tarafında kaldırıldı)** `GENERAL_QUERY` — `strings.ts:49`, `types.ts:235`, `AskPanel.tsx:73,77-78,86`, `AdminAuditLogPage.tsx:15` hâlâ bu değeri biliyor/gösteriyor; backend artık hiç üretmediği için zararsız ölü kod. Bu fazda dokunulmadı (Naci'nin kararı, `docs/reports/GENERAL_QUERY_KALDIRMA_REPORT.md` §6).
 - `AskPanel.tsx:16,31,46-58` proje çipi ve `project_id`; belge "kaldırıldı" diyor (§1.4/1, §3.3).
 - `BalbalChat.tsx:32` çalışan kapsamını `department_slugs[0]`'a daraltıyor; iki üyelikli demo `finans` kullanıcısı Balbal'da `mali_isler` belgelerini görmez. B-09 ve B-20/5 ile çözülür; o güne kadar bilinen fark.
 - `proposed.ts:18` 404'ü "henüz yok" sayıyor; uçlar açıldığında gerçek "bulunamadı" 404'ü de "Backend bekleniyor" görünür. Öneri: "henüz yok" için 501, 404 anlamını korur.
@@ -322,7 +323,7 @@ yükleyen = employee
 | `DOCUMENT_QUERY` | `P1` | Bul, oku, kaynakla aktar; hesap yok |
 | `DATA_QUERY` | `P2` | DuckDB hesabı (ADR-011) |
 | `MIXED_QUERY` | `P2` | Excel dalı hesap içerir |
-| `GENERAL_QUERY` | **karar gerekiyor** | Şirket verisi kullanmaz; önerimiz `P1` (bilgilendirme), çünkü kapatmanın ürün değeri yok |
+| ~~`GENERAL_QUERY`~~ | ~~karar gerekiyor~~ | **KALDIRILDI (30.09.2026)** — bu tip artık hiç yok, bkz. §6.6. Aşağıdaki satır artık geçerli değil, yalnızca tarihçe için korunuyor. |
 | `ACTION` (ileride, B-22) | `P2` | §3.5 zaten öyle diyor |
 
 Eşleme koddadır (`ask_router.py`), tablo değil; katman tanımı ürün sahibinin değil sistemin özelliğidir.
@@ -349,6 +350,12 @@ Eşleme koddadır (`ask_router.py`), tablo değil; katman tanımı ürün sahibi
 
 Tansu #7 "şimdilik Ürün 2'den başlayacak" dediği için ilk müşteri/test P2 ile çalışır; P1 kısıtı bir **test senaryosudur**, geliştirme önceliği değil. Bu, B-25'in "küçük, hemen" etiketini korur: `enabled_products` + `require_product` + eşleme + düşürme kuralı tek fazda.
 
+### 6.6 Güncelleme (30.09.2026) — bu bölüm yazıldıktan sonra üç gelişme oldu
+
+1. **GENERAL_QUERY tamamen kaldırıldı** (Naci + Tansu kararı, backend AI-BalBal incelemesinden bağımsız ayrı bir konuşma). Sistem artık hiçbir zaman modelin kendi genel dünya bilgisinden cevap vermiyor — tanım soruları ("DSCR ne demek?" dahil) da `DOCUMENT_QUERY`'ye yönlendiriliyor, `general_answer.py` silindi. §6.1'deki eşleme tablosundaki `GENERAL_QUERY` satırı ve "karar gerekiyor" notu bu yüzden **artık geçersiz** — o tip router'da hiç yok, `product_level` kararı gerektirmiyor. Canlı Gemini ile doğrulandı: korpus bu terimleri (DSCR, ÇED, covenant testi) genel biçimde hiçbir yerde tanımlamadığı için gerçekçi sonuç sabit "bilgi bulamadım" metni oluyor — uydurma bir tanım değil. Detay: `docs/plans/GENERAL_QUERY_KALDIRMA_PLAN.md`, `docs/reports/GENERAL_QUERY_KALDIRMA_REPORT.md`.
+2. **"Farklı tanım varsa hepsini göster" kuralı eklendi:** `answer_prompt.py`'ye yeni bir kural (9. kural): birden fazla **ilgisiz** kaynak (zincir/versiyon ilişkisi yoksa — 5. kural o durumu ayrıca kapsıyor) aynı terim veya kavram için farklı bir tanım/açıklama veriyorsa, hepsi kendi kaynak etiketiyle ayrı ayrı yazılır, biri diğerine tercih edilmez. `docs/prompts/ANSWER_SYSTEM_PROMPT.md`'ye `make prompt-doc` ile yansıtıldı. Gerçek bir "çelişen tanım" senaryosu bugünkü korpusta yok (kural yalnızca prompt talimatı olarak var, sentetik bir fixture'la uçtan uca kanıtlanmadı — bilinçli bir karar, bkz. rapor §5).
+3. **Erişim kararı uygulandı — §3.2/B-27'nin cevabı netleşti:** Tansu'ya **Tailscale ile erişim verildi**. "Web'de görüntülenecek" ifadesi VPN/Tailscale anlamına geliyormuş (§3.2'nin üç seçenekten (b) seçeneği); internete açık HTTPS **değil**. `CLAUDE.md`/ADR-015/SPEC_06 §6'nın "V0 internete açık değil" kararına dokunulmadı — VPN içinden LAN gibi erişim, WAN'a açılma değil. Ayrıntı: §3.2 (güncellendi).
+
 ---
 
 ## 7. Karar durumu
@@ -357,7 +364,9 @@ Tansu #7 "şimdilik Ürün 2'den başlayacak" dediği için ilk müşteri/test P
 
 | Eski # | Soru | Cevap |
 |---|---|---|
-| 1 | DuckDB hesaplı `DATA`/`MIXED` Ürün 1 mi 2 mi? | **Ürün 2** (Tansu #7). `GENERAL` hâlâ açık. |
+| 1 | DuckDB hesaplı `DATA`/`MIXED` Ürün 1 mi 2 mi? | **Ürün 2** (Tansu #7). `GENERAL_QUERY` artık router'da hiç yok (30.09.2026'da tamamen kaldırıldı, §6.6), bu yüzden `product_level` kararı da gerekmiyor. |
+| — | B-27 / §3.2 "web'de görüntülenecek" ne demek? | **KAPANDI (30.09.2026)** — VPN/Tailscale; Tansu'ya erişim verildi, internete açık HTTPS değil. §6.6, §3.2 (güncellendi). |
+| — | §6.1 `GENERAL_QUERY` katmanı kararı | **KAPANDI (30.09.2026)** — GENERAL_QUERY tamamen kaldırıldı, karar gerekmiyor. §6.6, `docs/reports/GENERAL_QUERY_KALDIRMA_REPORT.md`. |
 | 3 (kısmen) | B-28 onay yetkisi | **İki aşamalı, role bağlı** (Tansu #5, §5.2). "Onaysız belge görünmez" kısmı açık. |
 | 4 | ~~B-26 gelene kadar yükleme kısıtı~~ | **KAPANDI** (30.09.2026) — bağımsız güvenlik yaması, `docs/plans/GUVENLIK_YAMA_2026-09-30_PLAN.md`, `docs/PHASES.md` Adım 5 notu. `employee` artık yalnızca kendi üyeliklerindeki departmana yükleyebiliyor; `management`/`admin` muaf, `department=None` değişmedi. B-26 tam klasör yetkisi çözümünün yerini almaz, yalnızca en acil boşluğu kapatır. |
 | 8 (kısmen) | B-23 gizlilik | Bireysel model: **kendisi + İK** (Tansu #4, izin ve yazışma için). |
@@ -369,21 +378,24 @@ Tansu #7 "şimdilik Ürün 2'den başlayacak" dediği için ilk müşteri/test P
 
 ### 7.2 Açık kalanlar
 
-**Öncelikli:**
-1. **B-27 / §3.2 — "web'de görüntülenecek" ne demek?** (a) LAN, (b) VPN/Tailscale, (c) internete açık HTTPS. (c) ise ADR-015 ve SPEC_06 §6 değişir; bu **Naci'nin V0 kapsam kararıdır**. Ürün sahibinin test takvimi (B-27 §1.8) buna bağlı; cevap gelmeden yalnızca (a) hazırlanır.
-2. **§3.3 / §5.2 — personelin yüklediği belge 2. onay gelene kadar aramada ve Balbal'da görünmesin mi?** Backend önerisi: görünmesin. Naci + Tansu.
-3. **§5.2 — "Yönetici" ve "departman yetkilisi" tanımı:** ikisi de `department_manager` mı; `management` rolü onaysız yükler mi?
+**Öncelikli (30.09.2026 güncellendi — B-27/HTTPS ve `GENERAL_QUERY` katmanı kapandı, çıkarıldı; Naci'nin
+şu an en çok önem verdiği iki madde başa alındı):**
+1. **§5.2 — "Yönetici" ve "departman yetkilisi" tanımı, yönetici onaysız yükleme kuralının netliği:**
+   ikisi de `department_manager` mı; `management` rolü onaysız yükler mi?
+2. **BACKEND_GAPS sürüm dondurma:** ilk backend fazı `BACKEND_GAPS.md`'nin hangi sürümüne bağlanacak —
+   belge iki günde v5'ten v7.9'a çıktı ve hâlâ değişiyor; bir sürüm dondurulmadan faz planı istikrarsız kalır.
+3. **§3.3 / §5.2 — personelin yüklediği belge 2. onay gelene kadar aramada ve Balbal'da görünmesin mi?**
+   Backend önerisi: görünmesin. Naci + Tansu.
 4. **§5.1 / B-20 — departman CRUD'unun V0'a alınması** (Phase 1.2 "seed-only" kararının açılması). Naci.
 
 **Teyit / ikincil:**
-5. §6.1 — `GENERAL_QUERY` katmanı (öneri: P1).
-6. §2 B-08 — müdür `board` görür mü; "hangi rol neyi görür" sabit kural mı (öneri) yoksa müşteri tablosu mu (§5.1'in sınırı).
-7. §2 B-22/3 — onay zincirindeki yönetici, personelin izin belgesini görür mü (Tansu #4 yalnızca "kendisi + İK" dedi).
-8. §2 B-23/2 — yazışma için de "kendisi + İK" mi, yoksa "kendisi + departman yetkilisi" mi (İK'nın yazışmayla ilgisi yok).
-9. §2 B-02 — "departmana belge yüklendi" bildiriminin alıcısı.
-10. §2 B-06a — görüş talebi belgesinin departmanı ve gizliliği.
-11. §4.1 — `model`/token bilgisinin arayüzden kaldırılmasının bilinçli olduğu.
-12. §5.2 açık nokta 2–3 — `department_manager` yoksa ne olur; Excel yüklemeleri aynı onay akışına girer mi.
-13. §6.4 — P1 paketinde örnek soruların ve footnote'un durumu (ürün sahibi tarafı).
+5. §2 B-08 — müdür `board` görür mü; "hangi rol neyi görür" sabit kural mı (öneri) yoksa müşteri tablosu mu (§5.1'in sınırı).
+6. §2 B-22/3 — onay zincirindeki yönetici, personelin izin belgesini görür mü (Tansu #4 yalnızca "kendisi + İK" dedi).
+7. §2 B-23/2 — yazışma için de "kendisi + İK" mi, yoksa "kendisi + departman yetkilisi" mi (İK'nın yazışmayla ilgisi yok).
+8. §2 B-02 — "departmana belge yüklendi" bildiriminin alıcısı.
+9. §2 B-06a — görüş talebi belgesinin departmanı ve gizliliği.
+10. §4.1 — `model`/token bilgisinin arayüzden kaldırılmasının bilinçli olduğu.
+11. §5.2 açık nokta 2–3 — `department_manager` yoksa ne olur; Excel yüklemeleri aynı onay akışına girer mi.
+12. §6.4 — P1 paketinde örnek soruların ve footnote'un durumu (ürün sahibi tarafı).
 
 Backend tarafı §3'te kalan maddelere (B-27 internet kısmı, Ürün 3, B-21, B-15/B-24, B-16) kod yazmaz; §1, §2, §5 ve §6'daki maddeler Naci'nin faz planı onayıyla başlar (`CLAUDE.md` çalışma biçimi 2–3). Önerilen ilk faz: yükleme yetki açığı ara düzeltmesi (Tansu #6) + "Balbal cevap döngüsü" (B-07, B-09, B-13, B-17, B-05, B-25 eşlemesi, `warnings` alanının `missing_data`/`product_limit` türleri).
