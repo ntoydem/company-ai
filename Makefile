@@ -15,7 +15,7 @@ EVAL_ARGS ?=
 
 .PHONY: help env-check dirs up up-full down ps logs build test test-llm lint format prompt-doc validate-ledger \
         migrate migration seed-admin seed-demo-users seed-demo-departments seed-demo-projects \
-        prose validate-documents seed-demo-documents build-frontend dev-frontend excel validate-excel \
+        prose validate-documents seed-demo-documents build-frontend update-frontend dev-frontend excel validate-excel \
         psql shell seed reset-demo eval backup restore clean
 
 help: ## Bu listeyi göster
@@ -27,6 +27,8 @@ env-check:
 dirs: env-check
 	@mkdir -p "$(DATA_ROOT)/postgres" "$(DATA_ROOT)/documents" "$(DATA_ROOT)/excel" \
 	          "$(DATA_ROOT)/app-data" "$(DATA_ROOT)/backups"
+	@# AI-BalBal (frontend-balbal/) is a git submodule; a plain `git clone` leaves it empty.
+	@test ! -d .git || git submodule update --init frontend-balbal
 
 up: dirs ## postgres + backend + ocr-worker + caddy'yi başlat (build dahil); arayüz http://<vm-ip>:$(CADDY_PORT)
 	$(COMPOSE) up -d --build postgres backend ocr-worker caddy
@@ -60,16 +62,21 @@ test-llm: dirs ## canlı LLM testleri (gerçek Gemini; LLM_API_KEY gerekir). mak
 	$(COMPOSE) run --rm -T -e LLM_LIVE_TESTS=1 $(if $(MODEL),-e LLM_MODEL_ANSWER=$(MODEL)) backend \
 		sh -c 'export DATABASE_URL="$$TEST_DATABASE_URL"; python -m app.cli wait-for-db --timeout 60 && pytest -q -s -m live_llm tests/live $(ARGS)'
 
-build-frontend: env-check ## React bundle'ı içeren caddy imajını yeniden derle (make up zaten yapar)
+build-frontend: dirs ## arayüz bundle'ını içeren caddy imajını yeniden derle (make up zaten yapar); kaynak: FRONTEND_DIR (boş = AI-BalBal)
 	$(COMPOSE) build caddy
+
+update-frontend: dirs ## AI-BalBal'ı ilerlet ve yeniden derle: make update-frontend REF=<sha|main>  (submodule pointer'ını commit etmek sana kalır)
+	@test -n "$(REF)" || { echo "REF=<sha|main> gerekli"; exit 1; }
+	git -C frontend-balbal fetch -q origin && git -C frontend-balbal checkout -q $(REF)
+	@echo "frontend-balbal @ $$(git -C frontend-balbal log -1 --format='%h %s')"
+	$(COMPOSE) up -d --build caddy
 
 dev-frontend: env-check ## Vite dev server (HMR) http://<vm-ip>:5173 — /api backend'e proxy'lenir; make up çalışıyor olmalı
 	$(COMPOSE) --profile tools run --rm --service-ports frontend npm run dev -- --host
 
-lint: env-check ## ruff + mypy (backend), ruff (ocr-worker), eslint + tsc (frontend), prompt dokümanı güncel mi
+lint: env-check ## ruff + mypy (backend), ruff (ocr-worker), prompt dokümanı güncel mi (frontend lint'i yok: frontend/ emekli, AI-BalBal Tansu'nun reposunda lint'lenir)
 	$(COMPOSE) run --rm -T --no-deps backend sh -c 'ruff check . && ruff format --check . && mypy'
 	$(COMPOSE) run --rm -T --no-deps ocr-worker sh -c 'ruff check . && ruff format --check .'
-	$(COMPOSE) --profile tools run --rm -T --no-deps frontend sh -c 'npm run lint && npm run typecheck'
 	@$(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-answer-prompt 2>/dev/null \
 		| diff -q - <(sed -n '/^```text$$/,/^```$$/{//!p}' docs/prompts/ANSWER_SYSTEM_PROMPT.md) >/dev/null \
 		|| { echo "docs/prompts/ANSWER_SYSTEM_PROMPT.md güncel değil: make prompt-doc"; exit 1; }

@@ -78,12 +78,15 @@ services:
       postgres:
         condition: service_healthy
 
-  # Phase 3.3: React bundle (built into the image from ./frontend) + /api reverse proxy.
-  # The only host-facing entry point; part of the default `make up`.
+  # Phase 3.3: React bundle (built into the image) + /api reverse proxy. The only
+  # host-facing entry point; part of the default `make up`. Since 30.09.2026 the bundle
+  # source is AI-BalBal (git submodule frontend-balbal/); FRONTEND_DIR=./frontend rolls
+  # back to the retired company-ai frontend with the same Dockerfile.
   caddy:
     build:
-      context: ./frontend
-      dockerfile: ../infra/caddy/Dockerfile
+      context: ./infra/caddy
+      additional_contexts:
+        src: ${FRONTEND_DIR:-./frontend-balbal/frontend}
     restart: unless-stopped
     ports:
       - "${CADDY_PORT:-8080}:80"
