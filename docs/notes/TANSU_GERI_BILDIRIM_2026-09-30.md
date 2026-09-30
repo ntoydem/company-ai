@@ -28,6 +28,7 @@ Tansu notun sade özetine on cevap verdi. Aşağıdaki tablo her cevabın bu not
 | 8 | İnternet/HTTPS: "Şimdilik web'de görüntülenecek, detaylar ileride şekillenecek." | B-27, §3.2 | **KAPANDI (30.09.2026)** — VPN/Tailscale; Tansu'ya Tailscale ile erişim verildi, bkz. §6.6 |
 | 9 | Kural 3'ün ("LLM hesap yapmaz") BACKEND_GAPS'a P-11 olarak eklenmesi onaylandı ("Ürün 1 için uygun"). | §3.9 | **KABUL** — ekleme ürün sahibi tarafının reposunda yapılır; backend dokunmaz |
 | 10 | Çelişki önceliği: "Anayasaya (`CLAUDE.md`/kurallar) eklenecek, GitHub üzerinden çözüm aranacak, çözülmezse Tansu ve Naci karar verir. Frontend'in talebi backend'in kabiliyetlerini karşılamalı ve anayasa içinde olmalı." | Eski karar listesi #11 | **NETLEŞTİ** — öncelik `CLAUDE.md` ve ADR'lerde; BACKEND_GAPS §1.6'nın "bağlayıcı çerçeve" ifadesi buna göre okunur |
+| — | **company-ai `frontend/`'in kaderi** (§4.4'te "Naci'nin kararı, notun dışında" denilen açık soru). Naci: AI-BalBal, Naci ve Tansu'nun projesinin tek, asıl frontend'i olacak; `company-ai/frontend/` **emekli edilir**. | §4.4, B-19 | **KAPANDI (30.09.2026, Naci)** — company-ai `frontend/` **silinmez**, repoda kalır, yalnızca artık geliştirilmez; AI-BalBal asıl arayüz. Backend (FastAPI, yetki, retrieval, Excel motoru, router) değişmeden AI-BalBal'ın istemci katmanı olmaya devam eder. Ayrıntı §4.4 (güncellendi). |
 
 ---
 
@@ -249,7 +250,9 @@ Kod düzeyinde **hayır**. Kontrol edilenler:
 - `proposed.ts:18` 404'ü "henüz yok" sayıyor; uçlar açıldığında gerçek "bulunamadı" 404'ü de "Backend bekleniyor" görünür. Öneri: "henüz yok" için 501, 404 anlamını korur.
 - `types.ts` şemaları elle aynalanıyor; backend `/openapi.json` üretiyor. ~40 yeni uçla el ile senkron kırılır; TS tip üretimi (openapi-typescript) önerilir. Bu, ürün sahibi tarafının kararıdır.
 - Test yok, CI yok; yalnızca `tsc` + `eslint`. README'deki "Çalışıyor" ifadeleri elle test iddiasıdır. company-ai'ın kendi frontend'inde de UI testi yok (CLAUDE.md, ADR-019), backend 383 test taşır.
-- 28 dosya company-ai `frontend/` ile bayt bayt aynı (Phase 5.2 yönetim ekranları dahil). B-27 §1.8.1/2 "backend reposundaki frontend testte kullanılmaz" diyor; company-ai `frontend/`'inin kaderi (emekli / senkron) Naci'nin kararıdır ve bu notun dışındadır.
+- 28 dosya company-ai `frontend/` ile bayt bayt aynı (Phase 5.2 yönetim ekranları dahil). B-27 §1.8.1/2 "backend reposundaki frontend testte kullanılmaz" diyor.
+- **KAPANDI (30.09.2026, Naci):** company-ai `frontend/` **emekli edilir**. AI-BalBal (`github.com/ftansu/AI-BalBal`), Naci ve Tansu'nun projesinin tek, asıl frontend'i olacak. company-ai `frontend/` **silinmez** — repoda kalır, yalnızca artık geliştirilmez; ileride hiçbir fazda "temizlik" gerekçesiyle kaldırılmaz, yalnızca kullanılmadığı işaretlenir.
+  **Pratik sonuçlar:** company-ai backend'i (FastAPI, yetki, retrieval, Excel motoru, router) değişmeden kalır ve AI-BalBal'ın API istemcisi olarak kullanacağı katman olmaya devam eder; backend uçları AI-BalBal'ın beklediği sözleşmeyle (response şemaları, `enabled_products`, vb.) uyumlu tutulur — bu zaten backend'in her fazda takip ettiği bir kısıt, yeni bir yük değil. Test/lint kapsamı için önerimiz: `company-ai/frontend/` artık `make test`/`make lint`'in **zorunlu** yeşil kapsamından çıkarılsın (geliştirilmeyen bir ağacı her backend değişikliğinde yeşil tutmak gereksiz bakım yükü ve zamanla anlamsız hale gelir — ör. `types.ts` API şemasından sürüklenir ama kimse güncellemeyecek); kod fiziksel olarak repoda kalır, yalnızca CI'ın zorunlu adımı olmaktan çıkar. Geçiş dönemi diye ayrı bir ara aşama yok — karar netleştiği anda AI-BalBal asıl arayüz, company-ai `frontend/` günden güne paralel sunulmaz (Caddy'nin hangi build'i sunacağı zaten B-27/§1'de ayrı bir iştir).
 
 ---
 
@@ -408,7 +411,11 @@ kapandı.
 7. §5.2 açık nokta 2–3 — `department_manager` yoksa ne olur; Excel yüklemeleri aynı onay akışına girer mi.
 8. §6.4 — P1 paketinde örnek soruların ve footnote'un durumu (ürün sahibi tarafı).
 
-Backend tarafı §3'te kalan maddelere (B-27 internet kısmı, Ürün 3, B-21, B-15/B-24, B-16) kod yazmaz; §1, §2, §5 ve §6'daki maddeler Naci'nin faz planı onayıyla başlar (`CLAUDE.md` çalışma biçimi 2–3). Önerilen ilk faz: yükleme yetki açığı ara düzeltmesi (Tansu #6) + "Balbal cevap döngüsü" (B-07, B-09, B-13, B-17, B-05, B-25 eşlemesi, `warnings` alanının `missing_data`/`product_limit` türleri).
+Backend tarafı §3'te kalan maddelere (B-27 internet kısmı, Ürün 3, B-21, B-15/B-24, B-16) kod yazmaz; §1, §2, §5 ve §6'daki maddeler Naci'nin faz planı onayıyla başlar (`CLAUDE.md` çalışma biçimi 2–3).
+
+**Önerilen ilk somut adım — Aşama 0 (kapandı) ve Aşama A (başlatılabilir):**
+- **Aşama 0 — kapandı:** Yükleme yetki açığı ara düzeltmesi (Tansu #6), bağımsız güvenlik yaması olarak uygulandı (§7.1 satır 4).
+- **Aşama A — "Balbal cevap döngüsü":** `B-07, B-09, B-13, B-17, B-05, B-25` eşlemesi, `warnings` alanının `missing_data`/`product_limit` türleri; somut karşılıkları `audit_log_id`, `product_level`, versiyon linki, `POST /api/ask/feedback`, `enabled_products`. **KAPANDI engel: company-ai `frontend/`'in kaderi netleşmemişti** (bu adımın hangi arayüze hizmet edeceği belirsizdi). Bu artık netleşti — AI-BalBal asıl frontend (yukarıda, §0 ve §4.4) — **Aşama A'nın önünde bekleyen bir engel kalmadı, şimdi başlatılabilir.** Planı Naci ayrı bir mesajda başlatacak.
 
 ---
 
