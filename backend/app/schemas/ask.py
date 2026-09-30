@@ -7,8 +7,11 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.models.document import DocumentStatus
 from app.schemas.excel import ExcelSourceCard
 
-# ADR-010. Stored verbatim in `audit_log.query_type`.
-QueryType = Literal["DOCUMENT_QUERY", "DATA_QUERY", "MIXED_QUERY", "GENERAL_QUERY"]
+# ADR-010. Stored verbatim in `audit_log.query_type`. GENERAL_QUERY (general-knowledge
+# answers with no company source) was removed 30.09.2026 — the system must never again
+# answer from the model's own world knowledge; every question, including definitions,
+# is checked against the documents first (see `services/router.py`'s module docstring).
+QueryType = Literal["DOCUMENT_QUERY", "DATA_QUERY", "MIXED_QUERY"]
 
 NO_INTERPRETATION_NOTICE = (
     "Bu cevap yorum içermez; yalnızca şirket belgelerinde yazanı kaynak göstererek aktarır."
@@ -17,7 +20,6 @@ MIXED_NOTICE = (
     "Bu cevap yorum içermez; belge kısmı kaynak göstererek aktarılır, Excel kısmının hesabını "
     "DuckDB/Python yapar. İki kısım birleştirilmiş, yorumlanmamıştır."
 )
-GENERAL_NOTICE = "Bu cevap genel bilgidir; şirket belgeleri veya verileri kullanılmamıştır."
 
 
 class AskRequest(BaseModel):

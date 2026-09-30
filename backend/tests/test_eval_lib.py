@@ -325,35 +325,6 @@ def test_score_question_passes_when_sources_and_value_match() -> None:
     assert result.error is None
 
 
-def test_score_question_general_passes_only_with_no_company_sources() -> None:
-    """Phase 5.1: `general` has no ledger-backed expected value; passing means the router
-    actually took the GENERAL branch and cited nothing at all (ADR-010)."""
-    from scripts.eval_lib import ExpectedValue
-
-    question = _question(id="GEN-GEN-001", category="general", expected_project=None)
-    good = AskOutcome(
-        answered=True,
-        answer_text="Bu cevap genel bilgidir; şirket belgeleri veya verileri kullanılmamıştır. ...",
-        query_type="GENERAL_QUERY",
-    )
-    result = score_question(question, ExpectedValue(skip=True), _catalog(), good)
-    assert result.passed and result.value_check == "skipped"
-
-    wrong_type = AskOutcome(answered=True, answer_text="...", query_type="DOCUMENT_QUERY")
-    assert not score_question(question, ExpectedValue(skip=True), _catalog(), wrong_type).passed
-
-    leaked_source = AskOutcome(
-        answered=True,
-        answer_text="...",
-        query_type="GENERAL_QUERY",
-        cited_titles=("Facility Agreement Amendment 01",),
-    )
-    assert not score_question(question, ExpectedValue(skip=True), _catalog(), leaked_source).passed
-
-    not_answered = AskOutcome(answered=False, answer_text="", query_type="GENERAL_QUERY")
-    assert not score_question(question, ExpectedValue(skip=True), _catalog(), not_answered).passed
-
-
 def test_score_question_fails_when_required_source_missing() -> None:
     from scripts.eval_lib import ExpectedValue
 

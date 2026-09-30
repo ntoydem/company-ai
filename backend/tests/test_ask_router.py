@@ -1,7 +1,7 @@
-"""`POST /api/ask` through the router (Phase 4.3, ADR-010): the four branches, the
-MIXED merge with both source kinds, the single audit row, and the GENERAL branch touching
-no company data. Router and LLM are fakes; retrieval, authorization and the Excel engine
-are real (over the committed demo workbooks and ledger-generated documents)."""
+"""`POST /api/ask` through the router (Phase 4.3, ADR-010): the three branches (DOCUMENT,
+DATA, MIXED — GENERAL was removed 30.09.2026), the MIXED merge with both source kinds, and
+the single audit row. Router and LLM are fakes; retrieval, authorization and the Excel
+engine are real (over the committed demo workbooks and ledger-generated documents)."""
 
 from __future__ import annotations
 
@@ -9,7 +9,6 @@ import json
 import re
 from collections.abc import Callable
 
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -18,18 +17,13 @@ from app.api.deps import get_router
 from app.core.errors import LLM_UNAVAILABLE_MESSAGE
 from app.main import app
 from app.models.audit_log import AuditLog
-from app.models.project import ProjectStage
 from app.models.user import User
-from app.repositories import project_repo
-from app.schemas.ask import GENERAL_NOTICE, MIXED_NOTICE, NO_INTERPRETATION_NOTICE
+from app.schemas.ask import MIXED_NOTICE, NO_INTERPRETATION_NOTICE
 from app.schemas.excel import NO_INTERPRETATION_NOTICE as EXCEL_NOTICE
-from app.services import ask as ask_module
 from app.services import excel_ask as excel_ask_module
-from app.services import retrieval as retrieval_module
 from app.services.answer_prompt import NO_ANSWER_TEXT, NO_REASON_TEXT
 from app.services.ask_router import DATA_PART_HEADING, DOCUMENT_PART_HEADING
 from app.services.excel_ask import ANSWER_SYSTEM_PROMPT, PLAN_SYSTEM_PROMPT
-from app.services.general_answer import GENERAL_LEAK_TEXT, GENERAL_SYSTEM_PROMPT
 from app.services.llm import LLMRateLimitError, LLMRequest
 from app.services.router import ROUTER_SYSTEM_PROMPT
 from tests.fakes import FakeLLMClient, FakeRouter
@@ -301,73 +295,10 @@ def test_document_question_is_unchanged_and_tagged(
     assert rows[0].sources[0]["kind"] == "document"
 
 
-# ---------------------------------------------------------------- GENERAL
-
-
-def test_general_question_uses_no_company_data_and_says_so(
-    client: TestClient,
-    db_session: Session,
-    admin_user: User,
-    fake_llm: FakeLLMClient,
-    fake_router: FakeRouter,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """PHASES.md 4.3: GENERAL sorularda şirket verisi kullanılmaz ve bu belirtilir. With a
-    document and a workbook present, neither authorization nor retrieval nor the Excel
-    pipeline is even consulted; the prompt is the bare question."""
-    from tests.test_ask import _document
-
-    _document(db_session, title="Facility", department=None, text="DSCR covenant 1,25x SECRET")
-    _upload_workbook(client)
-
-    def _forbidden(*_args: object, **_kwargs: object) -> set[object]:
-        raise AssertionError("allowed_document_ids must not be called for GENERAL_QUERY")
-
-    for module in (retrieval_module, ask_module, excel_ask_module):
-        monkeypatch.setattr(module, "allowed_document_ids", _forbidden)
-
-    fake_router.query_type = "GENERAL_QUERY"
-    fake_llm.replies = ["DSCR, borç servisi karşılama oranıdır: CFADS / borç servisi."]
-    body = _ask(client, "DSCR ne demek?")
-
-    assert body["query_type"] == "GENERAL_QUERY" and body["answered"] is True
-    assert str(body["answer"]).startswith(GENERAL_NOTICE)
-    assert body["notice"] == GENERAL_NOTICE
-    assert body["sources"] == [] and body["excel_sources"] == []
-    assert body["retrieved_document_ids"] == []
-    assert len(fake_llm.requests) == 1
-    request = fake_llm.requests[0]
-    assert request.system == GENERAL_SYSTEM_PROMPT and request.user == "DSCR ne demek?"
-    assert "SECRET" not in fake_llm.prompt_text()
-    rows = _audit_rows(db_session)
-    assert len(rows) == 1
-    row = rows[0]
-    assert row.query_type == "GENERAL_QUERY"
-    assert row.documents_retrieved == [] and row.excel_files_used == [] and row.sources == []
-    assert row.answer.startswith(GENERAL_NOTICE)
-
-
-def test_general_reply_naming_a_project_is_dropped(
-    client: TestClient,
-    db_session: Session,
-    admin_user: User,
-    fake_llm: FakeLLMClient,
-    fake_router: FakeRouter,
-) -> None:
-    project_repo.create(
-        db_session,
-        name="Ankara RES",
-        code="ANK_RES",
-        stage=ProjectStage.operation,
-        department_ids=[],
-    )
-    db_session.commit()
-    fake_router.query_type = "GENERAL_QUERY"
-    fake_llm.replies = ["DSCR bir orandır; Ankara RES'te 1,37x'tir."]
-    body = _ask(client, "DSCR ne demek?")
-    assert body["answered"] is False and body["query_type"] == "GENERAL_QUERY"
-    assert body["answer"] == f"{GENERAL_NOTICE}\n\n{GENERAL_LEAK_TEXT}"
-    assert "Ankara RES" not in str(body["answer"])
+# GENERAL_QUERY (general-knowledge answers with no company source) was removed 30.09.2026 —
+# the system must never answer from the model's own world knowledge; every question,
+# including definitions, now routes through DOCUMENT_QUERY. The tests that lived here
+# (no-company-data notice, project-name leak guard) went with `general_answer.py`.
 
 
 # ---------------------------------------------------------------- wiring / failure

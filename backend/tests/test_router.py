@@ -69,18 +69,19 @@ def test_mixed_with_missing_sub_questions_falls_back_to_the_original(settings: S
     assert routed.document_question == QUESTION and routed.data_question == QUESTION
 
 
-def test_general_has_no_sub_questions(settings: Settings) -> None:
-    routed = _route(settings, json.dumps({"query_type": "GENERAL_QUERY", "reason": "definition"}))
-    assert routed.query_type == "GENERAL_QUERY"
-    assert routed.document_question is None and routed.data_question is None
-
-
 def test_malformed_json_unknown_type_and_llm_error_fall_back_to_document(
     settings: Settings,
 ) -> None:
-    """The safe direction: a router failure degrades to the pre-4.3 behaviour, never to a
-    GENERAL answer without company sources."""
-    for reply in ("not json", json.dumps({"query_type": "EMAIL_QUERY"}), json.dumps([1, 2])):
+    """The safe direction: a router failure degrades to the pre-4.3 behaviour. GENERAL_QUERY
+    itself (removed 30.09.2026) is now just another unknown type — Pydantic rejects it as
+    an invalid `QueryType` literal and it falls back to DOCUMENT_QUERY like `EMAIL_QUERY`,
+    never to a general-knowledge answer without company sources."""
+    for reply in (
+        "not json",
+        json.dumps({"query_type": "EMAIL_QUERY"}),
+        json.dumps({"query_type": "GENERAL_QUERY", "reason": "definition"}),
+        json.dumps([1, 2]),
+    ):
         routed = _route(settings, reply)
         assert routed.query_type == "DOCUMENT_QUERY", reply
         assert routed.document_question == QUESTION and routed.data_question is None

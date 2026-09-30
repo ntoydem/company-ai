@@ -7,8 +7,9 @@ unchanged → merge deterministically → one audit row.
   under fixed headings — no third LLM call, no interpretation (SPEC_04 §8 "yorum yok").
   Both branches always run; if one finds nothing its fixed "not found" text stays in place
   so the model never silently picks a side (plan §4).
-- GENERAL → `general_answer.answer_general`: no retrieval, no workbook, no
-  `allowed_document_ids` call at all.
+
+GENERAL_QUERY (general-knowledge answers with no company source) was removed 30.09.2026 —
+see `router.py`'s module docstring.
 """
 
 from __future__ import annotations
@@ -23,10 +24,8 @@ from sqlalchemy.orm import Session
 from app.core.config import Settings
 from app.excel.calc import CalculationEngine
 from app.models.user import User
-from app.repositories import project_repo
 from app.repositories.document_chunk_repo import RetrievedChunk
 from app.schemas.ask import (
-    GENERAL_NOTICE,
     MIXED_NOTICE,
     NO_INTERPRETATION_NOTICE,
     AskRequest,
@@ -38,7 +37,6 @@ from app.schemas.excel import ExcelAskRequest, ExcelSourceCard
 from app.services.ask import answer_question
 from app.services.audit_writer import write_audit_row
 from app.services.excel_ask import answer_data_question, excel_document_ids
-from app.services.general_answer import answer_general
 from app.services.llm import LLMClient, LLMError
 from app.services.router import RoutedQuestion, Router
 
@@ -51,7 +49,6 @@ NOTICE_BY_TYPE: dict[str, str] = {
     "DOCUMENT_QUERY": NO_INTERPRETATION_NOTICE,
     "DATA_QUERY": EXCEL_NOTICE,
     "MIXED_QUERY": MIXED_NOTICE,
-    "GENERAL_QUERY": GENERAL_NOTICE,
 }
 
 
@@ -88,19 +85,6 @@ def _run(
 ) -> RoutedAnswer:
     query_type = routed.query_type
     notice = NOTICE_BY_TYPE[query_type]
-
-    if query_type == "GENERAL_QUERY":
-        project_names = [p.name for p in project_repo.list_all(session)]
-        general = answer_general(request.question, llm, settings, forbidden_terms=project_names)
-        return RoutedAnswer(
-            query_type=query_type,
-            answer=general.answer,
-            answered=general.answered,
-            notice=notice,
-            model=general.model,
-            tokens_in=general.tokens_in,
-            tokens_out=general.tokens_out,
-        )
 
     doc = data = None
     if routed.document_question is not None:

@@ -53,7 +53,7 @@ IZMIR_POST_LICENCE_KEYS = (
     "operation_start",
 )
 QUOTAS = {"İzmir RES": 12, "Ankara RES": 35}
-CATEGORY_QUOTAS = {"hallucination": 3, "isolation": 3, "authorization": 3, "general": 3}
+CATEGORY_QUOTAS = {"hallucination": 3, "isolation": 3, "authorization": 3}
 MIN_QUESTIONS = 60
 FX_CROSS_TOLERANCE = 0.02
 # "<Name> A.Ş." style company suffixes; every match must be whitelisted (SPEC_05 §11).
@@ -827,7 +827,7 @@ def check_questions(
                     resolve_path(raws[file_key], path)
                 except (KeyError, IndexError, TypeError):
                     report.error(f, f"{p}.expected_answer", f"Q4: ledger path {path!r} not found")
-        elif not q.expect_no_answer and q.expected_answer is None and q.category != "general":
+        elif not q.expect_no_answer and q.expected_answer is None:
             report.error(
                 f, f"{p}.expected_answer", "Q4: answerable question needs an expected_answer"
             )

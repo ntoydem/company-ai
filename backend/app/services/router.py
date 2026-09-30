@@ -1,12 +1,18 @@
 """Question router (ADR-010, Phase 4.3): one cheap `LLM_MODEL_CLASSIFY` call decides
-whether a `/api/ask` question is answered from documents, from Excel workbooks, from both
-(MIXED — two sub-questions) or from general knowledge (GENERAL — no company data).
+whether a `/api/ask` question is answered from documents, from Excel workbooks, or from
+both (MIXED — two sub-questions).
 
 Fixed interface (`Router.route`) so a later "Email AI" branch is a new implementation
 detail, not a caller change. Any router failure — LLM error, malformed JSON, unknown type
 — degrades to `DOCUMENT_QUERY` with the original question: the pre-4.3 behaviour, and the
-safe direction (a wrongly-GENERAL answer would drop company sources; a wrongly-DOCUMENT
-answer at worst says it found nothing)."""
+safe direction (a wrongly-tagged DATA/MIXED answer at worst says it found nothing).
+
+**30.09.2026:** the fourth type, GENERAL_QUERY (a general-knowledge answer with no company
+source), was removed — the system must never again answer from the model's own world
+knowledge, including definition questions ("DSCR ne demek?"). Every question is now
+checked against the documents first; the existing DOCUMENT_QUERY no-source path
+(`answer_prompt.py`, ADR-014) already returns the fixed "bilgi bulamadım" text when no
+document defines the term, so no new no-answer mechanism was needed."""
 
 from __future__ import annotations
 
@@ -29,14 +35,17 @@ ROUTER_SYSTEM_PROMPT = (
     "(b) Excel workbooks — financial model, covenant report, budget vs actual, monthly "
     "production; figures computed by a calculation engine. Reply with ONE JSON object and "
     "nothing else:\n"
-    '{"query_type":"DOCUMENT_QUERY"|"DATA_QUERY"|"MIXED_QUERY"|"GENERAL_QUERY",'
+    '{"query_type":"DOCUMENT_QUERY"|"DATA_QUERY"|"MIXED_QUERY",'
     '"document_question":<string or null>,"data_question":<string or null>,'
     '"reason":<short string>}\n'
     "Types:\n"
     "- DOCUMENT_QUERY: answered by reading what a document states (contract terms, covenant "
-    "thresholds, dates, licence conditions, reasons written in a report). A number that is "
-    "*stated* in a contract, licence or report — loan or tranche amounts, tenor, agreed "
-    "thresholds, a reported test result — is still DOCUMENT_QUERY.\n"
+    "thresholds, dates, licence conditions, reasons written in a report, or a definition/"
+    "explanation of a term). A number that is *stated* in a contract, licence or report — "
+    "loan or tranche amounts, tenor, agreed thresholds, a reported test result — is still "
+    "DOCUMENT_QUERY. A definition question ('what does X mean', 'X nedir/ne demek') is ALSO "
+    "DOCUMENT_QUERY, even if you don't know yet whether a document defines it — documents are "
+    "always checked before anything else; there is no general-knowledge fallback.\n"
     "- DATA_QUERY: answered by computing or reading a figure from workbook cells for a period "
     "(realised/actual values, totals, sums, variances, ratios, production, balances from the "
     "model).\n"
@@ -45,11 +54,9 @@ ROUTER_SYSTEM_PROMPT = (
     "DSCR?' may mean the covenant threshold in the loan agreement or the realised DSCR in the "
     "covenant workbook). Then document_question asks for the contractual/stated side and "
     "data_question asks for the realised/computed side; each must be self-contained.\n"
-    "- GENERAL_QUERY: general knowledge that refers to no company, project, document or figure "
-    "(a definition, how a concept works).\n"
-    "Rules: 1. If in doubt between DOCUMENT_QUERY and GENERAL_QUERY choose DOCUMENT_QUERY. "
-    "2. Write sub-questions in the language of the original question. 3. For DOCUMENT_QUERY "
-    "and DATA_QUERY the sub-question fields may be null. 4. Never answer the question.\n"
+    "Rules: 1. Write sub-questions in the language of the original question. 2. For "
+    "DOCUMENT_QUERY and DATA_QUERY the sub-question fields may be null. 3. Never answer the "
+    "question.\n"
     "Examples:\n"
     'Q: Kredi sözleşmesindeki DSCR covenant nedir? -> {"query_type":"DOCUMENT_QUERY",'
     '"document_question":null,"data_question":null,"reason":"contract term"}\n'
@@ -65,8 +72,9 @@ ROUTER_SYSTEM_PROMPT = (
     'Q: Güncel DSCR kaç? -> {"query_type":"MIXED_QUERY","document_question":"Kredi '
     'sözleşmesindeki güncel minimum DSCR covenant\'ı nedir?","data_question":"En son '
     'çeyreğin gerçekleşen DSCR değeri kaç?","reason":"ambiguous: covenant vs realised"}\n'
-    'Q: DSCR ne demek? -> {"query_type":"GENERAL_QUERY","document_question":null,'
-    '"data_question":null,"reason":"definition"}'
+    'Q: DSCR ne demek? -> {"query_type":"DOCUMENT_QUERY","document_question":null,'
+    '"data_question":null,"reason":"definition; company documents are checked first, no '
+    'general-knowledge fallback"}'
 )
 
 ROUTER_MAX_OUTPUT_TOKENS = 300
@@ -109,9 +117,7 @@ def _normalize(question: str, parsed: _RouterResponse) -> tuple[str | None, str 
         return question, None
     if parsed.query_type == "DATA_QUERY":
         return None, question
-    if parsed.query_type == "MIXED_QUERY":
-        return document or question, data or question
-    return None, None
+    return document or question, data or question  # MIXED_QUERY, the only type left
 
 
 def fallback(question: str, reason: str) -> RoutedQuestion:

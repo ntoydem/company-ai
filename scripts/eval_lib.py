@@ -319,41 +319,6 @@ def score_question(
             model=None,
         )
 
-    if question.category == "general":
-        # Phase 5.1: no ledger-backed expected value exists (the schema itself allows
-        # `expected_answer=None` only for this category); "passed" instead means the
-        # router actually took the GENERAL branch and touched no company source at all
-        # (ADR-010) — the same signal `test_ask_router.py::test_general_question_...`
-        # checks at the unit level.
-        passed = (
-            outcome.answered
-            and outcome.query_type == "GENERAL_QUERY"
-            and not outcome.cited_titles
-            and not outcome.cited_files
-        )
-        return QuestionResult(
-            id=question.id,
-            category=question.category,
-            ask_as_user=question.ask_as_user,
-            question=question.question,
-            expect_no_answer=question.expect_no_answer,
-            answered=outcome.answered,
-            answer_text=outcome.answer_text,
-            cited_titles=(),
-            answered_ok=outcome.answered,
-            required_sources_missing=(),
-            forbidden_sources_hit=(),
-            value_check="skipped",
-            value_check_reason="general: no ledger-backed expected value",
-            passed=passed,
-            error=None,
-            latency_ms=outcome.latency_ms,
-            tokens_in=outcome.tokens_in,
-            tokens_out=outcome.tokens_out,
-            model=outcome.model,
-            query_type=outcome.query_type,
-        )
-
     cited = catalog.cited_titles(outcome.cited_titles, outcome.cited_files)
     answered_ok = outcome.answered == (not question.expect_no_answer)
 

@@ -135,6 +135,7 @@ Tanım: Doğruluğun ölçülmesi; kesin veriyle aritmetik yapan Excel motoru; p
 **Kabul kriterleri:** Q3 2024 bütçe sapması + "sebebi belgelerde var mı?" sorusu → Excel farkı (`Summary!D5`) + belge kaynağı + yalnızca belgedeki sebep (belgede sebep yoksa kural 6'nın sabit cümlesi — Phase 4.3 planı SORU 1, 25.09.2026: "EBITDA sorusu" ledger'da EBITDA ve sebep anlatan belge olmadığı için bu şekilde yeniden ifade edildi); belirsiz DSCR → iki değer iki kaynak türü; GENERAL sorularda şirket verisi kullanılmaz ve bu belirtilir.
 **Naci karar noktası:** Gemini yeterli mi / yerel model gündemi (ölçüm: `docs/reports/PHASE_4_3_REPORT.md` §9).
 **Not (Phase 4.3):** `questions.json` v2 = 48 soru (3 `data` + 2 `mixed`); `general` kategorisi ve "sebep belgede pozitif olarak yazıyor" örneği (Bakım Raporu Temmuz 2024 gibi bir belge gerektirir) Phase 5.1'e.
+**GENERAL_QUERY kaldırıldı (30.09.2026, Naci + Tansu kararı, ayrı güvenlik/kapsam yaması — ayrı bir phase değil):** Router artık yalnızca `DOCUMENT|DATA|MIXED` döndürüyor; "DSCR ne demek?" gibi tanım soruları da dahil hiçbir soru modelin genel dünya bilgisinden cevaplanmıyor, hepsi belgelere bakıyor. `general_answer.py` silindi; `questions.json`'daki 3 `general` sorusu `document` kategorisine, `expect_no_answer: true` ile taşındı (korpus bu terimleri genel biçimde hiç tanımlamıyor). Canlı doğrulandı: 3 soru + `hallucination`/`authorization`'dan birer örnek, hepsi geçti. Detay: `docs/plans/GENERAL_QUERY_KALDIRMA_PLAN.md`, `docs/reports/GENERAL_QUERY_KALDIRMA_REPORT.md`.
 
 ---
 

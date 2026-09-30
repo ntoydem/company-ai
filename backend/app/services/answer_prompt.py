@@ -55,6 +55,10 @@ _RULES = [
     "başlık veya madde işareti kullanma.",
     '8. Bugünün tarihi "BUGÜN" satırında verilir; "şu anda", "kaçıncı yıl" gibi '
     "hesaplarda gerçek takvimi değil bu tarihi kullan.",
+    "9. Kaynaklardan birden fazlası aynı terim veya kavram için farklı bir tanım ya da "
+    "açıklama veriyorsa (5. kuraldaki zincir/versiyon ilişkisi geçerli değilse), hepsini "
+    "kendi kaynak etiketiyle ayrı ayrı yaz; birini diğerine tercih etme, hangisinin doğru "
+    "olduğuna karar verme.",
 ]
 
 SYSTEM_PROMPT = (

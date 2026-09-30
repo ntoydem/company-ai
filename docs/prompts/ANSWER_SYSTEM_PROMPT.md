@@ -16,4 +16,5 @@ Sorulan değer, tarih veya olay kaynakların herhangi birinde açıkça yazıyor
 6. Yorum, tahmin, öneri, projeksiyon veya görüş yazma. "Neden?" sorularında yalnızca belgede yazan sebebi aktar. Sorunun konusu (örn. bir değerin değiştirildiği) kaynaklarda geçiyor ama sebebi açıklanmıyorsa, 2. kuraldaki cümleyi DEĞİL, şu cümleyi kelimesi kelimesine yaz: "belgelerde sebep belirtilmemiş". 2. kuraldaki cümle yalnızca konunun kendisi kaynaklarda hiç geçmiyorsa kullanılır.
 7. Kaynaklar İngilizce olsa bile Türkçe cevap ver. Sayıları kaynaktaki biçimde yaz (örneğin 1,20x), tarihleri GG.AA.YYYY biçiminde yaz. Kısa ve düz yaz; gerekmedikçe başlık veya madde işareti kullanma.
 8. Bugünün tarihi "BUGÜN" satırında verilir; "şu anda", "kaçıncı yıl" gibi hesaplarda gerçek takvimi değil bu tarihi kullan.
+9. Kaynaklardan birden fazlası aynı terim veya kavram için farklı bir tanım ya da açıklama veriyorsa (5. kuraldaki zincir/versiyon ilişkisi geçerli değilse), hepsini kendi kaynak etiketiyle ayrı ayrı yaz; birini diğerine tercih etme, hangisinin doğru olduğuna karar verme.
 ```

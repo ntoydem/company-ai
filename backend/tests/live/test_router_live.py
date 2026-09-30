@@ -1,6 +1,8 @@
 """Phase 4.3 acceptance criteria against the real router + real LLM (`make test-llm`):
 routing of the SPEC_04 §7 examples, the ambiguous-DSCR MIXED answer, the Q3 2024 variance
-MIXED answer (SORU 1 rewording), and the GENERAL branch. Skipped unless LLM_LIVE_TESTS=1.
+MIXED answer (SORU 1 rewording), and (30.09.2026, GENERAL_QUERY removed) a definition
+question that now routes to DOCUMENT_QUERY and returns the fixed no-answer text rather
+than a general-knowledge answer. Skipped unless LLM_LIVE_TESTS=1.
 
 Pacing: Gemini free tier is 5 requests/min per model; `.env` uses the same model for
 classify and answer, so every call sleeps 13 s × the LLM requests it will make."""
@@ -16,7 +18,6 @@ from sqlalchemy.orm import Session
 
 from app.core.config import Settings
 from app.models.user import User
-from app.schemas.ask import GENERAL_NOTICE
 from app.services.answer_prompt import NO_ANSWER_TEXT, NO_REASON_TEXT
 from app.services.ask_router import DATA_PART_HEADING, DOCUMENT_PART_HEADING
 from app.services.llm import build_llm_client
@@ -65,7 +66,7 @@ def _ratio_aliases(value: float) -> tuple[str, ...]:
         ("Kredi sözleşmesindeki DSCR covenant nedir?", "DOCUMENT_QUERY"),
         ("Ankara RES 2026 Q2 DSCR kaç?", "DATA_QUERY"),
         ("Güncel DSCR kaç?", "MIXED_QUERY"),
-        ("DSCR ne demek?", "GENERAL_QUERY"),
+        ("DSCR ne demek?", "DOCUMENT_QUERY"),  # GENERAL_QUERY removed 30.09.2026
         ("İzmir RES'in COD tarihi nedir?", "DOCUMENT_QUERY"),
     ],
 )
@@ -132,17 +133,20 @@ def test_budget_variance_with_no_reason_in_documents(
         assert invented not in document_part.lower(), document_part
 
 
-def test_general_question_states_no_company_data(
+def test_definition_question_without_a_document_definition_returns_no_answer(
     client: TestClient, db_session: Session, admin_user: User
 ) -> None:
-    """PHASES.md 4.3: GENERAL sorularda şirket verisi kullanılmaz ve bu belirtilir."""
+    """30.09.2026 (GENERAL_QUERY removed): a definition question now routes to
+    DOCUMENT_QUERY like anything else. The demo corpus never defines "DSCR" generically
+    (only states covenant/realised *values*, e.g. DOC-ANK-FIN-004/005), so the honest
+    outcome is the fixed no-answer text — never a made-up definition from the model's own
+    world knowledge."""
     load_ledger_documents(db_session, ["DOC-ANK-FIN-004", "DOC-ANK-FIN-005"])
     _upload_workbook(client)
 
     body = _ask(client, "DSCR ne demek?", llm_requests=2)
 
-    assert body["query_type"] == "GENERAL_QUERY"
-    assert str(body["answer"]).startswith(GENERAL_NOTICE)
+    assert body["query_type"] == "DOCUMENT_QUERY"
+    assert body["answer"] == NO_ANSWER_TEXT
+    assert body["answered"] is False
     assert body["sources"] == [] and body["excel_sources"] == []
-    assert body["retrieved_document_ids"] == []
-    assert "Ankara" not in str(body["answer"])

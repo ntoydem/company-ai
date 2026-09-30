@@ -865,7 +865,7 @@
     },
     {
       "id": "GEN-GEN-001",
-      "category": "general",
+      "category": "document",
       "question": "DSCR (Debt Service Coverage Ratio) ne demek?",
       "expected_answer": null,
       "expected_answer_aliases": [],
@@ -874,12 +874,12 @@
       "required_sources": [],
       "forbidden_sources": [],
       "ask_as_user": "yonetim",
-      "expect_no_answer": false,
-      "notes": "GENERAL (Phase 5.1): şirket verisi kullanılmaz, cevap sabit notla başlar; sources/excel_sources boş."
+      "expect_no_answer": true,
+      "notes": "30.09.2026 (GENERAL_QUERY kaldırıldı): artık DOCUMENT_QUERY'e yönlendiriliyor. Korpus DSCR'ı hiçbir yerde genel biçimde tanımlamıyor (yalnızca covenant/gerçekleşen değerlerini belirtiyor), bu yüzden dürüst sonuç sabit 'bilgi bulamadım' metnidir — modelin kendi dünya bilgisinden tanım uydurmadığının regresyon testi."
     },
     {
       "id": "GEN-GEN-002",
-      "category": "general",
+      "category": "document",
       "question": "ÇED (Çevresel Etki Değerlendirmesi) süreci nedir?",
       "expected_answer": null,
       "expected_answer_aliases": [],
@@ -888,12 +888,12 @@
       "required_sources": [],
       "forbidden_sources": [],
       "ask_as_user": "yonetim",
-      "expect_no_answer": false,
-      "notes": "GENERAL (Phase 5.1): genel bir süreç tanımı, İzmir RES'in kendi ÇED durumuna atıf yapmamalı."
+      "expect_no_answer": true,
+      "notes": "30.09.2026 (GENERAL_QUERY kaldırıldı): artık DOCUMENT_QUERY'e yönlendiriliyor. Korpus ÇED sürecini genel biçimde tanımlamıyor (yalnızca İzmir RES'in kendi ÇED durumunu anlatıyor), bu yüzden dürüst sonuç sabit 'bilgi bulamadım' metnidir; İzmir RES'in kendi durumuna atıf yaparak cevap vermek de yanlış olur (soru genel süreci soruyor)."
     },
     {
       "id": "GEN-GEN-003",
-      "category": "general",
+      "category": "document",
       "question": "Bir kredi sözleşmesinde covenant testi ne işe yarar?",
       "expected_answer": null,
       "expected_answer_aliases": [],
@@ -902,8 +902,8 @@
       "required_sources": [],
       "forbidden_sources": [],
       "ask_as_user": "yonetim",
-      "expect_no_answer": false,
-      "notes": "GENERAL (Phase 5.1): genel bir finans kavramı, Ankara RES'in kendi covenant değerine atıf yapmamalı."
+      "expect_no_answer": true,
+      "notes": "30.09.2026 (GENERAL_QUERY kaldırıldı): artık DOCUMENT_QUERY'e yönlendiriliyor. Korpus covenant testinin genel amacını tanımlamıyor (yalnızca Ankara RES'in kendi covenant değerlerini belirtiyor), bu yüzden dürüst sonuç sabit 'bilgi bulamadım' metnidir."
     },
     {
       "id": "ANK-MIX-003",

@@ -26,7 +26,6 @@ QuestionCategory = Literal[
     "isolation",
     "hallucination",
     "authorization",
-    "general",
 ]
 DemoUser = Literal["admin", "yonetim", "finans", "hukuk", "enerji"]
 

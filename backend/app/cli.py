@@ -149,14 +149,12 @@ def cmd_print_excel_prompts() -> int:
 
 
 def cmd_print_router_prompts() -> int:
-    """Print the router + GENERAL prompts (Phase 4.3) for docs/prompts/ROUTER_PROMPTS.md."""
-    from app.services.general_answer import GENERAL_SYSTEM_PROMPT
+    """Print the router prompt (Phase 4.3) for docs/prompts/ROUTER_PROMPTS.md. The GENERAL
+    prompt (general_answer.py) was removed 30.09.2026 along with GENERAL_QUERY itself."""
     from app.services.router import ROUTER_SYSTEM_PROMPT
 
     print("=== ROUTER (LLM_MODEL_CLASSIFY, json_object) ===")
     print(ROUTER_SYSTEM_PROMPT)
-    print("=== GENERAL (LLM_MODEL_ANSWER) ===")
-    print(GENERAL_SYSTEM_PROMPT)
     return 0
 
 
