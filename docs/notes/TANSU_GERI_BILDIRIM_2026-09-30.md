@@ -65,7 +65,7 @@ Talebin özü kabul; şu noktalar değişmeden uygulanamaz.
 
 ### B-20 (1–5) — departman yapısı — **etkilendi (Tansu #2, bkz. §5.1)**
 - **Kabul:** Görünen ad değişiklikleri, İK ve Üretim/Piyasa, Mali İşler alt birimleri, `finans` üyelik düzeltmesi. Slug'lar sabit (BAGLANTI §3.1 önerisi doğru).
-- **Durum (30.09):** Tansu #2 ("yetkilendirmeyi müşteri arayüzden belirler") departman ağacını **veri** yapar: demo yapısı seed/migration ile gelir, ama müşteri departman ekleyip düzenleyebilmeli. Bu, Phase 1.2'nin "departmanlar seed-only, CRUD yok" kararını (ADR-004 Phase 1.2 notu; `api/departments.py:3`) açar. Backend tarafı bunu yapabilir (proje CRUD deseni, `require_admin`); V0 kapsamına alınması **Naci'nin kararı**.
+- **Durum (30.09):** Tansu #2 ("yetkilendirmeyi müşteri arayüzden belirler") departman ağacını **veri** yapar: demo yapısı seed/migration ile gelir. **Düzeltildi (30.09.2026, Naci):** departmanı ekleyip düzenleyen **müşteri değil**, platform yöneticileridir (Platform Yetkilendirmesi, §5.1, §8). Phase 1.2'nin "departmanlar seed-only, CRUD yok" kararı büyük ölçüde korunur; backend tarafı platform-içi bir CRUD mekanizması kurabilir (proje CRUD deseni, `require_admin`) ama bunu müşteri admin arayüzüne açmaz. Bunun Anayasa v1.1 O-10 ile çelişkisi §8'de, karar Tansu'nun/Proje Yetkililerinin.
 - **Değişmesi gereken:** Üç yer birlikte değişmek zorunda: Alembic **veri** migration'ı (seed "varsa dokunma" davranışlı, `demo_departments_seed.py:49`), seed dosyası ve ledger (`seed_data/master/company.yaml` departmanları slug olarak taşır, ADR-013; `validate_ledger` slug'ları denetler). BAGLANTI ilk ikisini görmüş, ledger'ı görmemiş. Ayrıca `search_glossary.py`'de departman adı geçen bir sözlük satırı yok, o tarafta iş çıkmaz. `README.md`'deki demo hesap tablosu güncellenir.
 
 ### B-08 — departman yöneticisi rolü — **önceliği yükseldi (Tansu #2 ve #5, bkz. §5)**
@@ -147,12 +147,13 @@ Talebin özü kabul; şu noktalar değişmeden uygulanamaz.
 - **Çelişki:** `CLAUDE.md` stack kararı "V0'da LAN üzerinde düz HTTP", kapsam dışı listesi "HTTPS/Tailscale (V0 sonrası)"; ADR-015 "Network: LAN only, plain HTTP … V0"; `docs/SPEC_06` §6 "V0 internete açık değildir … Public WAN exposure yok". Üç belge aynı şeyi söylüyor; bu bir V0 kapsam kararıdır, teknik zorluk değildir.
 - **Uygulandı:** Öneri (b) — Tailscale ile ürün sahibinin VM'e LAN gibi ulaşması — kabul edildi ve Tansu'ya erişim verildi. TLS'siz cookie riski (ADR-003 `secure=false`) yalnızca VPN içinde kalıyor, WAN'a açılmadı. "AI-BalBal'ı Caddy'den sunma" kısmı (§1) hâlâ backend tarafının bağımsız bir işi — Tailscale erişimi tek başına AI-BalBal'ı Caddy'nin sunmasını sağlamaz, `make update-frontend` gibi bir mekanizma hâlâ gerekli.
 
-### 3.3 B-28'in iki kararı: onay yetkisi ve onaysız belgenin görünmezliği — **1. karar değişti (Tansu #5), 2. karar açık**
+### 3.3 B-28'in iki kararı: onay yetkisi ve onaysız belgenin görünmezliği — **ikisi de KAPANDI (1. Tansu #5 + Naci 30.09; 2. Naci 30.09)**
 - **Talep 1 (§4.7.5, §4.2 güncellemesi):** ~~Etiket önerisini yükleyen personel onaylar.~~ **Tansu #5:** "Yönetici kendi belgesini eklerse onay gerekmez; personel eklerse kendi onayı + departman yetkilisinden 2. onay." Bu, B-28'in tek onaylı akışını da, Phase 3.2'nin admin-onayı kararını da değiştirir; tasarımı ve etkileri §5.2'de.
-- **Çelişki (hâlâ geçerli olan kısım):** Phase 3.2 planında SORU 2 (`docs/plans/PHASE_3_2_PLAN.md:207-209`) tam bu soruyu sordu: "yalnızca admin mi, yükleyen de mi?" Naci "admin" dedi; `api/documents.py:337` ve `:380` buna göre `require_admin`. Yeni akış bu kararın yerine geçer; Naci'nin açık kararı ve `docs/PHASES.md`'ye "Phase 3.2 SORU 2 kararı, Tansu'nun 30.09.2026 iki aşamalı onay kararıyla değiştirildi" notu gerekir; sessiz değişiklik olmaz. Yazma boşluğunun (Tansu #6 "öncelikli") **önce** kapatılması gerektiği değişmedi: ikinci onay, yanlış departmana yüklenmiş belgeyi durdurur ama admin'in onaysız akışını (yönetici → onay yok) durdurmaz.
+- **Çelişki (hâlâ geçerli olan kısım):** Phase 3.2 planında SORU 2 (`docs/plans/PHASE_3_2_PLAN.md:207-209`) tam bu soruyu sordu: "yalnızca admin mi, yükleyen de mi?" Naci "admin" dedi; `api/documents.py:337` ve `:380` buna göre `require_admin`. Yeni akış bu kararın yerine geçer; Naci'nin açık kararı ve `docs/PHASES.md`'ye "Phase 3.2 SORU 2 kararı, Tansu'nun 30.09.2026 iki aşamalı onay kararıyla değiştirildi" notu gerekir; sessiz değişiklik olmaz. Yazma boşluğunun (Tansu #6 "öncelikli") **önce** kapatılması gerektiği değişmedi: ikinci onay, yanlış departmana yüklenmiş belgeyi durdurur ama hedef departmanın kendi `department_manager`'ının onaysız akışını durdurmaz (§5.2 KAPANDI notuyla güncellendi: bu onaysız yol artık yalnızca o departmanın kendi yetkilisine özgüdür, genel `admin`/`management`'a değil).
 - **Talep 2 (§4.7.5 son madde):** "Onaylanmamış belge ne aramada ne Balbal'ın cevaplarında yer alır."
 - **Çelişki:** Bugün belge `ready` olduğu anda `allowed_document_ids` içindedir ve retrieval'a girer (ADR-006, ADR-021); metadata önerisi belgenin görünürlüğünü etkilemez (SPEC_02 §4: "kullanıcı kabul/düzenleyene kadar belge metadata'sı değişmez", görünürlük değil). B-28 bir **yayın durumu** ekler. Bu yalnızca `allowed_document_ids` içinde uygulanabilir (P-2 = ADR-004), yani gate'e `documents.published` benzeri bir koşul girer ve `SingleDocumentIdsProvider`, eval seed'i (`make seed` sonrası 74 belgenin hepsi yayınlanmış olmalı) ve mevcut testler etkilenir. Yapılabilir; ama "ürün kararı" olduğu için Naci onayı ve ADR-004 concretization ister. Kendi başımıza uygulamayız.
-- **Durum (30.09):** Tansu #5 bu ikinci noktaya değinmedi. İki aşamalı onay (§5.2) bir "onay bekliyor" durumu **zaten üretir**; sorunun yeni hali: "ikinci onay gelene kadar personelin yüklediği belge aramada/Balbal'da görünsün mü?" Backend önerisi: görünmesin (yayın durumu = onay durumu, tek kaynak); yöneticinin kendi yüklediği belge onay gerektirmediği için hemen görünür. **Naci ve Tansu'nun teyidi gerekir.**
+- **Durum (30.09):** Tansu #5 bu ikinci noktaya değinmedi. İki aşamalı onay (§5.2) bir "onay bekliyor" durumu **zaten üretir**; sorunun yeni hali: "ikinci onay gelene kadar personelin yüklediği belge aramada/Balbal'da görünsün mü?" Backend önerisi: görünmesin (yayın durumu = onay durumu, tek kaynak); yöneticinin kendi yüklediği belge onay gerektirmediği için hemen görünür.
+- **KAPANDI (30.09.2026, Naci):** Backend önerisi onaylandı — **onay bekleyen belge, ikinci onay gelene kadar ne aramada ne Balbal'ın cevaplarında görünür.** `allowed_document_ids` (ADR-004, P-2) gate'ine `documents.review_status = approved` koşulu girer; `SingleDocumentIdsProvider` de aynı koşulu taşır (görünürlük burada da tutarlı kalır). Eval seed'inin 74 belgesinin hepsi `approved` olmalı (aksi halde retrieval'dan düşerler) — bu, uygulama fazının kabul kriterlerinden biri olacak. Ayrıntı ve testler §5.2'de.
 
 ### 3.4 Ürün 3'ün tamamı: yorum, görüş, projeksiyon, sapma analizi
 - **Talep:** §1.1 "Ürün 3 — Yorumlama", §7'deki departman yol haritaları, B-23'ün "hukuki gerekçe, savunma argümanı, risk değerlendirmesi" kısmı (§8.2.4/7), B-21'in tahmini KGÜP/KÜPST/gelecek ödeme öngörüsü (§8.3), §7.6.4 "yıl sonu gelir projeksiyonu".
@@ -226,7 +227,7 @@ Kod düzeyinde **hayır**. Kontrol edilenler:
 | Kullanıcı menüsü, üst bar | `primary_department_slug`, `title` | B-09, §2.3 |
 | Yükleme | `folder_id` (B-26 sonrası), `department` seçiminin yükleyenin yetkisiyle sınırlanması | §2, B-26 |
 | Yönetim › Kullanıcılar | `department_manager` rolü (B-08 sonrası), `title`, `manager_id`, ana departman | B-08, B-09, §2.3 |
-| Yönetim › (yeni) Departmanlar, Ürün paketi, Onay kuralları | Departman CRUD (Naci'nin V0 kararı), `enabled_products` düzenleme, onay akışı parametreleri (§5.2) | Tansu #2, §5.1 |
+| Yönetim › (yeni) Ürün paketi, Onay kuralları | `enabled_products` düzenleme, onay akışı parametreleri (§5.2). ~~Departman CRUD~~ **çıkarıldı (30.09.2026, Naci):** platform yöneticilerinin işi, müşteri admin arayüzüne konmaz — bkz. §5.1 B-20, §8. | Tansu #2, §5.1 |
 
 ### 4.3 Tersine liste: backend'de olup arayüzde olmayanlar (B-19)
 
@@ -260,13 +261,15 @@ Bu iki karar BACKEND_GAPS'ta yoktu; B-08, B-20, B-26, B-28 ve B-22 planlarını 
 
 **Anlamı:** Departman ağacı, roller, klasör yetkileri, onay zinciri ve ürün paketi **veridir, kod değildir** (P-8 ile aynı yönde). Backend'in işi kural motorunu tek yerde tutmak (ADR-004: `allowed_document_ids`) ve o motorun okuduğu tabloları admin uçlarıyla düzenlenebilir kılmaktır. Demo yapısı seed ile gelir ama müşteri için başlangıç noktasıdır, sabit değildir.
 
+**Düzeltme (30.09.2026, Naci):** Bu başlık iki ayrı yetkilendirme türünü tek cümlede karıştırıyordu. Naci'nin ayrımı: **Personel Yetkilendirmesi** (var olan departman/rol yapısı içinde kişi atama/çıkarma) — müşterinin kendi admin arayüzünden yaptığı budur, bu bölümün geri kalanı için geçerli. **Platform Yetkilendirmesi** (departman/rol gibi yapı taşlarının tanımı/ekleme/kaldırma) — yalnızca platform yöneticileri (Üretici Taraflar/Proje Yetkilileri) yapar, müşteri arayüzüne konmaz. Yani "departman ağacı ... müşteri için başlangıç noktasıdır, sabit değildir" cümlesi **rolleri kişilere atama** için doğru, **departmanın kendisini ekleme/kaldırma** için yanlıştır — bkz. B-20 satırı (aşağıda) ve §8 (Anayasa O-10 ile çelişki).
+
 **Kurallarla ilişkisi:** ADR-004 değişmez; motor tektir, yalnızca girdileri tablo olur. Kural 1'in "önce yetki" sırası korunur. Yeni bir yetki yolu açılmaz.
 
 **Etkilenen maddeler:**
 
 | Madde | Eski plan | Yeni durum |
 |---|---|---|
-| B-20 (1–5) departman yapısı | Migration + seed ile sabit ağaç | Migration + seed **başlangıç** verisi; ayrıca `POST/PATCH /api/departments` admin CRUD (proje CRUD deseni). Phase 1.2'nin "seed-only" kararı açılır → **Naci'nin V0 kapsam kararı**. Slug üretimi ve silme kuralı (belgesi olan departman silinemez, 409) ADR'de. |
+| B-20 (1–5) departman yapısı | Migration + seed ile sabit ağaç | **Düzeltildi (30.09.2026, Naci):** Departman CRUD bir *Platform Yetkilendirmesi* işi — **müşterinin admin arayüzüne konmaz**, platform yöneticileri (Üretici Taraflar/Proje Yetkilileri) tarafından yapılır (migration/seed veya ayrı, müşteriye kapalı bir mekanizma ile). Phase 1.2'nin "seed-only" kararı bu haliyle büyük ölçüde korunur; `POST/PATCH /api/departments`'ın müşteri admin'ine açık bir uç olacağı varsayımı **yanlıştı, düzeltildi**. Bunun Anayasa v1.1 O-10'la çelişkisi §8'de. |
 | B-08 departman yöneticisi | Rol enum'a eklenir, kim olduğu seed'den | Rolü admin `PATCH /api/users/{id}` ile verir (uç zaten var). Ek: "hangi rol hangi gizliliği görür" tablosu mu, sabit kural mı? Önerimiz: V0'da sabit kural (`employee: normal`, `department_manager: normal+restricted`, `management: hepsi`), tablo değil; müşteri kişileri role atar, kuralı değiştirmez. Aksi, kural motorunu tabloya taşımak demektir ve ayrı ADR ister. |
 | B-26 klasör yetkileri | Zaten admin sayfası | Değişmez; bu karar B-26'nın tasarımını teyit eder. |
 | B-25 ürün paketi | CLI ile ayar, admin UI "şimdilik gerekmez" | Admin ucu ve Yönetim sekmesi gerekir (§2 B-25). |
@@ -299,7 +302,7 @@ yükleyen = employee, ya da department_manager/management/admin ama BAŞKA/genel
 **Kurallarla ilişkisi:**
 - Phase 3.2 SORU 2 (admin-only apply) bu akışla **değiştirilir**; Naci'nin kararı ve PHASES.md notu gerekir (§3.3).
 - Durum geçişleri kodda, LLM tetiklemez (P-1/5, kural 6). `document_metadata_suggestions.status` bunun için yetmez (öneri durumu ≠ belge onay durumu); `documents.review_status` + `document_review_events` (kayıt defteri, §2 B-28) gelir.
-- P-1'in dört testi burada da yazılır: personel onayı olmadan `pending_review` olunmaz; başkası adına 1. aşama onayı 403; onaydan sonra değişiklik onayı düşürür; onaylanmamış belge başkasının listesinde görünmez (**bu son madde §3.3'ün açık sorusunu "evet" yönünde zorlar**; teyit gerekir).
+- P-1'in dört testi burada da yazılır: personel onayı olmadan `pending_review` olunmaz; başkası adına 1. aşama onayı 403; onaydan sonra değişiklik onayı düşürür; onaylanmamış belge başkasının listesinde görünmez (**§3.3'ün 2. sorusu — KAPANDI (30.09.2026, Naci): görünmez, `allowed_document_ids`'e `review_status = approved` koşulu girer**).
 - Yazma boşluğu (Tansu #6): ikinci onay personelin yanlış departmana yüklediği belgeyi durdurur; ama hedef departmanın kendi `department_manager`'ı onaysız yayınlar, dolayısıyla "yüklenen belgenin departmanı ⊆ yükleyenin yetkili olduğu departmanlar" kontrolü **ayrıca** şarttır, onay akışı onun yerine geçmez.
 - Yetkilendirme müşteride (§5.1): "ikinci onaycı kim" artık sabit kural (hedef departmanın `department_manager`'ı); `company_settings` parametresi olacak kısım yalnızca "department_manager tanımlı değilse ne olur" gibi istisna durumlar (açık nokta 2, aşağıda).
 
@@ -372,7 +375,7 @@ Tansu #7 "şimdilik Ürün 2'den başlayacak" dediği için ilk müşteri/test P
 | 1 | DuckDB hesaplı `DATA`/`MIXED` Ürün 1 mi 2 mi? | **Ürün 2** (Tansu #7). `GENERAL_QUERY` artık router'da hiç yok (30.09.2026'da tamamen kaldırıldı, §6.6), bu yüzden `product_level` kararı da gerekmiyor. |
 | — | B-27 / §3.2 "web'de görüntülenecek" ne demek? | **KAPANDI (30.09.2026)** — VPN/Tailscale; Tansu'ya erişim verildi, internete açık HTTPS değil. §6.6, §3.2 (güncellendi). |
 | — | §6.1 `GENERAL_QUERY` katmanı kararı | **KAPANDI (30.09.2026)** — GENERAL_QUERY tamamen kaldırıldı, karar gerekmiyor. §6.6, `docs/reports/GENERAL_QUERY_KALDIRMA_REPORT.md`. |
-| 3 (kısmen) | B-28 onay yetkisi | **İki aşamalı, role bağlı** (Tansu #5, §5.2). İkinci onaycının kimliği **KAPANDI (30.09.2026)** — hedef departmanın kendi `department_manager`'ı, `management`/`admin` değil (bkz. §5.2, §2 B-08). "Onaysız belge görünmez" kısmı hâlâ açık (§7.2 madde 1). |
+| 3 | B-28 onay yetkisi (iki nokta: kim onaylar + onaysız belge görünür mü) | **İkisi de KAPANDI (30.09.2026).** Kim onaylar: hedef departmanın kendi `department_manager`'ı, `management`/`admin` değil (Tansu #5 + Naci netliği; §5.2, §2 B-08). Onaysız belge görünürlüğü: görünmez, `allowed_document_ids`'e `review_status = approved` koşulu girer (Naci; §3.3, §5.2). |
 | — | §5.2 — "Yönetici"/"departman yetkilisi" tanımı, onaysız yükleme kuralı | **KAPANDI (30.09.2026, Naci)** — ikisi de hedef departmanın kendi `department_manager`'ı; `management`/`admin` genel onaysız-yükleme ayrıcalığı taşımaz. Naci: "Finans departmanına yüklenen bir belgeyi Finans departmanının yetkilisi onaylar, sistem admin'i değil." §5.2, §2 B-08 güncellendi. |
 | — | BACKEND_GAPS sürüm dondurma | **KAPANDI (30.09.2026, Naci'nin kararı)** — `BACKEND_GAPS.md` v7.9, commit `b219600`, 29.09.2026 donduruldu (bkz. not başlığı). Sonraki güncellemeler bu notta otomatik takip edilmez, ayrı bir inceleme turunda ele alınır. |
 | 4 | ~~B-26 gelene kadar yükleme kısıtı~~ | **KAPANDI** (30.09.2026) — bağımsız güvenlik yaması, `docs/plans/GUVENLIK_YAMA_2026-09-30_PLAN.md`, `docs/PHASES.md` Adım 5 notu. `employee` artık yalnızca kendi üyeliklerindeki departmana yükleyebiliyor; `management`/`admin` muaf, `department=None` değişmedi. B-26 tam klasör yetkisi çözümünün yerini almaz, yalnızca en acil boşluğu kapatır. |
@@ -381,28 +384,52 @@ Tansu #7 "şimdilik Ürün 2'den başlayacak" dediği için ilk müşteri/test P
 | 11 | Çelişkide öncelik | **`CLAUDE.md`/ADR'ler önce**; GitHub üzerinden çözüm; çözülmezse Tansu + Naci (Tansu #10). |
 | — | B-03 | **Ertelendi** (Tansu #3). |
 | — | Geri bildirim butonları | **Reddedildi**, yerine üç uyarı türü (Tansu #1, §5.3). |
-| — | Yetkilendirmeyi kim yönetir | **Müşteri, admin arayüzünden** (Tansu #2, §5.1). |
+| — | Yetkilendirmeyi kim yönetir | **NETLEŞTİ, ikiye ayrıldı (30.09.2026, Naci):** *Personel Yetkilendirmesi* (var olan departman/rol içinde çalışan atama/çıkarma) — **müşteri**, admin arayüzünden (Tansu #2, §5.1). *Platform Yetkilendirmesi* (departman/rol gibi yapı taşlarının tanımı/ekleme/kaldırma) — **platform yöneticileri** (Üretici Taraflar/Proje Yetkilileri), müşteri değil. Bu ayrım Anayasa v1.1 O-10 ile çelişiyor; **karar Tansu'nun/Proje Yetkililerinin**, bkz. §8. |
+| — | Departman CRUD'unun V0'a alınması (eski §7.2 öncelikli #2) | **KAPANDI, backend tarafı için (30.09.2026, Naci):** Departman CRUD bir *Platform Yetkilendirmesi* işidir — **platform yöneticileri tarafından yapılır, müşterinin admin arayüzüne konmaz.** §5.1'in B-20 satırındaki "admin CRUD" varsayımı bu yüzden düzeltildi. Bunun O-10 ile çelişkisi ayrı, anayasa seviyeli bir açık madde — bkz. §8. |
 
 ### 7.2 Açık kalanlar
 
-**Öncelikli (30.09.2026 güncellendi — §5.2 "yönetici"/onaysız yükleme tanımı ve BACKEND_GAPS sürüm
-dondurma da kapandı, çıkarıldı; bkz. §7.1):**
-1. **§3.3 / §5.2 — personelin yüklediği belge 2. onay gelene kadar aramada ve Balbal'da görünmesin mi?**
-   Backend önerisi: görünmesin. Naci + Tansu.
-2. **§5.1 / B-20 — departman CRUD'unun V0'a alınması** (Phase 1.2 "seed-only" kararının açılması). Naci.
+**Öncelikli:** yok — bu turda kapanan iki madde (belge görünürlüğü, departman CRUD'un platform tarafı)
+dışında, "kim yetkilendirir" ayrımının Anayasa v1.1 O-10 ile çelişkisi artık backend'in önceliklendirdiği
+bir liste maddesi değil, **§8'de ayrı ve doğrudan Tansu'nun/Proje Yetkililerinin kararını gerektiren bir
+anayasa maddesi** olarak izleniyor.
 
-Not: Bu kapanışla §7'de açık madde **kalmıyor değil** — yukarıdaki iki öncelikli madde ve aşağıdaki
-sekiz teyit/ikincil madde hâlâ açık. Kapanan yalnızca bu iki maddeydi (§5.2 tanımı, BACKEND_GAPS
-dondurma); §7'nin tamamı kapanmadı.
+Not: §7'de açık madde **kalmıyor değil** — §8'deki anayasa çelişkisi ve aşağıdaki sekiz teyit/ikincil
+madde hâlâ açık; yalnızca bu turda ele alınan iki backend sorusu (belge görünürlüğü, departman CRUD'unu kim yapar)
+kapandı.
 
 **Teyit / ikincil:**
-5. §2 B-08 — müdür `board` görür mü; "hangi rol neyi görür" sabit kural mı (öneri) yoksa müşteri tablosu mu (§5.1'in sınırı).
-6. §2 B-22/3 — onay zincirindeki yönetici, personelin izin belgesini görür mü (Tansu #4 yalnızca "kendisi + İK" dedi).
-7. §2 B-23/2 — yazışma için de "kendisi + İK" mi, yoksa "kendisi + departman yetkilisi" mi (İK'nın yazışmayla ilgisi yok).
-8. §2 B-02 — "departmana belge yüklendi" bildiriminin alıcısı.
-9. §2 B-06a — görüş talebi belgesinin departmanı ve gizliliği.
-10. §4.1 — `model`/token bilgisinin arayüzden kaldırılmasının bilinçli olduğu.
-11. §5.2 açık nokta 2–3 — `department_manager` yoksa ne olur; Excel yüklemeleri aynı onay akışına girer mi.
-12. §6.4 — P1 paketinde örnek soruların ve footnote'un durumu (ürün sahibi tarafı).
+1. §2 B-08 — müdür `board` görür mü; "hangi rol neyi görür" sabit kural mı (öneri) yoksa müşteri tablosu mu (§5.1'in sınırı).
+2. §2 B-22/3 — onay zincirindeki yönetici, personelin izin belgesini görür mü (Tansu #4 yalnızca "kendisi + İK" dedi).
+3. §2 B-23/2 — yazışma için de "kendisi + İK" mi, yoksa "kendisi + departman yetkilisi" mi (İK'nın yazışmayla ilgisi yok).
+4. §2 B-02 — "departmana belge yüklendi" bildiriminin alıcısı.
+5. §2 B-06a — görüş talebi belgesinin departmanı ve gizliliği.
+6. §4.1 — `model`/token bilgisinin arayüzden kaldırılmasının bilinçli olduğu.
+7. §5.2 açık nokta 2–3 — `department_manager` yoksa ne olur; Excel yüklemeleri aynı onay akışına girer mi.
+8. §6.4 — P1 paketinde örnek soruların ve footnote'un durumu (ürün sahibi tarafı).
 
 Backend tarafı §3'te kalan maddelere (B-27 internet kısmı, Ürün 3, B-21, B-15/B-24, B-16) kod yazmaz; §1, §2, §5 ve §6'daki maddeler Naci'nin faz planı onayıyla başlar (`CLAUDE.md` çalışma biçimi 2–3). Önerilen ilk faz: yükleme yetki açığı ara düzeltmesi (Tansu #6) + "Balbal cevap döngüsü" (B-07, B-09, B-13, B-17, B-05, B-25 eşlemesi, `warnings` alanının `missing_data`/`product_limit` türleri).
+
+---
+
+## 8. Anayasa (Balbal Anayasası v1.1) ile ilgili geri bildirim
+
+**Not:** Backend tarafı Balbal Anayasası'nın tam metnine sahip değil; bu bölümdeki madde kodları (O-10, Ç-1, Ç-3, Ç-7, Ü-9) ve alıntılar Naci'nin 30.09.2026'da relay ettiği özetten alınmıştır. Tam metin gerekirse Tansu'dan istenmelidir — burada var olmayan bir madde metni **uydurulmamıştır**.
+
+### 8.1 Çelişki: O-10 vs. Naci'nin Personel/Platform Yetkilendirmesi ayrımı
+
+- **O-10 (Balbal Anayasası v1.1):** "Müşteri departman yönetimini yönetir." Bu ifade, §5.1'in bu notta önceki halinin dayandığı Tansu #2 cevabıyla ("şirketteki tüm yetkilendirmeleri müşteri kendi yönetim arayüzünden belirler") aynı yöndeydi ve backend bu ikisini **departman CRUD'unun müşteri admin arayüzüne açılacağı** şeklinde okumuştu (§5.1 B-20 satırı, `POST/PATCH /api/departments`).
+- **Naci'nin cevabı (30.09.2026), §7.1'de "departman CRUD" sorusuna:** "Platform yöneticileri tarafından yapılacak" — yani müşteri değil. Bu, O-10'un "departman yönetimi" ifadesiyle **doğrudan çelişiyor** (Ç-1'in kapsadığı türden bir çelişki — anayasa maddesiyle yeni bir kararın çatışması).
+- **Naci'nin önerisi — iki yeni tanım, anayasaya eklenmek üzere:**
+  1. **Personel Yetkilendirmesi:** Müşterinin, var olan departman/rol yapısı içinde çalışan atama/çıkarma yetkisi. (Bu, O-10'un muhtemelen kastettiği "departman yönetimi" ile örtüşür — bir departmana kim üye, kim yönetici, gibi.)
+  2. **Platform Yetkilendirmesi:** Departman/rol gibi yapı taşlarının tanımlanması, eklenmesi, kaldırılması. **Yalnızca Üretici Taraflar/Proje Yetkilileri** yapar; müşteriye açılmaz.
+- **Sonuç:** Bu ayrım kabul edilirse O-10'un "departman yönetimi" ifadesinin **kaldırılması veya "Personel Yetkilendirmesi" ile sınırlanacak şekilde daraltılması** gerekir (örn. "Müşteri, Personel Yetkilendirmesi kapsamında departman yönetimini yönetir").
+- **Karar mercii:** **Ç-3** gereği anayasayı yalnızca Üretici Taraflar/Proje Yetkilileri değiştirebilir — backend tarafı bu maddeyi tek taraflı yorumlayıp uygulamaz. Bu, §7.2'nin eski "öncelikli" listesinden çıkan bir backend sorusu değil, **Tansu'nun/Proje Yetkililerinin karar vereceği bir anayasa maddesi**dir. Backend, karara kadar §5.1/B-20'de belirttiği yorumla (departman CRUD = platform işi) plan yapar; karar tersi yönde çıkarsa (O-10 aynen kalır, müşteri departman CRUD'u da yapar) B-20 ve §5.1 buna göre geri alınır.
+
+### 8.2 Genel gözlem: Ç-7 ve Ü-9, GENERAL_QUERY kaldırma kararını doğruluyor
+
+Balbal Anayasası v1.1'in iki maddesi, bugün (30.09.2026) bağımsız olarak aldığımız `GENERAL_QUERY` kaldırma kararıyla (§6.6, `docs/reports/GENERAL_QUERY_KALDIRMA_REPORT.md`) tam uyumlu, hatta onu anayasa seviyesinde doğruluyor:
+
+- **Ç-7 (Veri Durumları):** Kesin Veri / Veri Yok / Yeterli Veri Bulunmamaktadır / Çelişkili Veri / AI Yorumu — beş durumlu bir sınıflandırma, hiçbirinde "modelin genel dünya bilgisinden cevap" diye bir durum yok. Bu, kural 2'nin (SOURCE GROUNDING) ve GENERAL_QUERY'nin tamamen kaldırılmasının anayasa diliyle karşılığıdır: sistem ya kaynaktan kesin/yetersiz/çelişkili bilgi bulur ya da bulamaz, üçüncü bir "bildiğimi söyleyeyim" seçeneği yok.
+- **Ü-9 (kapsam dışı sorulara cevap verilmez):** Bu da aynı ilkenin ürün tarafındaki karşılığı — kapsam dışı (şirket kaynaklarında karşılığı olmayan) bir soru, model tarafından "genel bilgiyle" doldurulmaz, reddedilir/yönlendirilir.
+- **Sonuç:** Backend'in GENERAL_QUERY'yi kaldırma kararı **anayasaya aykırı değil, anayasanın zaten öngördüğü davranışı** koda döküyor. Ayrı bir onay/karar gerektirmez; bu yalnızca bir tutarlılık notudur.
