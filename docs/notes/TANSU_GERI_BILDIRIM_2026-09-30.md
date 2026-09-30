@@ -22,7 +22,7 @@ Tansu notun sade özetine on cevap verdi. Aşağıdaki tablo her cevabın bu not
 | 3 | Sohbet geçmişi ertelemesi onaylandı ("şimdilik gerek yok"). | B-03 | **ERTELENDİ** — §2 B-03 |
 | 4 | İzin/yazışma belgelerinde bireysel erişim: "kendisi görecek, İK herkesi görecek." | B-22/3, B-23/2 | **NETLEŞTİ** — §2 B-22, §5.1 |
 | 5 | Belge onayı: "Yönetici kendi belgesini eklerse onay gerekmez; personel eklerse kendi onayı + departman yetkilisinden 2. onay." | B-28, Phase 3.2 SORU 2 | **YENİ TASARIM KARARI** — §5.2; §3.3 güncellendi |
-| 6 | Yükleme yetki açığı "öncelikli giderilmeli". | §2 B-26/3 ara düzeltme | **KABUL** — Naci'nin faz planı onayı bekler |
+| 6 | Yükleme yetki açığı "öncelikli giderilmeli". | §2 B-26/3 ara düzeltme | **KAPANDI** — bağımsız güvenlik yaması olarak uygulandı, `docs/PHASES.md` Adım 5 notuna bakınız |
 | 7 | "Şimdilik Ürün 2'den başlayacak. Ürün 1 yalnızca veri yükleyecek, yüklenen veriyi bulup bilgilendirecek." DuckDB/Excel hesabı Ürün 2. | B-25, §3.1, eval seti, örnek sorular | **NETLEŞTİ** — §6 |
 | 8 | İnternet/HTTPS: "Şimdilik web'de görüntülenecek, detaylar ileride şekillenecek." | B-27, §3.2 | **AÇIK — netleştirme gerekiyor** (aşağıda "Açık kalanlar") |
 | 9 | Kural 3'ün ("LLM hesap yapmaz") BACKEND_GAPS'a P-11 olarak eklenmesi onaylandı ("Ürün 1 için uygun"). | §3.9 | **KABUL** — ekleme ürün sahibi tarafının reposunda yapılır; backend dokunmaz |
@@ -50,7 +50,7 @@ Bu maddeler mevcut kurallarla ve ADR'lerle çelişmiyor; her biri var olan bir d
 | **B-27** (yalnızca "AI-BalBal'ı sun" kısmı) | Caddy'nin `ftansu/AI-BalBal/frontend` build'ini sunması, tek komutla güncelleme | `infra/caddy/Dockerfile` bugün `./frontend` bağlamından build alıyor (ADR-018). Build bağlamını bir `FRONTEND_DIR` değişkeniyle seçilebilir yapmak ve `make update-frontend` (git pull + build + `up -d caddy`) eklemek küçük iş. Bu kısım LAN'da düz HTTP ile bugün yapılabilir. HTTPS/internet kısmı §3.2'de ve **hâlâ açık** (Tansu #8 "şimdilik web'de görüntülenecek" — "web" LAN mı, VPN mi, internet mi belirsiz). | Yok |
 | **B-18** (yöntem olarak) | Demo veri seti genişletme, 15 kişilik personel, kurgu şirket | Mevcut üretim hattı genişletilir: ledger (`seed_data/master/*.yaml`) → `make prose` (LLM bir kez, `[[token]]` ile, rakam görmez) → `generate_documents.py` (deterministik) → `validate_documents.py` → `manifest.json` → `make seed` (ADR-013). Personel listesi ledger'a `personnel` bölümü olarak girer; `demo_users_seed.py` ve `demo_departments_seed.py` ledger'dan okur. Excel seti `generate_excel.py` + LibreOffice recalc hattıyla (ADR-011). **Şirket adı:** ledger'daki "ABC Enerji A.Ş." `USER_FACT` olarak onaylı (Phase 2.1, 23.09.2026); canvas'taki "NATA" ledger'a uydurulur, tersi değil. Her yeni rakam/tarih/isim `AI_ASSUMPTION` etiketiyle girer ve Naci onayı bekler; bu kural ürün sahibinin de kabul ettiği P-9 ile aynı yöndedir. | B-20 (İK belgeleri için) |
 
-Bu tablodaki maddeler için ADR gerekmez; B-07, B-09, B-13, B-17, B-05 ve B-04'ün `missing_data`/`product_limit` kısımları tek bir küçük phase'e sığar ("Balbal cevap döngüsü"; B-25'in `product_level` eşlemesi §6 ile artık yazılabilir). Yükleme yetki açığının ara düzeltmesi (§2 B-26/3, Tansu #6 "öncelikli") aynı faza ya da ondan önceki tek başına bir düzeltmeye alınır. Naci'nin faz planı onayı gerekir; bu not onun yerine geçmez.
+Bu tablodaki maddeler için ADR gerekmez; B-07, B-09, B-13, B-17, B-05 ve B-04'ün `missing_data`/`product_limit` kısımları tek bir küçük phase'e sığar ("Balbal cevap döngüsü"; B-25'in `product_level` eşlemesi §6 ile artık yazılabilir). Yükleme yetki açığının ara düzeltmesi (§2 B-26/3, Tansu #6 "öncelikli") **30.09.2026'da bağımsız bir güvenlik yaması olarak zaten uygulandı** (`docs/PHASES.md` Adım 5 notu) — ayrı bir faza gerek kalmadı. Naci'nin faz planı onayı gerekir; bu not onun yerine geçmez.
 
 ---
 
@@ -79,7 +79,7 @@ Talebin özü kabul; şu noktalar değişmeden uygulanamaz.
   2. Yetki değişikliği geçmişi (`§2.6.1/8`) `audit_log`'a **yazılmaz**; o tablo soru-cevap kaydıdır (ADR-016, satır başına bir `/api/ask`). Ayrı `folder_grant_events` tablosu; `GET /api/admin/folders/audit` oradan okur.
   3. `POST /api/documents/upload` `folder_id` alır ve `write` yetkisi yoksa 403 döner. Bu, bugün her iki repoda da bulunan **yazma tarafı yetki boşluğunu** kapatır: `api/documents.py:113` yüklemeyi her kimlikli kullanıcıya açıyor, `:137-138` departman slug'ını yalnızca "var mı" diye kontrol ediyor; Enerji çalışanı `department=finans` ile belge yükleyebilir ve o belge Finans kullanıcılarının Balbal cevaplarına kaynak olur. Kural 1 okumayı korur, yazmayı korumaz. B-26 gelene kadar ara düzeltme olarak "yüklenen belgenin departmanı ⊆ yükleyenin üyelikleri (management/admin hariç)" kuralı önerilir; kararı Naci verir.
   4. `documents.department` FK'sız serbest string (ADR-004 Phase 1.2 notu) klasör sahibiyle çift kaynak olur; ADR'de "klasörün `owner_department`'ı belirleyici, `documents.department` ondan türetilir" yazılmalı.
-- **Durum (30.09):** Tansu #6 ile 3. madde (yükleme yetki açığı) **öncelikli**: B-26 beklenmeden ara düzeltme yapılır. Tansu #2 ile klasör yetkilerinin admin arayüzünden yönetilmesi (zaten B-26'nın tasarımı) teyit edildi; §5.1.
+- **Durum (30.09):** Tansu #6 ile 3. madde (yükleme yetki açığı) **öncelikli**: B-26 beklenmeden ara düzeltme yapıldı, **kapandı** (bkz. §7.1 satır 4). Tansu #2 ile klasör yetkilerinin admin arayüzünden yönetilmesi (zaten B-26'nın tasarımı) teyit edildi; §5.1.
 
 ### B-03 — sohbet geçmişi ve çok turlu soru — **ERTELENDİ (Tansu #3)**
 - **Durum (30.09):** "Şimdilik gerek yok." Backend'de iş yok; frontend'in bellek-içi geçmişi (`components/balbal/sessions.tsx`) kalır. Aşağıdaki notlar ileride açıldığında geçerlidir.
@@ -359,7 +359,7 @@ Tansu #7 "şimdilik Ürün 2'den başlayacak" dediği için ilk müşteri/test P
 |---|---|---|
 | 1 | DuckDB hesaplı `DATA`/`MIXED` Ürün 1 mi 2 mi? | **Ürün 2** (Tansu #7). `GENERAL` hâlâ açık. |
 | 3 (kısmen) | B-28 onay yetkisi | **İki aşamalı, role bağlı** (Tansu #5, §5.2). "Onaysız belge görünmez" kısmı açık. |
-| 4 | B-26 gelene kadar yükleme kısıtı | **Öncelikli** (Tansu #6). Naci'nin faz planı onayı bekler. |
+| 4 | ~~B-26 gelene kadar yükleme kısıtı~~ | **KAPANDI** (30.09.2026) — bağımsız güvenlik yaması, `docs/plans/GUVENLIK_YAMA_2026-09-30_PLAN.md`, `docs/PHASES.md` Adım 5 notu. `employee` artık yalnızca kendi üyeliklerindeki departmana yükleyebiliyor; `management`/`admin` muaf, `department=None` değişmedi. B-26 tam klasör yetkisi çözümünün yerini almaz, yalnızca en acil boşluğu kapatır. |
 | 8 (kısmen) | B-23 gizlilik | Bireysel model: **kendisi + İK** (Tansu #4, izin ve yazışma için). |
 | 9 | P-11 | **Kabul** (Tansu #9). |
 | 11 | Çelişkide öncelik | **`CLAUDE.md`/ADR'ler önce**; GitHub üzerinden çözüm; çözülmezse Tansu + Naci (Tansu #10). BACKEND_GAPS sürüm dondurma sorusu cevaplanmadı ama önceliğin bizde olması onu ikincil yapar. |

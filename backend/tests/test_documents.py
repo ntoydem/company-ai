@@ -275,6 +275,72 @@ def test_upload_unknown_project_id_returns_404(client: TestClient, admin_user: U
     assert response.status_code == 404
 
 
+# --- Security patch (30.09.2026): upload's `department` must be the uploader's own ---
+
+
+def test_employee_upload_to_other_department_returns_403(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    make_department(db_session, slug="finans")
+    enerji = make_department(db_session, slug="enerji_grubu")
+    add_user_to_department(db_session, employee_user, enerji)
+
+    response = _upload(client, department="finans")
+
+    assert response.status_code == 403
+
+
+def test_employee_upload_to_own_department_succeeds(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    enerji = make_department(db_session, slug="enerji_grubu")
+    add_user_to_department(db_session, employee_user, enerji)
+
+    response = _upload(client, department="enerji_grubu")
+
+    assert response.status_code == 201
+
+
+def test_employee_with_multiple_memberships_uploads_to_second_one(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    make_department(db_session, slug="finans")
+    enerji = make_department(db_session, slug="enerji_grubu")
+    mali_isler = make_department(db_session, slug="mali_isler")
+    add_user_to_department(db_session, employee_user, enerji)
+    add_user_to_department(db_session, employee_user, mali_isler)
+
+    response = _upload(client, department="mali_isler")
+
+    assert response.status_code == 201
+
+
+def test_employee_upload_without_department_still_succeeds(
+    client: TestClient, employee_user: User
+) -> None:
+    """`department=None` is unrestricted (unchanged) — it stays visible to admin only,
+    the same fail-safe behaviour as before this patch."""
+    response = _upload(client)
+    assert response.status_code == 201
+
+
+def test_management_upload_to_any_department_succeeds(
+    client: TestClient, db_session: Session, management_user: User
+) -> None:
+    make_department(db_session, slug="finans")
+    response = _upload(client, department="finans")
+    assert response.status_code == 201
+
+
+def test_employee_upload_unknown_department_returns_422_not_403(
+    client: TestClient, employee_user: User
+) -> None:
+    """The 422 "unknown slug" check runs first — a bad slug is a 422 even for an
+    employee who is a member of nothing, not a 403."""
+    response = _upload(client, department="hayali_departman")
+    assert response.status_code == 422
+
+
 def test_list_item_carries_subdepartment_and_confidentiality(
     client: TestClient, db_session: Session, admin_user: User
 ) -> None:

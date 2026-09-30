@@ -17,7 +17,7 @@ from app.core.db import get_session
 from app.excel.inspect import inspect_file
 from app.models.document import Confidentiality, Document, DocumentStatus, IngestionStatus
 from app.models.document_metadata_suggestion import SuggestionStatus
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.repositories import (
     department_repo,
     document_metadata_suggestion_repo,
@@ -62,6 +62,7 @@ DOCUMENT_NOT_FOUND_MESSAGE = "Belge bulunamadı."
 ALREADY_SUPERSEDED_MESSAGE = "Belge zaten başka bir belge tarafından güncellenmiş."
 DOCUMENT_ACCESS_DENIED_MESSAGE = "Bu belgeye erişim yetkiniz yok."
 UNKNOWN_DEPARTMENT_MESSAGE = "Bilinmeyen departman."
+DEPARTMENT_NOT_ALLOWED_MESSAGE = "Bu departmana belge yükleme yetkiniz yok."
 UNKNOWN_PROJECT_MESSAGE = "Bilinmeyen proje."
 NOT_READY_MESSAGE = "Belge henüz işleniyor, öneri üretilemez."
 SUGGESTION_NOT_FOUND_MESSAGE = "Öneri bulunamadı."
@@ -175,6 +176,17 @@ def upload_document(
     # display/filter field, never an authorization unit (docs/plans/PHASE_1_2_PLAN.md T7).
     if department is not None and department_repo.get_by_slug(session, department) is None:
         raise HTTPException(422, UNKNOWN_DEPARTMENT_MESSAGE)
+    # Security patch (30.09.2026, docs/notes/TANSU_GERI_BILDIRIM_2026-09-30.md Tansu #6):
+    # a known slug alone isn't enough — an employee could name a department they don't
+    # belong to and plant a document into its retrieval (ADR-004's read-side gate never
+    # covered this write-side path). `management`/`admin` already see every department on
+    # the read side, so they stay exempt; `department=None` is untouched (fail-safe today).
+    if (
+        department is not None
+        and current_user.role not in (UserRole.management, UserRole.admin)
+        and department not in current_user.department_slugs
+    ):
+        raise HTTPException(403, DEPARTMENT_NOT_ALLOWED_MESSAGE)
     if project_id is not None and project_repo.get(session, project_id) is None:
         raise HTTPException(404, UNKNOWN_PROJECT_MESSAGE)
 
