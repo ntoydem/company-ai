@@ -247,7 +247,7 @@ snippet + sayfa, projeler, kişiler; retrieval'la aynı FTS predicate'i, `retrie
 `docs/plans/ASAMA_D_PLAN.md`, rapor `docs/reports/ASAMA_D_REPORT.md`. AI-BalBal henüz `/api/search`'ü çağırmıyor
 (Tansu `SearchPanel`'i bağlar).
 
-**Aşama E (01.10.2026, `<commit>`):** B-26 klasörler ve departman erişim yetkileri — `folders`/`folder_grants`/
+**Aşama E (01.10.2026, `c65293d`):** B-26 klasörler ve departman erişim yetkileri — `folders`/`folder_grants`/
 `folder_grant_events` + `documents.folder_id` (migration `0011`: üst departman başına kök klasör, belgeler köke),
 en yakın tanım mirası, `allowed_document_ids` tek kapı (yeni provider metodu, `employee` = üyelik ∪ grant, gizlilik
 aşılmaz), `/api/admin/folders*` + `/api/folders` (`proposed.ts` §10 ile birebir), upload `folder_id` + write kontrolü,

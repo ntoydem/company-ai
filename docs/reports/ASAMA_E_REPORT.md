@@ -1,6 +1,6 @@
 # Aşama E Raporu — Klasörler ve departman erişim yetkileri (B-26, ADR-023)
 
-**Tarih:** 01.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit + `docs/PHASES.md` notu + ADR-023)  **Commit:** `<commit>`
+**Tarih:** 01.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit + `docs/PHASES.md` notu + ADR-023)  **Commit:** `c65293d`
 **Plan:** `docs/plans/ASAMA_E_PLAN.md` · **ADR:** ADR-023 (yeni), ADR-004 concretization · **Migration:** `0011`
 
 Naci'nin SORU cevapları (hepsi planın önerisi yönünde): (1) yalnızca kök klasörler, zengin demo ağacı B-18'e; (2) `PATCH`/`DELETE /api/admin/folders/{id}` yazıldı; (3) `write` yetkisi metadata düzenlemeyi kapsamıyor (B-28); (4) `GET /api/folders` `document_count` = kullanıcının görebildiği sayı; (5) etiketsiz düz commit + ADR-023. Naci'nin özel vurgusu: **E-03 (anında kaybolma) ve E-05 (gizlilik aşılmıyor)** — ikisi de hem testle hem canlı doğrulandı (§1, §4).
