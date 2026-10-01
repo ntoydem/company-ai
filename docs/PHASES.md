@@ -234,7 +234,7 @@ Tarayıcı adımları (A2/A3) Naci elle.
 kaldırıldı (B-20/6; eski istemci 422 almaz, eval hiç göndermiyordu — NOT'taki isolation uyarısı geçersizdi). Ayrı bir
 phase değil; plan `docs/plans/ASAMA_B_PLAN.md`, rapor `docs/reports/ASAMA_B_REPORT.md`.
 
-**Aşama C (01.10.2026, `<commit>`):** departman ağacı zihin haritasıyla birebir (B-20/1-5: 5 ad, 4 yeni satır, `finans`
+**Aşama C (01.10.2026, `e6b9bc5`):** departman ağacı zihin haritasıyla birebir (B-20/1-5: 5 ad, 4 yeni satır, `finans`
 kullanıcısı yalnızca Proje Finans; slug'lar sabit — belge/ledger/eval dokunulmadı), `users.primary_department_id` +
 `primary_department_slug` (B-09, `department_slugs` ana departmanı başa alır), `users.title` + `GET /api/directory`
 (B-05), migration `0010` (mevcut DB'yi düzeltir, boş DB'de no-op; seed aynı ağacı kurar). `manager_id` ve B-08 enum'u

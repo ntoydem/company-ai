@@ -1,6 +1,6 @@
 # Aşama C Raporu — departman ağacı (B-20/1–5), ana departman (B-09), unvan + rehber (B-05)
 
-**Tarih:** 01.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit + `docs/PHASES.md` notu)  **Commit:** `<commit>`
+**Tarih:** 01.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit + `docs/PHASES.md` notu)  **Commit:** `e6b9bc5`
 **Plan:** `docs/plans/ASAMA_C_PLAN.md` · **ADR:** ADR-003 ve ADR-004 concretization; yeni ADR yok · **Migration:** `0010`
 
 Naci'nin SORU cevapları (hepsi planın önerisi yönünde): (1) `manager_id` yok, B-22'de; (2) demo unvanları; (3) rehberde `management`/`admin` listelenir (`department_slug: null`); (4) `finans` kullanıcısının `display_name`'i "Proje Finans"; (5) ana departman backfill = en eski üyelik, eşitlikte slug; (6) etiketsiz düz commit. C-09 tarayıcı kontrolü Naci elle.
