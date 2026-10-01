@@ -1,6 +1,6 @@
 # Aşama D Raporu — `GET /api/search` (B-14) + kaynak kartında proje (B-20/6)
 
-**Tarih:** 01.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit + `docs/PHASES.md` notu)  **Commit:** `<commit>`
+**Tarih:** 01.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit + `docs/PHASES.md` notu)  **Commit:** `d49af79`
 **Plan:** `docs/plans/ASAMA_D_PLAN.md` · **ADR:** ADR-020 ve ADR-021 concretization; yeni ADR yok · **Migration:** yok
 
 Naci'nin SORU cevapları (hepsi planın önerisi yönünde): (1) düz metin snippet, işaretçisiz; (2) `build_search_query` (sözlük genişletmeli, Balbal ile aynı); (3) pasif projeler listelenir; (4) `ExcelSourceCard`'a proje alanı yok; (5) etiketsiz düz commit. D-09 canlı doğrulamayı backend yaptı; Tansu'nun arayüzü henüz `/api/search`'ü çağırmadığı için tarayıcı adımı yok.
