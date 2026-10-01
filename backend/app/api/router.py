@@ -6,6 +6,7 @@ from app.api import (
     audit_log,
     auth,
     departments,
+    directory,
     documents,
     excel,
     health,
@@ -18,6 +19,7 @@ router = APIRouter()
 router.include_router(health.router)
 router.include_router(auth.router)
 router.include_router(departments.router)
+router.include_router(directory.router)
 router.include_router(projects.router)
 router.include_router(users.router)
 router.include_router(documents.router)

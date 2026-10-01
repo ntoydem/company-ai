@@ -5,6 +5,7 @@ import uuid
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+from app.api.users import PRIMARY_DEPARTMENT_NOT_A_MEMBERSHIP_MESSAGE
 from app.core.config import Settings
 from app.models.user import User
 from app.services.admin_seed import ensure_admin_user
@@ -172,3 +173,83 @@ def test_update_user_unknown_department_id_returns_404(
     response = client.patch(f"/api/users/{user_id}", json={"department_ids": [str(uuid.uuid4())]})
 
     assert response.status_code == 404
+
+
+# --- Aşama C: B-09 primary department rule + B-05 title through the admin API ---
+
+
+def test_create_user_defaults_primary_to_first_membership_and_stores_title(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    hukuk = make_department(db_session, slug="hukuk")
+    finans = make_department(db_session, slug="finans")
+    body = client.post(
+        "/api/users",
+        json={
+            "username": "iki-departman",
+            "password": "gecerli-sifre",
+            "display_name": "İki Departman",
+            "department_ids": [str(hukuk.id), str(finans.id)],
+            "title": "Uzman",
+        },
+    ).json()
+    assert body["primary_department_id"] == str(finans.id)  # first by slug
+    assert body["department_slugs"] == ["finans", "hukuk"]
+    assert body["title"] == "Uzman"
+
+
+def test_primary_department_must_be_a_membership(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    hukuk = make_department(db_session, slug="hukuk")
+    finans = make_department(db_session, slug="finans")
+    response = client.post(
+        "/api/users",
+        json={
+            "username": "yanlis-ana",
+            "password": "gecerli-sifre",
+            "display_name": "Yanlış Ana",
+            "department_ids": [str(hukuk.id)],
+            "primary_department_id": str(finans.id),
+        },
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"] == PRIMARY_DEPARTMENT_NOT_A_MEMBERSHIP_MESSAGE
+
+
+def test_update_keeps_primary_while_member_and_moves_it_when_dropped(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    hukuk = make_department(db_session, slug="hukuk")
+    finans = make_department(db_session, slug="finans")
+    created = client.post(
+        "/api/users",
+        json={
+            "username": "tasinan",
+            "password": "gecerli-sifre",
+            "display_name": "Taşınan",
+            "department_ids": [str(hukuk.id), str(finans.id)],
+            "primary_department_id": str(hukuk.id),
+        },
+    ).json()
+    user_id = created["id"]
+    assert created["primary_department_id"] == str(hukuk.id)
+
+    # Adding a membership without naming a primary keeps the current one.
+    body = client.patch(
+        f"/api/users/{user_id}", json={"department_ids": [str(hukuk.id), str(finans.id)]}
+    ).json()
+    assert body["primary_department_id"] == str(hukuk.id)
+    # Dropping the primary's membership moves the primary to the first remaining one.
+    body = client.patch(f"/api/users/{user_id}", json={"department_ids": [str(finans.id)]}).json()
+    assert body["primary_department_id"] == str(finans.id)
+    # Explicitly naming a non-member is rejected.
+    assert (
+        client.patch(
+            f"/api/users/{user_id}", json={"primary_department_id": str(hukuk.id)}
+        ).status_code
+        == 422
+    )
+    # No memberships at all → no primary.
+    body = client.patch(f"/api/users/{user_id}", json={"department_ids": []}).json()
+    assert body["primary_department_id"] is None and body["department_slugs"] == []

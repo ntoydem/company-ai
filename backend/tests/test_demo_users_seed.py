@@ -47,3 +47,14 @@ def test_second_run_is_idempotent_and_never_changes_password(
     again = user_repo.get_by_username(db_session, "finans")
     assert again is not None
     assert again.password_hash == original_hash
+
+
+def test_demo_users_carry_titles_and_finans_is_proje_finans(
+    db_session: Session, settings: Settings
+) -> None:
+    ensure_demo_users(db_session, settings)
+    finans = user_repo.get_by_username(db_session, "finans")
+    hukuk = user_repo.get_by_username(db_session, "hukuk")
+    assert finans is not None and hukuk is not None
+    assert (finans.display_name, finans.title) == ("Proje Finans", "Proje Finans Uzmanı")
+    assert hukuk.title == "Hukuk Müşaviri"

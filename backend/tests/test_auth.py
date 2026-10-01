@@ -160,3 +160,33 @@ def test_login_rate_limited_after_repeated_failures_returns_429(
 
     assert blocked.status_code == 429
     assert blocked.json()["detail"] == TOO_MANY_ATTEMPTS_MESSAGE
+
+
+# --- Aşama C: B-09 primary department + B-05 title on /me and /login ---
+
+
+def test_me_puts_the_primary_department_first_and_returns_title(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    hukuk = make_department(db_session, slug="hukuk")
+    finans = make_department(db_session, slug="finans")
+    add_user_to_department(db_session, employee_user, hukuk)
+    add_user_to_department(db_session, employee_user, finans)
+    user_repo.update(
+        db_session,
+        employee_user,
+        title="Hukuk Müşaviri",
+        primary_department_id=hukuk.id,
+        primary_department_given=True,
+    )
+    db_session.commit()
+
+    body = client.get("/api/auth/me").json()
+    assert body["primary_department_slug"] == "hukuk"
+    assert body["department_slugs"] == ["hukuk", "finans"]  # primary first, then by slug
+    assert body["title"] == "Hukuk Müşaviri"
+
+
+def test_me_management_has_no_primary_department(client: TestClient, management_user: User) -> None:
+    body = client.get("/api/auth/me").json()
+    assert body["primary_department_slug"] is None and body["title"] is None

@@ -32,6 +32,7 @@ def ensure_admin_user(session: Session, settings: Settings) -> AdminSeedResult:
         password_hash=hash_password(settings.admin_password.get_secret_value()),
         display_name="Yönetici",
         role=UserRole.admin,
+        title="Sistem Yöneticisi",
     )
     session.commit()
     log.info("admin user created", extra={"username": user.username})

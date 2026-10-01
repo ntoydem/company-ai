@@ -24,7 +24,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
     assert "users" not in inspect(engine).get_table_names()
 
     command.upgrade(cfg, "head")
-    assert _current_revision() == "0009"
+    assert _current_revision() == "0010"
     tables = inspect(engine).get_table_names()
     assert "users" in tables
     assert "documents" in tables
@@ -63,6 +63,8 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
     } <= audit_columns
 
     assert {"product_level", "warnings"} <= audit_columns
+    user_columns = {c["name"] for c in inspect(engine).get_columns("users")}
+    assert {"title", "primary_department_id"} <= user_columns
     assert "company_settings" in tables
 
     with engine.connect() as conn:
@@ -80,4 +82,83 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
 
 def test_upgrade_head_is_idempotent() -> None:
     command.upgrade(alembic_config(), "head")
-    assert _current_revision() == "0009"
+    assert _current_revision() == "0010"
+
+
+def test_0010_corrects_an_existing_phase_1_2_tree_and_backfills_users() -> None:
+    """Aşama C, C-02: the migration path and the seed path must end in the same tree. Here
+    the pre-Aşama-C tree (old names, no İK/Üretim/Piyasa/Mali İşler children) and the demo
+    `finans` user with both memberships are planted at revision 0009, then upgraded."""
+    from app.repositories.department_repo import list_all
+    from app.services.demo_departments_seed import _DEPARTMENTS
+    from tests.test_department_structure import tree_snapshot
+
+    cfg = alembic_config()
+    engine = get_engine()
+    command.downgrade(cfg, "0009")
+    old_tree = [
+        ("enerji_grubu", "Enerji Grubu", None),
+        ("enerji_gelistirme", "Geliştirme", "enerji_grubu"),
+        ("enerji_epc_insaat", "EPC-İnşaat", "enerji_grubu"),
+        ("enerji_bakim", "Bakım", "enerji_grubu"),
+        ("finans", "Finans", None),
+        ("hukuk", "Hukuk", None),
+        ("mali_isler", "Mali İşler", None),
+        ("idari_isler", "İdari İşler", None),
+    ]
+    with engine.begin() as conn:
+        for slug, name, parent in old_tree:
+            conn.execute(
+                text(
+                    "INSERT INTO departments (id, name, slug, parent_id) VALUES "
+                    "(gen_random_uuid(), :name, :slug, "
+                    "(SELECT id FROM departments WHERE slug = :parent))"
+                ),
+                {"name": name, "slug": slug, "parent": parent},
+            )
+        conn.execute(
+            text(
+                "INSERT INTO users (id, username, password_hash, display_name, role) VALUES "
+                "(gen_random_uuid(), 'finans', 'x', 'Finans', 'employee'), "
+                "(gen_random_uuid(), 'hukuk', 'x', 'Hukuk', 'employee'), "
+                "(gen_random_uuid(), 'yonetim', 'x', 'Yönetim', 'management')"
+            )
+        )
+        conn.execute(
+            text(
+                "INSERT INTO user_departments (user_id, department_id) "
+                "SELECT u.id, d.id FROM users u, departments d "
+                "WHERE (u.username = 'finans' AND d.slug IN ('finans', 'mali_isler')) "
+                "   OR (u.username = 'hukuk' AND d.slug = 'hukuk')"
+            )
+        )
+
+    command.upgrade(cfg, "head")
+
+    from app.core.db import get_session_factory
+
+    with get_session_factory()() as session:
+        assert tree_snapshot(list_all(session)) == tree_snapshot_from_seed(_DEPARTMENTS)
+        rows = session.execute(
+            text(
+                "SELECT u.username, u.display_name, u.title, pd.slug AS primary_slug, "
+                "array_agg(d.slug ORDER BY d.slug) AS memberships "
+                "FROM users u LEFT JOIN departments pd ON pd.id = u.primary_department_id "
+                "LEFT JOIN user_departments ud ON ud.user_id = u.id "
+                "LEFT JOIN departments d ON d.id = ud.department_id "
+                "GROUP BY u.username, u.display_name, u.title, pd.slug ORDER BY u.username"
+            )
+        ).all()
+    by_user = {r.username: r for r in rows}
+    assert by_user["finans"].memberships == ["finans"]  # mali_isler membership dropped (P-5)
+    assert by_user["finans"].primary_slug == "finans"
+    assert by_user["finans"].display_name == "Proje Finans"
+    assert by_user["finans"].title == "Proje Finans Uzmanı"
+    assert by_user["hukuk"].primary_slug == "hukuk" and by_user["hukuk"].title == "Hukuk Müşaviri"
+    assert by_user["yonetim"].primary_slug is None and by_user["yonetim"].memberships == [None]
+
+
+def tree_snapshot_from_seed(
+    seed: tuple[tuple[str, str, str | None], ...],
+) -> list[tuple[str, str, str | None]]:
+    return sorted(seed, key=lambda row: row[1])

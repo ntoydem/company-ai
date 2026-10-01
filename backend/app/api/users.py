@@ -23,6 +23,9 @@ DEPARTMENT_NOT_FOUND_MESSAGE = "Departman bulunamadı."
 CANNOT_DEMOTE_OR_DISABLE_SELF_MESSAGE = (
     "Kendi hesabınızın rolünü düşüremez veya devre dışı bırakamazsınız."
 )
+PRIMARY_DEPARTMENT_NOT_A_MEMBERSHIP_MESSAGE = (
+    "Ana departman, kullanıcının üyeliklerinden biri olmalı."
+)
 
 
 def _check_department_ids(session: Session, department_ids: list[uuid.UUID]) -> None:
@@ -47,14 +50,19 @@ def create_user(
     if user_repo.get_by_username(session, body.username) is not None:
         raise HTTPException(409, USERNAME_EXISTS_MESSAGE)
     _check_department_ids(session, body.department_ids)
-    user = user_repo.create(
-        session,
-        username=body.username,
-        password_hash=hash_password(body.password),
-        display_name=body.display_name,
-        role=body.role,
-        department_ids=body.department_ids,
-    )
+    try:
+        user = user_repo.create(
+            session,
+            username=body.username,
+            password_hash=hash_password(body.password),
+            display_name=body.display_name,
+            role=body.role,
+            department_ids=body.department_ids,
+            title=body.title,
+            primary_department_id=body.primary_department_id,
+        )
+    except user_repo.PrimaryDepartmentNotAMembershipError:
+        raise HTTPException(422, PRIMARY_DEPARTMENT_NOT_A_MEMBERSHIP_MESSAGE) from None
     session.commit()
     return UserResponse.model_validate(user)
 
@@ -77,13 +85,19 @@ def update_user(
         raise HTTPException(409, CANNOT_DEMOTE_OR_DISABLE_SELF_MESSAGE)
     if body.department_ids is not None:
         _check_department_ids(session, body.department_ids)
-    user = user_repo.update(
-        session,
-        user,
-        display_name=body.display_name,
-        role=body.role,
-        is_active=body.is_active,
-        department_ids=body.department_ids,
-    )
+    try:
+        user = user_repo.update(
+            session,
+            user,
+            display_name=body.display_name,
+            role=body.role,
+            is_active=body.is_active,
+            department_ids=body.department_ids,
+            title=body.title,
+            primary_department_id=body.primary_department_id,
+            primary_department_given="primary_department_id" in body.model_fields_set,
+        )
+    except user_repo.PrimaryDepartmentNotAMembershipError:
+        raise HTTPException(422, PRIMARY_DEPARTMENT_NOT_A_MEMBERSHIP_MESSAGE) from None
     session.commit()
     return UserResponse.model_validate(user)

@@ -16,11 +16,12 @@ from app.services.security import hash_password
 
 log = logging.getLogger(__name__)
 
-_DEMO_USERS: tuple[tuple[str, str, UserRole], ...] = (
-    ("yonetim", "Yönetim", UserRole.management),
-    ("finans", "Finans", UserRole.employee),
-    ("hukuk", "Hukuk", UserRole.employee),
-    ("enerji", "Enerji", UserRole.employee),
+# (username, display name, role, title) — titles are fictional/generic (P-9, Aşama C B-05).
+_DEMO_USERS: tuple[tuple[str, str, UserRole, str], ...] = (
+    ("yonetim", "Yönetim", UserRole.management, "Genel Müdür Yardımcısı"),
+    ("finans", "Proje Finans", UserRole.employee, "Proje Finans Uzmanı"),
+    ("hukuk", "Hukuk", UserRole.employee, "Hukuk Müşaviri"),
+    ("enerji", "Enerji", UserRole.employee, "Enerji Grubu Uzmanı"),
 )
 
 
@@ -34,7 +35,7 @@ def ensure_demo_users(session: Session, settings: Settings) -> list[DemoSeedResu
     """Create each demo user if missing. Existing users are never modified."""
     password_hash = hash_password(settings.demo_user_password.get_secret_value())
     results = []
-    for username, display_name, role in _DEMO_USERS:
+    for username, display_name, role, title in _DEMO_USERS:
         existing = user_repo.get_by_username(session, username)
         if existing is not None:
             log.info("demo user exists, unchanged", extra={"username": existing.username})
@@ -46,6 +47,7 @@ def ensure_demo_users(session: Session, settings: Settings) -> list[DemoSeedResu
             password_hash=password_hash,
             display_name=display_name,
             role=role,
+            title=title,
         )
         log.info("demo user created", extra={"username": user.username})
         results.append(DemoSeedResult(username=user.username, created=True))

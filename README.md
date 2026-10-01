@@ -94,13 +94,29 @@ Başarısız denemeler sınırlıdır: kullanıcı adı başına 5 / 15 dk, IP b
 Demo hesapları — hepsi tek `DEMO_USER_PASSWORD` şifresini paylaşır; erişim departman üyeliğinden gelir, rolden
 değil (`yonetim`/`admin` üyelikten bağımsız her şeyi görür):
 
-| Kullanıcı adı | Rol | Departman üyeliği |
-|---|---|---|
-| `admin` | `admin` (ayrı `ADMIN_PASSWORD`) | — (her şeyi görür) |
-| `yonetim` | `management` | — (üyelikten bağımsız her şeyi görür) |
-| `finans` | `employee` | `finans`, `mali_isler` |
-| `hukuk` | `employee` | `hukuk` |
-| `enerji` | `employee` | `enerji_grubu` (Geliştirme/EPC-İnşaat/Bakım dahil) |
+| Kullanıcı adı | Rol | Departman üyeliği (= ana departman) | Unvan |
+|---|---|---|---|
+| `admin` | `admin` (ayrı `ADMIN_PASSWORD`) | — (her şeyi görür) | Sistem Yöneticisi |
+| `yonetim` | `management` | — (üyelikten bağımsız her şeyi görür) | Genel Müdür Yardımcısı |
+| `finans` | `employee` | `finans` (Proje Finans) — Mali İşler'i **görmez** (P-5, Aşama C) | Proje Finans Uzmanı |
+| `hukuk` | `employee` | `hukuk` | Hukuk Müşaviri |
+| `enerji` | `employee` | `enerji_grubu` (Proje Geliştirme / O&M / EPC / Üretim-Piyasa alt birimleri dahil) | Enerji Grubu Uzmanı |
+
+**Departman ağacı (Aşama C, 01.10.2026 — ürün sahibinin zihin haritasıyla birebir; slug'lar sabit, yalnızca adlar
+ve dört yeni satır):** Proje Finans (`finans`), Mali İşler (`mali_isler`: Muhasebe, Finansal Muhasebe), Hukuk, İdari
+İşler, İK (`ik`), Enerji (`enerji_grubu`: Proje Geliştirme, O&M (İşletme ve Bakım), EPC (İnşaat), Üretim/Piyasa).
+Alt birimler yetki birimi değildir (yetki üst departmandan). Mevcut kurulumda ağacı migration `0010` düzeltir,
+temiz kurulumda seed aynı ağacı kurar; belgeler/ledger/eval dokunulmaz (slug'lar değişmedi).
+
+**Ana departman ve unvan (B-09/B-05):** `/api/auth/login` ve `/me` `primary_department_slug` ve `title` döner;
+`department_slugs` listesi ana departmanı **başa** koyar. Admin API'de `primary_department_id` üyeliklerden biri
+olmalı (değilse 422); verilmezse ilk üyelik. **Şirket rehberi:** `GET /api/directory?q=&department=` (her giriş
+yapan kullanıcı) → `[{id, display_name, title, department_slug, department_name}]`, yalnızca aktif kullanıcılar;
+`q` ad ve unvanda arar, `department` üyeliğe göre süzer; rol/şifre/kullanıcı adı dönmez.
+```bash
+curl -s -b cookies.txt "http://localhost:8080/api/directory?q=hukuk"
+curl -s -b cookies.txt "http://localhost:8080/api/directory?department=enerji_grubu"
+```
 
 ## Departman, rol, proje, yetki (Phase 1.2)
 `allowed_document_ids()` gerçek kuralları uygular (SPEC_02 §5): `employee` yalnızca üye olduğu departman(lar)ın

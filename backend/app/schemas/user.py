@@ -11,6 +11,9 @@ class UserCreateRequest(BaseModel):
     display_name: str
     role: UserRole = UserRole.employee
     department_ids: list[uuid.UUID] = Field(default_factory=list)
+    title: str | None = Field(default=None, max_length=128)
+    # B-09: must be one of `department_ids`; omitted → the first membership (or none).
+    primary_department_id: uuid.UUID | None = None
 
 
 class UserUpdateRequest(BaseModel):
@@ -21,6 +24,8 @@ class UserUpdateRequest(BaseModel):
     role: UserRole | None = None
     is_active: bool | None = None
     department_ids: list[uuid.UUID] | None = None
+    title: str | None = Field(default=None, max_length=128)
+    primary_department_id: uuid.UUID | None = None
 
 
 class UserResponse(BaseModel):
@@ -33,3 +38,5 @@ class UserResponse(BaseModel):
     is_active: bool
     department_ids: list[uuid.UUID]
     department_slugs: list[str]
+    title: str | None
+    primary_department_id: uuid.UUID | None

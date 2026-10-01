@@ -26,6 +26,9 @@ class CurrentUserResponse(BaseModel):
     role: UserRole
     department_slugs: list[str]
     enabled_products: list[ProductLevel]
+    # Aşama C: B-09 home department (also first in `department_slugs`) and B-05 title.
+    primary_department_slug: str | None
+    title: str | None
 
     @classmethod
     def from_user(cls, user: User, enabled_products: list[ProductLevel]) -> CurrentUserResponse:
@@ -36,4 +39,6 @@ class CurrentUserResponse(BaseModel):
             role=user.role,
             department_slugs=user.department_slugs,
             enabled_products=enabled_products,
+            primary_department_slug=user.primary_department_slug,
+            title=user.title,
         )
