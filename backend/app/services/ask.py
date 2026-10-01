@@ -83,6 +83,8 @@ def _source_cards(
                 supersedes_document_id=source.position.supersedes_document_id,
                 superseded_by_document_id=source.position.superseded_by_document_id,
                 is_initial=source.position.is_initial,
+                project_code=document.project.code if document.project else None,
+                project_name=document.project.name if document.project else None,
             )
         )
     return cards, unknown

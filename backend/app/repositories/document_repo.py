@@ -6,7 +6,7 @@ import uuid
 from collections.abc import Iterable
 from datetime import date
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.models.document import Confidentiality, Document, DocumentSource, IngestionStatus
@@ -225,6 +225,32 @@ def list_by_ids(session: Session, ids: Iterable[uuid.UUID]) -> list[Document]:
     if not id_list:
         return []
     stmt = select(Document).where(Document.id.in_(id_list)).order_by(Document.created_at.desc())
+    return list(session.scalars(stmt).all())
+
+
+def search_metadata(
+    session: Session, ids: Iterable[uuid.UUID], q: str, *, limit: int
+) -> list[Document]:
+    """B-14: title / type / counterparty / external_ref `ILIKE %q%` among `ids` (the
+    caller's allowed set) — the server-side form of what the UI filtered client-side."""
+    id_list = list(ids)
+    if not id_list:
+        return []
+    pattern = f"%{q.strip()}%"
+    stmt = (
+        select(Document)
+        .where(Document.id.in_(id_list))
+        .where(
+            or_(
+                Document.title.ilike(pattern),
+                Document.document_type.ilike(pattern),
+                Document.counterparty.ilike(pattern),
+                Document.external_ref.ilike(pattern),
+            )
+        )
+        .order_by(Document.title, Document.id)
+        .limit(limit)
+    )
     return list(session.scalars(stmt).all())
 
 

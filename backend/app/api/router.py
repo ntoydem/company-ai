@@ -11,6 +11,7 @@ from app.api import (
     excel,
     health,
     projects,
+    search,
     settings,
     users,
 )
@@ -21,6 +22,7 @@ router.include_router(auth.router)
 router.include_router(departments.router)
 router.include_router(directory.router)
 router.include_router(projects.router)
+router.include_router(search.router)
 router.include_router(users.router)
 router.include_router(documents.router)
 router.include_router(ask.router)

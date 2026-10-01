@@ -6,9 +6,10 @@ from typing import Literal
 from sqlalchemy import Boolean, Date, Enum, ForeignKey, Integer, String, Text, Uuid
 from sqlalchemy import false as sa_false
 from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
+from app.models.project import Project
 
 # B-13 (Aşama B): derived from `storage_path`'s extension, never stored — every upload is
 # content-sniffed to one of pdf/png/jpg/xlsx/xlsm/csv (`api/documents.py::_detect_extension`)
@@ -71,6 +72,9 @@ class Document(TimestampMixin, Base):
     project_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("projects.id", ondelete="SET NULL"), nullable=True, index=True
     )
+    # B-20/6 (Aşama D): the source card names the project without a second request from
+    # the UI. Organisational only — permission still comes from `department` (ADR-004).
+    project: Mapped[Project | None] = relationship("Project")
     document_type: Mapped[str] = mapped_column(String(64))
     counterparty: Mapped[str] = mapped_column(String(255))
     document_date: Mapped[date] = mapped_column(Date)

@@ -24,13 +24,4 @@ def list_directory(
     department: Annotated[str | None, Query(max_length=64)] = None,
 ) -> list[DirectoryPerson]:
     people = user_repo.search_directory(session, q=q, department_slug=department)
-    return [
-        DirectoryPerson(
-            id=person.id,
-            display_name=person.display_name,
-            title=person.title,
-            department_slug=person.primary_department_slug,
-            department_name=(person.primary_department.name if person.primary_department else None),
-        )
-        for person in people
-    ]
+    return [DirectoryPerson.from_user(person) for person in people]

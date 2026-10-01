@@ -139,6 +139,13 @@ def test_sources_come_from_citations_with_page_and_chain(
 
     facility_page = facility_entry["page_map"]["5. Financial Covenants"]
     amendment_page = amendment_entry["page_map"]["2. Amendments to the Original Agreement"]
+    from app.models.project import Project, ProjectStage
+
+    ankara = Project(name="Ankara RES", code="ANK_RES", stage=ProjectStage.operation)
+    db_session.add(ankara)
+    db_session.flush()
+    amendment.project_id = ankara.id  # the facility agreement stays project-less on purpose
+    db_session.commit()
 
     def reply(request: LLMRequest) -> str:
         """Cite the amendment's own covenant-change section and the executed facility's
@@ -173,6 +180,11 @@ def test_sources_come_from_citations_with_page_and_chain(
     assert second["title"] == facility.title and second["page_number"] == facility_page
     assert second["is_current"] is False and second["superseded_by_title"] == amendment.title
     assert second["status"] == "superseded"
+    # B-20/6 (Aşama D): the card names the project; a project-less document says None.
+    assert (first["project_code"], first["project_name"]) == ("ANK_RES", "Ankara RES")
+    assert second["project_code"] is None and second["project_name"] is None
+    row = audit_log_repo.list_filtered(db_session)[0]
+    assert row.sources[0]["project_code"] == "ANK_RES"
     # B-07 (Aşama A): the neighbour ids travel with the titles so the UI can link them.
     assert first["supersedes_document_id"] == str(facility.id) and first["is_initial"] is False
     assert first["superseded_by_document_id"] is None

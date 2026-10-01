@@ -240,3 +240,9 @@ kullanıcısı yalnızca Proje Finans; slug'lar sabit — belge/ledger/eval doku
 (B-05), migration `0010` (mevcut DB'yi düzeltir, boş DB'de no-op; seed aynı ağacı kurar). `manager_id` ve B-08 enum'u
 yok. Ayrı bir phase değil; plan `docs/plans/ASAMA_C_PLAN.md`, rapor `docs/reports/ASAMA_C_REPORT.md`. Tarayıcı
 kontrolü (C-09) Naci elle.
+
+**Aşama D (01.10.2026, `<commit>`):** `GET /api/search?q=&limit=` (B-14: içerik + metadata belge hits, `ts_headline` düz metin
+snippet + sayfa, projeler, kişiler; retrieval'la aynı FTS predicate'i, `retrieve()` değişmedi, `audit_log` yok) ve
+`SourceCard.project_code/project_name` (B-20/6, `Document.project`). Migration yok. Ayrı bir phase değil; plan
+`docs/plans/ASAMA_D_PLAN.md`, rapor `docs/reports/ASAMA_D_REPORT.md`. AI-BalBal henüz `/api/search`'ü çağırmıyor
+(Tansu `SearchPanel`'i bağlar).

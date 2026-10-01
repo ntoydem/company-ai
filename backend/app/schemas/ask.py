@@ -84,6 +84,10 @@ class SourceCard(BaseModel):
     superseded_by_document_id: UUID | None = None
     # ADR-012 "İLK HALKA": the first link of its chain (already computed in code).
     is_initial: bool = False
+    # B-20/6 (Aşama D): the document's project (P-6, every project shown apart); `None`
+    # for project-less corporate documents. Not an authorization input (ADR-004).
+    project_code: str | None = None
+    project_name: str | None = None
 
 
 class AskResponse(BaseModel):

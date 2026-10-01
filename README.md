@@ -293,6 +293,19 @@ Router promptu `backend/app/services/router.py`; kopyası `docs/prompts/ROUTER_P
 `make lint` eşitliği denetler). Maliyet: soru başına LLM çağrısı DOCUMENT 2, DATA 3, MIXED 4 — ücretsiz katmanda
 (5 istek/dk) `make eval` istek aralığı bu yüzden 26 sn.
 
+## İçerik araması — Aşama D (01.10.2026, B-14)
+`GET /api/search?q=&limit=` (her giriş yapan kullanıcı) belge **içeriğinde** ve metadata'sında, projelerde ve kişilerde
+tek istekle arar: `{documents: [{…liste alanları, snippet, page_number}], projects: [...], people: [...]}`. İçerik
+eşleşmesi Balbal'ın retrieval'ıyla aynı FTS'i ve sözlük genişletmesini kullanır (ADR-007/020); belge başına en iyi
+sayfa, düz metin `snippet` (işaretçi yok) ve `page_number`; yalnızca başlık/tür/muhatap/`external_ref` eşleşen belgede
+ikisi de `null`. Belgeler yalnızca `allowed_document_ids` kümesinden (kural 1). Arama bir soru değildir, `audit_log`'a
+yazılmaz. `q` 2–200 karakter, `limit` 1–50 (varsayılan 20).
+```bash
+curl -s -b cookies.txt "http://localhost:8080/api/search?q=DSCR" | python3 -m json.tool | head -30
+```
+Kaynak kartı (`/api/ask` `sources[]`) artık belgenin projesini de taşır: `project_code`, `project_name` (projesiz
+kurumsal belgede `null`) — arayüz projeyi ayrıca `/api/documents` listesinden türetmek zorunda değil (B-20/6).
+
 ## Ürün paketi ve cevap alanları — Aşama A (30.09.2026, B-25 / B-04 / B-07)
 Müşteride hangi ürün katmanlarının açık olduğu tek satırlık `company_settings.enabled_products` tablosunda tutulur
 (`P1` Tanıma, `P2` Birleştirme, `P3` Yorumlama; demo'da üçü de açık, ADR-022). Değer `/api/auth/login` ve

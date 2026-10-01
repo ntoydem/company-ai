@@ -101,3 +101,55 @@ def test_set_embedding_persists_vector(db_session: Session) -> None:
     assert refreshed is not None
     assert refreshed.embedding is not None
     assert list(refreshed.embedding) == _NEAR
+
+
+def test_search_document_hits_one_per_document_best_page_with_plain_headline(
+    db_session: Session,
+) -> None:
+    """B-14 (Aşama D): one hit per document — the best-ranked page — with a plain-text
+    `ts_headline` (no markup), best documents first; same predicate as `search_fts`."""
+    strong = _document(db_session)
+    weak = _document(db_session)
+    other = _document(db_session)
+
+    def page(document: Document, index: int, page_number: int, text: str) -> None:
+        db_session.add(
+            DocumentChunk(
+                document_id=document.id, chunk_index=index, page_number=page_number, text=text
+            )
+        )
+        db_session.flush()
+
+    page(strong, 0, 1, "Cover page. Table of contents.")
+    page(
+        strong,
+        1,
+        5,
+        "The Borrower shall maintain a minimum DSCR covenant of 1.20x at each test date.",
+    )
+    page(strong, 2, 6, "DSCR is defined in Schedule 2.")
+    page(weak, 0, 2, "A passing mention of DSCR only.")
+    page(other, 0, 1, "Nothing relevant here.")
+
+    hits = document_chunk_repo.search_document_hits(
+        db_session,
+        allowed_ids=[strong.id, weak.id, other.id],
+        query="DSCR OR covenant",
+        limit=10,
+    )
+
+    assert [h.document_id for h in hits] == [strong.id, weak.id]  # one per document, ranked
+    assert hits[0].page_number == 5  # the covenant clause beats the definition and the cover
+    assert "DSCR" in hits[0].snippet and "<b>" not in hits[0].snippet
+    assert hits[0].rank >= hits[1].rank
+    # Authorization set applies here exactly as in retrieval.
+    assert (
+        document_chunk_repo.search_document_hits(
+            db_session, allowed_ids=[other.id], query="DSCR", limit=10
+        )
+        == []
+    )
+    assert (
+        document_chunk_repo.search_document_hits(db_session, allowed_ids=[], query="DSCR", limit=10)
+        == []
+    )

@@ -1,7 +1,7 @@
 import uuid
 from collections.abc import Iterable
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.models.project import Project, ProjectStage
@@ -33,6 +33,18 @@ def get_by_code(session: Session, code: str) -> Project | None:
 
 def list_all(session: Session) -> list[Project]:
     return list(session.scalars(select(Project).order_by(Project.name)).all())
+
+
+def search(session: Session, q: str) -> list[Project]:
+    """B-14: name / code `ILIKE %q%`; same visibility as `GET /api/projects` (every
+    signed-in user, inactive projects included — the UI shows `is_active`)."""
+    pattern = f"%{q.strip()}%"
+    stmt = (
+        select(Project)
+        .where(or_(Project.name.ilike(pattern), Project.code.ilike(pattern)))
+        .order_by(Project.code)
+    )
+    return list(session.scalars(stmt).all())
 
 
 def update(
