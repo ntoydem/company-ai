@@ -401,6 +401,11 @@ def run_consistency(
                 value_ok: bool | None = None
                 if outcome.error is None and not expected.skip:
                     value_ok = eval_lib.value_check_passes(expected, outcome.answer_text)
+                phrase_ok: bool | None = None
+                if outcome.error is None and (
+                    question.required_phrases or question.forbidden_phrases
+                ):
+                    phrase_ok = eval_lib.phrase_check_passes(question, outcome.answer_text)[0]
                 outcomes.append(
                     RepeatOutcome(
                         id=question.id,
@@ -411,6 +416,7 @@ def run_consistency(
                         answered=outcome.answered,
                         value_ok=value_ok,
                         error=outcome.error,
+                        phrase_ok=phrase_ok,
                     )
                 )
     finally:

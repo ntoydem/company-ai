@@ -346,7 +346,7 @@ ve cevaba `product_limit` uyarısı eklenir. Excel yükleme ve `/inspect` Ürün
 |---|---|
 | `audit_log_id` | Bu cevabın `audit_log` satırı (yalnızca admin API'siyle okunur; id'yi bilmek yetki vermez) |
 | `product_level` | Cevabın üretildiği katman: `DOCUMENT_QUERY → P1`, `DATA/MIXED → P2` (nihai tipe göre) |
-| `warnings[]` | `{kind, message, action?}` — `missing_data` (kaynak yok; `action: request_data`, B-11 butonu) veya `product_limit`; metinler sabit, LLM üretmez |
+| `warnings[]` | `{kind, message, action?}` — `missing_data` (hiç kaynak bulunamadı), `insufficient_data` (kaynak bulundu ama güvenilir cevaba yetmedi — Ç-7 "Yeterli Veri Bulunmamaktadır", 01.10.2026), ikisinde de `action: request_data` (B-11 butonu); `product_limit`. Metinler sabit, LLM üretmez |
 | `sources[].supersedes_document_id`, `superseded_by_document_id`, `is_initial` | Versiyon zinciri komşularının id'si (yetkisiz komşu → `null`, başlığı gibi) ve "ilk halka" işareti |
 
 Denetim kaydı satırı da `product_level` ve `warnings` taşır (`GET /api/audit-log/{id}`). "Beğendim / hatalı" geri
@@ -440,7 +440,7 @@ akıştan geçer. Onay tablosu `docs/reports/PHASE_2_1_REPORT.md §10`. `make li
 bozan bir düzenleme lint'i kırar.
 
 ## Eval (Phase 4.1)
-`scripts/run_eval.py`: `seed_data/evaluation/questions.json` (v3: 61 soru — Phase 5.1'de `general` kategorisi ve
+`scripts/run_eval.py`: `seed_data/evaluation/questions.json` (v4: 64 soru — 01.10.2026'da `comparison` kategorisi (3 soru, eşik %100: projeler arası karşılaştırma yasağı, `required_phrases`/`forbidden_phrases` metin kontrolü, `expected_answer` iki ledger yolu); v3: 61 soru — Phase 5.1'de `general` kategorisi ve
 yeni belgelere değen 13 soru eklendi) → gerçek `/api/ask` çağrıları (`ask_as_user` ile giriş yapılmış demo kullanıcı) → skor →
 `seed_data/evaluation/results/<model>_<tarih>/results.{md,json}` (git-ignored). Kaynak (required/forbidden)
 kontrolü `seed_data/documents/manifest.json` + `seed_data/excel/manifest.json`'dan (`excel_sources[].file` →

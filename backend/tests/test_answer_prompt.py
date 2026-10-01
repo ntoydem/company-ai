@@ -1,6 +1,7 @@
 from datetime import date
 
 from app.services.answer_prompt import (
+    COMPARISON_NOTICE,
     NO_ANSWER_TEXT,
     SYSTEM_PROMPT,
     describe_chain,
@@ -78,3 +79,14 @@ def test_describe_chain_labels() -> None:
         "İLK HALKA (güncel değil) — erişiminiz olmayan bir belge tarafından değiştirilmiş"
     )
     assert describe_chain(_position(is_current=False, in_force=False)) == "YÜRÜRLÜKTE DEĞİL"
+
+
+def test_rule_10_forbids_cross_project_comparison_with_the_fixed_notice() -> None:
+    """Ü-3 (Balbal Anayasası v2.0): several projects → separate sentences per project, no
+    comparison/ranking/difference; an explicit comparison request gets the fixed notice first."""
+    assert "10. Soru birden fazla projeyi" in SYSTEM_PROMPT
+    assert "karşılaştırma, sıralama" in SYSTEM_PROMPT
+    assert COMPARISON_NOTICE in SYSTEM_PROMPT
+    assert COMPARISON_NOTICE == (
+        "Projeler arası karşılaştırma bu üründe yapılmaz; değerler ayrı ayrı aşağıdadır."
+    )

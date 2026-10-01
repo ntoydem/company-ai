@@ -15,6 +15,7 @@ from scripts.eval_lib import (
     build_report,
     load_ledger_raws,
     load_questions,
+    phrase_check_passes,
     render_markdown,
     report_to_json,
     resolve_expected,
@@ -48,8 +49,8 @@ def _question(**overrides: object) -> ls.Question:
 
 def test_load_questions_returns_the_committed_questions() -> None:
     question_set = load_questions()
-    assert len(question_set.questions) == 61  # v3: +13 (Phase 5.1: general, mixed, new docs)
-    assert question_set.version == 3
+    assert len(question_set.questions) == 64  # v4: 61 + 3 comparison (Ürün 1 uyum turu)
+    assert question_set.version == 4
 
 
 def test_build_document_catalog_maps_title_type_and_project() -> None:
@@ -531,3 +532,49 @@ def test_summarize_consistency_separates_retrieval_from_model() -> None:
     assert (s.retrieval_stable, s.retrieval_measurable) == (1, 2)
     assert (s.model_answered, s.model_measurable) == (4, 5)
     assert (s.value_ok, s.value_measurable) == (4, 6)
+
+
+def _comparison_question(**overrides: object) -> ls.Question:
+    base: dict[str, object] = {
+        "id": "GEN-CMP-999",
+        "category": "comparison",
+        "question": "A ile B — hangisi?",
+        "expected_answer": [
+            "ledger:ankara_res.project.timeline.licence.date",
+            "ledger:izmir_res.project.timeline.pre_licence.date",
+        ],
+        "expected_answer_aliases": [],
+        "expected_project": None,
+        "expected_department": "enerji_grubu",
+        "required_sources": [],
+        "forbidden_sources": [],
+        "ask_as_user": "enerji",
+        "expect_no_answer": False,
+        "required_phrases": ["Projeler arası karşılaştırma bu üründe yapılmaz"],
+        "forbidden_phrases": ["daha önce", "daha sonra"],
+    }
+    base.update(overrides)
+    return ls.Question.model_validate(base)
+
+
+def test_resolve_expected_accepts_a_list_of_ledger_facts_one_group_each() -> None:
+    raws = load_ledger_raws()
+    expected = resolve_expected(_comparison_question(), raws)
+    assert not expected.skip and len(expected.required) == 2
+    assert "15.06.2020" in expected.required[0]  # Ankara licence date, TR form
+    assert value_check_passes(expected, "15.06.2020 … 18.01.2024")
+    assert not value_check_passes(expected, "15.06.2020 yalnızca")
+
+
+def test_phrase_check_requires_the_notice_and_rejects_comparatives() -> None:
+    q = _comparison_question()
+    ok, reason = phrase_check_passes(
+        q,
+        "Projeler arası karşılaştırma bu üründe yapılmaz; değerler ayrı ayrı aşağıdadır. "
+        "A: x. B: y.",
+    )
+    assert ok and reason is None
+    ok, reason = phrase_check_passes(q, "A: x. B: y. A DAHA ÖNCE alınmıştır.")
+    assert not ok and "eksik ifade" in str(reason) and "yasak ifade" in str(reason)
+    ok, _ = phrase_check_passes(_comparison_question(required_phrases=[]), "A: x. B: y.")
+    assert ok

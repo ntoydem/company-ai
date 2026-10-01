@@ -232,3 +232,30 @@ def test_resolve_path_supports_negative_index() -> None:
     root = {"a": {"b": [{"c": 1}, {"c": 2}]}}
     assert vl.resolve_path(root, "a.b[-1].c") == 2
     assert vl.resolve_path(root, "a.b[0].c") == 1
+
+
+def test_comparison_questions_need_two_facts_no_project_and_forbidden_phrases(
+    tmp_path: Path,
+) -> None:
+    def single_fact(data: dict[str, Any]) -> None:
+        q = next(q for q in data["questions"] if q["category"] == "comparison")
+        q["expected_answer"] = q["expected_answer"][0]
+
+    def with_project(data: dict[str, Any]) -> None:
+        q = next(q for q in data["questions"] if q["category"] == "comparison")
+        q["expected_project"] = "Ankara RES"
+
+    def no_phrases(data: dict[str, Any]) -> None:
+        q = next(q for q in data["questions"] if q["category"] == "comparison")
+        q["forbidden_phrases"] = []
+
+    for mutate in (single_fact, with_project, no_phrases):
+        assert _has(_run(vl.DEFAULT_MASTER, _mutated_questions(tmp_path, mutate)), "Q6")
+
+
+def test_list_expected_answer_paths_are_each_checked(tmp_path: Path) -> None:
+    def bad_second(data: dict[str, Any]) -> None:
+        q = next(q for q in data["questions"] if q["category"] == "comparison")
+        q["expected_answer"][1] = "ledger:izmir_res.project.no_such_key"
+
+    assert _has(_run(vl.DEFAULT_MASTER, _mutated_questions(tmp_path, bad_second)), "Q4")

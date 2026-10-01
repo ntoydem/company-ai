@@ -24,7 +24,9 @@ DEFAULT_EXCEL_MANIFEST = DEFAULT_MASTER.parent / "excel" / "manifest.json"
 DEFAULT_RESULTS_DIR = DEFAULT_MASTER.parent / "evaluation" / "results"
 
 # Categories PHASES.md requires 100% on; every other category needs >= 80%.
-HUNDRED_PERCENT_CATEGORIES = frozenset({"isolation", "hallucination", "authorization"})
+HUNDRED_PERCENT_CATEGORIES = frozenset(
+    {"isolation", "hallucination", "authorization", "comparison"}
+)
 DEFAULT_THRESHOLD_PCT = 80.0
 
 _PROJECT_NAME_BY_CODE = {"ANK_RES": "Ankara RES", "IZM_RES": "İzmir RES"}
@@ -178,6 +180,20 @@ def resolve_expected(question: ls.Question, raws: dict[str, Any]) -> ExpectedVal
     ea = question.expected_answer
     if ea is None:
         return ExpectedValue(skip=True, skip_reason="expect_no_answer")
+    if isinstance(ea, list):
+        # Several ledger facts (a cross-project question): one group per path; any
+        # unformattable path skips the whole value check, as a single one would.
+        groups: list[tuple[str, ...]] = []
+        for ref_raw in ea:
+            sub = _resolve_one(ref_raw, raws)
+            if sub.skip:
+                return sub
+            groups.extend(sub.required)
+        return ExpectedValue(required=tuple(groups))
+    return _resolve_one(ea, raws)
+
+
+def _resolve_one(ea: str, raws: dict[str, Any]) -> ExpectedValue:
     ref = ea.removeprefix("ledger:")
     file_key, _, path = ref.partition(".")
     value = resolve_path(raws[file_key], path)
@@ -291,6 +307,25 @@ class QuestionResult:
     tokens_out: int
     model: str | None
     query_type: str | None = None  # router decision (Phase 4.3), informational
+    # Ürün 1 uyum turu: required/forbidden phrase check ("pass" | "fail" | "skipped").
+    phrase_check: str = "skipped"
+    phrase_check_reason: str | None = None
+
+
+def phrase_check_passes(question: ls.Question, answer_text: str) -> tuple[bool, str | None]:
+    """Every `required_phrases` entry present and no `forbidden_phrases` entry present
+    (normalised substring, like the value check). Returns (ok, reason)."""
+    haystack = _normalize(answer_text)
+    missing = [p for p in question.required_phrases if _normalize(p) not in haystack]
+    hit = [p for p in question.forbidden_phrases if _normalize(p) in haystack]
+    if not missing and not hit:
+        return True, None
+    reasons = []
+    if missing:
+        reasons.append(f"eksik ifade: {missing}")
+    if hit:
+        reasons.append(f"yasak ifade: {hit}")
+    return False, "; ".join(reasons)
 
 
 def score_question(
@@ -344,7 +379,13 @@ def score_question(
         value_check = "fail"
         value_check_reason = "expected value text not found in answer"
 
-    passed = answered_ok and sources_ok and value_check != "fail"
+    if question.required_phrases or question.forbidden_phrases:
+        phrase_ok, phrase_reason = phrase_check_passes(question, outcome.answer_text)
+        phrase_check = "pass" if phrase_ok else "fail"
+    else:
+        phrase_ok, phrase_reason, phrase_check = True, None, "skipped"
+
+    passed = answered_ok and sources_ok and value_check != "fail" and phrase_ok
 
     return QuestionResult(
         id=question.id,
@@ -367,6 +408,8 @@ def score_question(
         tokens_out=outcome.tokens_out,
         model=outcome.model,
         query_type=outcome.query_type,
+        phrase_check=phrase_check,
+        phrase_check_reason=phrase_reason,
     )
 
 
@@ -492,6 +535,8 @@ def report_to_json(report: EvalReport) -> dict[str, Any]:
                 "answered_ok": r.answered_ok,
                 "required_sources_missing": list(r.required_sources_missing),
                 "forbidden_sources_hit": list(r.forbidden_sources_hit),
+                "phrase_check": r.phrase_check,
+                "phrase_check_reason": r.phrase_check_reason,
                 "value_check": r.value_check,
                 "value_check_reason": r.value_check_reason,
                 "passed": r.passed,
@@ -543,6 +588,8 @@ def render_markdown(report: EvalReport) -> str:
                 reasons.append(f"eksik kaynak: {list(r.required_sources_missing)}")
             if r.forbidden_sources_hit:
                 reasons.append(f"yasak kaynak geldi: {list(r.forbidden_sources_hit)}")
+            if r.phrase_check == "fail":
+                reasons.append(f"ifade kontrolü: {r.phrase_check_reason}")
             if r.value_check == "fail":
                 reasons.append("beklenen değer metinde bulunamadı")
             snippet = r.answer_text[:200].replace("\n", " ")
@@ -629,10 +676,11 @@ def target_pages(
     printed but not registered as a key_fact (e.g. a financial-close date on a cover)."""
     if question.expected_answer is None:
         return frozenset()
-    ref = question.expected_answer.removeprefix("ledger:")
+    ea = question.expected_answer
+    refs = [r.removeprefix("ledger:") for r in (ea if isinstance(ea, list) else [ea])]
     pages: set[Page] = set()
     for path, found in index.pages_by_path.items():
-        if path == ref or path.startswith(ref + "."):
+        if any(path == ref or path.startswith(ref + ".") for ref in refs):
             pages |= found
     if (
         expected is not None
@@ -726,6 +774,7 @@ class RepeatOutcome:
     answered: bool
     value_ok: bool | None  # None = value check skipped/not applicable
     error: str | None
+    phrase_ok: bool | None = None  # None = no phrase rules on the question
 
 
 @dataclass(frozen=True)
@@ -736,6 +785,8 @@ class ConsistencySummary:
     model_measurable: int  # repeats with target_in_prompt=True
     value_ok: int
     value_measurable: int
+    phrase_ok: int = 0
+    phrase_measurable: int = 0
 
 
 def summarize_consistency(outcomes: list[RepeatOutcome]) -> ConsistencySummary:
@@ -753,6 +804,7 @@ def summarize_consistency(outcomes: list[RepeatOutcome]) -> ConsistencySummary:
             retrieval_stable += 1
     with_target = [o for o in outcomes if o.error is None and o.target_in_prompt]
     valued = [o for o in outcomes if o.error is None and o.value_ok is not None]
+    phrased = [o for o in outcomes if o.error is None and o.phrase_ok is not None]
     return ConsistencySummary(
         retrieval_stable=retrieval_stable,
         retrieval_measurable=retrieval_measurable,
@@ -760,6 +812,8 @@ def summarize_consistency(outcomes: list[RepeatOutcome]) -> ConsistencySummary:
         model_measurable=len(with_target),
         value_ok=sum(1 for o in valued if o.value_ok),
         value_measurable=len(valued),
+        phrase_ok=sum(1 for o in phrased if o.phrase_ok),
+        phrase_measurable=len(phrased),
     )
 
 
@@ -777,9 +831,11 @@ def render_consistency_markdown(outcomes: list[RepeatOutcome], *, label: str) ->
         f"- **Model kararlılığı** (hedef sayfa prompt'tayken cevap verdi): "
         f"{_pct(s.model_answered, s.model_measurable)}",
         f"- **Uçtan uca** (beklenen değer cevapta): {_pct(s.value_ok, s.value_measurable)}",
+        f"- **İfade kuralı** (zorunlu var, yasak yok — Ü-3): "
+        f"{_pct(s.phrase_ok, s.phrase_measurable)}",
         "",
-        "| Soru | Tekrar | Hedef prompt'ta | Cevapladı | Değer doğru | Hata |",
-        "|---|---|---|---|---|---|",
+        "| Soru | Tekrar | Hedef prompt'ta | Cevapladı | Değer doğru | İfade | Hata |",
+        "|---|---|---|---|---|---|---|",
     ]
 
     def mark(value: bool | None) -> str:
@@ -788,6 +844,6 @@ def render_consistency_markdown(outcomes: list[RepeatOutcome], *, label: str) ->
     for o in outcomes:
         lines.append(
             f"| {o.id} | {o.repeat} | {mark(o.target_in_prompt)} | {mark(o.answered)} | "
-            f"{mark(o.value_ok)} | {o.error or ''} |"
+            f"{mark(o.value_ok)} | {mark(o.phrase_ok)} | {o.error or ''} |"
         )
     return "\n".join(lines) + "\n"

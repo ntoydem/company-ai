@@ -26,6 +26,7 @@ QuestionCategory = Literal[
     "isolation",
     "hallucination",
     "authorization",
+    "comparison",
 ]
 DemoUser = Literal["admin", "yonetim", "finans", "hukuk", "enerji"]
 
@@ -488,7 +489,9 @@ class Question(_Strict):
     id: str = Field(pattern=r"^(ANK|IZM|GEN)-[A-Z]{3}-\d{3}$")
     category: QuestionCategory
     question: str
-    expected_answer: str | None
+    # One ledger path, or several for a question spanning projects (Ürün 1 uyum turu):
+    # every path becomes one value group the answer must contain.
+    expected_answer: str | list[str] | None
     expected_answer_aliases: list[str]
     expected_project: Literal["Ankara RES", "İzmir RES"] | None
     expected_department: DepartmentSlug | None
@@ -497,6 +500,11 @@ class Question(_Strict):
     ask_as_user: DemoUser
     expect_no_answer: bool
     notes: str | None = None
+    # Text checks on the answer (normalised substring): every required phrase present, no
+    # forbidden phrase present. Used by `comparison` (Ü-3) — the fixed notice must appear,
+    # comparative wording must not.
+    required_phrases: list[str] = []
+    forbidden_phrases: list[str] = []
 
 
 class QuestionSet(_Strict):

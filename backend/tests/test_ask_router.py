@@ -20,6 +20,7 @@ from app.models.audit_log import AuditLog
 from app.models.user import User
 from app.repositories import company_settings_repo
 from app.schemas.ask import (
+    INSUFFICIENT_DATA_WARNING,
     MISSING_DATA_WARNING,
     MIXED_NOTICE,
     NO_INTERPRETATION_NOTICE,
@@ -459,3 +460,52 @@ def test_p1_only_leaves_a_document_routing_untouched(
     company_settings_repo.set_enabled_products(db_session, ["P1"])
     body = _ask(client, "DSCR covenant nedir?")
     assert body["query_type"] == "DOCUMENT_QUERY" and body["warnings"] == []
+
+
+def test_insufficient_data_when_documents_were_retrieved_but_the_model_declined(
+    client: TestClient, db_session: Session, admin_user: User, fake_llm: FakeLLMClient
+) -> None:
+    """Ç-7: chunks reached the prompt (path ii) → `insufficient_data`, the fixed text is
+    unchanged and `retrieved_document_ids` is non-empty; zero chunks (path i) stays
+    `missing_data` — the two states the user-facing contract now tells apart."""
+    from tests.test_ask import _document
+
+    doc = _document(db_session, title="A", department=None, text="DSCR covenant 1,25x")
+    fake_llm.replies = ["Mevcut şirket kaynaklarında yeterli bilgi bulamadım."]
+    body = _ask(client, "DSCR covenant hangi tarihte değişti?")
+    assert body["answered"] is False and body["answer"] == NO_ANSWER_TEXT
+    assert body["retrieved_document_ids"] == [str(doc.id)]
+    assert body["warnings"] == [
+        {
+            "kind": "insufficient_data",
+            "message": INSUFFICIENT_DATA_WARNING,
+            "action": "request_data",
+        }
+    ]
+    rows = _audit_rows(db_session)
+    assert rows[-1].warnings[0]["kind"] == "insufficient_data"
+
+    body = _ask(client, "İzmir RES'in COD tarihi nedir?")  # nothing retrieved at all
+    assert body["retrieved_document_ids"] == [] and body["warnings"][0]["kind"] == "missing_data"
+
+
+def test_mixed_with_retrieved_documents_but_no_answer_is_insufficient_data(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    fake_router: FakeRouter,
+) -> None:
+    from tests.test_ask import _document
+
+    _document(db_session, title="A", department=None, text="DSCR covenant 1,25x")
+    _upload_workbook(client)
+    fake_router.query_type = "MIXED_QUERY"
+    fake_llm.reply_fn = _reply_by_pipeline(
+        document_reply="Mevcut şirket kaynaklarında yeterli bilgi bulamadım.",
+        plan={"kind": "none", "reason": "not in workbooks"},
+        excel_reply="",
+    )
+    body = _ask(client, "Covenant ve gerçekleşen DSCR?")
+    assert body["answered"] is False
+    assert [w["kind"] for w in body["warnings"]] == ["insufficient_data"]

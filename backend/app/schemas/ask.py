@@ -26,6 +26,12 @@ MIXED_NOTICE = (
 # written by code, never by the model. `data_conflict` is deliberately absent: it needs a
 # prompt change and its own eval category before the schema may promise it.
 MISSING_DATA_WARNING = "Şirket kaynaklarında yeterli bilgi bulunamadı."
+# Ç-7 "Yeterli Veri Bulunmamaktadır": documents were retrieved, the model still could not
+# answer reliably — distinct from `missing_data` (nothing retrieved at all).
+INSUFFICIENT_DATA_WARNING = (
+    "Şirket kaynaklarında ilgili belgeler bulundu ancak soruyu güvenilir şekilde "
+    "cevaplamaya yetmedi."
+)
 PRODUCT_LIMIT_WARNING = (
     "Bu özellik şirketinizin paketinde yok; soru yalnızca belgelerden cevaplandı."
 )
@@ -34,7 +40,7 @@ PRODUCT_LIMIT_WARNING = (
 class AskWarning(BaseModel):
     model_config = ConfigDict(frozen=True)
 
-    kind: Literal["missing_data", "product_limit"]
+    kind: Literal["missing_data", "insufficient_data", "product_limit"]
     message: str
     # `request_data` = the B-11 "diğer departmandan bilgi talep et" button; the department
     # is picked by the user, never suggested by the system (kural 1).
@@ -43,6 +49,12 @@ class AskWarning(BaseModel):
 
 def missing_data_warning() -> AskWarning:
     return AskWarning(kind="missing_data", message=MISSING_DATA_WARNING, action="request_data")
+
+
+def insufficient_data_warning() -> AskWarning:
+    return AskWarning(
+        kind="insufficient_data", message=INSUFFICIENT_DATA_WARNING, action="request_data"
+    )
 
 
 def product_limit_warning() -> AskWarning:

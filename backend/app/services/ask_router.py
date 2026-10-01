@@ -39,6 +39,7 @@ from app.schemas.ask import (
     AskWarning,
     QueryType,
     SourceCard,
+    insufficient_data_warning,
     missing_data_warning,
     product_limit_warning,
 )
@@ -174,6 +175,17 @@ def _run(
     excel_sources = data.sources if data else []
     retrieved = list(doc.retrieved_document_ids) if doc else []
     retrieved += [i for i in excel_document_ids(excel_sources) if i not in retrieved]
+    if not answered:
+        # Ç-7: documents reached the prompt but the model said they do not suffice →
+        # "yeterli veri bulunmamaktadır"; nothing retrieved at all → "veri yok". The Excel
+        # branch's own miss (no workbook / plan none) stays `missing_data` this round.
+        no_answer = [
+            insufficient_data_warning()
+            if doc is not None and doc.retrieved_document_ids
+            else missing_data_warning()
+        ]
+    else:
+        no_answer = []
     return RoutedAnswer(
         query_type=query_type,
         answer=answer,
@@ -187,7 +199,7 @@ def _run(
         tokens_in=(doc.tokens_in if doc else 0) + (data.tokens_in if data else 0),
         tokens_out=(doc.tokens_out if doc else 0) + (data.tokens_out if data else 0),
         product_level=PRODUCT_LEVEL_BY_TYPE[query_type],
-        warnings=warnings + ([missing_data_warning()] if not answered else []),
+        warnings=warnings + no_answer,
     )
 
 

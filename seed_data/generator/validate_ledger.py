@@ -53,7 +53,7 @@ IZMIR_POST_LICENCE_KEYS = (
     "operation_start",
 )
 QUOTAS = {"İzmir RES": 12, "Ankara RES": 35}
-CATEGORY_QUOTAS = {"hallucination": 3, "isolation": 3, "authorization": 3}
+CATEGORY_QUOTAS = {"hallucination": 3, "isolation": 3, "authorization": 3, "comparison": 3}
 MIN_QUESTIONS = 60
 FX_CROSS_TOLERANCE = 0.02
 # "<Name> A.Ş." style company suffixes; every match must be whitelisted (SPEC_05 §11).
@@ -817,8 +817,11 @@ def check_questions(
             report.error(
                 f, f"{p}", "Q3: authorization questions are asked as enerji and expect no answer"
             )
-        if q.expected_answer is not None and q.expected_answer.startswith("ledger:"):
-            ref = q.expected_answer[len("ledger:") :]
+        refs = q.expected_answer if isinstance(q.expected_answer, list) else [q.expected_answer]
+        for ref_raw in refs:
+            if ref_raw is None or not ref_raw.startswith("ledger:"):
+                continue
+            ref = ref_raw[len("ledger:") :]
             file_key, _, path = ref.partition(".")
             if file_key not in raws:
                 report.error(f, f"{p}.expected_answer", f"Q4: unknown ledger file {file_key!r}")
@@ -827,7 +830,17 @@ def check_questions(
                     resolve_path(raws[file_key], path)
                 except (KeyError, IndexError, TypeError):
                     report.error(f, f"{p}.expected_answer", f"Q4: ledger path {path!r} not found")
-        elif not q.expect_no_answer and q.expected_answer is None:
+        if q.category == "comparison":
+            # Ü-3: two projects, two ledger facts, a forbidden-wording list, no single project.
+            if not isinstance(q.expected_answer, list) or len(q.expected_answer) < 2:
+                report.error(
+                    f, f"{p}.expected_answer", "Q6: comparison needs a list of >= 2 ledger facts"
+                )
+            if q.expected_project is not None:
+                report.error(f, f"{p}.expected_project", "Q6: comparison spans projects, use null")
+            if not q.forbidden_phrases:
+                report.error(f, f"{p}.forbidden_phrases", "Q6: comparison needs forbidden_phrases")
+        if not q.expect_no_answer and q.expected_answer is None:
             report.error(
                 f, f"{p}.expected_answer", "Q4: answerable question needs an expected_answer"
             )

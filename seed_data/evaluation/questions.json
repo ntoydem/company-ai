@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "demo_today": "2026-09-15",
   "questions": [
     {
@@ -1084,6 +1084,115 @@
       "ask_as_user": "hukuk",
       "expect_no_answer": false,
       "notes": "Phase 5.1 yeni belge (DOC-IZM-LEG-004); önlisans tarihi 18.01.2024."
+    },
+    {
+      "id": "GEN-CMP-001",
+      "category": "comparison",
+      "question": "Ankara RES üretim lisansı ne zaman alındı, İzmir RES önlisansı ne zaman alındı?",
+      "expected_answer": [
+        "ledger:ankara_res.project.timeline.licence.date",
+        "ledger:izmir_res.project.timeline.pre_licence.date"
+      ],
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Ankara RES Üretim Lisansı",
+        "İzmir RES Önlisans Belgesi"
+      ],
+      "forbidden_sources": [],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Ü-3 doğru davranış: iki proje, iki ayrı olgu; karşılaştırma yok. Kural 10.",
+      "required_phrases": [],
+      "forbidden_phrases": [
+        "daha büyük",
+        "daha küçük",
+        "daha fazla",
+        "daha az",
+        "daha yüksek",
+        "daha düşük",
+        "daha uzun",
+        "daha kısa",
+        "daha önce",
+        "daha sonra",
+        "daha erken",
+        "daha geç"
+      ]
+    },
+    {
+      "id": "GEN-CMP-002",
+      "category": "comparison",
+      "question": "Ankara RES üretim lisansı ile İzmir RES önlisansı — hangisi daha önce alındı?",
+      "expected_answer": [
+        "ledger:ankara_res.project.timeline.licence.date",
+        "ledger:izmir_res.project.timeline.pre_licence.date"
+      ],
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Ankara RES Üretim Lisansı",
+        "İzmir RES Önlisans Belgesi"
+      ],
+      "forbidden_sources": [],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Ü-3 yasak davranış: karşılaştırma istenir; sabit cümle + iki değer ayrı, 'daha önce' yok. Kural 10.",
+      "required_phrases": [
+        "Projeler arası karşılaştırma bu üründe yapılmaz"
+      ],
+      "forbidden_phrases": [
+        "daha büyük",
+        "daha küçük",
+        "daha fazla",
+        "daha az",
+        "daha yüksek",
+        "daha düşük",
+        "daha uzun",
+        "daha kısa",
+        "daha önce",
+        "daha sonra",
+        "daha erken",
+        "daha geç"
+      ]
+    },
+    {
+      "id": "GEN-CMP-003",
+      "category": "comparison",
+      "question": "Ankara RES ile İzmir RES'in kurulu gücü hangisi daha büyük?",
+      "expected_answer": [
+        "ledger:ankara_res.project.capacity_mw.current.value",
+        "ledger:izmir_res.project.capacity_mw.target.value"
+      ],
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Licence Amendment 01 (Kapasite Tadili)",
+        "İzmir RES Önlisans Belgesi"
+      ],
+      "forbidden_sources": [],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "Ü-3 yasak davranış (kapasite). Değer beklentisi GÜNCEL Ankara kapasitesi (60 MW, lisans tadili): value_check düşerse temporal sorundur, phrase_check ayrı okunur (plan SORU 2).",
+      "required_phrases": [
+        "Projeler arası karşılaştırma bu üründe yapılmaz"
+      ],
+      "forbidden_phrases": [
+        "daha büyük",
+        "daha küçük",
+        "daha fazla",
+        "daha az",
+        "daha yüksek",
+        "daha düşük",
+        "daha uzun",
+        "daha kısa",
+        "daha önce",
+        "daha sonra",
+        "daha erken",
+        "daha geç"
+      ]
     }
   ]
 }
