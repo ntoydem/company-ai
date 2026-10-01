@@ -1,6 +1,6 @@
 # Ürün 1 uyum turu Raporu — Ü-3 kural 10 (karşılaştırma yasağı) + `insufficient_data` + `comparison` eval kategorisi
 
-**Tarih:** 01.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit + `docs/PHASES.md` notu)  **Commit:** `<commit>`
+**Tarih:** 01.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit + `docs/PHASES.md` notu)  **Commit:** `3350f3b`
 **Plan:** `docs/plans/URUN1_UYUM_PLAN.md` · **ADR:** ADR-014 concretization; yeni ADR yok · **Migration:** yok
 
 Naci'nin SORU cevapları: (1) kural 10 her pakette geçerli; "karşılaştırma Ürün 2'de serbest mi?" Tansu'ya ayrı soru (NOT §7.2 #9); (2) GEN-CMP-003 kaldı, `phrase_check`/`value_check` ayrı raporlanıyor; (3) DATA dalında "yetersiz" → `missing_data` kaldı; (4) etiketsiz düz commit. **Canlı ölçüm hedefi (9/9) ilk turda tutuldu — revizyon turu gerekmedi.** (a) Ç-7.1 4 adımlı protokol bu turda yapılmadı, PHASES.md'ye ayrı UX fazı notu düşüldü.

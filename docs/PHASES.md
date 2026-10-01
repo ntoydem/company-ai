@@ -254,7 +254,7 @@ aşılmaz), `/api/admin/folders*` + `/api/folders` (`proposed.ts` §10 ile bireb
 ADR-023. Ayrı bir phase değil; plan `docs/plans/ASAMA_E_PLAN.md`, rapor `docs/reports/ASAMA_E_REPORT.md`. Tarayıcı
 (E-15) Naci elle.
 
-**Ürün 1 uyum turu (01.10.2026, `<commit>`):** Balbal Anayasası v2.0 — Ü-3: `answer_prompt.py` kural 10 (projeler arası
+**Ürün 1 uyum turu (01.10.2026, `3350f3b`):** Balbal Anayasası v2.0 — Ü-3: `answer_prompt.py` kural 10 (projeler arası
 karşılaştırma yok, sabit cümle + ayrı değerler, her pakette geçerli), `questions.json` v4 `comparison` kategorisi (3 soru,
 %100 eşik, `required_phrases`/`forbidden_phrases`, iki ledger yollu `expected_answer`, `--repeat` ifade sayacı); Ç-7:
 `warnings[].kind` `insufficient_data` (chunk var, model yetmez dedi) ↔ `missing_data` (sıfır chunk). Ayrı bir phase
