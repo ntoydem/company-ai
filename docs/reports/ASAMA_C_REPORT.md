@@ -48,7 +48,7 @@ Naci'nin SORU cevapları (hepsi planın önerisi yönünde): (1) `manager_id` yo
 | Rehber `q` boşluk kırpılır, `ILIKE %q%`; `limit` 200, sayfalama yok | V0 ölçeği | — |
 | `DirectoryPerson` `extra="forbid"` | Sözleşme 5 alan; yanlışlıkla alan sızmasın | — |
 | `UserUpdateRequest`'te `primary_department_id: null` açıkça gönderilirse üyeliği olan kullanıcıda **yeniden ilk üyelik** atanır (null kabul edilmez) | Üyeliği olan `employee` ana departmansız kalmaz (BAGLANTI §3.2/4) | Null yalnızca üyeliksizde kalır |
-| Canlı DB'de `finans` 15 belge (plan 14 dedi) | Aşama A canlı testinde admin'in `finans`'a yüklediği `Covenant_Report.xlsx` de görünüyor (18 → 15) | Beklenen |
+| Canlı DB'de `finans` 15 belge (plan 17→14 demişti, gerçek 18→15) | Plan yazılırken yalnızca `manifest.json`'daki PDF'ler sayılmıştı (`finans` 14 + `mali_isler` 3 = 17); `make seed`'in yüklediği workbook'lar (`external_ref` dolu, elle yükleme değil) hesaba katılmamıştı — `finans`'a 1 `normal` (`Covenant_Report.xlsx`, görünür) + 1 `restricted` (employee görmez). Düşüş aynı 3 `mali_isler` PDF'i; tutarsızlık yok | Beklenen |
 
 ## 6. Açık sorular (Naci cevaplamalı)
 
