@@ -29,6 +29,7 @@ from app.repositories import (
     department_repo,
     document_metadata_suggestion_repo,
     document_repo,
+    folder_repo,
     project_repo,
     user_repo,
 )
@@ -69,6 +70,10 @@ DOCUMENT_NOT_FOUND_MESSAGE = "Belge bulunamadı."
 ALREADY_SUPERSEDED_MESSAGE = "Belge zaten başka bir belge tarafından güncellenmiş."
 DOCUMENT_ACCESS_DENIED_MESSAGE = "Bu belgeye erişim yetkiniz yok."
 UNKNOWN_DEPARTMENT_MESSAGE = "Bilinmeyen departman."
+FOLDER_WRITE_DENIED_MESSAGE = "Bu klasöre belge yükleme yetkiniz yok."
+FOLDER_DEPARTMENT_MISMATCH_MESSAGE = (
+    "Belgenin departmanı klasörün sahibi departmanıyla aynı olmalı."
+)
 DEPARTMENT_NOT_ALLOWED_MESSAGE = "Bu departmana belge yükleme yetkiniz yok."
 UNKNOWN_PROJECT_MESSAGE = "Bilinmeyen proje."
 NOT_READY_MESSAGE = "Belge henüz işleniyor, öneri üretilemez."
@@ -197,6 +202,7 @@ def upload_document(
     subdepartment: Annotated[str | None, Form()] = None,
     project_id: Annotated[uuid.UUID | None, Form()] = None,
     confidentiality: Annotated[Confidentiality, Form()] = Confidentiality.normal,
+    folder_id: Annotated[uuid.UUID | None, Form()] = None,
 ) -> DocumentUploadResponse:
     content = _read_within_limit(file.file, settings.max_upload_size_mb * 1024 * 1024)
     extension = _detect_extension(content, file.filename)
@@ -222,6 +228,30 @@ def upload_document(
         raise HTTPException(403, DEPARTMENT_NOT_ALLOWED_MESSAGE)
     if project_id is not None and project_repo.get(session, project_id) is None:
         raise HTTPException(404, UNKNOWN_PROJECT_MESSAGE)
+
+    # B-26 (Aşama E): a document lives in a folder and its department *is* the folder
+    # owner's. With `folder_id`: the caller needs write access there (owner membership or a
+    # `write` grant, inherited counts; management/admin always) and `department`, if sent,
+    # must agree. Without it: the department's root folder (older clients, the demo seed),
+    # or no folder when there is no department either (invisible to employees, as before).
+    folder = None
+    if folder_id is not None:
+        folder = folder_repo.get(session, folder_id)
+        if folder is None:
+            raise HTTPException(404, folder_repo.FOLDER_NOT_FOUND)
+        owner_slug = folder.owner_department.slug
+        if department is not None and department != owner_slug:
+            raise HTTPException(422, FOLDER_DEPARTMENT_MISMATCH_MESSAGE)
+        department = owner_slug
+        if current_user.role not in (UserRole.management, UserRole.admin):
+            access = folder_repo.access_map(session).access_for(
+                folder.id, [d.id for d in current_user.departments]
+            )
+            if access not in ("owner", "write"):
+                raise HTTPException(403, FOLDER_WRITE_DENIED_MESSAGE)
+    elif department is not None:
+        owner = department_repo.get_by_slug(session, department)
+        folder = folder_repo.root_for_department(session, owner.id) if owner else None
 
     # Version chain (ADR-012): the predecessor must be visible to the user (ADR-004) and
     # not already superseded (chains are linear, DOMAIN_MODEL §6). Checked before the
@@ -268,6 +298,7 @@ def upload_document(
             subdepartment=subdepartment,
             project_id=project_id,
             confidentiality=confidentiality,
+            folder_id=folder.id if folder else None,
         )
         document.supersedes_document_id = supersedes_document_id
     else:
@@ -289,6 +320,7 @@ def upload_document(
             subdepartment=subdepartment,
             project_id=project_id,
             confidentiality=confidentiality,
+            folder_id=folder.id if folder else None,
         )
     if predecessor is not None:
         document_repo.mark_superseded(session, older=predecessor, newer=document)
@@ -500,7 +532,12 @@ def get_document_visibility(
     `allowed_document_ids` in reverse via `SingleDocumentIdsProvider` rather than a second
     permission engine (ADR-004)."""
     document = _get_authorized_document(session, current_user, document_id)
-    provider = SingleDocumentIdsProvider(document)
+    grantee_slugs: frozenset[str] = frozenset()
+    if document.folder_id is not None:
+        slugs = {d.id: d.slug for d in department_repo.list_all(session)}
+        grantee_ids = folder_repo.access_map(session).grantee_department_ids(document.folder_id)
+        grantee_slugs = frozenset(slugs[i] for i in grantee_ids if i in slugs)
+    provider = SingleDocumentIdsProvider(document, folder_grantee_slugs=grantee_slugs)
     visible_users = [
         user
         for user in user_repo.list_all(session)

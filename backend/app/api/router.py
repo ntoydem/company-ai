@@ -9,6 +9,7 @@ from app.api import (
     directory,
     documents,
     excel,
+    folders,
     health,
     projects,
     search,
@@ -30,3 +31,5 @@ router.include_router(ask_page.router)
 router.include_router(audit_log.router)
 router.include_router(excel.router)
 router.include_router(settings.router)
+router.include_router(folders.admin_router)
+router.include_router(folders.user_router)

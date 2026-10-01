@@ -293,6 +293,25 @@ Router promptu `backend/app/services/router.py`; kopyası `docs/prompts/ROUTER_P
 `make lint` eşitliği denetler). Maliyet: soru başına LLM çağrısı DOCUMENT 2, DATA 3, MIXED 4 — ücretsiz katmanda
 (5 istek/dk) `make eval` istek aralığı bu yüzden 26 sn.
 
+## Klasörler ve departman erişim yetkileri — Aşama E (01.10.2026, B-26)
+Her belge bir klasörde durur; klasörün **sahibi departmanı** belgenin departmanıdır (yetki ADR-004'teki gibi
+departmandan gelir). Klasör ağacını ve başka departmanlara verilen **görme/değiştirme** yetkilerini müşterinin
+kendi sistem yöneticisi kurar (ADR-023); backend yalnızca her üst departman için bir kök klasör açar (`make up`
+/ `make seed`). Yetki alt klasörlere miras kalır (en yakın tanım geçerli); gizlilik düzeyini aşmaz; kaldırılınca
+bir sonraki istekte geçerlidir — liste, arama, indirme ve Balbal aynı `allowed_document_ids` kümesini kullanır.
+```bash
+curl -s -b admin_cookies.txt localhost:8080/api/admin/folders                           # ağaç + etkin yetkiler
+curl -s -b admin_cookies.txt -X POST localhost:8080/api/admin/folders -H 'content-type: application/json' \
+  -d '{"name":"Proje Sözleşmeleri","parent_id":"<hukuk kök id>","owner_department_slug":"hukuk"}'
+curl -s -b admin_cookies.txt -X PUT "localhost:8080/api/admin/folders/<id>/grants" -H 'content-type: application/json' \
+  -d '{"grants":[{"department_slug":"finans","access":"read"}]}'                          # none = tanımı kaldır
+curl -s -b admin_cookies.txt "localhost:8080/api/admin/folders/audit"                   # kim, ne zaman, önce/sonra
+curl -s -b cookies.txt localhost:8080/api/folders                                       # kullanıcının gördüğü klasörler
+```
+Yükleme: `folder_id` form alanı (`write` yetkisi yoksa 403; `department` gönderilirse klasörle uyuşmalı, aksi 422);
+`folder_id` yoksa belge departmanının kök klasörüne düşer. "Değiştirme" yetkisi metadata düzenlemeyi **kapsamaz**
+(admin-only kalır, B-28). Yetki değişiklikleri `audit_log`'a değil `folder_grant_events`'e yazılır.
+
 ## İçerik araması — Aşama D (01.10.2026, B-14)
 `GET /api/search?q=&limit=` (her giriş yapan kullanıcı) belge **içeriğinde** ve metadata'sında, projelerde ve kişilerde
 tek istekle arar: `{documents: [{…liste alanları, snippet, page_number}], projects: [...], people: [...]}`. İçerik
@@ -483,7 +502,7 @@ kendi belgelerine sahip (Ankara 3, İzmir 4 — Phase 5.1, bkz. `docs/reports/PH
 | `make update-frontend REF=<sha\|main>` | AI-BalBal submodule'ünü ilerlet + caddy'yi yeniden derle (pointer'ı commit etmek sana kalır) |
 | `make dev-frontend` | Emekli `frontend/` için Vite dev server `:5173` (kalıcı değil; AI-BalBal geliştirmesi Tansu'nun reposunda) |
 | `make migrate`, `make migration NAME=...` | Alembic upgrade / yeni migration |
-| `make seed-admin`, `make seed-demo-users`, `make seed-demo-departments`, `make seed-demo-projects` | Admin/demo kullanıcı/demo departman+üyelik/demo proje oluştur (yoksa) |
+| `make seed-admin`, `make seed-demo-users`, `make seed-demo-departments`, `make seed-demo-folders`, `make seed-demo-projects` | Admin/demo kullanıcı/demo departman+üyelik/kök klasörler/demo proje oluştur (yoksa) |
 | `make set-products PRODUCTS=P1,P2` | Ürün paketini değiştir (B-25, bkz. "Ürün paketi ve cevap alanları") |
 | `make prose` | LLM ile `seed_data/generator/prose/*.yaml` üret (yalnızca içerik değiştiğinde, elle commit edilir) |
 | `make validate-documents` | Prose (P1/P2) + üretilmiş PDF (G1-G6) doğrulaması; `make lint`'in parçası (`--prose-only`) |

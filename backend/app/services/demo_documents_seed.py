@@ -21,7 +21,7 @@ from app.core.config import Settings
 from app.excel.inspect import inspect_file
 from app.models.document import Confidentiality
 from app.models.document import DocumentStatus as DocStatus
-from app.repositories import document_repo, project_repo, user_repo
+from app.repositories import department_repo, document_repo, folder_repo, project_repo, user_repo
 from app.services.document_store import LocalFileSystemStore
 
 log = logging.getLogger(__name__)
@@ -31,6 +31,18 @@ log = logging.getLogger(__name__)
 class DemoSeedResult:
     external_ref: str
     created: bool
+
+
+def _root_folder_id(session: Session, department_slug: str | None) -> uuid.UUID | None:
+    """B-26: seeded documents land in their department's root folder (same place
+    migration 0011 puts pre-existing ones)."""
+    if department_slug is None:
+        return None
+    department = department_repo.get_by_slug(session, department_slug)
+    if department is None:
+        return None
+    root = folder_repo.root_for_department(session, department.id)
+    return root.id if root else None
 
 
 def _project_id(session: Session, code: str | None) -> uuid.UUID | None:
@@ -81,6 +93,7 @@ def _seed_one(
             project_id=_project_id(session, entry["project_code"]),
             confidentiality=Confidentiality(entry["confidentiality"]),
             external_ref=external_ref,
+            folder_id=_root_folder_id(session, entry["department"]),
         )
         session.commit()
         log.info("demo workbook created", extra={"external_ref": external_ref})
@@ -106,6 +119,7 @@ def _seed_one(
         project_id=_project_id(session, entry["project_code"]),
         confidentiality=Confidentiality(entry["confidentiality"]),
         external_ref=external_ref,
+        folder_id=_root_folder_id(session, entry["department"]),
     )
     session.commit()
     log.info("demo document created", extra={"external_ref": external_ref})

@@ -75,6 +75,13 @@ class Document(TimestampMixin, Base):
     # B-20/6 (Aşama D): the source card names the project without a second request from
     # the UI. Organisational only — permission still comes from `department` (ADR-004).
     project: Mapped[Project | None] = relationship("Project")
+    # B-26 (Aşama E, ADR-023): the folder the document lives in; its `department` is the
+    # folder owner's slug. NULL only for documents without a department (invisible to every
+    # employee) or after their folder was deleted (SET NULL — folders with documents cannot
+    # be deleted through the API, so this is a safety net, not a path).
+    folder_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("folders.id", ondelete="SET NULL"), nullable=True, index=True
+    )
     document_type: Mapped[str] = mapped_column(String(64))
     counterparty: Mapped[str] = mapped_column(String(255))
     document_date: Mapped[date] = mapped_column(Date)

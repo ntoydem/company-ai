@@ -19,10 +19,22 @@ class FakeProvider:
         self.seen_department_calls: list[
             tuple[tuple[str, ...] | None, tuple[Confidentiality, ...]]
         ] = []
+        # B-26: documents reachable through folder grants (empty unless a test sets it).
+        self.folder_grant_ids: list[UUID] = []
+        self.seen_folder_calls: list[tuple[tuple[str, ...], tuple[Confidentiality, ...]]] = []
 
     def list_document_ids(self, scope: AuthorizationScope) -> Iterable[UUID]:
         self.seen_scopes.append(scope)
         return iter(self.ids)
+
+    def list_document_ids_for_folder_grants(
+        self,
+        *,
+        department_slugs: Iterable[str],
+        confidentiality_levels: Iterable[Confidentiality],
+    ) -> Iterable[UUID]:
+        self.seen_folder_calls.append((tuple(department_slugs), tuple(confidentiality_levels)))
+        return iter(self.folder_grant_ids)
 
     def list_document_ids_for_departments(
         self,

@@ -24,7 +24,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
     assert "users" not in inspect(engine).get_table_names()
 
     command.upgrade(cfg, "head")
-    assert _current_revision() == "0010"
+    assert _current_revision() == "0011"
     tables = inspect(engine).get_table_names()
     assert "users" in tables
     assert "documents" in tables
@@ -65,6 +65,8 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
     assert {"product_level", "warnings"} <= audit_columns
     user_columns = {c["name"] for c in inspect(engine).get_columns("users")}
     assert {"title", "primary_department_id"} <= user_columns
+    assert {"folders", "folder_grants", "folder_grant_events"} <= set(tables)
+    assert "folder_id" in {c["name"] for c in inspect(engine).get_columns("documents")}
     assert "company_settings" in tables
 
     with engine.connect() as conn:
@@ -82,7 +84,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
 
 def test_upgrade_head_is_idempotent() -> None:
     command.upgrade(alembic_config(), "head")
-    assert _current_revision() == "0010"
+    assert _current_revision() == "0011"
 
 
 def test_0010_corrects_an_existing_phase_1_2_tree_and_backfills_users() -> None:
@@ -162,3 +164,60 @@ def tree_snapshot_from_seed(
     seed: tuple[tuple[str, str, str | None], ...],
 ) -> list[tuple[str, str, str | None]]:
     return sorted(seed, key=lambda row: row[1])
+
+
+def test_0011_creates_root_folders_and_moves_existing_documents() -> None:
+    """Aşama E, E-12: on an existing database every top-level department gets a root folder
+    and every document lands in its department's root; department-less documents stay
+    folder-less; sub-departments get no root of their own."""
+    cfg = alembic_config()
+    engine = get_engine()
+    command.downgrade(cfg, "0010")
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "INSERT INTO departments (id, name, slug, parent_id) VALUES "
+                "(gen_random_uuid(), 'Hukuk', 'hukuk', NULL), "
+                "(gen_random_uuid(), 'Enerji', 'enerji_grubu', NULL)"
+            )
+        )
+        conn.execute(
+            text(
+                "INSERT INTO departments (id, name, slug, parent_id) VALUES "
+                "(gen_random_uuid(), 'Proje Geliştirme', 'enerji_gelistirme', "
+                "(SELECT id FROM departments WHERE slug = 'enerji_grubu'))"
+            )
+        )
+        for title, department in (("A", "hukuk"), ("B", "enerji_grubu"), ("C", None)):
+            conn.execute(
+                text(
+                    "INSERT INTO documents (id, title, document_type, counterparty, document_date, "
+                    "status, department, storage_path, ingestion_status, source, confidentiality, "
+                    "tags, related_document_ids, version) VALUES (gen_random_uuid(), :title, 't', "
+                    "'c', '2026-01-01', 'executed', :department, 'x/original.pdf', 'ready', 'web', "
+                    "'normal', '{}', '{}', 1)"
+                ),
+                {"title": title, "department": department},
+            )
+
+    command.upgrade(cfg, "head")
+
+    with engine.connect() as conn:
+        roots = conn.execute(
+            text(
+                "SELECT f.name, d.slug FROM folders f "
+                "JOIN departments d ON d.id = f.owner_department_id "
+                "WHERE f.parent_id IS NULL ORDER BY d.slug"
+            )
+        ).all()
+        placed = conn.execute(
+            text(
+                "SELECT doc.title, f.name FROM documents doc "
+                "LEFT JOIN folders f ON f.id = doc.folder_id ORDER BY doc.title"
+            )
+        ).all()
+    assert [tuple(r) for r in roots] == [
+        ("Enerji", "enerji_grubu"),
+        ("Hukuk", "hukuk"),
+    ]  # no root for the sub-department
+    assert [tuple(r) for r in placed] == [("A", "Hukuk"), ("B", "Enerji"), ("C", None)]

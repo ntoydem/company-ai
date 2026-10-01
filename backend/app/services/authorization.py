@@ -8,6 +8,11 @@ belong to; `management` = every department, every confidentiality level; `admin`
 everything. Document permission derives from department, not project. `scope` (from
 `AuthorizationScope`) only ever narrows the result — it never grants access on its own.
 The signature below is the contract and does not change.
+
+Aşama E (B-26, ADR-023): an `employee` additionally sees the documents of folders their
+departments were granted access to (`read` or `write`, inherited down the tree) — at the
+same confidentiality levels as their own departments, never more. Folder grants are one
+more *input* to this function, not a second gate; `management`/`admin` are unchanged.
 """
 
 from collections.abc import Iterable
@@ -36,6 +41,16 @@ class DocumentIdsProvider(Protocol):
         department_slugs: Iterable[str] | None,
         confidentiality_levels: Iterable[Confidentiality],
     ) -> Iterable[UUID]: ...
+
+    def list_document_ids_for_folder_grants(
+        self,
+        *,
+        department_slugs: Iterable[str],
+        confidentiality_levels: Iterable[Confidentiality],
+    ) -> Iterable[UUID]:
+        """Documents in folders (and sub-folders) that any of `department_slugs` was granted
+        access to (B-26), limited to `confidentiality_levels`."""
+        ...
 
 
 def allowed_document_ids(
@@ -68,12 +83,19 @@ def allowed_document_ids(
         )
         return scoped_ids & role_ids
 
-    # employee: normal documents of the departments they belong to.
+    # employee: normal documents of the departments they belong to, plus (B-26) normal
+    # documents in folders those departments were granted access to.
     department_slugs = [department.slug for department in user.departments]
     if not department_slugs:
         return set()
     role_ids = set(
         document_ids_provider.list_document_ids_for_departments(
+            department_slugs=department_slugs,
+            confidentiality_levels=_EMPLOYEE_CONFIDENTIALITY_LEVELS,
+        )
+    )
+    role_ids |= set(
+        document_ids_provider.list_document_ids_for_folder_grants(
             department_slugs=department_slugs,
             confidentiality_levels=_EMPLOYEE_CONFIDENTIALITY_LEVELS,
         )
@@ -88,8 +110,14 @@ class SingleDocumentIdsProvider:
     than writing a second one — the single gate stays the only place permission logic
     lives (ADR-004)."""
 
-    def __init__(self, document: Document) -> None:
+    def __init__(
+        self, document: Document, folder_grantee_slugs: frozenset[str] = frozenset()
+    ) -> None:
         self._document = document
+        # Departments with effective (own or inherited) access to the document's folder —
+        # computed by the caller from `folder_repo.access_map()`, so this adapter stays free
+        # of SQL and the rule stays in one place (B-26).
+        self._folder_grantee_slugs = folder_grantee_slugs
 
     def list_document_ids(self, scope: AuthorizationScope) -> Iterable[UUID]:
         del scope  # a single document has nothing left to narrow
@@ -106,5 +134,17 @@ class SingleDocumentIdsProvider:
         if department_slugs is not None and (
             self._document.department is None or self._document.department not in department_slugs
         ):
+            return ()
+        return (self._document.id,)
+
+    def list_document_ids_for_folder_grants(
+        self,
+        *,
+        department_slugs: Iterable[str],
+        confidentiality_levels: Iterable[Confidentiality],
+    ) -> Iterable[UUID]:
+        if self._document.confidentiality not in confidentiality_levels:
+            return ()
+        if self._folder_grantee_slugs.isdisjoint(department_slugs):
             return ()
         return (self._document.id,)

@@ -44,6 +44,30 @@ class SqlDocumentIdsProvider:
             stmt = stmt.where(Document.department.in_(list(department_slugs)))
         return self._session.scalars(stmt).all()
 
+    def list_document_ids_for_folder_grants(
+        self,
+        *,
+        department_slugs: Iterable[str],
+        confidentiality_levels: Iterable[Confidentiality],
+    ) -> Iterable[uuid.UUID]:
+        """B-26: documents in folders where any of `department_slugs` has an effective grant
+        (own or inherited), at the given confidentiality levels. The tree is small, so the
+        inheritance walk happens in Python (`FolderAccessMap`) and SQL gets a plain id list."""
+        from app.repositories import department_repo, folder_repo
+
+        slugs = list(department_slugs)
+        if not slugs:
+            return ()
+        department_ids = [d.id for d in department_repo.list_all(self._session) if d.slug in slugs]
+        folder_ids = folder_repo.access_map(self._session).readable_folder_ids(department_ids)
+        if not folder_ids:
+            return ()
+        stmt = select(Document.id).where(
+            Document.folder_id.in_(list(folder_ids)),
+            Document.confidentiality.in_(list(confidentiality_levels)),
+        )
+        return self._session.scalars(stmt).all()
+
 
 def create_with_job(
     session: Session,
@@ -67,6 +91,7 @@ def create_with_job(
     source: DocumentSource = DocumentSource.web,
     related_document_ids: list[uuid.UUID] | None = None,
     external_ref: str | None = None,
+    folder_id: uuid.UUID | None = None,
 ) -> Document:
     """Create `documents` + the initial `ingestion_jobs` row together — one is never
     committed without the other (ADR-006). The upload endpoint (Phase 0.2) only ever
@@ -92,6 +117,7 @@ def create_with_job(
         confidentiality=confidentiality,
         related_document_ids=related_document_ids or [],
         external_ref=external_ref,
+        folder_id=folder_id,
         storage_path=storage_path,
         ingestion_status=IngestionStatus.uploaded,
         uploaded_by_id=uploaded_by_id,
@@ -127,6 +153,7 @@ def create_ready(
     source: DocumentSource = DocumentSource.web,
     related_document_ids: list[uuid.UUID] | None = None,
     external_ref: str | None = None,
+    folder_id: uuid.UUID | None = None,
 ) -> Document:
     """Excel family (Phase 4.2, SPEC_04 §1): no OCR job, no pages/chunks — the file is
     `ready` at once; sheets are read at query time by `app/excel/`. `page_count` = sheet
@@ -148,6 +175,7 @@ def create_ready(
         confidentiality=confidentiality,
         related_document_ids=related_document_ids or [],
         external_ref=external_ref,
+        folder_id=folder_id,
         storage_path=storage_path,
         ingestion_status=IngestionStatus.ready,
         uploaded_by_id=uploaded_by_id,

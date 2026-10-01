@@ -35,6 +35,8 @@ class DocumentListItem(BaseModel):
     created_at: datetime
     # B-13: pdf | image | xlsx | xlsm | csv, derived from the stored file (Document.file_kind).
     file_kind: FileKind | None
+    # B-26: the folder the document lives in (null = no department / legacy).
+    folder_id: UUID | None
 
 
 class DocumentDetailResponse(DocumentListItem):

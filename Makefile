@@ -14,7 +14,7 @@ SVC ?=
 EVAL_ARGS ?=
 
 .PHONY: help env-check dirs up up-full down ps logs build test test-llm lint format prompt-doc validate-ledger \
-        migrate migration seed-admin seed-demo-users seed-demo-departments seed-demo-projects \
+        migrate migration seed-admin seed-demo-users seed-demo-departments seed-demo-folders seed-demo-projects \
         prose validate-documents seed-demo-documents build-frontend update-frontend dev-frontend excel validate-excel \
         psql shell seed reset-demo eval backup restore clean
 
@@ -143,6 +143,9 @@ seed-demo-departments: dirs ## demo departmanlarını + demo kullanıcı üyelik
 
 seed-demo-projects: dirs ## demo projelerini oluştur (yoksa): Ankara RES, İzmir RES
 	$(COMPOSE) run --rm -T backend python -m app.cli seed-demo-projects
+
+seed-demo-folders: dirs ## B-26: her üst departman için kök klasör oluştur (yoksa)
+	$(COMPOSE) run --rm -T backend python -m app.cli seed-demo-folders
 
 set-products: dirs ## ürün paketini değiştir (B-25): make set-products PRODUCTS=P1  |  PRODUCTS=P1,P2,P3
 	@test -n "$(PRODUCTS)" || { echo "PRODUCTS=P1[,P2[,P3]] gerekli"; exit 1; }

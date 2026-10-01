@@ -19,6 +19,7 @@ from app.services.demo_departments_seed import (
     ensure_demo_departments,
 )
 from app.services.demo_documents_seed import ensure_demo_documents
+from app.services.demo_folders_seed import ensure_demo_root_folders
 from app.services.demo_projects_seed import ensure_demo_projects
 from app.services.demo_users_seed import ensure_demo_users
 
@@ -70,6 +71,16 @@ def cmd_seed_demo_departments() -> int:
             "slugs": [r.slug for r in departments],
             "memberships": [r.slug for r in memberships],
         },
+    )
+    return 0
+
+
+def cmd_seed_demo_folders() -> int:
+    with get_session_factory()() as session:
+        results = ensure_demo_root_folders(session, get_settings())
+    log.info(
+        "seed-demo-folders done",
+        extra={"roots": [r.slug for r in results], "was_created": [r.created for r in results]},
     )
     return 0
 
@@ -233,6 +244,9 @@ def main(argv: list[str] | None = None) -> int:
         help="create the demo departments and demo user memberships if they do not exist",
     )
     sub.add_parser("seed-demo-projects", help="create the demo projects if they do not exist")
+    sub.add_parser(
+        "seed-demo-folders", help="B-26: one root folder per top-level department if missing"
+    )
     seed_docs = sub.add_parser(
         "seed-demo-documents",
         help="create the demo documents from seed_data/documents/manifest.json",
@@ -272,6 +286,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_seed_demo_departments()
     if args.command == "seed-demo-projects":
         return cmd_seed_demo_projects()
+    if args.command == "seed-demo-folders":
+        return cmd_seed_demo_folders()
     if args.command == "seed-demo-documents":
         return cmd_seed_demo_documents(args.manifest)
     if args.command == "wait-for-documents":

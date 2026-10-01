@@ -21,6 +21,7 @@ echo "== kullanıcılar / departmanlar / projeler =="
 $COMPOSE run --rm -T backend python -m app.cli seed-admin
 $COMPOSE run --rm -T backend python -m app.cli seed-demo-users
 $COMPOSE run --rm -T backend python -m app.cli seed-demo-departments
+$COMPOSE run --rm -T backend python -m app.cli seed-demo-folders
 $COMPOSE run --rm -T backend python -m app.cli seed-demo-projects
 
 echo "== belgeler yükleniyor =="

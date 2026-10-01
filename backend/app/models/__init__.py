@@ -14,6 +14,7 @@ from app.models.document import (
 from app.models.document_chunk import DocumentChunk
 from app.models.document_metadata_suggestion import DocumentMetadataSuggestion, SuggestionStatus
 from app.models.document_page import DocumentPage
+from app.models.folder import Folder, FolderAccess, FolderGrant, FolderGrantEvent
 from app.models.ingestion_job import IngestionJob, IngestionJobStatus
 from app.models.project import Project, ProjectStage
 from app.models.project_department import ProjectDepartment
@@ -32,6 +33,10 @@ __all__ = [
     "DocumentPage",
     "DocumentSource",
     "DocumentStatus",
+    "Folder",
+    "FolderAccess",
+    "FolderGrant",
+    "FolderGrantEvent",
     "IngestionJob",
     "IngestionJobStatus",
     "IngestionStatus",
