@@ -1,9 +1,9 @@
 import enum
 import uuid
-from datetime import date
+from datetime import date, datetime
 from typing import Literal
 
-from sqlalchemy import Boolean, Date, Enum, ForeignKey, Integer, String, Text, Uuid
+from sqlalchemy import Boolean, Date, DateTime, Enum, ForeignKey, Integer, String, Text, Uuid
 from sqlalchemy import false as sa_false
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -39,6 +39,19 @@ class Confidentiality(enum.StrEnum):
     normal = "normal"
     restricted = "restricted"
     board = "board"
+
+
+class DocumentReviewStatus(enum.StrEnum):
+    """B-28 publication state (ADR-024). Only `approved` documents reach retrieval, search,
+    `/api/ask` and the Excel catalogue; the others are visible solely to their uploader, the
+    target department's `department_manager` and `admin` (`AuthorizationScope.include_pending`).
+    No terminal `rejected`: the reviewer sends the document back (`changes_requested`) and the
+    uploader resubmits. Transitions live in `app/services/document_review.py`."""
+
+    pending_metadata = "pending_metadata"  # stage 1: uploader confirms the metadata
+    pending_review = "pending_review"  # stage 2: target department's manager decides
+    changes_requested = "changes_requested"  # sent back with a comment
+    approved = "approved"  # published
 
 
 class DocumentSource(enum.StrEnum):
@@ -121,6 +134,26 @@ class Document(TimestampMixin, Base):
     )
     related_document_ids: Mapped[list[uuid.UUID]] = mapped_column(
         ARRAY(Uuid), default=list, server_default="{}"
+    )
+
+    # Publication (B-28, ADR-024). DEFAULT approved: existing rows, the demo seed, the
+    # ocr-worker and direct `Document(...)` construction stay published — only
+    # `POST /api/documents/upload` ever creates a pending document.
+    review_status: Mapped[DocumentReviewStatus] = mapped_column(
+        Enum(
+            DocumentReviewStatus,
+            name="document_review_status",
+            values_callable=lambda e: [m.value for m in e],
+        ),
+        default=DocumentReviewStatus.approved,
+        server_default=DocumentReviewStatus.approved.value,
+        index=True,
+    )
+    review_comment: Mapped[str | None] = mapped_column(Text, nullable=True)
+    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reviewed_by_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
 
     # System

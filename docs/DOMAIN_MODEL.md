@@ -40,6 +40,7 @@ User ──< AuditLog
 - **Mandatory:** `title, department, subdepartment, project_id, document_type, counterparty, document_date, status, confidentiality, tags, source (web|consume), created_at, updated_at`
 - **Temporal:** `effective_date, expiration_date, version, revision, supersedes_document_id, superseded_by_document_id, related_document_ids`
 - **System:** `storage_path, ingestion_status, ingestion_error, uploaded_by, ai_suggestion_id, page_count`
+- **Publication (B-28, ADR-024):** `review_status, review_comment, submitted_at, reviewed_at, reviewed_by_id`; ledger in `document_review_events`
 - Filenames are never a primary information source; metadata is.
 
 ## 4. Enumerations
@@ -50,6 +51,8 @@ User ──< AuditLog
 | `confidentiality` | `normal`, `restricted`, `board` | `employee` sees only `normal` of own departments; `department_manager` also `restricted` of own departments; `board` is `management`/`admin` only |
 | `document_status` | `draft`, `executed`, `amended`, `superseded`, `active` | lifecycle of a document, not of the project. `superseded` is set automatically (`mark_superseded`, Phase 3.2) when another document's `supersedes_document_id` points at it; `active` is left alone (operational, not lifecycle) |
 | `ingestion_status` | `uploaded`, `ocr`, `ready`, `failed` | pipeline state |
+| `document_review_status` | `pending_metadata`, `pending_review`, `changes_requested`, `approved` | publication state (B-28, ADR-024); only `approved` is corporate memory. DEFAULT `approved` — pending rows come only from `/upload` |
+| `document_review_event_kind` | `uploaded`, `auto_approved`, `field_edited`, `field_confirmed`, `submitted`, `resubmitted`, `approved`, `changes_requested`, `metadata_changed_after_approval` | append-only intake ledger (`document_review_events`), admin-only read |
 | `ingestion_job_status` | `queued`, `running`, `done`, `failed` | queue state |
 | `project_stage` | `development`, `construction`, `operation` | |
 | `query_type` | `DOCUMENT_QUERY`, `DATA_QUERY`, `MIXED_QUERY`, `GENERAL_QUERY` | router output (ADR-010, Phase 4.3): stored on every `audit_log` row and returned by `/api/ask`; `/api/excel/ask` always writes `DATA_QUERY` |
@@ -61,6 +64,7 @@ User ──< AuditLog
 - `department_manager` (B-08): `normal` and `restricted` documents of the departments they belong to (memberships and folder grants alike); never `board`, never another department. Assigned per person by the admin; the mapping is fixed code, not a table.
 - `management`: every department, every confidentiality level.
 - `admin`: everything plus administration.
+- **Publication filter (B-28):** every rule above applies to `review_status = approved` documents only. With `AuthorizationScope.include_pending` (document-handling endpoints) the result also contains the pending documents the caller may handle: own uploads (everyone), the managed departments' pending documents (`department_manager`), every pending document (`admin`); `management` none.
 - A project may span departments; a document's permission comes from its department, never from its project.
 - Step 0 (single admin): the gate returns all documents. Step 1.2: the rules above.
 

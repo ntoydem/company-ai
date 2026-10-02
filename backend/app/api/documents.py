@@ -5,10 +5,10 @@ import logging
 import re
 import uuid
 import zipfile
-from datetime import date
+from datetime import UTC, date, datetime
 from typing import Annotated, BinaryIO
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
@@ -19,16 +19,19 @@ from app.excel.inspect import inspect_file
 from app.models.document import (
     Confidentiality,
     Document,
+    DocumentReviewStatus,
     DocumentStatus,
     FileKind,
     IngestionStatus,
 )
 from app.models.document_metadata_suggestion import SuggestionStatus
+from app.models.document_review_event import ReviewEventKind
 from app.models.user import User, UserRole
 from app.repositories import (
     department_repo,
     document_metadata_suggestion_repo,
     document_repo,
+    document_review_repo,
     folder_repo,
     project_repo,
     user_repo,
@@ -39,14 +42,16 @@ from app.schemas.document import (
     DocumentDetailResponse,
     DocumentListItem,
     DocumentMetadataEditRequest,
+    DocumentReviewRequest,
     DocumentStatusResponse,
+    DocumentSubmitRequest,
     DocumentUploadResponse,
     DocumentVisibilityResponse,
     DocumentVisibilityUser,
     MetadataSuggestionApplyRequest,
     MetadataSuggestionResponse,
 )
-from app.services import metadata_suggestion
+from app.services import document_review, metadata_suggestion
 from app.services.authorization import SingleDocumentIdsProvider, allowed_document_ids
 from app.services.document_store import LocalFileSystemStore
 from app.services.llm import LLMClient
@@ -79,6 +84,55 @@ UNKNOWN_PROJECT_MESSAGE = "Bilinmeyen proje."
 NOT_READY_MESSAGE = "Belge henüz işleniyor, öneri üretilemez."
 SUGGESTION_NOT_FOUND_MESSAGE = "Öneri bulunamadı."
 FIELD_CANNOT_BE_NULL_MESSAGE = "Bu alan boş bırakılamaz."
+INVALID_REVIEW_STATUS_MESSAGE = "Geçersiz onay durumu filtresi."
+# B-28 (ADR-024): machine-readable `code` + Turkish `message` (the AI-BalBal client renders
+# `detail.message`; `code` is the contract, like `product_not_enabled`).
+APPROVER_NOT_CONFIGURED = {
+    "code": "approver_not_configured",
+    "message": "Bu departman için onaylayıcı tanımlı değil; sistem yöneticinize başvurun.",
+}
+SUGGESTION_PENDING = {
+    "code": "suggestion_pending",
+    "message": "Balbal'ın önerisi henüz hazır değil; birkaç saniye sonra tekrar deneyin.",
+}
+REVIEW_STATE_CONFLICT = {
+    "code": "review_state_conflict",
+    "message": "Belge bu işlem için uygun onay durumunda değil.",
+}
+NOT_THE_UPLOADER = {
+    "code": "not_the_uploader",
+    "message": "Yalnızca belgeyi yükleyen kişi onaya gönderebilir.",
+}
+NOT_THE_APPROVER = {
+    "code": "not_the_approver",
+    "message": "Bu belgeyi yalnızca departmanın yetkilisi onaylayabilir.",
+}
+COMMENT_REQUIRED = {
+    "code": "comment_required",
+    "message": "Geri gönderirken bir açıklama yazmalısınız.",
+}
+NOT_PROCESSED = {
+    "code": "not_processed",
+    "message": "Belge henüz işlenmedi ya da işlenemedi; onaya gönderilemez.",
+}
+DEPARTMENT_REQUIRED = {
+    "code": "department_required",
+    "message": "Belgenin departmanı belirlenmeden onaya gönderilemez.",
+}
+
+
+def _low_confidence_detail(fields: list[str]) -> dict[str, object]:
+    return {
+        "code": "low_confidence_not_confirmed",
+        "message": "Düşük güvenli öneri değerleri açıkça onaylanmadan kaydedilemez: "
+        + ", ".join(fields),
+        "fields": fields,
+    }
+
+
+# Document-handling endpoints see the caller's own pending documents too (B-28, ADR-024);
+# retrieval/search/ask keep the default (approved only).
+_HANDLING_SCOPE = AuthorizationScope(include_pending=True)
 # Nullable on `documents` — an explicit `null` in the apply request clears the field.
 _CLEARABLE_FIELDS = frozenset({"department", "subdepartment", "project_code"})
 # The manual edit endpoint (Phase 5.2) also exposes `effective_date`/`expiration_date`,
@@ -259,7 +313,7 @@ def upload_document(
     predecessor = None
     if supersedes_document_id is not None:
         allowed = allowed_document_ids(
-            current_user, AuthorizationScope(), SqlDocumentIdsProvider(session)
+            current_user, _HANDLING_SCOPE, SqlDocumentIdsProvider(session)
         )
         if supersedes_document_id not in allowed:
             raise HTTPException(404, DOCUMENT_NOT_FOUND_MESSAGE)
@@ -268,6 +322,20 @@ def upload_document(
             raise HTTPException(404, DOCUMENT_NOT_FOUND_MESSAGE)
         if predecessor.superseded_by_document_id is not None:
             raise HTTPException(409, ALREADY_SUPERSEDED_MESSAGE)
+
+    # B-28 (ADR-024, NOT §5.2): the target department's own department_manager publishes at
+    # once; everyone else — employee, management, admin, another department's manager —
+    # goes through the two-stage review. Without a configured approver the upload is
+    # refused before anything touches the disk (Naci SORU 1a); a department-less document
+    # has no approver by definition and waits in the admin queue instead.
+    review_status = document_review.initial_status(current_user, department)
+    if (
+        review_status != DocumentReviewStatus.approved
+        and department is not None
+        and not user_repo.list_department_managers(session, department)
+    ):
+        log.warning("upload refused: no approver", extra={"department": department})
+        raise HTTPException(409, APPROVER_NOT_CONFIGURED)
 
     document_id = uuid.uuid4()
     store = LocalFileSystemStore(settings.documents_dir)
@@ -299,6 +367,7 @@ def upload_document(
             project_id=project_id,
             confidentiality=confidentiality,
             folder_id=folder.id if folder else None,
+            review_status=review_status,
         )
         document.supersedes_document_id = supersedes_document_id
     else:
@@ -321,9 +390,17 @@ def upload_document(
             project_id=project_id,
             confidentiality=confidentiality,
             folder_id=folder.id if folder else None,
+            review_status=review_status,
         )
     if predecessor is not None:
         document_repo.mark_superseded(session, older=predecessor, newer=document)
+    document_review_repo.add_event(
+        session, document_id=document.id, actor=current_user, kind=ReviewEventKind.uploaded
+    )
+    if review_status == DocumentReviewStatus.approved:
+        document_review_repo.add_event(
+            session, document_id=document.id, actor=current_user, kind=ReviewEventKind.auto_approved
+        )
     session.commit()
     log.info(
         "document uploaded",
@@ -338,10 +415,21 @@ def list_documents(
     current_user: Annotated[User, Depends(get_current_user)],
     department: str | None = None,
     project_id: uuid.UUID | None = None,
+    review_status: Annotated[str | None, Query()] = None,
 ) -> list[DocumentListItem]:
-    scope = AuthorizationScope(department=department, project_id=project_id)
+    """B-28: the list includes the caller's own pending documents (and a manager's review
+    queue); `review_status=a,b` narrows to those states — the uploader's "my pending uploads"
+    and the manager's "waiting for me" views until B-01's agenda wraps them."""
+    statuses: list[DocumentReviewStatus] | None = None
+    if review_status is not None:
+        try:
+            statuses = [DocumentReviewStatus(v.strip()) for v in review_status.split(",") if v]
+        except ValueError:
+            raise HTTPException(422, INVALID_REVIEW_STATUS_MESSAGE) from None
+    scope = AuthorizationScope(department=department, project_id=project_id, include_pending=True)
     allowed = allowed_document_ids(current_user, scope, SqlDocumentIdsProvider(session))
-    return [DocumentListItem.model_validate(d) for d in document_repo.list_by_ids(session, allowed)]
+    documents = document_repo.list_by_ids(session, allowed, review_statuses=statuses)
+    return [DocumentListItem.model_validate(d) for d in documents]
 
 
 @router.get("/{document_id}/download")
@@ -360,9 +448,7 @@ def download_document(
     the *original* file (never the OCR'd copy); workbooks/CSV are always attachments.
     `Content-Type` comes from our own map and `nosniff` is set, so the browser never
     guesses a type for user-uploaded bytes."""
-    allowed = allowed_document_ids(
-        current_user, AuthorizationScope(), SqlDocumentIdsProvider(session)
-    )
+    allowed = allowed_document_ids(current_user, _HANDLING_SCOPE, SqlDocumentIdsProvider(session))
     if document_id not in allowed:
         raise HTTPException(403, DOCUMENT_ACCESS_DENIED_MESSAGE)
     document = document_repo.get(session, document_id)
@@ -389,9 +475,7 @@ def get_document_status(
     current_user: Annotated[User, Depends(get_current_user)],
     document_id: uuid.UUID,
 ) -> DocumentStatusResponse:
-    allowed = allowed_document_ids(
-        current_user, AuthorizationScope(), SqlDocumentIdsProvider(session)
-    )
+    allowed = allowed_document_ids(current_user, _HANDLING_SCOPE, SqlDocumentIdsProvider(session))
     if document_id not in allowed:
         raise HTTPException(404, DOCUMENT_NOT_FOUND_MESSAGE)
     document = document_repo.get(session, document_id)
@@ -401,7 +485,9 @@ def get_document_status(
 
 
 def _get_authorized_document(session: Session, user: User, document_id: uuid.UUID) -> Document:
-    allowed = allowed_document_ids(user, AuthorizationScope(), SqlDocumentIdsProvider(session))
+    """Detail/suggestion/edit/review lookups: the single gate with `include_pending` (B-28),
+    so an uploader reaches their own pending document and a manager their queue."""
+    allowed = allowed_document_ids(user, _HANDLING_SCOPE, SqlDocumentIdsProvider(session))
     if document_id not in allowed:
         raise HTTPException(404, DOCUMENT_NOT_FOUND_MESSAGE)
     document = document_repo.get(session, document_id)
@@ -426,15 +512,18 @@ def get_document(
 def trigger_metadata_suggestion(
     session: Annotated[Session, Depends(get_session)],
     settings: Annotated[Settings, Depends(get_settings)],
-    current_user: Annotated[User, Depends(require_admin)],
+    current_user: Annotated[User, Depends(get_current_user)],
     llm: Annotated[LLMClient, Depends(get_llm_client)],
     document_id: uuid.UUID,
 ) -> MetadataSuggestionResponse:
-    """Admin-only (SORU 2, docs/plans/PHASE_3_2_PLAN.md). Idempotent while a suggestion is
+    """Admin or the document's uploader (B-28 widened Phase 3.2's admin-only SORU 2 — the
+    uploader needs the suggestion for stage 1). Idempotent while a suggestion is
     `pending`/`applied` — returns the existing row rather than reclassifying; a `failed` or
     `rejected` one is regenerated. The same background scan (`app/main.py` lifespan) calls
     `metadata_suggestion.suggest_metadata` directly for documents with no suggestion yet."""
     document = _get_authorized_document(session, current_user, document_id)
+    if current_user.role != UserRole.admin and document.uploaded_by_id != current_user.id:
+        raise HTTPException(403, NOT_THE_UPLOADER)
     if document.ingestion_status != IngestionStatus.ready:
         raise HTTPException(409, NOT_READY_MESSAGE)
     existing = document_metadata_suggestion_repo.get_by_document_id(session, document_id)
@@ -467,9 +556,10 @@ def apply_metadata_suggestion(
     current_user: Annotated[User, Depends(require_admin)],
     document_id: uuid.UUID,
 ) -> DocumentListItem:
-    """Admin-only (SORU 2). Only fields present in `body` are written — SPEC_02 §4's
-    "kritik alan sessiz overwrite yok" applies to every field uniformly, not a subset:
-    nothing changes unless its value is explicitly given here."""
+    """Admin-only metadata write. Since B-28 this is **not** the publishing act any more
+    (Phase 3.2 SORU 2 superseded): publication is `submit` + `review`. Only fields present in
+    `body` are written — SPEC_02 §4's "kritik alan sessiz overwrite yok" applies to every
+    field uniformly. Editing an approved document drops its approval (T9)."""
     document = _get_authorized_document(session, current_user, document_id)
     suggestion = document_metadata_suggestion_repo.get_by_document_id(session, document_id)
     if suggestion is None:
@@ -478,12 +568,37 @@ def apply_metadata_suggestion(
     updates = _resolve_metadata_updates(
         session, body.model_fields_set, body, clearable_fields=_CLEARABLE_FIELDS
     )
-    document_repo.apply_partial_update(session, document, updates)
+    _apply_metadata_change(session, document, updates, current_user)
     document_metadata_suggestion_repo.mark_applied(
         session, suggestion, applied_by_id=current_user.id
     )
     session.commit()
     return DocumentListItem.model_validate(document)
+
+
+def _apply_metadata_change(
+    session: Session, document: Document, updates: dict[str, object], actor: User
+) -> None:
+    """B-28 T9: a metadata change on an approved document re-opens the review unless the
+    actor is the target department's own manager (the approver editing their own call)."""
+    was_approved = document.review_status == DocumentReviewStatus.approved
+    before = {field: getattr(document, field) for field in updates}
+    document_repo.apply_partial_update(session, document, updates)
+    changed = [f for f in updates if before[f] != getattr(document, f)]
+    if not (was_approved and changed):
+        return
+    if document_review.is_target_manager(actor, document.department):
+        return
+    document.review_status = DocumentReviewStatus.pending_review
+    document.review_comment = None
+    document_review_repo.add_event(
+        session,
+        document_id=document.id,
+        actor=actor,
+        kind=ReviewEventKind.metadata_changed_after_approval,
+        field=",".join(sorted(changed)),
+    )
+    session.flush()
 
 
 @router.post("/{document_id}/metadata-suggestion/reject", response_model=MetadataSuggestionResponse)
@@ -517,7 +632,7 @@ def edit_document_metadata(
     updates = _resolve_metadata_updates(
         session, body.model_fields_set, body, clearable_fields=_EDIT_CLEARABLE_FIELDS
     )
-    document_repo.apply_partial_update(session, document, updates)
+    _apply_metadata_change(session, document, updates, current_user)
     session.commit()
     return DocumentDetailResponse.model_validate(document)
 
@@ -538,14 +653,148 @@ def get_document_visibility(
         grantee_ids = folder_repo.access_map(session).grantee_department_ids(document.folder_id)
         grantee_slugs = frozenset(slugs[i] for i in grantee_ids if i in slugs)
     provider = SingleDocumentIdsProvider(document, folder_grantee_slugs=grantee_slugs)
+    # B-28: a pending document is "seen" by whoever may handle it (uploader, target
+    # department's manager, admin); an approved one by the normal rule.
+    scope = (
+        _HANDLING_SCOPE
+        if document.review_status != DocumentReviewStatus.approved
+        else AuthorizationScope()
+    )
     visible_users = [
         user
         for user in user_repo.list_all(session)
-        if document.id in allowed_document_ids(user, AuthorizationScope(), provider)
+        if document.id in allowed_document_ids(user, scope, provider)
     ]
     return DocumentVisibilityResponse(
         document_id=document.id,
         department=document.department,
         confidentiality=document.confidentiality,
+        review_status=document.review_status,
         users=[DocumentVisibilityUser.model_validate(user) for user in visible_users],
     )
+
+
+# ------------------------------------------------------------------ B-28 two-stage review
+
+
+@router.post("/{document_id}/submit", response_model=DocumentDetailResponse)
+def submit_document(
+    document_id: uuid.UUID,
+    body: DocumentSubmitRequest,
+    session: Annotated[Session, Depends(get_session)],
+    settings: Annotated[Settings, Depends(get_settings)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> DocumentDetailResponse:
+    """Stage 1 (ADR-024): the uploader — nobody else, not even admin (P-1) — confirms the
+    final metadata. A kept suggestion below `metadata_confirm_threshold` must be listed in
+    `confirmed_fields` (BACKEND_GAPS §4.7.5). OCR-family documents need their suggestion to
+    exist first (409 `suggestion_pending` while the background scan is still working); a
+    workbook has no suggestion and is confirmed from the typed fields alone."""
+    document = _get_authorized_document(session, current_user, document_id)
+    if document.uploaded_by_id != current_user.id:
+        raise HTTPException(403, NOT_THE_UPLOADER)
+    if document.review_status not in document_review.SUBMITTABLE:
+        raise HTTPException(409, REVIEW_STATE_CONFLICT)
+    suggestion = document_metadata_suggestion_repo.get_by_document_id(session, document_id)
+    is_workbook = document.storage_extension in EXCEL_EXTENSIONS
+    if not is_workbook:
+        if document.ingestion_status == IngestionStatus.failed:
+            raise HTTPException(409, NOT_PROCESSED)
+        if document.ingestion_status != IngestionStatus.ready or suggestion is None:
+            raise HTTPException(409, SUGGESTION_PENDING)
+
+    provided = sorted(body.model_fields_set - {"confirmed_fields"})  # stable event order
+    updates = _resolve_metadata_updates(
+        session, set(provided), body, clearable_fields=_CLEARABLE_FIELDS
+    )
+    final_values = {field: getattr(body, field) for field in provided}
+    outcomes = document_review.classify_fields(
+        suggestion.fields if suggestion is not None else None,
+        final_values,
+        set(body.confirmed_fields),
+        settings.metadata_confirm_threshold,
+    )
+    missing = document_review.unconfirmed_low_confidence(outcomes)
+    if missing:
+        raise HTTPException(422, _low_confidence_detail(missing))
+    final_department = updates.get("department", document.department)
+    if final_department is None:
+        # No department → no approver, ever; the uploader (or admin, via PATCH) must place
+        # the document first. Keeps "pending with nobody to approve" from existing.
+        raise HTTPException(422, DEPARTMENT_REQUIRED)
+
+    resubmission = document.review_status == DocumentReviewStatus.changes_requested
+    document_repo.apply_partial_update(session, document, updates)
+    for outcome in outcomes:
+        if outcome.edited and outcome.suggested is not None:
+            kind = ReviewEventKind.field_edited
+        elif outcome.low_confidence and outcome.confirmed:
+            kind = ReviewEventKind.field_confirmed
+        else:
+            continue
+        document_review_repo.add_event(
+            session,
+            document_id=document.id,
+            actor=current_user,
+            kind=kind,
+            field=outcome.field,
+            before=outcome.suggested,
+            after=outcome.final,
+            confidence=outcome.confidence,
+        )
+    if suggestion is not None and suggestion.status in (
+        SuggestionStatus.pending,
+        SuggestionStatus.rejected,
+        SuggestionStatus.failed,
+    ):
+        document_metadata_suggestion_repo.mark_applied(
+            session, suggestion, applied_by_id=current_user.id
+        )
+    document.review_status = document_review.status_after_submit(current_user, document.department)
+    document.review_comment = None
+    document.submitted_at = datetime.now(UTC)
+    document_review_repo.add_event(
+        session,
+        document_id=document.id,
+        actor=current_user,
+        kind=ReviewEventKind.resubmitted if resubmission else ReviewEventKind.submitted,
+    )
+    if document.review_status == DocumentReviewStatus.approved:
+        document_review_repo.add_event(
+            session, document_id=document.id, actor=current_user, kind=ReviewEventKind.auto_approved
+        )
+    session.commit()
+    return DocumentDetailResponse.model_validate(document)
+
+
+@router.post("/{document_id}/review", response_model=DocumentDetailResponse)
+def review_document(
+    document_id: uuid.UUID,
+    body: DocumentReviewRequest,
+    session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> DocumentDetailResponse:
+    """Stage 2 (ADR-024, NOT §5.2): only the target department's own `department_manager`
+    decides — `management`/`admin` and other departments' managers get 403."""
+    document = _get_authorized_document(session, current_user, document_id)
+    if not document_review.is_target_manager(current_user, document.department):
+        raise HTTPException(403, NOT_THE_APPROVER)
+    if document.review_status != DocumentReviewStatus.pending_review:
+        raise HTTPException(409, REVIEW_STATE_CONFLICT)
+    comment = body.comment.strip() if body.comment else None
+    if body.decision == "approve":
+        document.review_status = DocumentReviewStatus.approved
+        kind = ReviewEventKind.approved
+    else:
+        if not comment:
+            raise HTTPException(422, COMMENT_REQUIRED)
+        document.review_status = DocumentReviewStatus.changes_requested
+        kind = ReviewEventKind.changes_requested
+    document.review_comment = comment
+    document.reviewed_at = datetime.now(UTC)
+    document.reviewed_by_id = current_user.id
+    document_review_repo.add_event(
+        session, document_id=document.id, actor=current_user, kind=kind, comment=comment
+    )
+    session.commit()
+    return DocumentDetailResponse.model_validate(document)

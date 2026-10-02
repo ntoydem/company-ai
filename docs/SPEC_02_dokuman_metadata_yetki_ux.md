@@ -17,6 +17,8 @@ Gerçek kullanıcı için zorunlu standart yok; sınıflandırmanın kaynağı m
 ## 4. AI metadata önerisi
 Upload sonrası `LLM_MODEL_CLASSIFY` ile: departman, alt departman, proje, belge türü, muhatap, belge tarihi, durum, gizlilik, etiketler; her alan için confidence. Öneri ayrı tabloda (`document_metadata_suggestions`); kullanıcı kabul/düzenleyene kadar belge metadata'sı değişmez. Kritik alanlar sessizce overwrite edilmez. Öneri üretimi başarısız olursa upload yine başarılıdır.
 
+**Yayın durumu ve iki aşamalı onay (B-28, 02.10.2026, ADR-024):** `documents.review_status` (`pending_metadata | pending_review | changes_requested | approved`). Yalnızca `approved` belge aramaya, Balbal'a ve Excel kataloğuna girer. Belgenin hedef departmanının kendi `department_manager`'ı yüklerse belge anında yayınlanır; diğer herkes (personel, `management`, `admin`, başka departmanın müdürü) iki aşamadan geçer: (1) **yükleyen** `POST /api/documents/{id}/submit` ile nihai metadata'yı onaylar — güveni `METADATA_CONFIRM_THRESHOLD` (0.8) altındaki öneri değeri `confirmed_fields`'ta açıkça onaylanmadan kaydedilmez (422); (2) hedef departmanın müdürü `POST /api/documents/{id}/review` ile `approve` ya da yorumlu `request_changes` verir. Onaycısı olmayan departmana yükleme 409 `approver_not_configured` (dosya yazılmaz). Onaylı belgenin metadata'sı değişirse onay düşer (müdürün kendisi hariç). Kayıt defteri `document_review_events`, yalnızca admin okur.
+
 ## 5. Roller ve yetki
 Roller: `admin | management | department_manager | employee`. Kullanıcı bir veya daha fazla departmana üye olur (`user_departments`).
 Kurallar:

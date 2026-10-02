@@ -76,8 +76,10 @@ def inspect_workbook(
     settings: Annotated[Settings, Depends(get_settings)],
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> WorkbookInspectResponse:
+    # B-28: the uploader inspects their own pending workbook too; `/ask` keeps the default
+    # (approved-only) scope, so a pending workbook never enters a calculation.
     allowed = allowed_document_ids(
-        current_user, AuthorizationScope(), SqlDocumentIdsProvider(session)
+        current_user, AuthorizationScope(include_pending=True), SqlDocumentIdsProvider(session)
     )
     if document_id not in allowed:
         raise HTTPException(404, DOCUMENT_NOT_FOUND_MESSAGE)

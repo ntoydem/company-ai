@@ -9,7 +9,13 @@ from datetime import date
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
-from app.models.document import Confidentiality, Document, DocumentSource, IngestionStatus
+from app.models.document import (
+    Confidentiality,
+    Document,
+    DocumentReviewStatus,
+    DocumentSource,
+    IngestionStatus,
+)
 from app.models.document import DocumentStatus as DocStatus
 from app.models.document_page import DocumentPage
 from app.models.ingestion_job import IngestionJob, IngestionJobStatus
@@ -25,6 +31,8 @@ class SqlDocumentIdsProvider:
 
     def list_document_ids(self, scope: AuthorizationScope) -> Iterable[uuid.UUID]:
         stmt = select(Document.id)
+        if not scope.include_pending:
+            stmt = stmt.where(Document.review_status == DocumentReviewStatus.approved)
         if scope.department is not None:
             stmt = stmt.where(Document.department == scope.department)
         if scope.project_id is not None:
@@ -39,7 +47,10 @@ class SqlDocumentIdsProvider:
     ) -> Iterable[uuid.UUID]:
         """Role-based candidate set (Phase 1.2): `department_slugs=None` means every
         department (`management`); otherwise only those departments' documents."""
-        stmt = select(Document.id).where(Document.confidentiality.in_(list(confidentiality_levels)))
+        stmt = select(Document.id).where(
+            Document.confidentiality.in_(list(confidentiality_levels)),
+            Document.review_status == DocumentReviewStatus.approved,
+        )
         if department_slugs is not None:
             stmt = stmt.where(Document.department.in_(list(department_slugs)))
         return self._session.scalars(stmt).all()
@@ -65,8 +76,27 @@ class SqlDocumentIdsProvider:
         stmt = select(Document.id).where(
             Document.folder_id.in_(list(folder_ids)),
             Document.confidentiality.in_(list(confidentiality_levels)),
+            Document.review_status == DocumentReviewStatus.approved,
         )
         return self._session.scalars(stmt).all()
+
+    def list_pending_document_ids(
+        self,
+        *,
+        uploaded_by_id: uuid.UUID,
+        manager_department_slugs: Iterable[str] | None,
+    ) -> Iterable[uuid.UUID]:
+        """B-28: not-yet-approved documents the caller may handle — their own uploads, plus
+        (for a `department_manager`) the pending documents of the departments they manage.
+        `manager_department_slugs=None` means every pending document (`admin`)."""
+        stmt = select(Document.id).where(Document.review_status != DocumentReviewStatus.approved)
+        if manager_department_slugs is None:
+            return self._session.scalars(stmt).all()
+        slugs = list(manager_department_slugs)
+        condition = Document.uploaded_by_id == uploaded_by_id
+        if slugs:
+            condition = or_(condition, Document.department.in_(slugs))
+        return self._session.scalars(stmt.where(condition)).all()
 
 
 def create_with_job(
@@ -92,6 +122,7 @@ def create_with_job(
     related_document_ids: list[uuid.UUID] | None = None,
     external_ref: str | None = None,
     folder_id: uuid.UUID | None = None,
+    review_status: DocumentReviewStatus = DocumentReviewStatus.approved,
 ) -> Document:
     """Create `documents` + the initial `ingestion_jobs` row together — one is never
     committed without the other (ADR-006). The upload endpoint (Phase 0.2) only ever
@@ -118,6 +149,7 @@ def create_with_job(
         related_document_ids=related_document_ids or [],
         external_ref=external_ref,
         folder_id=folder_id,
+        review_status=review_status,
         storage_path=storage_path,
         ingestion_status=IngestionStatus.uploaded,
         uploaded_by_id=uploaded_by_id,
@@ -154,6 +186,7 @@ def create_ready(
     related_document_ids: list[uuid.UUID] | None = None,
     external_ref: str | None = None,
     folder_id: uuid.UUID | None = None,
+    review_status: DocumentReviewStatus = DocumentReviewStatus.approved,
 ) -> Document:
     """Excel family (Phase 4.2, SPEC_04 §1): no OCR job, no pages/chunks — the file is
     `ready` at once; sheets are read at query time by `app/excel/`. `page_count` = sheet
@@ -176,6 +209,7 @@ def create_ready(
         related_document_ids=related_document_ids or [],
         external_ref=external_ref,
         folder_id=folder_id,
+        review_status=review_status,
         storage_path=storage_path,
         ingestion_status=IngestionStatus.ready,
         uploaded_by_id=uploaded_by_id,
@@ -248,11 +282,18 @@ def get(session: Session, document_id: uuid.UUID) -> Document | None:
     return session.get(Document, document_id)
 
 
-def list_by_ids(session: Session, ids: Iterable[uuid.UUID]) -> list[Document]:
+def list_by_ids(
+    session: Session,
+    ids: Iterable[uuid.UUID],
+    *,
+    review_statuses: Iterable[DocumentReviewStatus] | None = None,
+) -> list[Document]:
     id_list = list(ids)
     if not id_list:
         return []
     stmt = select(Document).where(Document.id.in_(id_list)).order_by(Document.created_at.desc())
+    if review_statuses is not None:
+        stmt = stmt.where(Document.review_status.in_(list(review_statuses)))
     return list(session.scalars(stmt).all())
 
 

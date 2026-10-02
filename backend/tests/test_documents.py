@@ -18,7 +18,11 @@ from app.models.user import User, UserRole
 from app.repositories import document_metadata_suggestion_repo, user_repo
 from app.services.document_store import LocalFileSystemStore
 from app.services.security import hash_password
-from tests.department_fixtures import add_user_to_department, make_department
+from tests.department_fixtures import (
+    add_user_to_department,
+    make_department,
+    make_department_manager,
+)
 from tests.fakes import FakeLLMClient
 
 FAKE_PDF = b"%PDF-1.4\n%fake-pdf-for-tests\n1 0 obj\n<< >>\nendobj\ntrailer\n<< >>\n%%EOF"
@@ -250,7 +254,8 @@ def _make_project(session: Session, *, code: str = "ANK_RES") -> Project:
 def test_upload_with_department_project_and_confidentiality(
     client: TestClient, db_session: Session, admin_user: User
 ) -> None:
-    make_department(db_session, slug="finans")
+    finans = make_department(db_session, slug="finans")
+    make_department_manager(db_session, finans)  # B-28: an approver must exist
     project = _make_project(db_session)
 
     response = _upload(
@@ -299,6 +304,7 @@ def test_employee_upload_to_own_department_succeeds(
     client: TestClient, db_session: Session, employee_user: User
 ) -> None:
     enerji = make_department(db_session, slug="enerji_grubu")
+    make_department_manager(db_session, enerji)
     add_user_to_department(db_session, employee_user, enerji)
 
     response = _upload(client, department="enerji_grubu")
@@ -312,6 +318,7 @@ def test_employee_with_multiple_memberships_uploads_to_second_one(
     make_department(db_session, slug="finans")
     enerji = make_department(db_session, slug="enerji_grubu")
     mali_isler = make_department(db_session, slug="mali_isler")
+    make_department_manager(db_session, mali_isler)
     add_user_to_department(db_session, employee_user, enerji)
     add_user_to_department(db_session, employee_user, mali_isler)
 
@@ -332,7 +339,8 @@ def test_employee_upload_without_department_still_succeeds(
 def test_management_upload_to_any_department_succeeds(
     client: TestClient, db_session: Session, management_user: User
 ) -> None:
-    make_department(db_session, slug="finans")
+    finans = make_department(db_session, slug="finans")
+    make_department_manager(db_session, finans)
     response = _upload(client, department="finans")
     assert response.status_code == 201
 
@@ -395,12 +403,14 @@ def test_get_document_hides_other_department_document_with_404(
     assert client.get(f"/api/documents/{finans_doc.id}").status_code == 404
 
 
-def test_suggest_metadata_requires_admin(
+def test_suggest_metadata_on_a_hidden_document_is_404_for_an_employee(
     client: TestClient, db_session: Session, employee_user: User, fake_llm: FakeLLMClient
 ) -> None:
+    """The gate runs first (B-28 opened this endpoint to the uploader, so the old
+    admin-only 403 is gone): an employee who cannot see the document gets 404."""
     document = _document(db_session)
     response = client.post(f"/api/documents/{document.id}/suggest-metadata")
-    assert response.status_code == 403
+    assert response.status_code == 404
 
 
 def test_suggest_metadata_requires_ready_ingestion(

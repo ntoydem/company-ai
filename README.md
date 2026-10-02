@@ -210,12 +210,12 @@ her biri için 0-1 arası bir `confidence`. Öneri ayrı bir tabloda durur; kull
 belgenin kendi metadata'sı hiç değişmez (SPEC_02 §4, "kritik alan sessiz overwrite yok").
 ```bash
 # Otomatik: backend, ready + önerisiz belgeleri arka planda tarar (15 sn'de bir, 5'li grup halinde).
-# Elle tetiklemek/yeniden denemek için (yalnızca admin):
+# Elle tetiklemek/yeniden denemek için (admin ya da belgeyi yükleyen):
 curl -X POST http://localhost:8080/api/documents/<id>/suggest-metadata -b admin_cookies.txt
 curl http://localhost:8080/api/documents/<id>/metadata-suggestion -b cookies.txt
 # {"status":"pending","fields":{"department":{"value":"finans","confidence":0.86}, ...}}
 
-# Kabul (yalnızca admin; yalnızca gövdede adı geçen alanlar yazılır):
+# Admin metadata yazımı (yalnızca gövdede adı geçen alanlar; B-28'den beri YAYINLAMA değildir — aşağıya bkz.):
 curl -X POST http://localhost:8080/api/documents/<id>/metadata-suggestion/apply -b admin_cookies.txt \
   -H 'content-type: application/json' -d '{"department":"finans","project_code":"ANK_RES"}'
 # Ret (öneriyi reddeder, belgeye dokunmaz; sonra tekrar suggest-metadata çağrılabilir):
@@ -233,6 +233,34 @@ curl -X PATCH http://localhost:8080/api/documents/<id> -b admin_cookies.txt \
 Aynı 9 alan + `title`/`effective_date`/`expiration_date`; `null` gönderilen alan temizlenir. Versiyon zinciri
 alanları (`supersedes_document_id` vb.) burada yoktur — o bağlantılar yalnızca upload sırasında kurulur
 (ADR-012, zincir bütünlüğü).
+
+## Belge onay akışı — B-28 (02.10.2026, ADR-024)
+Bir belge yalnızca **`review_status = approved`** iken aramaya, Balbal'ın cevaplarına ve Excel kataloğuna girer.
+Belgenin hedef departmanının **kendi `department_manager`'ı** yüklerse belge anında yayınlanır; diğer herkes
+(personel, `management`, `admin`, başka departmanın müdürü) iki aşamadan geçer. Onaycısı (müdürü) olmayan bir
+departmana yükleme **409 `approver_not_configured`** ile reddedilir (dosya yazılmaz) — admin önce o departmana
+`PATCH /api/users/{id}` ile bir `department_manager` atar. Demo'da yalnızca `finans`'ın müdürü var (`finans_mudur`).
+```bash
+# 1) Personel yükler → review_status: pending_metadata (yalnızca yükleyen, departman müdürü ve admin görür)
+curl -s -b finans_cookies.txt -F file=@tadil.pdf -F title="Kredi Tadili" -F document_type=amendment \
+  -F document_date=2026-09-01 -F counterparty="PQR Bank" -F department=finans \
+  http://localhost:8080/api/documents/upload
+# 2) Yükleyen nihai metadata'yı onaylar (1. aşama). Güveni 0.8 altındaki öneri değeri aynen kalıyorsa
+#    confirmed_fields'ta sayılmalı, yoksa 422 low_confidence_not_confirmed. OCR belgesinde öneri hazır değilse
+#    409 suggestion_pending; Excel'de öneri yoktur, elle girilen alanlar teyit edilir.
+curl -s -b finans_cookies.txt -X POST http://localhost:8080/api/documents/<id>/submit \
+  -H 'content-type: application/json' \
+  -d '{"department":"finans","counterparty":"PQR Bank","confirmed_fields":["counterparty"]}'
+# 3) Hedef departmanın müdürü karar verir (2. aşama): approve → approved; request_changes + comment → changes_requested
+curl -s -b finans_mudur_cookies.txt -X POST http://localhost:8080/api/documents/<id>/review \
+  -H 'content-type: application/json' -d '{"decision":"approve"}'
+# Kuyruklar: yükleyen ?review_status=pending_metadata,changes_requested — müdür ?review_status=pending_review
+curl -s -b finans_mudur_cookies.txt "http://localhost:8080/api/documents?review_status=pending_review"
+# Kayıt defteri (yalnızca admin): öneri, düzenleme, onay olayları sırayla
+curl -s -b admin_cookies.txt http://localhost:8080/api/admin/documents/<id>/review-events
+```
+Onaylı bir belgenin metadata'sı sonradan değişirse (`apply`/`PATCH`) onay düşer ve belge yeniden `pending_review`
+olur — değişikliği hedef departmanın müdürü yapmışsa düşmez. Eşik: `.env` `METADATA_CONFIRM_THRESHOLD=0.8`.
 
 ## Soru sorma (Phase 0.3)
 `LLM_API_KEY` `.env`'de dolu olmalı (varsayılan Gemini, OpenAI-uyumlu endpoint; model adları `LLM_MODEL_ANSWER` /

@@ -22,7 +22,11 @@ from app.models.project import Project, ProjectStage
 from app.models.user import User, UserRole
 from app.repositories import folder_repo, user_repo
 from app.services.security import hash_password
-from tests.department_fixtures import add_user_to_department, make_department
+from tests.department_fixtures import (
+    add_user_to_department,
+    make_department,
+    make_department_manager,
+)
 from tests.fakes import FakeLLMClient
 from tests.test_ask import _ask, _document
 from tests.test_documents import FAKE_PDF, _document_with_file
@@ -99,6 +103,9 @@ def _setup(db_session: Session, settings: Settings) -> tuple[Department, Departm
     hukuk = make_department(db_session, slug="hukuk", name="Hukuk")
     finans = make_department(db_session, slug="finans", name="Proje Finans")
     finans_user = _employee(db_session, "finans-calisan", finans)
+    # B-28: uploads into a department need an approver to exist (409 otherwise).
+    make_department_manager(db_session, hukuk)
+    make_department_manager(db_session, finans)
     folder_repo.create(db_session, name="Hukuk", parent_id=None, owner_department=hukuk)
     folder_repo.create(db_session, name="Proje Finans", parent_id=None, owner_department=finans)
     db_session.commit()
@@ -483,14 +490,8 @@ def test_department_manager_sees_restricted_in_granted_folder_and_own_root_is_wr
     the levels they hold in their own department — for a manager that is normal+restricted,
     still never board. Their own root is `write`, an ungranted root is not listed."""
     hukuk, finans, _finans_user = _setup(db_session, settings)
-    manager = user_repo.create(
-        db_session,
-        username="finans-mudur",
-        password_hash=hash_password("x"),
-        display_name="Finans Müdür",
-        role=UserRole.department_manager,
-    )
-    add_user_to_department(db_session, manager, finans)
+    manager = user_repo.get_by_username(db_session, "finans-mudur")  # created by _setup (B-28)
+    assert manager is not None
     contracts = _folder(client, "Proje Sözleşmeleri", "hukuk")
     _grant(client, contracts["id"], "finans", "read")
     hukuk_root = next(f for f in client.get("/api/admin/folders").json() if f["name"] == "Hukuk")

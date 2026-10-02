@@ -80,6 +80,9 @@ class Settings(BaseSettings):
     # Phase 3.2: background metadata-suggestion scan (app/main.py lifespan). Never runs
     # against a `_test` database (see `_background_enabled` there) — `make test` never
     # calls the LLM through this path.
+    # B-28 (BACKEND_GAPS §4.7.5): a suggested value below this confidence cannot be saved
+    # at stage 1 unless the uploader explicitly confirms the field (`confirmed_fields`).
+    metadata_confirm_threshold: float = 0.8
     metadata_suggestion_poll_interval_s: int = 15
     metadata_suggestion_batch_size: int = 5
 

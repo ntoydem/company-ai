@@ -24,7 +24,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
     assert "users" not in inspect(engine).get_table_names()
 
     command.upgrade(cfg, "head")
-    assert _current_revision() == "0012"
+    assert _current_revision() == "0013"
     tables = inspect(engine).get_table_names()
     assert "users" in tables
     assert "documents" in tables
@@ -68,6 +68,8 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
     assert {"folders", "folder_grants", "folder_grant_events"} <= set(tables)
     assert "folder_id" in {c["name"] for c in inspect(engine).get_columns("documents")}
     assert "company_settings" in tables
+    assert "document_review_events" in tables
+    assert "review_status" in {c["name"] for c in inspect(engine).get_columns("documents")}
 
     with engine.connect() as conn:
         has_vector = conn.execute(
@@ -84,7 +86,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
 
 def test_upgrade_head_is_idempotent() -> None:
     command.upgrade(alembic_config(), "head")
-    assert _current_revision() == "0012"
+    assert _current_revision() == "0013"
 
 
 def test_0010_corrects_an_existing_phase_1_2_tree_and_backfills_users() -> None:

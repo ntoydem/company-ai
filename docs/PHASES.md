@@ -101,6 +101,7 @@ Tanım: Tanıma aşaması — bulur, okur, kaynak göstererek aktarır; yorum ka
 **Kabul kriterleri:** `make seed` → 15 belge `ready`, metadata doğru, zincir bağlı, "güncel" belge tek; belgeler gerçekçi görünür; gerçek isim yok (validator); `make reset-demo` + `make seed` tekrar çalışır.
 
 ## Phase 3.2 — AI metadata önerisi + temporal mantık `S`
+**Not (02.10.2026, B-28):** Bu fazın **SORU 2 kararı (öneriyi yalnızca admin kabul eder = yayınlar) değiştirildi** — Tansu #5 iki aşamalı onay (NOT §5.2): yükleyen `submit`, hedef departmanın `department_manager`'ı `review`; `apply` admin'de kalır ama yayınlama eylemi değildir (ADR-024).
 **Kapsam:** Upload sonrası `LLM_MODEL_CLASSIFY` ile öneri (`document_metadata_suggestions`), kullanıcı kabul/düzenleme endpoint'i; kritik alan sessiz overwrite yok. Versiyon zinciri (`supersedes/superseded_by`) yönetimi ve `/api/ask`'te "güncel"/"ilk" ayrımının tam hali; "neden?" sorularında kural 6.
 **Kabul kriterleri:** Facility Agreement upload → öneri Finans/Ankara/Facility Agreement + confidence; LLM hatası upload'ı bozmaz; "güncel kapasite" ↔ "ilk lisans kapasitesi" farklı ve doğru; "EBITDA neden düştü?" → yalnızca belgede yazan sebep veya "belirtilmemiş".
 **Not (Phase 1.2):** `documents.department` FK almıyor, serbest slug string olarak kalıyor (bkz. `docs/plans/PHASE_1_2_PLAN.md` T2) — bu fazda upload formu/öneri akışı, kullanıcının veya LLM önerisinin yazdığı `department` değerini `departments` tablosundaki bilinen slug listesine karşı doğrulamalı; yanlış yazılmış/bilinmeyen bir slug şu an güvenli yönde başarısız oluyor (belge admin dışında kimseye görünmüyor) ama sessizce, hatasız geçiyor.
@@ -268,6 +269,20 @@ rolü admin `PATCH /api/users/{id}` ile kişiye verir (kural sabit, tablo değil
 `employee` gibi ele alır (§5.2 ile tutarlı, testle kilitlendi). Demo `finans_mudur` (tek `restricted` demo belge `finans`'ta).
 Ayrı bir phase değil; plan `docs/plans/B08_DEPARTMAN_MUDURU_PLAN.md`, rapor `docs/reports/B08_DEPARTMAN_MUDURU_REPORT.md`.
 Rol/üyelik değişikliği kayıt defteri bu fazda yok (ayrı küçük iş, B-28/§5.2 öncesi).
+
+**B-28 iki aşamalı belge onayı (02.10.2026, `<commit>`, ADR-024):** `documents.review_status` (migration `0013`, DEFAULT
+`approved` — 74 demo belge yayında kalır) **kapıya girdi**: yalnızca `approved` belge retrieval/arama/`/api/ask`/Excel
+kataloğuna girer; `AuthorizationScope.include_pending` ile yükleyen kendi bekleyenini, müdür kuyruğunu, admin hepsini
+görür (tek yeni provider metodu, imza sabit). Akış: hedef departmanın kendi `department_manager`'ı → anında `approved`;
+diğer herkes (`management`/`admin` dahil) → `pending_metadata` → yükleyen `POST /submit` (%80 eşiği `confirmed_fields`,
+`suggestion_pending`, `department_required`) → `pending_review` → müdür `POST /review` (`approve` | yorumlu
+`request_changes` → `changes_requested` → yeniden `submit`). Onaycısı olmayan departmana yükleme 409
+`approver_not_configured` (dosya yazılmaz; `department=None` admin kuyruğunda). Onaylı belgede metadata değişikliği
+onayı düşürür (müdür hariç). Kayıt defteri `document_review_events` + `GET /api/admin/documents/{id}/review-events`
+(admin). **Phase 3.2 SORU 2 kararı bu fazla değişti** (yukarıdaki Phase 3.2 notu). Ayrı bir phase değil; plan
+`docs/plans/B28_ONAY_AKISI_PLAN.md`, rapor `docs/reports/B28_ONAY_AKISI_REPORT.md`. Demo: `hukuk`/`enerji_grubu`'na
+personel yüklemesi müdür atanana kadar 409 alır (B-18'de `hukuk_mudur`/`enerji_mudur`). Kapsam dışı (B-28b):
+`extra_fields`, `tag_catalog`, tür bazlı alan rehberi, klasör önerisi.
 
 **Olası gelecek faz (kapsam dışı, planlanmadı): Ç-7.1 4 adımlı "veri yok" protokolü** — anlama kontrolü → durum etiketi
 (`missing_data`/`insufficient_data` zaten ayrı) → "elimde şunlar var, göstereyim mi" (yalnızca `retrieved_document_ids`'ten

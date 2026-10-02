@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import io
 import json
+import uuid
 import zipfile
 from pathlib import Path
 
@@ -14,11 +15,16 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.audit_log import AuditLog
+from app.models.document import Document, DocumentReviewStatus
 from app.models.user import User, UserRole
 from app.repositories import user_repo
 from app.services.excel_ask import NO_DATA_TEXT, SQL_REJECTED_TEXT
 from app.services.security import hash_password
-from tests.department_fixtures import add_user_to_department, make_department
+from tests.department_fixtures import (
+    add_user_to_department,
+    make_department,
+    make_department_manager,
+)
 from tests.fakes import FakeLLMClient
 
 EXCEL_DIR = Path(__file__).resolve().parent.parent / "seed_data" / "excel"
@@ -43,6 +49,16 @@ def _upload_workbook(
     )
     assert response.status_code == 201, response.text
     body: dict[str, object] = response.json()
+    return body
+
+
+def _publish(session: Session, body: dict[str, object]) -> dict[str, object]:
+    """B-28: an admin upload waits for the department's review; these tests exercise the
+    Excel engine, not the approval flow, so the workbook is published directly."""
+    document = session.get(Document, uuid.UUID(str(body["id"])))
+    assert document is not None
+    document.review_status = DocumentReviewStatus.approved
+    session.commit()
     return body
 
 
@@ -158,7 +174,7 @@ def test_ask_dscr_uses_the_predefined_function_and_cites_the_cell(
 ) -> None:
     """PHASES.md 4.2 kabul kriteri: "Ankara RES 2026 Q2 DSCR kaç?" -> DuckDB/predefined +
     `Covenant_Report.xlsx Q2_2026!D14`; audit row carries the Excel sources."""
-    _upload_workbook(client)
+    _publish(db_session, _upload_workbook(client))
     fake_llm.replies = [
         _plan("function", name="dscr", params={"period": "Q2_2026"}),
         "Ankara RES'in 2026 Q2 DSCR değeri 1,37x olarak hesaplanmıştır.",
@@ -185,9 +201,9 @@ def test_ask_dscr_uses_the_predefined_function_and_cites_the_cell(
 
 
 def test_ask_sql_path_sums_production_and_cites_the_range(
-    client: TestClient, admin_user: User, fake_llm: FakeLLMClient
+    client: TestClient, admin_user: User, fake_llm: FakeLLMClient, db_session: Session
 ) -> None:
-    _upload_workbook(client, "Monthly_Production_2026.xlsx")
+    _publish(db_session, _upload_workbook(client, "Monthly_Production_2026.xlsx"))
     fake_llm.replies = [
         _plan(
             "sql",
@@ -205,9 +221,9 @@ def test_ask_sql_path_sums_production_and_cites_the_range(
 
 
 def test_ask_rejects_dangerous_sql_from_the_model(
-    client: TestClient, admin_user: User, fake_llm: FakeLLMClient
+    client: TestClient, admin_user: User, fake_llm: FakeLLMClient, db_session: Session
 ) -> None:
-    _upload_workbook(client)
+    _publish(db_session, _upload_workbook(client))
     fake_llm.replies = [_plan("sql", sql="SELECT 1; DROP TABLE covenant_report__summary")]
     response = client.post("/api/excel/ask", json={"question": "Tabloyu sil?"})
     assert response.status_code == 200, response.text
@@ -217,10 +233,10 @@ def test_ask_rejects_dangerous_sql_from_the_model(
 
 
 def test_ask_falls_back_to_the_template_when_the_model_alters_the_number(
-    client: TestClient, admin_user: User, fake_llm: FakeLLMClient
+    client: TestClient, admin_user: User, fake_llm: FakeLLMClient, db_session: Session
 ) -> None:
     """ADR-011: the final figure never comes from the model."""
-    _upload_workbook(client)
+    _publish(db_session, _upload_workbook(client))
     fake_llm.replies = [
         _plan("function", name="dscr", params={"period": "Q2_2026"}),
         "DSCR yaklaşık 1,4x civarındadır.",  # rounded by the model -> discarded
@@ -242,9 +258,10 @@ def test_employee_cannot_query_another_departments_workbook(
     client: TestClient, admin_user: User, fake_llm: FakeLLMClient, db_session: Session
 ) -> None:
     """ADR-004: the Excel path starts from `allowed_document_ids` like everything else."""
-    make_department(db_session, slug="finans")
+    finans = make_department(db_session, slug="finans")
+    make_department_manager(db_session, finans)
     enerji = make_department(db_session, slug="enerji_grubu")
-    _upload_workbook(client, department="finans")  # uploaded by admin into finans
+    _publish(db_session, _upload_workbook(client, department="finans"))  # admin → finans
     employee = user_repo.create(
         db_session,
         username="enerji_test",

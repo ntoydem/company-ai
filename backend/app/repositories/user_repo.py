@@ -28,6 +28,23 @@ def list_all(session: Session) -> list[User]:
     return list(session.scalars(select(User).order_by(User.username)).all())
 
 
+def list_department_managers(session: Session, department_slug: str) -> list[User]:
+    """B-28: the active `department_manager`s who are members of `department_slug` — the
+    approvers of documents uploaded into that department (NOT §5.2)."""
+    stmt = (
+        select(User)
+        .join(UserDepartment, UserDepartment.user_id == User.id)
+        .join(Department, Department.id == UserDepartment.department_id)
+        .where(
+            Department.slug == department_slug,
+            User.role == UserRole.department_manager,
+            User.is_active.is_(True),
+        )
+        .order_by(User.username)
+    )
+    return list(session.scalars(stmt).all())
+
+
 def _resolve_primary(
     user: User, requested: uuid.UUID | None, *, requested_given: bool
 ) -> uuid.UUID | None:

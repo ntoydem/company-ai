@@ -1,11 +1,18 @@
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
-from app.models.document import Confidentiality, DocumentStatus, FileKind, IngestionStatus
+from app.models.document import (
+    Confidentiality,
+    DocumentReviewStatus,
+    DocumentStatus,
+    FileKind,
+    IngestionStatus,
+)
 from app.models.document_metadata_suggestion import SuggestionStatus
+from app.models.document_review_event import ReviewEventKind
 from app.models.user import UserRole
 
 
@@ -37,6 +44,8 @@ class DocumentListItem(BaseModel):
     file_kind: FileKind | None
     # B-26: the folder the document lives in (null = no department / legacy).
     folder_id: UUID | None
+    # B-28: publication state; only `approved` documents reach search/Balbal.
+    review_status: DocumentReviewStatus
 
 
 class DocumentDetailResponse(DocumentListItem):
@@ -44,6 +53,11 @@ class DocumentDetailResponse(DocumentListItem):
     system fields a detail/review screen needs."""
 
     tags: list[str]
+    # B-28 review trail (the full ledger is admin-only, `/api/admin/documents/{id}/review-events`).
+    review_comment: str | None
+    submitted_at: datetime | None
+    reviewed_at: datetime | None
+    reviewed_by_id: UUID | None
     effective_date: date | None
     expiration_date: date | None
     version: int
@@ -93,6 +107,39 @@ class MetadataSuggestionApplyRequest(BaseModel):
     tags: list[str] | None = None
 
 
+class DocumentSubmitRequest(MetadataSuggestionApplyRequest):
+    """B-28 stage 1 (`POST /api/documents/{id}/submit`): the uploader's final metadata — the
+    same nine fields as the apply request — plus the fields whose low-confidence suggestion
+    they explicitly confirm (BACKEND_GAPS §4.7.5 "Onaylıyorum" box). Only fields present are
+    written; a kept low-confidence value that is not confirmed is refused (422)."""
+
+    confirmed_fields: list[str] = Field(default_factory=list)
+
+
+class DocumentReviewRequest(BaseModel):
+    """B-28 stage 2 (`POST /api/documents/{id}/review`), by the target department's
+    `department_manager`. `request_changes` needs a comment — the uploader must know what
+    to fix."""
+
+    decision: Literal["approve", "request_changes"]
+    comment: str | None = Field(default=None, max_length=2000)
+
+
+class ReviewEventResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    document_id: UUID
+    created_at: datetime
+    actor_name: str
+    kind: ReviewEventKind
+    field: str | None
+    before: str | None
+    after: str | None
+    confidence: float | None
+    comment: str | None
+
+
 class DocumentMetadataEditRequest(BaseModel):
     """Manual admin edit (Phase 5.2, SORU 1), independent of the AI-suggestion flow —
     same 9 fields as `MetadataSuggestionApplyRequest` plus `title`/`effective_date`/
@@ -129,4 +176,7 @@ class DocumentVisibilityResponse(BaseModel):
     document_id: UUID
     department: str | None
     confidentiality: Confidentiality
+    # B-28: for a pending document the list is who can *handle* it (uploader, target
+    # department's manager, admin), not who will see it once approved.
+    review_status: DocumentReviewStatus
     users: list[DocumentVisibilityUser]

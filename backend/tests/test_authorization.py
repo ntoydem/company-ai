@@ -22,6 +22,9 @@ class FakeProvider:
         # B-26: documents reachable through folder grants (empty unless a test sets it).
         self.folder_grant_ids: list[UUID] = []
         self.seen_folder_calls: list[tuple[tuple[str, ...], tuple[Confidentiality, ...]]] = []
+        # B-28: pending documents the caller may handle (empty unless a test sets it).
+        self.pending_ids: list[UUID] = []
+        self.seen_pending_calls: list[tuple[UUID, tuple[str, ...] | None]] = []
 
     def list_document_ids(self, scope: AuthorizationScope) -> Iterable[UUID]:
         self.seen_scopes.append(scope)
@@ -35,6 +38,16 @@ class FakeProvider:
     ) -> Iterable[UUID]:
         self.seen_folder_calls.append((tuple(department_slugs), tuple(confidentiality_levels)))
         return iter(self.folder_grant_ids)
+
+    def list_pending_document_ids(
+        self,
+        *,
+        uploaded_by_id: UUID,
+        manager_department_slugs: Iterable[str] | None,
+    ) -> Iterable[UUID]:
+        slugs = None if manager_department_slugs is None else tuple(manager_department_slugs)
+        self.seen_pending_calls.append((uploaded_by_id, slugs))
+        return iter(self.pending_ids)
 
     def list_document_ids_for_departments(
         self,

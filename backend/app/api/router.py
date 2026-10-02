@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api import (
+    admin_documents,
     ask,
     ask_page,
     audit_log,
@@ -26,6 +27,7 @@ router.include_router(projects.router)
 router.include_router(search.router)
 router.include_router(users.router)
 router.include_router(documents.router)
+router.include_router(admin_documents.router)
 router.include_router(ask.router)
 router.include_router(ask_page.router)
 router.include_router(audit_log.router)

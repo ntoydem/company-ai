@@ -19,13 +19,21 @@ level — the `normal` **and** `restricted` documents of the departments they be
 (memberships, plus folder grants at the same two levels), never `board` and never another
 department. The rule is fixed code, not a per-customer table (NOT §5.1); the customer admin
 only decides *who* holds the role. `management`/`admin` are unchanged.
+
+B-28 (02.10.2026, ADR-024): a document also has a publication state. Every rule above sees
+**approved** documents only — retrieval, search, `/api/ask` and the Excel catalogue never
+touch a pending one. With `scope.include_pending=True` (document-handling endpoints) the
+result additionally contains the pending documents the caller may *handle*: their own
+uploads, the pending documents of the departments a `department_manager` manages, and —
+for `admin` — every pending document. `management` sees no pending document (NOT §5.2:
+no general privilege, not an approver). Still one function, one more input.
 """
 
 from collections.abc import Iterable
 from typing import Protocol
 from uuid import UUID
 
-from app.models.document import Confidentiality, Document
+from app.models.document import Confidentiality, Document, DocumentReviewStatus
 from app.models.user import User, UserRole
 from app.schemas.authorization import AuthorizationScope
 
@@ -67,6 +75,16 @@ class DocumentIdsProvider(Protocol):
         access to (B-26), limited to `confidentiality_levels`."""
         ...
 
+    def list_pending_document_ids(
+        self,
+        *,
+        uploaded_by_id: UUID,
+        manager_department_slugs: Iterable[str] | None,
+    ) -> Iterable[UUID]:
+        """B-28: not-yet-approved documents uploaded by `uploaded_by_id` or belonging to one
+        of `manager_department_slugs`; `None` = every pending document (admin)."""
+        ...
+
 
 def allowed_document_ids(
     user: User,
@@ -88,33 +106,43 @@ def allowed_document_ids(
         return set()
 
     if user.role == UserRole.admin:
+        # Published documents are all theirs; pending ones only when the caller asked to
+        # handle them (B-28) — `scoped_ids` already excludes pending rows otherwise.
         return scoped_ids
 
     if user.role == UserRole.management:
-        role_ids = set(
+        management_ids = set(
             document_ids_provider.list_document_ids_for_departments(
                 department_slugs=None, confidentiality_levels=_ALL_CONFIDENTIALITY_LEVELS
             )
         )
-        return scoped_ids & role_ids
+        return scoped_ids & management_ids
 
     # employee / department_manager: documents of the departments they belong to, plus
     # (B-26) documents in folders those departments were granted access to — both at the
     # role's confidentiality levels (`normal`; managers also `restricted`, B-08).
     department_slugs = [department.slug for department in user.departments]
-    if not department_slugs:
-        return set()
-    levels = _membership_confidentiality_levels(user.role)
-    role_ids = set(
-        document_ids_provider.list_document_ids_for_departments(
-            department_slugs=department_slugs, confidentiality_levels=levels
+    role_ids: set[UUID] = set()
+    if department_slugs:
+        levels = _membership_confidentiality_levels(user.role)
+        role_ids = set(
+            document_ids_provider.list_document_ids_for_departments(
+                department_slugs=department_slugs, confidentiality_levels=levels
+            )
         )
-    )
-    role_ids |= set(
-        document_ids_provider.list_document_ids_for_folder_grants(
-            department_slugs=department_slugs, confidentiality_levels=levels
+        role_ids |= set(
+            document_ids_provider.list_document_ids_for_folder_grants(
+                department_slugs=department_slugs, confidentiality_levels=levels
+            )
         )
-    )
+    if scope.include_pending:
+        # B-28: own uploads always; the departments' pending documents only for a manager.
+        manager_slugs = department_slugs if user.role == UserRole.department_manager else ()
+        role_ids |= set(
+            document_ids_provider.list_pending_document_ids(
+                uploaded_by_id=user.id, manager_department_slugs=manager_slugs
+            )
+        )
     return scoped_ids & role_ids
 
 
@@ -134,9 +162,31 @@ class SingleDocumentIdsProvider:
         # of SQL and the rule stays in one place (B-26).
         self._folder_grantee_slugs = folder_grantee_slugs
 
+    @property
+    def _approved(self) -> bool:
+        return self._document.review_status == DocumentReviewStatus.approved
+
     def list_document_ids(self, scope: AuthorizationScope) -> Iterable[UUID]:
-        del scope  # a single document has nothing left to narrow
+        # Nothing left to narrow by department/project; the publication filter still applies.
+        if not self._approved and not scope.include_pending:
+            return ()
         return (self._document.id,)
+
+    def list_pending_document_ids(
+        self,
+        *,
+        uploaded_by_id: UUID,
+        manager_department_slugs: Iterable[str] | None,
+    ) -> Iterable[UUID]:
+        if self._approved:
+            return ()
+        if manager_department_slugs is None or self._document.uploaded_by_id == uploaded_by_id:
+            return (self._document.id,)
+        if self._document.department is not None and self._document.department in list(
+            manager_department_slugs
+        ):
+            return (self._document.id,)
+        return ()
 
     def list_document_ids_for_departments(
         self,
@@ -144,7 +194,7 @@ class SingleDocumentIdsProvider:
         department_slugs: Iterable[str] | None,
         confidentiality_levels: Iterable[Confidentiality],
     ) -> Iterable[UUID]:
-        if self._document.confidentiality not in confidentiality_levels:
+        if not self._approved or self._document.confidentiality not in confidentiality_levels:
             return ()
         if department_slugs is not None and (
             self._document.department is None or self._document.department not in department_slugs
@@ -158,7 +208,7 @@ class SingleDocumentIdsProvider:
         department_slugs: Iterable[str],
         confidentiality_levels: Iterable[Confidentiality],
     ) -> Iterable[UUID]:
-        if self._document.confidentiality not in confidentiality_levels:
+        if not self._approved or self._document.confidentiality not in confidentiality_levels:
             return ()
         if self._folder_grantee_slugs.isdisjoint(department_slugs):
             return ()

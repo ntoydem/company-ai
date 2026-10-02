@@ -35,7 +35,7 @@ from app.services.llm import LLMRateLimitError, LLMRequest
 from app.services.router import ROUTER_SYSTEM_PROMPT
 from tests.fakes import FakeLLMClient, FakeRouter
 from tests.ledger_fixtures import ensure_generated_documents, load_ledger_documents
-from tests.test_excel_api import _upload_workbook
+from tests.test_excel_api import _publish, _upload_workbook
 
 AMBIGUOUS_DSCR = "Güncel DSCR kaç?"
 COVENANT_SUBQUESTION = "Kredi sözleşmesindeki güncel minimum DSCR covenant'ı nedir?"
@@ -89,7 +89,7 @@ def test_ambiguous_dscr_returns_covenant_and_actual_with_both_source_kinds(
     documents = load_ledger_documents(db_session, ["DOC-ANK-FIN-004", "DOC-ANK-FIN-005"])
     amendment = documents["DOC-ANK-FIN-005"]
     amendment_page = amendment_entry["page_map"]["2. Amendments to the Original Agreement"]
-    workbook = _upload_workbook(client)  # Covenant_Report.xlsx
+    workbook = _publish(db_session, _upload_workbook(client))  # Covenant_Report.xlsx
 
     fake_router.query_type = "MIXED_QUERY"
     fake_router.document_question = COVENANT_SUBQUESTION
@@ -179,7 +179,7 @@ def test_budget_variance_with_reason_only_from_documents(
         department=None,
         text="Ankara RES Q3 2024 bütçe 26.000.000 TRY, gerçekleşen 25.106.000 TRY.",
     )
-    _upload_workbook(client, "Budget_vs_Actual_2026.xlsx")
+    _publish(db_session, _upload_workbook(client, "Budget_vs_Actual_2026.xlsx"))
     fake_router.query_type = "MIXED_QUERY"
     fake_router.document_question = "Q3 2024 bütçe sapmasının sebebi belgelerde belirtilmiş mi?"
     fake_router.data_question = "Ankara RES Q3 2024 bütçe sapması kaç?"
@@ -226,7 +226,7 @@ def test_data_question_runs_the_excel_pipeline_through_api_ask(
     fake_llm: FakeLLMClient,
     fake_router: FakeRouter,
 ) -> None:
-    _upload_workbook(client)
+    _publish(db_session, _upload_workbook(client))
     fake_router.query_type = "DATA_QUERY"
     fake_llm.replies = [
         json.dumps({"kind": "function", "name": "dscr", "params": {"period": "Q2_2026"}}),
@@ -262,7 +262,9 @@ def test_data_miss_falls_back_to_the_document_pipeline(
         department=None,
         text="Yerli banka kredisi 20.400.000 EUR, ECA kredisi 30.000.000 EUR.",
     )
-    _upload_workbook(client)  # a workbook exists, but the planner finds nothing in it
+    _publish(
+        db_session, _upload_workbook(client)
+    )  # a workbook exists, but the planner finds nothing in it
     fake_router.query_type = "DATA_QUERY"
     fake_llm.replies = [
         json.dumps({"kind": "none", "reason": "not in workbooks"}),
@@ -360,7 +362,7 @@ def test_answer_returns_the_id_of_its_single_audit_row_with_product_level(
     fake_llm: FakeLLMClient,
     fake_router: FakeRouter,
 ) -> None:
-    _upload_workbook(client)
+    _publish(db_session, _upload_workbook(client))
     fake_router.query_type = "DATA_QUERY"
     fake_llm.replies = [
         json.dumps({"kind": "function", "name": "dscr", "params": {"period": "Q2_2026"}}),
@@ -391,7 +393,7 @@ def test_product_level_follows_the_final_query_type(
     body = _ask(client, "Yerli banka kredisi ne kadar?")
     assert body["query_type"] == "DOCUMENT_QUERY" and body["product_level"] == "P1"
 
-    _upload_workbook(client)
+    _publish(db_session, _upload_workbook(client))
     fake_router.query_type = "DATA_QUERY"
     fake_llm.replies = [
         json.dumps({"kind": "none", "reason": "not in workbooks"}),
@@ -431,7 +433,7 @@ def test_p1_only_degrades_a_data_routing_to_documents_with_a_product_limit_warni
         department=None,
         text="2026 Q2 DSCR 1,37x olarak hesaplanmıştır.",
     )
-    _upload_workbook(client)
+    _publish(db_session, _upload_workbook(client))
     company_settings_repo.set_enabled_products(db_session, ["P1"])
     fake_router.query_type = "DATA_QUERY"
     fake_llm.replies = ["2026 Q2 DSCR 1,37x'tir [K1]."]
@@ -499,7 +501,7 @@ def test_mixed_with_retrieved_documents_but_no_answer_is_insufficient_data(
     from tests.test_ask import _document
 
     _document(db_session, title="A", department=None, text="DSCR covenant 1,25x")
-    _upload_workbook(client)
+    _publish(db_session, _upload_workbook(client))
     fake_router.query_type = "MIXED_QUERY"
     fake_llm.reply_fn = _reply_by_pipeline(
         document_reply="Mevcut şirket kaynaklarında yeterli bilgi bulamadım.",
