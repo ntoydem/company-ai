@@ -328,6 +328,16 @@ etiket doğrulaması, %80 kuralı `extra_fields.<key>` ile, `field_added` olayı
 sıralaması değişmedi (Naci). Demo `parties` → `extra_fields.parties`. Ayrı bir phase değil; plan `docs/plans/B28B_PLAN.md`,
 rapor `docs/reports/B28B_REPORT.md`. AI-BalBal tarafı PR-5 (ayrı).
 
+**AI-BalBal PR #5 — B-28b arayüzü (02.10.2026):** `feat/b28b-arayuz` @ `1d4cca2` (https://github.com/ftansu/AI-BalBal/pull/5;
+main'e, merge edilmedi, T-12 tasarım onayı bekliyor; PR #4'ten bağımsız, önerilen sıra #4 → #5). Etiketler katalogdan
+çip seçiciyle (`TagPicker`; değişiklik etiketleri yalnızca `amendment` ailesinde açık), 1. aşama panelinde "Ek alanlar"
+(Balbal önerisi güven çubuğu + %80 kuralı `extra_fields.<key>`, rehber satırları, "+ Alan ekle", kaynak rozeti
+Balbal/Personel, ≤20), tür rehberi ipucu (Belge Yükle + panel aile rozeti), belge detayında ek alanlar herkese,
+Yönetim › Etiketler ve Tür rehberi sayfaları (Sinyaller + "Rehbere ekle" yalnızca ön doldurma), arama `matched_on`
+rozeti, admin'e `tags.dropped` notu. 3 CSS kuralı; typecheck/lint/build yeşil; dev Caddy'de geçici deploy → rotalar
+200, pin `b709f09`'a geri. Backend'e dokunulmadı. Plan `docs/plans/AIBALBAL_PR5_PLAN.md`, rapor
+`docs/reports/AIBALBAL_PR5_REPORT.md`.
+
 **Olası gelecek faz (kapsam dışı, planlanmadı): Ç-7.1 4 adımlı "veri yok" protokolü** — anlama kontrolü → durum etiketi
 (`missing_data`/`insufficient_data` zaten ayrı) → "elimde şunlar var, göstereyim mi" (yalnızca `retrieved_document_ids`'ten
 **kodla** üretilir, LLM'e yazdırılmaz — ADR-014) → açık uçlu kapanış. AI-BalBal `AnswerView` ile birlikte tasarlanmalı;
