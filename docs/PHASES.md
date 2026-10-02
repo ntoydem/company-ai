@@ -270,7 +270,7 @@ rolü admin `PATCH /api/users/{id}` ile kişiye verir (kural sabit, tablo değil
 Ayrı bir phase değil; plan `docs/plans/B08_DEPARTMAN_MUDURU_PLAN.md`, rapor `docs/reports/B08_DEPARTMAN_MUDURU_REPORT.md`.
 Rol/üyelik değişikliği kayıt defteri bu fazda yok (ayrı küçük iş, B-28/§5.2 öncesi).
 
-**B-28 iki aşamalı belge onayı (02.10.2026, `<commit>`, ADR-024):** `documents.review_status` (migration `0013`, DEFAULT
+**B-28 iki aşamalı belge onayı (02.10.2026, `db6a52d`, ADR-024):** `documents.review_status` (migration `0013`, DEFAULT
 `approved` — 74 demo belge yayında kalır) **kapıya girdi**: yalnızca `approved` belge retrieval/arama/`/api/ask`/Excel
 kataloğuna girer; `AuthorizationScope.include_pending` ile yükleyen kendi bekleyenini, müdür kuyruğunu, admin hepsini
 görür (tek yeni provider metodu, imza sabit). Akış: hedef departmanın kendi `department_manager`'ı → anında `approved`;

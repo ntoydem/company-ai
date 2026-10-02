@@ -1,6 +1,6 @@
 # B-28 Raporu — İki aşamalı belge onay akışı (`review_status` kapıda) + §7.2 #7
 
-**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit + `docs/PHASES.md` notu)  **Commit:** `<commit>`
+**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit + `docs/PHASES.md` notu)  **Commit:** `db6a52d`
 **Plan:** `docs/plans/B28_ONAY_AKISI_PLAN.md` · **ADR:** **ADR-024** (yeni) + ADR-004 concretization · **Migration:** `0013_document_review`
 
 Naci'nin SORU cevapları (02.10.2026, hepsi planın önerisiyle): (1a) upload anında 409 `approver_not_configured`, `department=None` 409 almaz; (2) `management`/`admin` muafiyeti yok; (3) `rejected` yok; (4) admin `apply`/`PATCH` de onayı düşürür, istisna yalnızca hedef dept müdürü; (5) öneri bekleniyorsa 409 `suggestion_pending`; (6) kayıt defteri admin-only; (7) etiketsiz commit + PHASES.md + ADR-024. **LLM çağrısı: 0.**
