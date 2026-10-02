@@ -9,6 +9,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from datetime import date
+from typing import Any
 from uuid import UUID
 
 from app.models.document import Document
@@ -135,6 +136,25 @@ def describe_chain(position: ChainPosition) -> str:
     return label + (" — " + "; ".join(relations) if relations else "")
 
 
+def describe_metadata(document: Any) -> str:
+    """B-28b: counterparty, catalogue tags and staff/AI extra fields as one line, so Balbal
+    answers with the same facts the uploader recorded (BACKEND_GAPS §4.7.3). Empty when the
+    document carries none of them — older sources stay byte-identical."""
+    parts: list[str] = []
+    if getattr(document, "counterparty", None):
+        parts.append(f"Muhatap: {document.counterparty}")
+    tags = getattr(document, "tags", None) or []
+    if tags:
+        parts.append("Etiketler: " + ", ".join(tags))
+    extra = getattr(document, "extra_fields", None) or {}
+    if extra:
+        parts.append(
+            "Ek alanlar: "
+            + "; ".join(f"{key}={entry.get('value', '')}" for key, entry in sorted(extra.items()))
+        )
+    return " | ".join(parts)
+
+
 def format_source(source: PromptSource) -> str:
     document = source.document
     header = (
@@ -142,7 +162,12 @@ def format_source(source: PromptSource) -> str:
         f"Yürürlük: {_fmt(document.effective_date)} | Versiyon: {document.version} | "
         f"Durum: {document.status.value} | Sayfa: {source.chunk.page_number}"
     )
-    return f"{header}\nZincir: {describe_chain(source.position)}\n{source.chunk.text.strip()}"
+    metadata = describe_metadata(document)
+    lines = [header, f"Zincir: {describe_chain(source.position)}"]
+    if metadata:
+        lines.append(metadata)
+    lines.append(source.chunk.text.strip())
+    return "\n".join(lines)
 
 
 def build_user_prompt(question: str, sources: list[PromptSource], today: date) -> str:

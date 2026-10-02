@@ -1,11 +1,11 @@
 import enum
 import uuid
 from datetime import date, datetime
-from typing import Literal
+from typing import Any, Literal
 
 from sqlalchemy import Boolean, Date, DateTime, Enum, ForeignKey, Integer, String, Text, Uuid
 from sqlalchemy import false as sa_false
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
@@ -114,6 +114,10 @@ class Document(TimestampMixin, Base):
         default=Confidentiality.normal,
     )
     tags: Mapped[list[str]] = mapped_column(ARRAY(String(64)), default=list, server_default="{}")
+    # B-28b (ADR-025): type-specific facts the staff or Balbal added —
+    # {key: {"value": str, "source": "ai"|"user", "confidence": float|None,
+    #        "added_by_id": uuid|None, "added_at": iso}}. Strings only, never arithmetic (rule 3).
+    extra_fields: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, server_default="{}")
     source: Mapped[DocumentSource] = mapped_column(
         Enum(
             DocumentSource, name="document_source", values_callable=lambda e: [m.value for m in e]

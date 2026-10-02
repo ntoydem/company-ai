@@ -48,6 +48,16 @@ class DocumentListItem(BaseModel):
     review_status: DocumentReviewStatus
 
 
+class ExtraFieldValue(BaseModel):
+    """One `documents.extra_fields` entry (B-28b): who recorded it and how sure Balbal was."""
+
+    value: str
+    source: Literal["ai", "user"] = "user"
+    confidence: float | None = None
+    added_by_id: UUID | None = None
+    added_at: datetime | None = None
+
+
 class DocumentDetailResponse(DocumentListItem):
     """`GET /api/documents/{id}` (Phase 3.3, SORU 1): the list item plus the temporal and
     system fields a detail/review screen needs."""
@@ -57,6 +67,8 @@ class DocumentDetailResponse(DocumentListItem):
     # `uploaded_by_id` lets the UI show "Onaya gönder" only to the uploader (the server still
     # enforces it, 403 `not_the_uploader`) — AI-BalBal PR-2.
     uploaded_by_id: UUID | None
+    # B-28b: type-specific facts (staff/AI), string values only.
+    extra_fields: dict[str, ExtraFieldValue]
     review_comment: str | None
     submitted_at: datetime | None
     reviewed_at: datetime | None
@@ -108,6 +120,8 @@ class MetadataSuggestionApplyRequest(BaseModel):
     status: DocumentStatus | None = None
     confidentiality: Confidentiality | None = None
     tags: list[str] | None = None
+    # B-28b: key → value; `null` removes the key. Keys are normalised to snake_case.
+    extra_fields: dict[str, str | None] | None = None
 
 
 class DocumentSubmitRequest(MetadataSuggestionApplyRequest):
@@ -160,6 +174,7 @@ class DocumentMetadataEditRequest(BaseModel):
     status: DocumentStatus | None = None
     confidentiality: Confidentiality | None = None
     tags: list[str] | None = None
+    extra_fields: dict[str, str | None] | None = None
     effective_date: date | None = None
     expiration_date: date | None = None
 

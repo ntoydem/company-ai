@@ -121,3 +121,19 @@ def test_licence_amendment_is_related_not_superseding(
     assert amendment.supersedes_document_id is None
     assert licence.superseded_by_document_id is None
     assert licence.id in amendment.related_document_ids
+
+
+def test_seed_records_ledger_parties_as_extra_field(
+    db_session: Session, settings: Settings
+) -> None:
+    """B-28b (Naci SORU 2): the ledger's `parties` become `extra_fields.parties` on seeded
+    documents and workbooks; nothing else is written there."""
+    _prepare(db_session, settings)
+    ensure_demo_documents(db_session, settings, MANIFEST_PATH)
+    docs = _seeded_documents(db_session)
+    facility = docs["DOC-ANK-FIN-001"]
+    assert facility.extra_fields["parties"]["source"] == "user"
+    assert "PQR Bank" in facility.extra_fields["parties"]["value"]
+    workbook = docs["DOC-ANK-FIN-009"]
+    assert "PQR Bank" in workbook.extra_fields["parties"]["value"]
+    assert set(facility.extra_fields) == {"parties"}

@@ -22,9 +22,12 @@ from app.repositories import (
     department_repo,
     document_metadata_suggestion_repo,
     document_repo,
+    guide_repo,
     project_repo,
+    tag_repo,
 )
 from app.services.llm import LLMClient, LLMError, LLMRequest
+from app.services.type_family import MAX_EXTRA_FIELDS, normalize_extra_key
 
 log = logging.getLogger(__name__)
 
@@ -68,11 +71,55 @@ class _ClassifyResponse(BaseModel):
     status: _FieldGuess = Field(default_factory=_FieldGuess)
     confidentiality: _FieldGuess = Field(default_factory=_FieldGuess)
     tags: _FieldGuess = Field(default_factory=_FieldGuess)
+    # B-28b: type-specific facts, keyed by the guide's suggested keys (free keys allowed).
+    extra_fields: dict[str, _FieldGuess] = Field(default_factory=dict)
+
+
+def _guide_block(guides: list[dict[str, Any]]) -> str:
+    """The per-company guide as prompt text (BACKEND_GAPS §4.7.2 — steers, never a form)."""
+    lines = []
+    for guide in guides:
+        if not guide.get("is_active", True) or not guide.get("type_patterns"):
+            continue
+        keys = ", ".join(
+            f"{f['key']} ({f.get('label', '')}: {f.get('hint', '')})".strip()
+            for f in guide.get("suggested_extra_fields") or []
+        )
+        tags = ", ".join(guide.get("suggested_tags") or [])
+        lines.append(
+            f"- {guide['family']} [{', '.join(guide['type_patterns'])}]: "
+            f"ek alanlar: {keys or 'yok'}"
+            + (f"; etiketler: {tags}" if tags else "")
+            + (f"; ipucu: {guide['prompt_hint']}" if guide.get("prompt_hint") else "")
+        )
+    return "\n".join(lines)
 
 
 def _build_prompt(
-    text: str, *, department_slugs: list[str], project_codes: list[str]
+    text: str,
+    *,
+    department_slugs: list[str],
+    project_codes: list[str],
+    tag_slugs: list[str] | None = None,
+    guides: list[dict[str, Any]] | None = None,
 ) -> tuple[str, str]:
+    tag_rule = (
+        "tags: yalnızca şu katalogdan, uygun olanlar (başka etiket üretme): "
+        f"{', '.join(tag_slugs)}\n"
+        if tag_slugs
+        else "tags: kısa anahtar kelimelerden oluşan bir liste.\n"
+    )
+    guide_text = _guide_block(guides or [])
+    extra_rule = (
+        "extra_fields: belgenin türüne uyan rehber satırındaki anahtarlar için "
+        '{"anahtar": {"value": ..., "confidence": ...}} nesnesi; yalnızca metinde AÇIKÇA yazanı '
+        f"yaz, uydurma; en fazla {MAX_EXTRA_FIELDS} anahtar; uygun bilgi yoksa boş nesne.\n"
+        + (
+            f"Tür rehberi (aile [tür desenleri]: ek alanlar; etiketler; ipucu):\n{guide_text}\n"
+            if guide_text
+            else ""
+        )
+    )
     system = (
         "Sen bir belge sınıflandırma asistanısın. Sana bir şirket belgesinin ilk sayfalarının "
         "metni verilir; görevin metadata alanlarını tahmin etmektir. Yalnızca verilen metinden "
@@ -85,16 +132,21 @@ def _build_prompt(
         f"status: yalnızca şunlardan biri: {_STATUS_CHOICES}\n"
         f"confidentiality: yalnızca şunlardan biri: {_CONFIDENTIALITY_CHOICES}\n"
         "document_date: YYYY-MM-DD biçiminde.\n"
-        "tags: kısa anahtar kelimelerden oluşan bir liste.\n"
-        'Her alan için {"value": ..., "confidence": 0.0-1.0} şeklinde bir nesne döndür; '
-        f"tam olarak şu alanları içer: {', '.join(_FIELDS)}."
+        + tag_rule
+        + extra_rule
+        + 'Her alan için {"value": ..., "confidence": 0.0-1.0} şeklinde bir nesne döndür; '
+        f"tam olarak şu alanları içer: {', '.join(_FIELDS)}, extra_fields."
     )
     user = f"BELGE METNİ (ilk {MAX_LEADING_PAGES} sayfa):\n\n{text}"
     return system, user
 
 
 def _sanitize(
-    parsed: _ClassifyResponse, *, department_slugs: set[str], project_codes: set[str]
+    parsed: _ClassifyResponse,
+    *,
+    department_slugs: set[str],
+    project_codes: set[str],
+    tag_slugs: set[str] | None = None,
 ) -> dict[str, Any]:
     """Values outside the given whitelist are dropped (confidence 0) rather than trusted —
     the model cannot invent a department/project that does not exist (mirrors the
@@ -116,6 +168,34 @@ def _sanitize(
         "board",
     }:
         confidentiality["value"], confidentiality["confidence"] = None, 0.0
+    # B-28b: tags only from the active catalogue (strict rule); what the model proposed outside
+    # it is kept as `dropped` so the ledger shows "Balbal suggested X, not in the catalogue" —
+    # the admin may add it, the system never does (§4.7.4).
+    if tag_slugs is not None:
+        tags = fields["tags"]
+        proposed = (
+            tags["value"]
+            if isinstance(tags["value"], list)
+            else ([tags["value"]] if isinstance(tags["value"], str) else [])
+        )
+        kept = [t for t in proposed if t in tag_slugs]
+        dropped = [t for t in proposed if t not in tag_slugs]
+        tags["value"] = kept or None
+        if dropped:
+            tags["dropped"] = dropped
+    # B-28b: extra fields — normalised keys, string values, capped.
+    extra: dict[str, Any] = {}
+    for raw_key, guess in (fields.get("extra_fields") or {}).items():
+        key = normalize_extra_key(str(raw_key))
+        value = guess.get("value") if isinstance(guess, dict) else None
+        if key is None or value is None or key in extra:
+            continue
+        if isinstance(value, list):
+            value = ", ".join(str(v) for v in value)
+        extra[key] = {"value": str(value), "confidence": float(guess.get("confidence", 0.0))}
+        if len(extra) >= MAX_EXTRA_FIELDS:
+            break
+    fields["extra_fields"] = extra
     return fields
 
 
@@ -127,9 +207,15 @@ def suggest_metadata(
     it never propagates (ADR-006: a suggestion failure never breaks anything else)."""
     department_slugs = [d.slug for d in department_repo.list_all(session)]
     project_codes = [p.code for p in project_repo.list_all(session)]
+    tag_slugs = sorted(tag_repo.active_slugs(session))
+    guides = guide_repo.as_dicts(guide_repo.list_all(session, active_only=True))
     text = document_repo.get_leading_page_text(session, document.id, max_pages=MAX_LEADING_PAGES)
     system, user = _build_prompt(
-        text, department_slugs=department_slugs, project_codes=project_codes
+        text,
+        department_slugs=department_slugs,
+        project_codes=project_codes,
+        tag_slugs=tag_slugs,
+        guides=guides,
     )
 
     try:
@@ -158,7 +244,10 @@ def suggest_metadata(
         )
     else:
         fields = _sanitize(
-            parsed, department_slugs=set(department_slugs), project_codes=set(project_codes)
+            parsed,
+            department_slugs=set(department_slugs),
+            project_codes=set(project_codes),
+            tag_slugs=set(tag_slugs),
         )
         suggestion = document_metadata_suggestion_repo.upsert(
             session,

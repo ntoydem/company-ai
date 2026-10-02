@@ -16,5 +16,6 @@ python -m app.cli seed-demo-users
 python -m app.cli seed-demo-departments
 python -m app.cli seed-demo-folders
 python -m app.cli seed-demo-projects
+python -m app.cli seed-demo-catalog
 
 exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-access-log --log-level warning

@@ -11,10 +11,12 @@ from app.api import (
     documents,
     excel,
     folders,
+    guide,
     health,
     projects,
     search,
     settings,
+    tags,
     users,
 )
 
@@ -35,3 +37,8 @@ router.include_router(excel.router)
 router.include_router(settings.router)
 router.include_router(folders.admin_router)
 router.include_router(folders.user_router)
+router.include_router(tags.router)
+router.include_router(tags.admin_router)
+router.include_router(guide.router)
+router.include_router(guide.admin_router)
+router.include_router(guide.events_router)

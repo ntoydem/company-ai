@@ -24,7 +24,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
     assert "users" not in inspect(engine).get_table_names()
 
     command.upgrade(cfg, "head")
-    assert _current_revision() == "0013"
+    assert _current_revision() == "0014"
     tables = inspect(engine).get_table_names()
     assert "users" in tables
     assert "documents" in tables
@@ -69,6 +69,8 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
     assert "folder_id" in {c["name"] for c in inspect(engine).get_columns("documents")}
     assert "company_settings" in tables
     assert "document_review_events" in tables
+    assert {"tag_catalog", "document_type_guide", "admin_events"} <= set(tables)
+    assert "extra_fields" in {c["name"] for c in inspect(engine).get_columns("documents")}
     assert "review_status" in {c["name"] for c in inspect(engine).get_columns("documents")}
 
     with engine.connect() as conn:
@@ -86,7 +88,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
 
 def test_upgrade_head_is_idempotent() -> None:
     command.upgrade(alembic_config(), "head")
-    assert _current_revision() == "0013"
+    assert _current_revision() == "0014"
 
 
 def test_0010_corrects_an_existing_phase_1_2_tree_and_backfills_users() -> None:
@@ -253,4 +255,43 @@ def test_0012_adds_department_manager_and_downgrade_demotes_to_employee() -> Non
         roles = conn.execute(text("SELECT username, role::text FROM users ORDER BY username")).all()
     assert labels == ["admin", "management", "employee"]
     assert [tuple(r) for r in roles] == [("e1", "employee"), ("m1", "employee")]
+    command.upgrade(cfg, "head")
+
+
+def test_0014_seeds_change_tags_existing_tags_and_the_starter_guide() -> None:
+    """B-28b (X-01): the catalogue starts with the nine change tags plus every tag already in
+    use (as identity, so the strict rule invalidates no existing document); the guide gets the
+    starter families; downgrade removes all of it."""
+    cfg = alembic_config()
+    engine = get_engine()
+    command.downgrade(cfg, "0013")
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "INSERT INTO documents (id, title, document_type, counterparty, document_date, "
+                "status, department, storage_path, ingestion_status, source, confidentiality, "
+                "tags, related_document_ids, version) VALUES (gen_random_uuid(), 'T', 'Facility "
+                "Agreement', 'c', '2026-01-01', 'executed', 'finans', 'x/original.pdf', 'ready', "
+                "'web', 'normal', '{ANK_RES,V01}', '{}', 1)"
+            )
+        )
+    command.upgrade(cfg, "head")
+    with engine.connect() as conn:
+        tags = conn.execute(text("SELECT slug, kind::text FROM tag_catalog ORDER BY slug")).all()
+        families = (
+            conn.execute(text("SELECT family FROM document_type_guide ORDER BY family"))
+            .scalars()
+            .all()
+        )
+        extra = conn.execute(text("SELECT extra_fields FROM documents")).scalar()
+    by_slug = dict(tags)
+    assert (
+        by_slug["faiz-değişikliği"] == "change"
+        and len([k for k in by_slug.values() if k == "change"]) == 9
+    )
+    assert by_slug["ANK_RES"] == "identity" and by_slug["V01"] == "identity"
+    assert {"contract", "amendment", "licence_permit", "workbook", "other"} <= set(families)
+    assert extra == {}
+    command.downgrade(cfg, "0013")
+    assert "tag_catalog" not in inspect(engine).get_table_names()
     command.upgrade(cfg, "head")

@@ -34,6 +34,7 @@ from app.repositories import (
     document_review_repo,
     folder_repo,
     project_repo,
+    tag_repo,
     user_repo,
 )
 from app.repositories.document_repo import SqlDocumentIdsProvider
@@ -51,7 +52,7 @@ from app.schemas.document import (
     MetadataSuggestionApplyRequest,
     MetadataSuggestionResponse,
 )
-from app.services import document_review, metadata_suggestion
+from app.services import document_review, metadata_suggestion, type_family
 from app.services.authorization import SingleDocumentIdsProvider, allowed_document_ids
 from app.services.document_store import LocalFileSystemStore
 from app.services.llm import LLMClient
@@ -119,6 +120,27 @@ DEPARTMENT_REQUIRED = {
     "code": "department_required",
     "message": "Belgenin departmanı belirlenmeden onaya gönderilemez.",
 }
+# B-28b (ADR-025): tags come from the active catalogue only; extra fields are capped and keyed
+# in snake_case. The customer admin grows the catalogue — never the system.
+
+
+def _unknown_tag_detail(unknown: list[str]) -> dict[str, object]:
+    return {
+        "code": "unknown_tag",
+        "message": "Bu etiketler şirket etiket kataloğunda yok: " + ", ".join(unknown),
+        "fields": ["tags"],
+        "unknown": unknown,
+    }
+
+
+def _extra_fields_detail(reason: str) -> dict[str, object]:
+    return {
+        "code": "invalid_extra_fields",
+        "message": "Ek alanlar kaydedilemedi: anahtar adı geçersiz ya da en fazla "
+        f"{type_family.MAX_EXTRA_FIELDS} alan olabilir.",
+        "fields": ["extra_fields"],
+        "reason": reason,
+    }
 
 
 def _low_confidence_detail(fields: list[str]) -> dict[str, object]:
@@ -152,9 +174,17 @@ def _resolve_metadata_updates(
     resolve to the same validated slug/id lookups either way."""
     updates: dict[str, object] = {}
     for field in provided:
+        if field == "extra_fields":
+            continue  # merged separately (`_apply_extra_fields`), not a column overwrite
         value = getattr(body, field)
         if value is None and field not in clearable_fields:
             raise HTTPException(422, FIELD_CANNOT_BE_NULL_MESSAGE)
+        if field == "tags":
+            unknown = tag_repo.unknown_tags(session, list(value or []))
+            if unknown:
+                raise HTTPException(422, _unknown_tag_detail(unknown))
+            updates["tags"] = list(value or [])
+            continue
         if field == "department":
             if value is not None and department_repo.get_by_slug(session, value) is None:
                 raise HTTPException(422, UNKNOWN_DEPARTMENT_MESSAGE)
@@ -568,7 +598,9 @@ def apply_metadata_suggestion(
     updates = _resolve_metadata_updates(
         session, body.model_fields_set, body, clearable_fields=_CLEARABLE_FIELDS
     )
-    _apply_metadata_change(session, document, updates, current_user)
+    _apply_metadata_change(
+        session, document, updates, current_user, extra_updates=body.extra_fields
+    )
     document_metadata_suggestion_repo.mark_applied(
         session, suggestion, applied_by_id=current_user.id
     )
@@ -576,8 +608,53 @@ def apply_metadata_suggestion(
     return DocumentListItem.model_validate(document)
 
 
+def _apply_extra_fields(
+    session: Session,
+    document: Document,
+    raw_updates: dict[str, str | None] | None,
+    actor: User,
+    *,
+    suggested_extra: dict[str, object] | None = None,
+) -> list[str]:
+    """B-28b: merge staff/admin extra-field edits into `documents.extra_fields`; a key Balbal
+    did not suggest is a staff addition → `field_added` event (§4.7.3). Returns changed keys."""
+    try:
+        updates = document_review.normalize_extra_updates(raw_updates)
+    except document_review.ExtraFieldsError as exc:
+        raise HTTPException(422, _extra_fields_detail(str(exc))) from None
+    if not updates:
+        return []
+    try:
+        merged, added, changed = document_review.merge_extra_fields(
+            dict(document.extra_fields or {}),
+            updates,
+            actor_id=actor.id,
+            suggested=dict(suggested_extra or {}),
+            now_iso=datetime.now(UTC).isoformat(),
+        )
+    except document_review.ExtraFieldsError as exc:
+        raise HTTPException(422, _extra_fields_detail(str(exc))) from None
+    document.extra_fields = merged
+    for key in added:
+        document_review_repo.add_event(
+            session,
+            document_id=document.id,
+            actor=actor,
+            kind=ReviewEventKind.field_added,
+            field=f"{document_review.EXTRA_PREFIX}{key}",
+            after=merged[key]["value"],
+        )
+    session.flush()
+    return changed
+
+
 def _apply_metadata_change(
-    session: Session, document: Document, updates: dict[str, object], actor: User
+    session: Session,
+    document: Document,
+    updates: dict[str, object],
+    actor: User,
+    *,
+    extra_updates: dict[str, str | None] | None = None,
 ) -> None:
     """B-28 T9: a metadata change on an approved document re-opens the review unless the
     actor is the target department's own manager (the approver editing their own call)."""
@@ -585,6 +662,10 @@ def _apply_metadata_change(
     before = {field: getattr(document, field) for field in updates}
     document_repo.apply_partial_update(session, document, updates)
     changed = [f for f in updates if before[f] != getattr(document, f)]
+    changed += [
+        f"{document_review.EXTRA_PREFIX}{k}"
+        for k in _apply_extra_fields(session, document, extra_updates, actor)
+    ]
     if not (was_approved and changed):
         return
     if document_review.is_target_manager(actor, document.department):
@@ -632,7 +713,9 @@ def edit_document_metadata(
     updates = _resolve_metadata_updates(
         session, body.model_fields_set, body, clearable_fields=_EDIT_CLEARABLE_FIELDS
     )
-    _apply_metadata_change(session, document, updates, current_user)
+    _apply_metadata_change(
+        session, document, updates, current_user, extra_updates=body.extra_fields
+    )
     session.commit()
     return DocumentDetailResponse.model_validate(document)
 
@@ -703,13 +786,24 @@ def submit_document(
         if document.ingestion_status != IngestionStatus.ready or suggestion is None:
             raise HTTPException(409, SUGGESTION_PENDING)
 
-    provided = sorted(body.model_fields_set - {"confirmed_fields"})  # stable event order
+    provided = sorted(body.model_fields_set - {"confirmed_fields", "extra_fields"})
     updates = _resolve_metadata_updates(
         session, set(provided), body, clearable_fields=_CLEARABLE_FIELDS
     )
-    final_values = {field: getattr(body, field) for field in provided}
+    final_values: dict[str, object] = {field: getattr(body, field) for field in provided}
+    # B-28b: extra fields join the same confidence rule under `extra_fields.<key>`.
+    try:
+        extra_updates = document_review.normalize_extra_updates(body.extra_fields)
+    except document_review.ExtraFieldsError as exc:
+        raise HTTPException(422, _extra_fields_detail(str(exc))) from None
+    for key, value in sorted(extra_updates.items()):
+        if value is not None:
+            final_values[f"{document_review.EXTRA_PREFIX}{key}"] = value
+    suggested_flat = document_review.flatten_suggestion(
+        suggestion.fields if suggestion is not None else None
+    )
     outcomes = document_review.classify_fields(
-        suggestion.fields if suggestion is not None else None,
+        suggested_flat,
         final_values,
         set(body.confirmed_fields),
         settings.metadata_confirm_threshold,
@@ -725,6 +819,13 @@ def submit_document(
 
     resubmission = document.review_status == DocumentReviewStatus.changes_requested
     document_repo.apply_partial_update(session, document, updates)
+    _apply_extra_fields(
+        session,
+        document,
+        extra_updates,
+        current_user,
+        suggested_extra=(suggestion.fields.get("extra_fields") if suggestion is not None else None),
+    )
     for outcome in outcomes:
         if outcome.edited and outcome.suggested is not None:
             kind = ReviewEventKind.field_edited

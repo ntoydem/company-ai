@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-25T08:51:04+00:00",
+  "generated_at": "2026-10-02T16:48:38+00:00",
   "ledger_demo_today": "2026-09-15",
   "workbooks": [
     {
@@ -19,6 +19,9 @@
       "supersedes_ref": null,
       "related_refs": [],
       "tags": [],
+      "parties": [
+        "DEF Enerji Üretim A.Ş."
+      ],
       "language": "en",
       "confidentiality": "restricted",
       "source_type": "xlsx",
@@ -64,6 +67,10 @@
       "supersedes_ref": null,
       "related_refs": [],
       "tags": [],
+      "parties": [
+        "DEF Enerji Üretim A.Ş.",
+        "PQR Bank"
+      ],
       "language": "en",
       "confidentiality": "normal",
       "source_type": "xlsx",
@@ -113,6 +120,9 @@
       "supersedes_ref": null,
       "related_refs": [],
       "tags": [],
+      "parties": [
+        "DEF Enerji Üretim A.Ş."
+      ],
       "language": "tr",
       "confidentiality": "normal",
       "source_type": "xlsx",
@@ -173,6 +183,9 @@
       "supersedes_ref": null,
       "related_refs": [],
       "tags": [],
+      "parties": [
+        "DEF Enerji Üretim A.Ş."
+      ],
       "language": "tr",
       "confidentiality": "normal",
       "source_type": "xlsx",

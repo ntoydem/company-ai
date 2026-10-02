@@ -19,6 +19,7 @@ class ReviewEventKind(enum.StrEnum):
     uploaded = "uploaded"
     auto_approved = "auto_approved"
     field_edited = "field_edited"  # uploader wrote a value different from the suggestion
+    field_added = "field_added"  # B-28b: staff opened an extra field Balbal did not suggest
     field_confirmed = "field_confirmed"  # uploader explicitly confirmed a low-confidence value
     submitted = "submitted"
     resubmitted = "resubmitted"

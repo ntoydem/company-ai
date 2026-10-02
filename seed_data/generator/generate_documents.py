@@ -301,6 +301,8 @@ def _build_document(
         "supersedes_ref": supersedes_ref,
         "related_refs": related_refs,
         "tags": [project_code or "COMPANY", doc["version"]],
+        # B-28b: the contract parties become the document's first extra field (`parties`).
+        "parties": list(doc.get("parties") or []),
         "language": language,
         "confidentiality": doc["confidentiality"],
         "source_type": doc["source_type"],

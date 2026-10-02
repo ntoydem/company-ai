@@ -317,6 +317,17 @@ gözlem: Ürün 1 giriş ekranından Belgeler'e görünür link yoktu → üst b
 belgede "Durum: Taslak" yanıltıyordu → onay rozeti onaylıda da görünür ("Onaylı", yeşil). Backend'e dokunulmadı;
 typecheck/lint/build yeşil. Rapor `docs/reports/AIBALBAL_UX_PR4_REPORT.md`.
 
+**B-28b — ek alanlar, etiket kataloğu, tür rehberi (02.10.2026, `<commit>`, ADR-025):** `documents.extra_fields` JSONB
+(`{key: {value, source: ai|user, confidence, added_by_id, added_at}}`, ≤20, snake_case, yalnızca metin), `tag_catalog`
+(admin CRUD, katı doğrulama `unknown_tag`, AI önerisinde katalog dışı etiket `tags.dropped`), `document_type_guide` (10
+aile; sınıflandırıcı promptu + yükleme ekranı için rehber, zorunlu form değil; `signals` ucu personelin sık eklediği
+anahtarları sayar), `admin_events` (yapılandırma defteri), migration `0014` (veri adımı: 9 değişiklik etiketi + mevcut
+11 etiket identity; seed aynı anlık görüntüyü verir). B-28 akışına entegre: `submit`/`apply`/`PATCH` `extra_fields` +
+etiket doğrulaması, %80 kuralı `extra_fields.<key>` ile, `field_added` olayı. `/api/search` etiket + ek alan
+(`matched_on`), `format_source` `Muhatap | Etiketler | Ek alanlar` satırı (sistem promptu değişmedi); retrieval
+sıralaması değişmedi (Naci). Demo `parties` → `extra_fields.parties`. Ayrı bir phase değil; plan `docs/plans/B28B_PLAN.md`,
+rapor `docs/reports/B28B_REPORT.md`. AI-BalBal tarafı PR-5 (ayrı).
+
 **Olası gelecek faz (kapsam dışı, planlanmadı): Ç-7.1 4 adımlı "veri yok" protokolü** — anlama kontrolü → durum etiketi
 (`missing_data`/`insufficient_data` zaten ayrı) → "elimde şunlar var, göstereyim mi" (yalnızca `retrieved_document_ids`'ten
 **kodla** üretilir, LLM'e yazdırılmaz — ADR-014) → açık uçlu kapanış. AI-BalBal `AnswerView` ile birlikte tasarlanmalı;

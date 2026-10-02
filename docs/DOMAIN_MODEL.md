@@ -41,6 +41,7 @@ User ──< AuditLog
 - **Temporal:** `effective_date, expiration_date, version, revision, supersedes_document_id, superseded_by_document_id, related_document_ids`
 - **System:** `storage_path, ingestion_status, ingestion_error, uploaded_by, ai_suggestion_id, page_count`
 - **Publication (B-28, ADR-024):** `review_status, review_comment, submitted_at, reviewed_at, reviewed_by_id`; ledger in `document_review_events`
+- **Extra fields (B-28b, ADR-025):** `extra_fields` JSONB `{key: {value, source: ai|user, confidence, added_by_id, added_at}}` — type-specific facts (e.g. `parties`, `licence_no`), ≤ 20 keys, strings only; `tags` must come from `tag_catalog`
 - Filenames are never a primary information source; metadata is.
 
 ## 4. Enumerations
@@ -52,6 +53,7 @@ User ──< AuditLog
 | `document_status` | `draft`, `executed`, `amended`, `superseded`, `active` | lifecycle of a document, not of the project. `superseded` is set automatically (`mark_superseded`, Phase 3.2) when another document's `supersedes_document_id` points at it; `active` is left alone (operational, not lifecycle) |
 | `ingestion_status` | `uploaded`, `ocr`, `ready`, `failed` | pipeline state |
 | `document_review_status` | `pending_metadata`, `pending_review`, `changes_requested`, `approved` | publication state (B-28, ADR-024); only `approved` is corporate memory. DEFAULT `approved` — pending rows come only from `/upload` |
+| `tag_kind` | `identity`, `change` | tag catalogue (B-28b): identity = company/subject/type, change = what an amendment alters |
 | `document_review_event_kind` | `uploaded`, `auto_approved`, `field_edited`, `field_confirmed`, `submitted`, `resubmitted`, `approved`, `changes_requested`, `metadata_changed_after_approval` | append-only intake ledger (`document_review_events`), admin-only read |
 | `ingestion_job_status` | `queued`, `running`, `done`, `failed` | queue state |
 | `project_stage` | `development`, `construction`, `operation` | |
@@ -100,3 +102,4 @@ contract price and COD must be consistent across linked documents; links are sto
 | 1.2 | `departments`, `user_departments`, `projects`, `project_departments` |
 | 3.2 | `document_metadata_suggestions` |
 | 3.4 | `audit_log` |
+| B-28b (02.10.2026) | `tag_catalog`, `document_type_guide`, `admin_events`, `documents.extra_fields` (migration `0014`) |

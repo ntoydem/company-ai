@@ -477,6 +477,14 @@ BUILDERS = {
 }
 
 
+def _ledger_parties(raws: dict[str, Any], doc_id: str) -> list[str]:
+    for ledger in raws.values():
+        for doc in (ledger.get("documents") or []) if isinstance(ledger, dict) else []:
+            if doc.get("id") == doc_id:
+                return [str(p) for p in (doc.get("parties") or [])]
+    return []
+
+
 def generate(out_dir: Path = EXCEL_DIR) -> list[dict[str, Any]]:
     raws = facts_mod.load_raws()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -503,6 +511,8 @@ def generate(out_dir: Path = EXCEL_DIR) -> list[dict[str, Any]]:
                 "supersedes_ref": None,
                 "related_refs": [],
                 "tags": [],
+                # B-28b: parties from the ledger document entry (SPV + bank where recorded).
+                "parties": _ledger_parties(raws, spec.doc_id),
                 "language": spec.language,
                 "confidentiality": spec.confidentiality,
                 "source_type": "xlsx",

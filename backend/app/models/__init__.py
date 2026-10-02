@@ -1,5 +1,6 @@
 """ORM models. Import every model here so Alembic autogenerate sees the full metadata."""
 
+from app.models.admin_event import AdminEvent
 from app.models.audit_log import AuditLog
 from app.models.base import Base
 from app.models.company_settings import CompanySettings
@@ -16,14 +17,17 @@ from app.models.document_chunk import DocumentChunk
 from app.models.document_metadata_suggestion import DocumentMetadataSuggestion, SuggestionStatus
 from app.models.document_page import DocumentPage
 from app.models.document_review_event import DocumentReviewEvent, ReviewEventKind
+from app.models.document_type_guide import DocumentTypeGuide
 from app.models.folder import Folder, FolderAccess, FolderGrant, FolderGrantEvent
 from app.models.ingestion_job import IngestionJob, IngestionJobStatus
 from app.models.project import Project, ProjectStage
 from app.models.project_department import ProjectDepartment
+from app.models.tag_catalog import TagCatalog, TagKind
 from app.models.user import User, UserRole
 from app.models.user_department import UserDepartment
 
 __all__ = [
+    "AdminEvent",
     "AuditLog",
     "Base",
     "CompanySettings",
@@ -36,6 +40,7 @@ __all__ = [
     "DocumentReviewEvent",
     "DocumentReviewStatus",
     "DocumentSource",
+    "DocumentTypeGuide",
     "DocumentStatus",
     "Folder",
     "FolderAccess",
@@ -49,6 +54,8 @@ __all__ = [
     "ProjectStage",
     "ReviewEventKind",
     "SuggestionStatus",
+    "TagCatalog",
+    "TagKind",
     "User",
     "UserDepartment",
     "UserRole",

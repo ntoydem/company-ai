@@ -14,6 +14,7 @@ from app.models.company_settings import PRODUCT_LEVELS, ProductLevel
 from app.repositories import audit_log_repo, company_settings_repo
 from app.services import embedding_backfill
 from app.services.admin_seed import ensure_admin_user
+from app.services.demo_catalog_seed import ensure_demo_catalog
 from app.services.demo_departments_seed import (
     ensure_demo_department_memberships,
     ensure_demo_departments,
@@ -81,6 +82,16 @@ def cmd_seed_demo_folders() -> int:
     log.info(
         "seed-demo-folders done",
         extra={"roots": [r.slug for r in results], "was_created": [r.created for r in results]},
+    )
+    return 0
+
+
+def cmd_seed_demo_catalog() -> int:
+    with get_session_factory()() as session:
+        results = ensure_demo_catalog(session, get_settings())
+    log.info(
+        "seed-demo-catalog done",
+        extra={"created_keys": [r.key for r in results if r.created], "total": len(results)},
     )
     return 0
 
@@ -245,6 +256,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     sub.add_parser("seed-demo-projects", help="create the demo projects if they do not exist")
     sub.add_parser(
+        "seed-demo-catalog", help="create the tag catalogue and document-type guide starter rows"
+    )
+    sub.add_parser(
         "seed-demo-folders", help="B-26: one root folder per top-level department if missing"
     )
     seed_docs = sub.add_parser(
@@ -286,6 +300,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_seed_demo_departments()
     if args.command == "seed-demo-projects":
         return cmd_seed_demo_projects()
+    if args.command == "seed-demo-catalog":
+        return cmd_seed_demo_catalog()
     if args.command == "seed-demo-folders":
         return cmd_seed_demo_folders()
     if args.command == "seed-demo-documents":

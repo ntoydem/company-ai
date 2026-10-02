@@ -20,8 +20,10 @@ from app.models.company_settings import SETTINGS_ROW_ID
 from app.models.user import User, UserRole
 from app.repositories import user_repo
 from app.services.admin_seed import ensure_admin_user
+from app.services.demo_catalog_seed import ensure_demo_catalog
 from app.services.security import hash_password
 from tests.fakes import FakeLLMClient, FakeRouter
+from tests.test_document_review import cast as cast  # noqa: F401 — shared B-28/B-28b fixture
 
 
 def alembic_config() -> Config:
@@ -56,6 +58,10 @@ def _clean_tables() -> Iterator[None]:
         # it, so restore it exactly as the migration does (demo default: every layer open).
         # A test that switched to P1-only therefore never leaks into the next one.
         conn.execute(text(f"INSERT INTO company_settings (id) VALUES ({SETTINGS_ROW_ID})"))
+    # Migration 0014 seeds the tag catalogue and the document-type guide the same way; the
+    # truncate removed them, so rebuild the starter rows (B-28b) for the next test.
+    with get_session_factory()() as session:
+        ensure_demo_catalog(session, get_settings())
 
 
 @pytest.fixture

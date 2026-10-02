@@ -22,6 +22,13 @@ from typing import Any
 
 from app.models.document import DocumentReviewStatus
 from app.models.user import User, UserRole
+from app.services.type_family import (
+    EXTRA_PREFIX_LITERAL,
+    MAX_EXTRA_FIELDS,
+    normalize_extra_key,
+)
+
+EXTRA_PREFIX = EXTRA_PREFIX_LITERAL
 
 SUBMITTABLE = frozenset(
     {DocumentReviewStatus.pending_metadata, DocumentReviewStatus.changes_requested}
@@ -105,3 +112,70 @@ def unconfirmed_low_confidence(outcomes: list[FieldOutcome]) -> list[str]:
     """BACKEND_GAPS §4.7.5: a suggested value under the threshold, kept as suggested, needs an
     explicit confirmation. A changed value is an explicit decision in itself."""
     return [o.field for o in outcomes if o.low_confidence and not o.edited and not o.confirmed]
+
+
+class ExtraFieldsError(ValueError):
+    """Bad extra-field input: unusable key or too many keys (422 at the API)."""
+
+
+def normalize_extra_updates(raw: dict[str, str | None] | None) -> dict[str, str | None]:
+    """Key normalisation for staff/admin input; `None` keeps its meaning (remove the key)."""
+    if not raw:
+        return {}
+    out: dict[str, str | None] = {}
+    for key, value in raw.items():
+        normalized = normalize_extra_key(key)
+        if normalized is None:
+            raise ExtraFieldsError(f"invalid key: {key!r}")
+        out[normalized] = None if value is None else str(value).strip() or None
+    return out
+
+
+def flatten_suggestion(fields: dict[str, Any] | None) -> dict[str, Any]:
+    """Standard fields as they are plus `extra_fields.<key>` entries, so the confidence rule
+    runs uniformly over both kinds (B-28b)."""
+    if not fields:
+        return {}
+    flat = {k: v for k, v in fields.items() if k != "extra_fields"}
+    for key, guess in (fields.get("extra_fields") or {}).items():
+        flat[f"{EXTRA_PREFIX}{key}"] = guess
+    return flat
+
+
+def merge_extra_fields(
+    existing: dict[str, Any],
+    updates: dict[str, str | None],
+    *,
+    actor_id: Any,
+    suggested: dict[str, Any],
+    now_iso: str,
+) -> tuple[dict[str, Any], list[str], list[str]]:
+    """Apply `updates` to the JSON. Returns (new json, added keys, changed keys). `source` is
+    "ai" when the kept value equals Balbal's suggestion, else "user" — the §4.7.3 distinction.
+    Caller enforces the key cap error."""
+    merged = dict(existing or {})
+    added: list[str] = []
+    changed: list[str] = []
+    for key, value in updates.items():
+        before = (merged.get(key) or {}).get("value")
+        if value is None:
+            if key in merged:
+                del merged[key]
+                changed.append(key)
+            continue
+        guess = suggested.get(key) or {}
+        from_ai = guess.get("value") is not None and str(guess.get("value")).strip() == value
+        if key not in merged and not from_ai:
+            added.append(key)
+        if before != value:
+            changed.append(key)
+        merged[key] = {
+            "value": value,
+            "source": "ai" if from_ai else "user",
+            "confidence": guess.get("confidence") if from_ai else None,
+            "added_by_id": str(actor_id) if actor_id is not None else None,
+            "added_at": now_iso,
+        }
+    if len(merged) > MAX_EXTRA_FIELDS:
+        raise ExtraFieldsError(f"more than {MAX_EXTRA_FIELDS} extra fields")
+    return merged, added, changed

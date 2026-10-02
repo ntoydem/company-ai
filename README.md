@@ -234,6 +234,30 @@ Aynı 9 alan + `title`/`effective_date`/`expiration_date`; `null` gönderilen al
 alanları (`supersedes_document_id` vb.) burada yoktur — o bağlantılar yalnızca upload sırasında kurulur
 (ADR-012, zincir bütünlüğü).
 
+## Ek alanlar, etiket kataloğu, tür rehberi — B-28b (02.10.2026, ADR-025)
+Belgeye türüne göre **ek alanlar** eklenir (`extra_fields`: `parties`, `licence_no`, `period`…; en fazla 20, yalnızca
+metin; `source: ai|user`). **Etiketler katalogdan gelir** — katalog dışı etiket 422 `unknown_tag`; kataloğu admin
+yönetir, emekli etiket silinmez. **Tür rehberi** (aile bazlı: sözleşme, tadil, lisans/izin, rapor, karar/tutanak, sigorta,
+yazışma, fatura, Excel) Balbal'ın önerisini ve yükleme ekranını yönlendirir, zorunlu form değildir. Personelin açtığı alan
+kayıt defterine `field_added` olarak girer; admin `signals` ucuyla hangi ailede hangi alanın sık eklendiğini görür.
+```bash
+curl -s -b cookies.txt http://localhost:8080/api/tags                      # aktif etiketler (herkes)
+curl -s -b admin_cookies.txt -X POST http://localhost:8080/api/admin/tags \
+  -H 'content-type: application/json' -d '{"slug":"pf-kredi","label":"PF kredi","kind":"identity"}'
+curl -s -b admin_cookies.txt -X PATCH http://localhost:8080/api/admin/tags/pf-kredi -H 'content-type: application/json' -d '{"is_active":false}'
+curl -s -b cookies.txt http://localhost:8080/api/document-type-guide      # aktif aileler (herkes)
+curl -s -b admin_cookies.txt -X PATCH http://localhost:8080/api/admin/document-type-guide/contract \
+  -H 'content-type: application/json' -d '{"suggested_extra_fields":[{"key":"parties","label":"Taraflar","hint":"virgülle"}]}'
+curl -s -b admin_cookies.txt http://localhost:8080/api/admin/document-type-guide/signals
+curl -s -b admin_cookies.txt "http://localhost:8080/api/admin/events?kind=tag_created"
+# 1. aşamada ek alan + etiket (B-28 submit gövdesi genişledi):
+curl -s -b finans_cookies.txt -X POST http://localhost:8080/api/documents/<id>/submit -H 'content-type: application/json' \
+  -d '{"department":"finans","tags":["faiz-değişikliği"],"extra_fields":{"parties":"DEF Enerji, PQR Bank"},"confirmed_fields":["extra_fields.parties"]}'
+```
+Arama (`/api/search`) etiket ve ek alan değerlerinde de eşleşir (`matched_on: tag | extra_field`); Balbal'ın kaynak
+başlığına `Muhatap | Etiketler | Ek alanlar` satırı girer. Demo belgelerinde ledger'daki `parties` ek alan olarak
+seed'lenir. Ayar: `METADATA_CONFIRM_THRESHOLD` ek alanlara da uygulanır.
+
 ## Belge onay akışı — B-28 (02.10.2026, ADR-024)
 Bir belge yalnızca **`review_status = approved`** iken aramaya, Balbal'ın cevaplarına ve Excel kataloğuna girer.
 Belgenin hedef departmanının **kendi `department_manager`'ı** yüklerse belge anında yayınlanır; diğer herkes

@@ -6,7 +6,7 @@ import uuid
 from collections.abc import Iterable
 from datetime import date
 
-from sqlalchemy import or_, select
+from sqlalchemy import Text, cast, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models.document import (
@@ -123,6 +123,7 @@ def create_with_job(
     external_ref: str | None = None,
     folder_id: uuid.UUID | None = None,
     review_status: DocumentReviewStatus = DocumentReviewStatus.approved,
+    extra_fields: dict[str, object] | None = None,
 ) -> Document:
     """Create `documents` + the initial `ingestion_jobs` row together — one is never
     committed without the other (ADR-006). The upload endpoint (Phase 0.2) only ever
@@ -150,6 +151,7 @@ def create_with_job(
         external_ref=external_ref,
         folder_id=folder_id,
         review_status=review_status,
+        extra_fields=extra_fields or {},
         storage_path=storage_path,
         ingestion_status=IngestionStatus.uploaded,
         uploaded_by_id=uploaded_by_id,
@@ -187,6 +189,7 @@ def create_ready(
     external_ref: str | None = None,
     folder_id: uuid.UUID | None = None,
     review_status: DocumentReviewStatus = DocumentReviewStatus.approved,
+    extra_fields: dict[str, object] | None = None,
 ) -> Document:
     """Excel family (Phase 4.2, SPEC_04 §1): no OCR job, no pages/chunks — the file is
     `ready` at once; sheets are read at query time by `app/excel/`. `page_count` = sheet
@@ -210,6 +213,7 @@ def create_ready(
         external_ref=external_ref,
         folder_id=folder_id,
         review_status=review_status,
+        extra_fields=extra_fields or {},
         storage_path=storage_path,
         ingestion_status=IngestionStatus.ready,
         uploaded_by_id=uploaded_by_id,
@@ -315,6 +319,9 @@ def search_metadata(
                 Document.document_type.ilike(pattern),
                 Document.counterparty.ilike(pattern),
                 Document.external_ref.ilike(pattern),
+                # B-28b: catalogue tags and extra-field values are searchable too.
+                func.array_to_string(Document.tags, " ").ilike(pattern),
+                cast(Document.extra_fields, Text).ilike(pattern),
             )
         )
         .order_by(Document.title, Document.id)

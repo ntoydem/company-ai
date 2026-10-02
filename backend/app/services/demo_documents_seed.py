@@ -52,6 +52,23 @@ def _project_id(session: Session, code: str | None) -> uuid.UUID | None:
     return project.id if project else None
 
 
+def _parties_extra_fields(entry: dict[str, Any]) -> dict[str, Any]:
+    """Ledger `parties` → `extra_fields.parties` (B-28b, Naci SORU 2): the one piece of
+    real document metadata the ledger already records; `key_facts` stay eval references."""
+    parties = [str(p) for p in (entry.get("parties") or []) if str(p).strip()]
+    if not parties:
+        return {}
+    return {
+        "parties": {
+            "value": ", ".join(parties),
+            "source": "user",
+            "confidence": None,
+            "added_by_id": None,
+            "added_at": "2026-10-02T00:00:00+00:00",
+        }
+    }
+
+
 def _seed_one(
     session: Session,
     settings: Settings,
@@ -60,8 +77,16 @@ def _seed_one(
     uploaded_by_id: uuid.UUID | None,
 ) -> DemoSeedResult:
     external_ref = entry["external_ref"]
+    extra_fields = _parties_extra_fields(entry)
     existing = document_repo.get_by_external_ref(session, external_ref)
     if existing is not None:
+        # B-28b: an existing install gets `parties` once, only when nothing is recorded yet;
+        # staff/AI edits are never overwritten by the seed.
+        if extra_fields and not existing.extra_fields:
+            existing.extra_fields = extra_fields
+            session.commit()
+            log.info("demo document parties added", extra={"external_ref": external_ref})
+            return DemoSeedResult(external_ref=external_ref, created=False)
         log.info("demo document exists, unchanged", extra={"external_ref": external_ref})
         return DemoSeedResult(external_ref=external_ref, created=False)
 
@@ -94,6 +119,7 @@ def _seed_one(
             confidentiality=Confidentiality(entry["confidentiality"]),
             external_ref=external_ref,
             folder_id=_root_folder_id(session, entry["department"]),
+            extra_fields=extra_fields,
         )
         session.commit()
         log.info("demo workbook created", extra={"external_ref": external_ref})
@@ -120,6 +146,7 @@ def _seed_one(
         confidentiality=Confidentiality(entry["confidentiality"]),
         external_ref=external_ref,
         folder_id=_root_folder_id(session, entry["department"]),
+        extra_fields=extra_fields,
     )
     session.commit()
     log.info("demo document created", extra={"external_ref": external_ref})
