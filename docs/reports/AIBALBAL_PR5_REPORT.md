@@ -1,6 +1,6 @@
 # AI-BalBal PR #5 Raporu — B-28b arayüzü (`feat/b28b-arayuz`)
 
-**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok  **company-ai commit:** bu rapor ile aynı commit (hash cross-ref commit'inde)
+**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok  **company-ai commit:** `3074598`
 **PR:** https://github.com/ftansu/AI-BalBal/pull/5 (**açık, merge edilmedi**; base `main` = `b709f09`) · **Dal:** `feat/b28b-arayuz` @ `1d4cca2` (4 commit, 21 dosya, +1509/−31) · **Backend:** dokunulmadı (company-ai `75234e6` B-28b zaten canlı) · **LLM:** 0
 **Plan:** `docs/plans/AIBALBAL_PR5_PLAN.md` — Naci'nin 6 SORU cevabı planın önerisiyle aynı: (1) değişiklik etiketleri yalnızca `amendment` ailesinde açık; (2) `tags.dropped` yalnızca admin modunda; (3) ek alanlar herkese + kaynak rozeti; (4) "Rehbere ekle" sinyal kısayolu dahil (yalnızca ön doldurma); (5) sıra PR-4 → PR-5, PR-5 `main`'den bağımsız; (6) CSS ≤ 3 kural.
 

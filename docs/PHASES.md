@@ -328,7 +328,7 @@ etiket doğrulaması, %80 kuralı `extra_fields.<key>` ile, `field_added` olayı
 sıralaması değişmedi (Naci). Demo `parties` → `extra_fields.parties`. Ayrı bir phase değil; plan `docs/plans/B28B_PLAN.md`,
 rapor `docs/reports/B28B_REPORT.md`. AI-BalBal tarafı PR-5 (ayrı).
 
-**AI-BalBal PR #5 — B-28b arayüzü (02.10.2026):** `feat/b28b-arayuz` @ `1d4cca2` (https://github.com/ftansu/AI-BalBal/pull/5;
+**AI-BalBal PR #5 — B-28b arayüzü (02.10.2026, `3074598`):** `feat/b28b-arayuz` @ `1d4cca2` (https://github.com/ftansu/AI-BalBal/pull/5;
 main'e, merge edilmedi, T-12 tasarım onayı bekliyor; PR #4'ten bağımsız, önerilen sıra #4 → #5). Etiketler katalogdan
 çip seçiciyle (`TagPicker`; değişiklik etiketleri yalnızca `amendment` ailesinde açık), 1. aşama panelinde "Ek alanlar"
 (Balbal önerisi güven çubuğu + %80 kuralı `extra_fields.<key>`, rehber satırları, "+ Alan ekle", kaynak rozeti
