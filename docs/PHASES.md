@@ -301,7 +301,7 @@ gönder (yorum zorunlu), Belgeler'de onay durumu çipleri (yerel), yöneticiye k
 Backend ön koşulu `a8308b2` (`DocumentDetailResponse.uploaded_by_id`). Canlı akış Caddy üzerinden curl ile doğrulandı,
 LLM 0. Plan `docs/plans/AIBALBAL_PR2_PLAN.md`, rapor `docs/reports/AIBALBAL_SYNC_PR2_REPORT.md`.
 
-**AI-BalBal PR #2 + #3 merge ve submodule pini (02.10.2026, `<commit>`):** Tansu'nun sözlü onayı (Naci aktardı), merge
+**AI-BalBal PR #2 + #3 merge ve submodule pini (02.10.2026, `df46b21`):** Tansu'nun sözlü onayı (Naci aktardı), merge
 Naci'nin açık talimatıyla `gh pr merge --merge` ile yapıldı (dallar silinmedi; Tansu sonradan inceleyebilir/geri alabilir).
 AI-BalBal `main` `bdefb29` → `b709f09`; company-ai `frontend-balbal` pini `b219600` → `b709f09` (`81178cb`). Dev Caddy
 yeni sürümle kuruldu; canlı doğrulama Caddy üzerinden (LLM'siz): 4 hesapla giriş (`enabled_products`, `title`,

@@ -1,6 +1,6 @@
 # AI-BalBal PR #2 + #3 merge ve canlı doğrulama Raporu
 
-**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok  **company-ai commit:** `<commit>` (pin commit'i `81178cb`)
+**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok  **company-ai commit:** `df46b21` (pin commit'i `81178cb`)
 **AI-BalBal:** PR #2 `feat/backend-sync-urun1` → `main` (`fa329e5`), PR #3 `feat/onay-akisi-arayuz` → `main` (`b709f09`); `--merge` (merge commit), dallar silinmedi.
 
 ## 1. Yetkilendirme kaydı
