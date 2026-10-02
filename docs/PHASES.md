@@ -301,6 +301,16 @@ gönder (yorum zorunlu), Belgeler'de onay durumu çipleri (yerel), yöneticiye k
 Backend ön koşulu `a8308b2` (`DocumentDetailResponse.uploaded_by_id`). Canlı akış Caddy üzerinden curl ile doğrulandı,
 LLM 0. Plan `docs/plans/AIBALBAL_PR2_PLAN.md`, rapor `docs/reports/AIBALBAL_SYNC_PR2_REPORT.md`.
 
+**AI-BalBal PR #2 + #3 merge ve submodule pini (02.10.2026, `<commit>`):** Tansu'nun sözlü onayı (Naci aktardı), merge
+Naci'nin açık talimatıyla `gh pr merge --merge` ile yapıldı (dallar silinmedi; Tansu sonradan inceleyebilir/geri alabilir).
+AI-BalBal `main` `bdefb29` → `b709f09`; company-ai `frontend-balbal` pini `b219600` → `b709f09` (`81178cb`). Dev Caddy
+yeni sürümle kuruldu; canlı doğrulama Caddy üzerinden (LLM'siz): 4 hesapla giriş (`enabled_products`, `title`,
+`primary_department_slug`), `/api/search` snippet + sayfa, klasörler (finans: Proje Finans write/15; admin 6 klasör),
+rehber, `?inline=1` → `inline` / düz → `attachment`, SPA `/departman/finans` 200 (P2 açık → sekmeli; P1 ekranı
+`make set-products PRODUCTS=P1` ile), onay akışı `finans` upload → `pending_metadata` (yönetim görmez) → submit →
+`finans_mudur` kuyruğunda → approve → `yonetim` listede ve aramada görür; admin defteri `uploaded, submitted, approved`.
+Rapor `docs/reports/AIBALBAL_MERGE_REPORT.md`.
+
 **Olası gelecek faz (kapsam dışı, planlanmadı): Ç-7.1 4 adımlı "veri yok" protokolü** — anlama kontrolü → durum etiketi
 (`missing_data`/`insufficient_data` zaten ayrı) → "elimde şunlar var, göstereyim mi" (yalnızca `retrieved_document_ids`'ten
 **kodla** üretilir, LLM'e yazdırılmaz — ADR-014) → açık uçlu kapanış. AI-BalBal `AnswerView` ile birlikte tasarlanmalı;
