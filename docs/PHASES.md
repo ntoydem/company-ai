@@ -317,7 +317,7 @@ gözlem: Ürün 1 giriş ekranından Belgeler'e görünür link yoktu → üst b
 belgede "Durum: Taslak" yanıltıyordu → onay rozeti onaylıda da görünür ("Onaylı", yeşil). Backend'e dokunulmadı;
 typecheck/lint/build yeşil. Rapor `docs/reports/AIBALBAL_UX_PR4_REPORT.md`.
 
-**B-28b — ek alanlar, etiket kataloğu, tür rehberi (02.10.2026, `<commit>`, ADR-025):** `documents.extra_fields` JSONB
+**B-28b — ek alanlar, etiket kataloğu, tür rehberi (02.10.2026, `75234e6`, ADR-025):** `documents.extra_fields` JSONB
 (`{key: {value, source: ai|user, confidence, added_by_id, added_at}}`, ≤20, snake_case, yalnızca metin), `tag_catalog`
 (admin CRUD, katı doğrulama `unknown_tag`, AI önerisinde katalog dışı etiket `tags.dropped`), `document_type_guide` (10
 aile; sınıflandırıcı promptu + yükleme ekranı için rehber, zorunlu form değil; `signals` ucu personelin sık eklediği

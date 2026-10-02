@@ -1,6 +1,6 @@
 # B-28b Raporu — ek alanlar, etiket kataloğu, tür bazlı alan rehberi
 
-**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok (düz commit + PHASES.md notu)  **Commit:** `<commit>`
+**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok (düz commit + PHASES.md notu)  **Commit:** `75234e6`
 **Plan:** `docs/plans/B28B_PLAN.md` · **ADR:** **ADR-025** (yeni) + ADR-024 satırı · **Migration:** `0014_extra_fields_tag_catalog_guide` · **Kapsam:** yalnızca backend (AI-BalBal PR-5 ayrı)
 
 Naci'nin SORU cevapları (02.10.2026, hepsi planın önerisiyle): (1) etiket doğrulaması **katı**; (2) demo `parties` → `extra_fields`; (3) türe göre zorunlu alan **yok**, yalnızca vurgu; (4) retrieval sıralamasına girmez; (5) `SearchDocumentHit.matched_on` eklendi; (6) genel `admin_events` tablosu; (7) etiketsiz commit + PHASES.md + ADR-025.
