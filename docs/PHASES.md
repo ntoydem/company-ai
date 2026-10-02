@@ -311,6 +311,12 @@ rehber, `?inline=1` → `inline` / düz → `attachment`, SPA `/departman/finans
 `finans_mudur` kuyruğunda → approve → `yonetim` listede ve aramada görür; admin defteri `uploaded, submitted, approved`.
 Rapor `docs/reports/AIBALBAL_MERGE_REPORT.md`.
 
+**AI-BalBal PR #4 — iki küçük UX düzeltmesi (02.10.2026, `<commit>`):** `feat/ux-kucuk-duzeltmeler` @ `159b46c`
+(https://github.com/ftansu/AI-BalBal/pull/4; main'e, merge edilmedi, T-12 tasarım onayı bekliyor). Tarayıcı testinden iki
+gözlem: Ürün 1 giriş ekranından Belgeler'e görünür link yoktu → üst bara "Belgeler" linki (yalnızca o ekranda); onaylı
+belgede "Durum: Taslak" yanıltıyordu → onay rozeti onaylıda da görünür ("Onaylı", yeşil). Backend'e dokunulmadı;
+typecheck/lint/build yeşil. Rapor `docs/reports/AIBALBAL_UX_PR4_REPORT.md`.
+
 **Olası gelecek faz (kapsam dışı, planlanmadı): Ç-7.1 4 adımlı "veri yok" protokolü** — anlama kontrolü → durum etiketi
 (`missing_data`/`insufficient_data` zaten ayrı) → "elimde şunlar var, göstereyim mi" (yalnızca `retrieved_document_ids`'ten
 **kodla** üretilir, LLM'e yazdırılmaz — ADR-014) → açık uçlu kapanış. AI-BalBal `AnswerView` ile birlikte tasarlanmalı;
