@@ -284,7 +284,7 @@ onayı düşürür (müdür hariç). Kayıt defteri `document_review_events` + `
 personel yüklemesi müdür atanana kadar 409 alır (B-18'de `hukuk_mudur`/`enerji_mudur`). Kapsam dışı (B-28b):
 `extra_fields`, `tag_catalog`, tür bazlı alan rehberi, klasör önerisi.
 
-**AI-BalBal frontend senkronu — PR-1 (02.10.2026, `<commit>`):** `ftansu/AI-BalBal` reposunda `feat/backend-sync-urun1`
+**AI-BalBal frontend senkronu — PR-1 (02.10.2026, `aa1c232`):** `ftansu/AI-BalBal` reposunda `feat/backend-sync-urun1`
 dalı + **PR #2** (https://github.com/ftansu/AI-BalBal/pull/2; merge Tansu'da, main'e push yok — Anayasa T-14). İçerik:
 `feat/urun1-arayuz` merge'i (Ürün 1 giriş ekranı, ekip sohbeti v8.0), backend tiplerinin eşitlenmesi (`enabled_products`,
 `primary_department_slug`/`title`, `warnings`/`product_level`/`audit_log_id`, SourceCard versiyon id'leri + proje,

@@ -1,6 +1,6 @@
 # AI-BalBal frontend senkronu — PR-1 Raporu (`feat/backend-sync-urun1`)
 
-**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok  **company-ai commit:** `<commit>`
+**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok  **company-ai commit:** `aa1c232`
 **Plan:** `docs/plans/AIBALBAL_FRONTEND_SYNC_PLAN.md` (rev. 2, iki PR) · **Hedef repo:** `ftansu/AI-BalBal` · **PR:** https://github.com/ftansu/AI-BalBal/pull/2 (**açık, merge edilmedi** — karar Tansu'da) · **Dal:** `feat/backend-sync-urun1` @ `14f8c1c` (main `bdefb29` + `feat/urun1-arayuz` merge + 4 commit)
 
 Naci'nin kararları: iki PR (onay akışı arayüzü ayrı PR-2'de), Yönetim › Ayarlar yok, küçük yeni öğeler "tasarım onayı bekliyor" işaretli, PR açılır/merge edilmez, Tansu'ya kısa özet. Backend'e **dokunulmadı**; company-ai'da yalnızca docs değişti. **LLM çağrısı: 0** (canlı kontrol curl ile).
