@@ -13,6 +13,12 @@ Aşama E (B-26, ADR-023): an `employee` additionally sees the documents of folde
 departments were granted access to (`read` or `write`, inherited down the tree) — at the
 same confidentiality levels as their own departments, never more. Folder grants are one
 more *input* to this function, not a second gate; `management`/`admin` are unchanged.
+
+B-08 (02.10.2026): `department_manager` = the `employee` rule with one more confidentiality
+level — the `normal` **and** `restricted` documents of the departments they belong to
+(memberships, plus folder grants at the same two levels), never `board` and never another
+department. The rule is fixed code, not a per-customer table (NOT §5.1); the customer admin
+only decides *who* holds the role. `management`/`admin` are unchanged.
 """
 
 from collections.abc import Iterable
@@ -25,6 +31,15 @@ from app.schemas.authorization import AuthorizationScope
 
 _ALL_CONFIDENTIALITY_LEVELS = tuple(Confidentiality)
 _EMPLOYEE_CONFIDENTIALITY_LEVELS = (Confidentiality.normal,)
+_MANAGER_CONFIDENTIALITY_LEVELS = (Confidentiality.normal, Confidentiality.restricted)
+
+
+def _membership_confidentiality_levels(role: UserRole) -> tuple[Confidentiality, ...]:
+    """Levels a membership-based role sees in its own departments (B-08): `board` is never
+    among them — that stays `management`/`admin` only (NOT §7.2 #1, Naci 02.10.2026)."""
+    if role == UserRole.department_manager:
+        return _MANAGER_CONFIDENTIALITY_LEVELS
+    return _EMPLOYEE_CONFIDENTIALITY_LEVELS
 
 
 class DocumentIdsProvider(Protocol):
@@ -83,21 +98,21 @@ def allowed_document_ids(
         )
         return scoped_ids & role_ids
 
-    # employee: normal documents of the departments they belong to, plus (B-26) normal
-    # documents in folders those departments were granted access to.
+    # employee / department_manager: documents of the departments they belong to, plus
+    # (B-26) documents in folders those departments were granted access to — both at the
+    # role's confidentiality levels (`normal`; managers also `restricted`, B-08).
     department_slugs = [department.slug for department in user.departments]
     if not department_slugs:
         return set()
+    levels = _membership_confidentiality_levels(user.role)
     role_ids = set(
         document_ids_provider.list_document_ids_for_departments(
-            department_slugs=department_slugs,
-            confidentiality_levels=_EMPLOYEE_CONFIDENTIALITY_LEVELS,
+            department_slugs=department_slugs, confidentiality_levels=levels
         )
     )
     role_ids |= set(
         document_ids_provider.list_document_ids_for_folder_grants(
-            department_slugs=department_slugs,
-            confidentiality_levels=_EMPLOYEE_CONFIDENTIALITY_LEVELS,
+            department_slugs=department_slugs, confidentiality_levels=levels
         )
     )
     return scoped_ids & role_ids

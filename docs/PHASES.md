@@ -260,6 +260,15 @@ karşılaştırma yok, sabit cümle + ayrı değerler, her pakette geçerli), `q
 `warnings[].kind` `insufficient_data` (chunk var, model yetmez dedi) ↔ `missing_data` (sıfır chunk). Ayrı bir phase
 değil; plan `docs/plans/URUN1_UYUM_PLAN.md`, rapor `docs/reports/URUN1_UYUM_REPORT.md`.
 
+**B-08 departman yöneticisi rolü (02.10.2026, `<commit>`):** `UserRole.department_manager` (migration `0012`, enum `ADD VALUE`;
+downgrade tipi yeniden kurar, müdürleri `employee`'ye düşürür). Kural `allowed_document_ids`'in üyelik dalında tek satır:
+müdür üye olduğu departmanların `normal` **ve** `restricted` belgelerini görür (üyelik ∪ klasör grant'i, aynı iki seviye),
+`board` asla, başka departman asla; `management`/`admin`/`employee` değişmedi. Yeni uç/tablo/provider metodu yok;
+rolü admin `PATCH /api/users/{id}` ile kişiye verir (kural sabit, tablo değil — Naci). Upload/klasör yazma kuralları müdürü
+`employee` gibi ele alır (§5.2 ile tutarlı, testle kilitlendi). Demo `finans_mudur` (tek `restricted` demo belge `finans`'ta).
+Ayrı bir phase değil; plan `docs/plans/B08_DEPARTMAN_MUDURU_PLAN.md`, rapor `docs/reports/B08_DEPARTMAN_MUDURU_REPORT.md`.
+Rol/üyelik değişikliği kayıt defteri bu fazda yok (ayrı küçük iş, B-28/§5.2 öncesi).
+
 **Olası gelecek faz (kapsam dışı, planlanmadı): Ç-7.1 4 adımlı "veri yok" protokolü** — anlama kontrolü → durum etiketi
 (`missing_data`/`insufficient_data` zaten ayrı) → "elimde şunlar var, göstereyim mi" (yalnızca `retrieved_document_ids`'ten
 **kodla** üretilir, LLM'e yazdırılmaz — ADR-014) → açık uçlu kapanış. AI-BalBal `AnswerView` ile birlikte tasarlanmalı;

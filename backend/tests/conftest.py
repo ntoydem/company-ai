@@ -160,6 +160,25 @@ def management_user(db_session: Session) -> Iterator[User]:
 
 
 @pytest.fixture
+def department_manager_user(db_session: Session) -> Iterator[User]:
+    """A `department_manager` with no membership yet (B-08); tests attach the department
+    they manage via `add_user_to_department` — the role has no department of its own."""
+    user = user_repo.create(
+        db_session,
+        username="test-mudur",
+        password_hash=hash_password("gecerli-sifre"),
+        display_name="Test Müdür",
+        role=UserRole.department_manager,
+    )
+    db_session.commit()
+    app.dependency_overrides[get_current_user] = lambda: user
+    try:
+        yield user
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
+
+
+@pytest.fixture
 def inactive_user(db_session: Session) -> User:
     """A disabled user, created ad hoc so tests never mutate seeded demo-account state."""
     user = user_repo.create(

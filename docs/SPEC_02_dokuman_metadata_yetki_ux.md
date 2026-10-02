@@ -18,16 +18,17 @@ Gerçek kullanıcı için zorunlu standart yok; sınıflandırmanın kaynağı m
 Upload sonrası `LLM_MODEL_CLASSIFY` ile: departman, alt departman, proje, belge türü, muhatap, belge tarihi, durum, gizlilik, etiketler; her alan için confidence. Öneri ayrı tabloda (`document_metadata_suggestions`); kullanıcı kabul/düzenleyene kadar belge metadata'sı değişmez. Kritik alanlar sessizce overwrite edilmez. Öneri üretimi başarısız olursa upload yine başarılıdır.
 
 ## 5. Roller ve yetki
-Roller: `admin | management | employee`. Kullanıcı bir veya daha fazla departmana üye olur (`user_departments`).
+Roller: `admin | management | department_manager | employee`. Kullanıcı bir veya daha fazla departmana üye olur (`user_departments`).
 Kurallar:
 - `employee`: yalnızca üye olduğu departmanların `normal` belgeleri.
+- `department_manager` (B-08, 02.10.2026): üye olduğu departmanların `normal` + `restricted` belgeleri (klasör yetkileriyle de aynı iki seviye); `board` **görmez**, başka departmanı görmez. Rolü kişiye admin verir; kural sabittir, tablo değil.
 - `management`: tüm departmanlar, `normal` + `restricted` + `board`.
 - `admin`: her şey + yönetim işlemleri.
 - Bir proje birden fazla departman tarafından kullanılabilir; belgenin yetkisi departmandan gelir, projeden değil.
 Authorization **tek bir serviste** (`allowed_document_ids`) ve **backend'de** uygulanır; frontend gizleme güvenlik değildir. Adım 0'da bu fonksiyon tüm belgeleri döndürür (tek admin), Adım 1'de doldurulur; kod yolu baştan vardır.
 AI sorgu sırası: AUTHORIZATION → allowed document ids → retrieval → LLM. Yetkisiz belge içeriği LLM'e hiçbir yolla gitmez.
 
-Demo hesapları: `admin` (admin), `yonetim` (management), `finans` (employee: finance + accounting), `hukuk` (employee: legal), `enerji` (employee: energy/*; finans erişimi YOK — güvenlik testlerinin ana hesabı).
+Demo hesapları: `admin` (admin), `yonetim` (management), `finans` (employee: finance + accounting), `hukuk` (employee: legal), `enerji` (employee: energy/*; finans erişimi YOK — güvenlik testlerinin ana hesabı), `finans_mudur` (department_manager: finans — tek `restricted` demo belgeyi görür, B-08).
 
 ## 6. Proje yönetimi
 Projeler hard-code edilmez. Admin: oluştur, düzenle, aktif/pasif. Alanlar: `id, name, code (ANK_RES, IZM_RES), stage (development|construction|operation), is_active, department_ids`.

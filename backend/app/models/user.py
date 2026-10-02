@@ -11,6 +11,9 @@ from app.models.department import Department
 class UserRole(enum.StrEnum):
     admin = "admin"
     management = "management"
+    # B-08 (02.10.2026): a department's manager — own departments at `normal` and
+    # `restricted`, never `board`; assigned per person by the customer admin (NOT §8.1).
+    department_manager = "department_manager"
     employee = "employee"
 
 

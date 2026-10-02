@@ -143,3 +143,56 @@ def test_role_based_result_is_still_intersected_with_scope() -> None:
     )
     assert result == {a}
     assert provider.seen_scopes == [scope]
+
+
+# --- B-08 (02.10.2026): department_manager = own departments at normal + restricted ---
+
+
+def test_department_manager_sees_own_department_normal_and_restricted_but_not_board() -> None:
+    a, b = uuid.uuid4(), uuid.uuid4()
+    provider = FakeProvider({a, b}, department_ids={a})
+    result = allowed_document_ids(
+        _user(UserRole.department_manager, department_slugs=["finans"]),
+        AuthorizationScope(),
+        provider,
+    )
+    assert result == {a}
+    (department_slugs, confidentiality_levels) = provider.seen_department_calls[0]
+    assert department_slugs == ("finans",)  # only the departments they belong to (M-02)
+    assert confidentiality_levels == (Confidentiality.normal, Confidentiality.restricted)
+    assert Confidentiality.board not in confidentiality_levels  # M-01
+
+
+def test_department_manager_folder_grants_use_the_same_two_levels() -> None:
+    own, granted, other = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
+    provider = FakeProvider({own, granted, other}, department_ids={own})
+    provider.folder_grant_ids = [granted]
+    result = allowed_document_ids(
+        _user(UserRole.department_manager, department_slugs=["finans"]),
+        AuthorizationScope(),
+        provider,
+    )
+    assert result == {own, granted}
+    assert provider.seen_folder_calls == [
+        (("finans",), (Confidentiality.normal, Confidentiality.restricted))
+    ]  # M-03
+
+
+def test_department_manager_without_membership_or_inactive_sees_nothing() -> None:
+    provider = FakeProvider({uuid.uuid4()})
+    assert (
+        allowed_document_ids(_user(UserRole.department_manager), AuthorizationScope(), provider)
+        == set()
+    )
+    assert provider.seen_department_calls == []
+    inactive = _user(UserRole.department_manager, active=False, department_slugs=["finans"])
+    assert allowed_document_ids(inactive, AuthorizationScope(), provider) == set()  # M-04
+
+
+def test_employee_levels_are_unchanged_by_the_manager_rule() -> None:
+    provider = FakeProvider({uuid.uuid4()})
+    allowed_document_ids(
+        _user(UserRole.employee, department_slugs=["finans"]), AuthorizationScope(), provider
+    )
+    assert provider.seen_department_calls[0][1] == (Confidentiality.normal,)
+    assert provider.seen_folder_calls[0][1] == (Confidentiality.normal,)

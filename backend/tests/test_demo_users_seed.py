@@ -12,6 +12,7 @@ _EXPECTED_ROLES = {
     "finans": UserRole.employee,
     "hukuk": UserRole.employee,
     "enerji": UserRole.employee,
+    "finans_mudur": UserRole.department_manager,  # B-08
 }
 
 

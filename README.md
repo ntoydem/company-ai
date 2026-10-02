@@ -101,6 +101,7 @@ değil (`yonetim`/`admin` üyelikten bağımsız her şeyi görür):
 | `finans` | `employee` | `finans` (Proje Finans) — Mali İşler'i **görmez** (P-5, Aşama C) | Proje Finans Uzmanı |
 | `hukuk` | `employee` | `hukuk` | Hukuk Müşaviri |
 | `enerji` | `employee` | `enerji_grubu` (Proje Geliştirme / O&M / EPC / Üretim-Piyasa alt birimleri dahil) | Enerji Grubu Uzmanı |
+| `finans_mudur` | `department_manager` (B-08) | `finans` — `finans` ile aynı üyelik, ek olarak departmanın `restricted` belgelerini görür (`board` değil) | Proje Finans Müdürü |
 
 **Departman ağacı (Aşama C, 01.10.2026 — ürün sahibinin zihin haritasıyla birebir; slug'lar sabit, yalnızca adlar
 ve dört yeni satır):** Proje Finans (`finans`), Mali İşler (`mali_isler`: Muhasebe, Finansal Muhasebe), Hukuk, İdari
@@ -120,8 +121,10 @@ curl -s -b cookies.txt "http://localhost:8080/api/directory?department=enerji_gr
 
 ## Departman, rol, proje, yetki (Phase 1.2)
 `allowed_document_ids()` gerçek kuralları uygular (SPEC_02 §5): `employee` yalnızca üye olduğu departman(lar)ın
-`normal` belgelerini görür; `management` tüm departmanları ve tüm gizlilik seviyelerini (`normal`/`restricted`/
-`board`) görür; `admin` her şeyi görür. Yetki her zaman belgenin `department` alanından gelir, projesinden değil.
+`normal` belgelerini görür; `department_manager` (B-08, 02.10.2026) üye olduğu departman(lar)ın `normal` **ve**
+`restricted` belgelerini görür (klasör yetkileriyle de aynı iki seviye; `board` asla, başka departman asla — rolü
+admin `PATCH /api/users/{id}` ile kişiye verir, kural sabittir); `management` tüm departmanları ve tüm gizlilik
+seviyelerini (`normal`/`restricted`/`board`) görür; `admin` her şeyi görür. Yetki her zaman belgenin `department` alanından gelir, projesinden değil.
 Belge listesi, indirme (`GET /api/documents/{id}/download`) ve `/api/ask` — hepsi bu fonksiyondan geçer;
 yetkisiz erişimde indirme `403`, liste ve `/api/ask` sessizce dışarıda bırakır ("bilgi bulamadım").
 

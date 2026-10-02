@@ -22,6 +22,9 @@ _DEMO_USERS: tuple[tuple[str, str, UserRole, str], ...] = (
     ("finans", "Proje Finans", UserRole.employee, "Proje Finans Uzmanı"),
     ("hukuk", "Hukuk", UserRole.employee, "Hukuk Müşaviri"),
     ("enerji", "Enerji", UserRole.employee, "Enerji Grubu Uzmanı"),
+    # B-08 (02.10.2026, Naci SORU 1a): the one demo manager — Proje Finans holds the only
+    # `restricted` demo document (DOC-ANK-FIN-008), so the rule is visible live.
+    ("finans_mudur", "Proje Finans Müdürü", UserRole.department_manager, "Proje Finans Müdürü"),
 )
 
 

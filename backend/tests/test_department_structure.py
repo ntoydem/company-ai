@@ -14,7 +14,7 @@ from app.api.deps import get_current_user
 from app.core.config import Settings
 from app.main import app
 from app.models.department import Department
-from app.models.document import Document, DocumentStatus
+from app.models.document import Confidentiality, Document, DocumentStatus
 from app.repositories import department_repo, user_repo
 from app.services.demo_departments_seed import (
     _DEPARTMENTS,
@@ -56,7 +56,13 @@ def _seed_all(session: Session, settings: Settings) -> None:
     ensure_demo_department_memberships(session, settings)
 
 
-def _document(session: Session, *, department: str, subdepartment: str | None = None) -> Document:
+def _document(
+    session: Session,
+    *,
+    department: str,
+    subdepartment: str | None = None,
+    confidentiality: Confidentiality = Confidentiality.normal,
+) -> Document:
     document = Document(
         title=f"{department}/{subdepartment or '-'}",
         document_type="report",
@@ -64,6 +70,7 @@ def _document(session: Session, *, department: str, subdepartment: str | None = 
         document_date=date(2026, 1, 1),
         department=department,
         subdepartment=subdepartment,
+        confidentiality=confidentiality,
         status=DocumentStatus.executed,
         storage_path="x/original.pdf",
     )
@@ -135,3 +142,29 @@ def test_enerji_sees_all_four_sub_units_including_uretim_piyasa(
     finally:
         app.dependency_overrides.pop(get_current_user, None)
     assert listed == {str(d.id) for d in docs}
+
+
+def test_finans_mudur_demo_user_is_a_finans_member_and_sees_restricted(
+    client: TestClient, db_session: Session, settings: Settings
+) -> None:
+    """B-08 (SORU 1a): the one demo manager belongs to Proje Finans like the employee does
+    and additionally sees its `restricted` documents — never `board`, never Mali İşler."""
+    _seed_all(db_session, settings)
+    mudur = user_repo.get_by_username(db_session, "finans_mudur")
+    assert mudur is not None
+    assert mudur.role.value == "department_manager"
+    assert mudur.department_slugs == ["finans"]
+    assert mudur.primary_department_slug == "finans"
+    assert mudur.title == "Proje Finans Müdürü"
+    normal = _document(db_session, department="finans")
+    restricted = _document(
+        db_session, department="finans", confidentiality=Confidentiality.restricted
+    )
+    _document(db_session, department="finans", confidentiality=Confidentiality.board)
+    _document(db_session, department="mali_isler", confidentiality=Confidentiality.restricted)
+    app.dependency_overrides[get_current_user] = lambda: mudur
+    try:
+        listed = {row["id"] for row in client.get("/api/documents").json()}
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
+    assert listed == {str(normal.id), str(restricted.id)}

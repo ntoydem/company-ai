@@ -973,3 +973,88 @@ def test_inline_does_not_change_authorization(
     finans_doc = _document(db_session, department="finans")
     assert client.get(f"/api/documents/{finans_doc.id}/download?inline=1").status_code == 403
     assert client.get(f"/api/documents/{uuid.uuid4()}/download?inline=1").status_code == 403
+
+
+# --- B-08 (02.10.2026): department_manager through the SQL provider and the endpoints ---
+
+
+def test_department_manager_lists_restricted_but_not_board_in_own_department(
+    client: TestClient, db_session: Session, department_manager_user: User
+) -> None:
+    finans = make_department(db_session, slug="finans")
+    make_department(db_session, slug="hukuk")
+    add_user_to_department(db_session, department_manager_user, finans)
+    normal = _document(db_session, department="finans")
+    restricted = _document(
+        db_session, department="finans", confidentiality=Confidentiality.restricted
+    )
+    _document(db_session, department="finans", confidentiality=Confidentiality.board)
+    _document(db_session, department="hukuk", confidentiality=Confidentiality.restricted)
+
+    listed = {row["id"] for row in client.get("/api/documents").json()}
+
+    assert listed == {str(normal.id), str(restricted.id)}  # M-05
+
+
+def test_employee_in_the_same_department_still_does_not_see_restricted(
+    client: TestClient, db_session: Session, employee_user: User
+) -> None:
+    finans = make_department(db_session, slug="finans")
+    add_user_to_department(db_session, employee_user, finans)
+    normal = _document(db_session, department="finans")
+    _document(db_session, department="finans", confidentiality=Confidentiality.restricted)
+
+    listed = {row["id"] for row in client.get("/api/documents").json()}
+
+    assert listed == {str(normal.id)}
+
+
+def test_visibility_includes_department_manager_for_restricted_document(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    finans = make_department(db_session, slug="finans")
+    hukuk = make_department(db_session, slug="hukuk")
+    for username, department in (("finans-mudur", finans), ("hukuk-mudur", hukuk)):
+        user_repo.create(
+            db_session,
+            username=username,
+            password_hash=hash_password("gecerli-sifre"),
+            display_name=username,
+            role=UserRole.department_manager,
+            department_ids=[department.id],
+        )
+    user_repo.create(
+        db_session,
+        username="finans-cal3",
+        password_hash=hash_password("gecerli-sifre"),
+        display_name="Finans Çalışan 3",
+        role=UserRole.employee,
+        department_ids=[finans.id],
+    )
+    db_session.commit()
+    restricted = _document(
+        db_session, department="finans", confidentiality=Confidentiality.restricted
+    )
+    board = _document(db_session, department="finans", confidentiality=Confidentiality.board)
+
+    def _viewers(document_id: uuid.UUID) -> set[str]:
+        body = client.get(f"/api/documents/{document_id}/visibility").json()
+        return {u["username"] for u in body["users"]}
+
+    restricted_users = _viewers(restricted.id)
+    board_users = _viewers(board.id)
+
+    assert "finans-mudur" in restricted_users  # M-06
+    assert {"hukuk-mudur", "finans-cal3"}.isdisjoint(restricted_users)
+    assert "finans-mudur" not in board_users
+
+
+def test_department_manager_upload_is_bound_to_own_department_like_an_employee(
+    client: TestClient, db_session: Session, department_manager_user: User
+) -> None:
+    finans = make_department(db_session, slug="finans")
+    make_department(db_session, slug="hukuk")
+    add_user_to_department(db_session, department_manager_user, finans)
+
+    assert _upload(client, department="hukuk").status_code == 403  # M-07
+    assert _upload(client, department="finans").status_code == 201

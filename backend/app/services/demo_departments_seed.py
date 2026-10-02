@@ -45,6 +45,7 @@ _DEPARTMENTS: tuple[tuple[str, str, str | None], ...] = (
 # Aşama C (B-20/5, P-5: one person, one home); Phase 1.2 had given it `mali_isler` too.
 _DEMO_USER_DEPARTMENTS: dict[str, tuple[str, ...]] = {
     "finans": ("finans",),
+    "finans_mudur": ("finans",),  # B-08: the department manager is a member like anyone else
     "hukuk": ("hukuk",),
     "enerji": ("enerji_grubu",),
 }

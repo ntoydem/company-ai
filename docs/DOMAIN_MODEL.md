@@ -46,8 +46,8 @@ User ──< AuditLog
 
 | Enum | Values | Notes |
 |---|---|---|
-| `user_role` | `admin`, `management`, `employee` | permission tiers (SPEC_02 §5) |
-| `confidentiality` | `normal`, `restricted`, `board` | `employee` sees only `normal` of own departments |
+| `user_role` | `admin`, `management`, `department_manager`, `employee` | permission tiers (SPEC_02 §5); `department_manager` added by B-08 (migration `0012`) |
+| `confidentiality` | `normal`, `restricted`, `board` | `employee` sees only `normal` of own departments; `department_manager` also `restricted` of own departments; `board` is `management`/`admin` only |
 | `document_status` | `draft`, `executed`, `amended`, `superseded`, `active` | lifecycle of a document, not of the project. `superseded` is set automatically (`mark_superseded`, Phase 3.2) when another document's `supersedes_document_id` points at it; `active` is left alone (operational, not lifecycle) |
 | `ingestion_status` | `uploaded`, `ocr`, `ready`, `failed` | pipeline state |
 | `ingestion_job_status` | `queued`, `running`, `done`, `failed` | queue state |
@@ -58,6 +58,7 @@ User ──< AuditLog
 ## 5. Authorization rules (summary; implementation in `allowed_document_ids`, ADR-004)
 
 - `employee`: `normal` documents of the departments they belong to.
+- `department_manager` (B-08): `normal` and `restricted` documents of the departments they belong to (memberships and folder grants alike); never `board`, never another department. Assigned per person by the admin; the mapping is fixed code, not a table.
 - `management`: every department, every confidentiality level.
 - `admin`: everything plus administration.
 - A project may span departments; a document's permission comes from its department, never from its project.

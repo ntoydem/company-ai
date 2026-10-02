@@ -474,3 +474,42 @@ def test_tree_rules_owner_match_duplicate_name_move_and_delete(
     assert client.delete(f"/api/admin/folders/{ankara['id']}").status_code == 204
     assert client.delete(f"/api/admin/folders/{contracts['id']}").status_code == 204
     assert client.delete(f"/api/admin/folders/{uuid.uuid4()}").status_code == 404
+
+
+def test_department_manager_sees_restricted_in_granted_folder_and_own_root_is_write(
+    client: TestClient, db_session: Session, settings: Settings, admin_user: User
+) -> None:
+    """B-08 × B-26 (BACKEND_GAPS 2.6.1/6): a grant gives a department's users the folder at
+    the levels they hold in their own department — for a manager that is normal+restricted,
+    still never board. Their own root is `write`, an ungranted root is not listed."""
+    hukuk, finans, _finans_user = _setup(db_session, settings)
+    manager = user_repo.create(
+        db_session,
+        username="finans-mudur",
+        password_hash=hash_password("x"),
+        display_name="Finans Müdür",
+        role=UserRole.department_manager,
+    )
+    add_user_to_department(db_session, manager, finans)
+    contracts = _folder(client, "Proje Sözleşmeleri", "hukuk")
+    _grant(client, contracts["id"], "finans", "read")
+    hukuk_root = next(f for f in client.get("/api/admin/folders").json() if f["name"] == "Hukuk")
+    in_grant_restricted = _document(db_session, title="g-r", department="hukuk", text="a")
+    in_grant_board = _document(db_session, title="g-b", department="hukuk", text="b")
+    in_root_restricted = _document(db_session, title="k-r", department="hukuk", text="c")
+    for document, folder_id, level in (
+        (in_grant_restricted, contracts["id"], Confidentiality.restricted),
+        (in_grant_board, contracts["id"], Confidentiality.board),
+        (in_root_restricted, hukuk_root["id"], Confidentiality.restricted),
+    ):
+        document.folder_id = uuid.UUID(folder_id)
+        document.confidentiality = level
+    db_session.commit()
+
+    with _as(manager):
+        assert _visible_ids(client) == {str(in_grant_restricted.id)}
+        mine = client.get("/api/folders").json()
+        assert {(f["name"], f["access"]) for f in mine} == {
+            ("Proje Finans", "write"),
+            ("Proje Sözleşmeleri", "read"),
+        }

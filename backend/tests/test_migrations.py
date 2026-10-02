@@ -24,7 +24,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
     assert "users" not in inspect(engine).get_table_names()
 
     command.upgrade(cfg, "head")
-    assert _current_revision() == "0011"
+    assert _current_revision() == "0012"
     tables = inspect(engine).get_table_names()
     assert "users" in tables
     assert "documents" in tables
@@ -84,7 +84,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
 
 def test_upgrade_head_is_idempotent() -> None:
     command.upgrade(alembic_config(), "head")
-    assert _current_revision() == "0011"
+    assert _current_revision() == "0012"
 
 
 def test_0010_corrects_an_existing_phase_1_2_tree_and_backfills_users() -> None:
@@ -221,3 +221,34 @@ def test_0011_creates_root_folders_and_moves_existing_documents() -> None:
         ("Hukuk", "hukuk"),
     ]  # no root for the sub-department
     assert [tuple(r) for r in placed] == [("A", "Hukuk"), ("B", "Enerji"), ("C", None)]
+
+
+_ENUM_LABELS = "SELECT unnest(enum_range(NULL::user_role))::text"
+
+
+def test_0012_adds_department_manager_and_downgrade_demotes_to_employee() -> None:
+    """B-08 (M-10): the enum gains the value on upgrade; on downgrade PostgreSQL cannot drop
+    an enum label, so the type is rebuilt and managers fall back to `employee`."""
+    cfg = alembic_config()
+    engine = get_engine()
+    command.upgrade(cfg, "head")
+    with engine.begin() as conn:
+        conn.execute(text("DELETE FROM users"))
+        conn.execute(
+            text(
+                "INSERT INTO users (id, username, password_hash, display_name, role) VALUES "
+                "(gen_random_uuid(), 'm1', 'x', 'M', 'department_manager'), "
+                "(gen_random_uuid(), 'e1', 'x', 'E', 'employee')"
+            )
+        )
+        labels = conn.execute(text(_ENUM_LABELS)).scalars().all()
+    assert "department_manager" in labels
+
+    command.downgrade(cfg, "0011")
+
+    with engine.connect() as conn:
+        labels = conn.execute(text(_ENUM_LABELS)).scalars().all()
+        roles = conn.execute(text("SELECT username, role::text FROM users ORDER BY username")).all()
+    assert labels == ["admin", "management", "employee"]
+    assert [tuple(r) for r in roles] == [("e1", "employee"), ("m1", "employee")]
+    command.upgrade(cfg, "head")

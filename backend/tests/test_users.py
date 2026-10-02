@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 
 from app.api.users import PRIMARY_DEPARTMENT_NOT_A_MEMBERSHIP_MESSAGE
 from app.core.config import Settings
-from app.models.user import User
+from app.models.user import User, UserRole
+from app.repositories import user_repo
 from app.services.admin_seed import ensure_admin_user
 from tests.department_fixtures import make_department
 
@@ -253,3 +254,30 @@ def test_update_keeps_primary_while_member_and_moves_it_when_dropped(
     # No memberships at all → no primary.
     body = client.patch(f"/api/users/{user_id}", json={"department_ids": []}).json()
     assert body["primary_department_id"] is None and body["department_slugs"] == []
+
+
+def test_admin_can_assign_department_manager_and_me_reflects_it(
+    client: TestClient, db_session: Session, admin_user: User
+) -> None:
+    """B-08 (M-09): the role is given per person through the existing admin endpoint; the
+    membership rule for `primary_department_id` applies to managers like anyone else."""
+    finans = make_department(db_session, slug="finans")
+    created = client.post(
+        "/api/users",
+        json={
+            "username": "mudur",
+            "password": "gecerli-sifre",
+            "display_name": "Müdür",
+            "department_ids": [str(finans.id)],
+        },
+    ).json()
+
+    response = client.patch(f"/api/users/{created['id']}", json={"role": "department_manager"})
+
+    assert response.status_code == 200
+    assert response.json()["role"] == "department_manager"
+    assert response.json()["primary_department_id"] == str(finans.id)
+    user = user_repo.get_by_id(db_session, uuid.UUID(created["id"]))
+    assert user is not None
+    db_session.refresh(user)
+    assert user.role == UserRole.department_manager
