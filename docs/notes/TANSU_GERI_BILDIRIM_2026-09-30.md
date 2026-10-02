@@ -403,8 +403,9 @@ dışında, "kim yetkilendirir" ayrımının Anayasa v1.1 O-10 ile çelişkisi a
 bir liste maddesi değil, **§8'de ayrı ve doğrudan Tansu'nun/Proje Yetkililerinin kararını gerektiren bir
 anayasa maddesi** olarak izleniyor.
 
-Not: §7'de açık madde **kalmıyor değil** — aşağıdaki teyit/ikincil maddelerden 1–8 hâlâ açık; §8.1 (01.10.2026)
-ve 9 (02.10.2026) kapandı. Yalnızca o turda ele alınan iki backend sorusu (belge görünürlüğü, departman CRUD'unu kim yapar)
+Not: §7'de açık madde **kalmıyor değil** — aşağıdaki teyit/ikincil maddelerden 1–5 ve 7 hâlâ açık; §8.1 (01.10.2026),
+6, 8 ve 9 (02.10.2026) kapandı. Sıralama değerlendirmesi (02.10.2026): yalnızca 2, 3, 5 gerçekten kilitli (Ürün 2 modülleri +
+Tansu); 1 (B-08) engelsiz ve 4/7'nin ön koşulu — planı `docs/plans/B08_DEPARTMAN_MUDURU_PLAN.md`. Yalnızca o turda ele alınan iki backend sorusu (belge görünürlüğü, departman CRUD'unu kim yapar)
 da kapanmıştı.
 
 **Teyit / ikincil:**
@@ -413,9 +414,9 @@ da kapanmıştı.
 3. §2 B-23/2 — yazışma için de "kendisi + İK" mi, yoksa "kendisi + departman yetkilisi" mi (İK'nın yazışmayla ilgisi yok).
 4. §2 B-02 — "departmana belge yüklendi" bildiriminin alıcısı.
 5. §2 B-06a — görüş talebi belgesinin departmanı ve gizliliği.
-6. §4.1 — `model`/token bilgisinin arayüzden kaldırılmasının bilinçli olduğu.
+6. ~~§4.1 — `model`/token bilgisinin arayüzden kaldırılmasının bilinçli olduğu.~~ **KAPANDI (02.10.2026, Naci — bilgi):** Backend `AskResponse.model`/`tokens_*` alanlarını denetim için üretmeye devam eder (kural 4); arayüzde gösterilip gösterilmemesi ürün sahibinin seçimidir, backend tarafında aksiyon yok. Tansu ileride göstermek isterse alan hazır.
 7. §5.2 açık nokta 2–3 — `department_manager` yoksa ne olur; Excel yüklemeleri aynı onay akışına girer mi.
-8. §6.4 — P1 paketinde örnek soruların ve footnote'un durumu (ürün sahibi tarafı).
+8. ~~§6.4 — P1 paketinde örnek soruların ve footnote'un durumu (ürün sahibi tarafı).~~ **KAPANDI (02.10.2026, Naci — devredildi):** Tamamen AI-BalBal tarafı (`strings.ts` örnek sorular + footnote, `product_level`'a göre metin). Backend gereken sinyali zaten veriyor (`/me` ve `/login`'de `enabled_products`, cevapta `product_level` + `product_limit` uyarısı). Tansu'nun yapılacaklar listesine devredildi; backend tarafında açık iş yok.
 9. ~~**(01.10.2026) Anayasa v2.0 Ü-3 — projeler arası karşılaştırma Ürün 2'de serbest mi?**~~ **KAPANDI (02.10.2026, Tansu):** *"Ürün 2 karşılaştırabilir ama yorumlayamaz/analiz edemez/sonuç çıkaramaz, sadece sayısal temel aritmetik."* Bu, Anayasa v2.0 **Ü-4** ("Karşılaştırma gösterir, değerlendirmez") ile birebir aynı — çelişki yok, teyit. **Pratik sonuç:** Ürün 2'ye geçince kural 10 **gevşeyecek** — iki projenin değerini yan yana göstermek ve farkı/oranı DuckDB ile hesaplamak (kural 3, ADR-011) serbest; "hangisi daha iyi/avantajlı", "bu yüzden", "beklenir" gibi **yorum/değerlendirme cümlesi hâlâ yasak** (kural 6). Bu **ŞİMDİ kodlanmıyor**: kural 10 her pakette olduğu gibi kalır (Naci, 01.10.2026); `product_level == P2`'ye bağlı gevşetme, Ürün 2 fazının kapsamında **ayrı bir iş** olarak ele alınır (prompt dalı + `comparison` eval setinin P2 varyantı). Önceki metin: Backend kural 10'u **her pakette** uyguluyor (Naci); Ü-3 yalnızca Ürün 1'i yasaklıyor ama Ürün 2'de serbest olduğunu yazmıyor.
 
 Backend tarafı §3'te kalan maddelere (B-27 internet kısmı, Ürün 3, B-21, B-15/B-24, B-16) kod yazmaz; §1, §2, §5 ve §6'daki maddeler Naci'nin faz planı onayıyla başlar (`CLAUDE.md` çalışma biçimi 2–3).
