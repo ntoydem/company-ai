@@ -1,6 +1,8 @@
 # AI-BalBal frontend ↔ company-ai backend senkronizasyonu — Uygulama Planı
 
-**Tarih:** 02.10.2026 · **Durum:** Naci onayı bekliyor, uygulamaya geçilmedi · **Kod yazılmadı.** · **Hedef repo:** `ftansu/AI-BalBal` (yazma izni teyitli: `ntoydem`, `push: true`) · **Yeni dal:** `feat/backend-sync-urun1` · **Teslim:** PR → Tansu inceler, merge kararı onun. **main'e doğrudan push yok** (T-14).
+**Tarih:** 02.10.2026 (rev. 2 — iki PR) · **Durum:** SORU'lar cevaplandı, Naci'nin "uygula" onayı bekleniyor · **Kod yazılmadı.** · **Hedef repo:** `ftansu/AI-BalBal` (yazma izni teyitli: `ntoydem`, `push: true`) · **Dallar:** **PR-1** `feat/backend-sync-urun1` (bağlantı düzeltmeleri + Ürün 1 giriş ekranı), **PR-2** `feat/onay-akisi-arayuz` (B-28 onay akışı arayüzü, PR-1'e bağımlı) · **Teslim:** her dal için PR → Tansu inceler, merge kararı onun. **main'e doğrudan push yok** (T-14).
+
+**Naci'nin SORU cevapları (02.10.2026):** (1) onay akışı **ayrı PR** — Tansu küçük/az tartışmalı bağlantı düzeltmelerini hızlı onaylasın, tasarım onayı isteyen en hassas parça ayrı dursun; (2) Yönetim › Ayarlar **eklenmez**; (3) küçük yeni öğeler mevcut dil parçalarıyla kodlanır, PR'da **"tasarım onayı bekliyor"** işaretlenir; (4) PR açılır, **merge edilmez**; Tansu'ya kısa özet hazırlanır.
 
 Kaynak: AI-BalBal `main@bdefb29` (= `b219600` + Anayasa v2.0 klasörü), dallar `feat/urun1-arayuz@97a37b4`, `docs/ekip-sohbeti-ve-netlik@a05db56`, `docs/gorev-devri-urun2@e12b152`; AI-BalBal `anayasa/` (00-cekirdek, 01-urun, 02-teknik, ek-b, ek-d), `AGENTS.md`/`CLAUDE.md`, `docs/URUN1_ARAYUZ.md`, `docs/GOREV_DEVRI_URUN2.md`, `docs/BAGLANTI_YOL_HARITASI.md` §9 (T-19…T-25), `README.md`; company-ai `backend/app/schemas/{ask,auth,document,search,folder,directory,excel,settings}.py`, `api/*.py`, ADR-022/023/024, NOT §2/§5/§7.
 
@@ -46,93 +48,121 @@ AI-BalBal'ın `CLAUDE.md`'si Balbal Anayasası v2.0'ı her oturumda yükler; ora
 
 Hata gövdesi: backend `detail` ya Türkçe string ya `{code, message}`; `client.ts` ikisini de okuyor → B-28 kodları (`approver_not_configured`, `low_confidence_not_confirmed` + `fields`, `suggestion_pending`…) için ek ayrıştırma yalnızca `fields` listesi.
 
-## 3. Önerilen kapsam — "sade, aynı mimari, backend'le tam uyumlu"
+## 3. Kapsam — iki PR
 
-**İlke:** var olan bileşenleri gerçek uçlara bağla; `proposed.ts`'teki artık gerçek olan sözleşmeleri gerçek API dosyalarına taşı; yeni ekran yalnızca **onay akışı için** ve mevcut dilden parçalarla. Ürün 2 öğeleri (gündem, görüş talebi, izin, yazışma) **dokunulmaz** (`proposed`'da kalır, P2 kapalıyken zaten gizli). Backend'e **hiçbir** değişiklik yok (bu plan yalnızca AI-BalBal).
+**İlke (ikisinde de):** var olan bileşenleri gerçek uçlara bağla; `proposed.ts`'teki artık gerçek olan sözleşmeleri gerçek API dosyalarına taşı; Ürün 2 öğeleri (gündem, görüş talebi, izin, yazışma) dokunulmaz; backend'e **hiçbir** değişiklik yok; yeni bağımlılık yok. Her şey **Ürün 1 — Tanıma** (Ek-B: sınıflandırma/indeks, yetkiye göre erişim, belgeyi bulma/okuma/gösterme, her kaynağı ayrı gösterme; onay akışı için Çekirdek O-1/O-3 "Onaylı Belge").
 
-**Dahil (Ürün 1, Ek-B atıflarıyla):**
-1. `feat/urun1-arayuz` merge'i (Ürün 1 ekranı + ekip sohbeti netliği, T3/T2).
-2. Tip senkronu `types.ts` (F1–F4, F9) — tek dosya, geriye uyumlu.
-3. `FileLink`: Aç = `?inline=1`, İndir = düz (F5) — Ü-10 "her referans açılabilir/indirilebilir".
-4. `SourceCardList`: versiyon linkleri, proje adı karttan (F3).
-5. `AnswerView`: `warnings` + `product_level` (F2, F12) — Ç-7 durum etiketleri arayüzde.
-6. `proposed` → gerçek: `api/directory.ts` (F7), `api/folders.ts` (F8), `api/search.ts` + `SearchPanel` (F6).
-7. Roller (F9): `department_manager` her yerde.
-8. Onay akışı (F10): a) `UploadTab` sonrası `MetadataSuggestionPanel` **yükleyen** için: öneri satırları + düzenlenebilir alanlar + güveni <0.8 satırlarda "Onaylıyorum" kutusu + "Onaya gönder" → `submit`; 409 `suggestion_pending` → sayaçla bekle (`useSuggestion poll` zaten var); 422 `low_confidence_not_confirmed` → `detail.fields` işaretlenir. b) `DocumentsTab`/`DocumentTable`: `review_status` rozeti (Bekliyor / Onay bekliyor / Geri gönderildi / Onaylı), müdür için "Onay bekleyen" süzgeci (`?review_status=pending_review`), personel için "Geri gönderilenler". c) `DocumentDetailPanel`: durum + `review_comment` + müdür ise **Onayla / Geri gönder (yorum)** düğmeleri → `review`. d) Admin `DocumentDetailPanel`'de kayıt defteri (`review-events`) küçük liste.
-9. README + `docs/BACKEND_GAPS.md`'de "yapıldı" notları (belge güncellemesi, Ç-16 kapsamında: yalnızca bağlanan maddelerin durum satırları).
+### PR-1 — `feat/backend-sync-urun1` (küçük, az tartışmalı; Tansu hızlı onaylayabilsin)
 
-**Hariç (öneri olarak PR notunda):** gündem/bildirim/ekip sohbeti uçları (backend yok), `/api/ask/feedback` ve sohbet geçmişi (backend yok), Yönetim › Ayarlar (SORU 2), stil yeniden düzenlemesi, örnek soru içerikleri (B-18), `extra_fields`/etiket kataloğu (B-28b).
+| # | İş | Tablo §2 | Yeni görsel öğe? |
+|---|---|---|---|
+| 1 | `feat/urun1-arayuz` merge'i: Ürün 1 giriş ekranı + ekip sohbeti netliği (v8.0) | T2/T3 | Hayır — Tansu'nun canvas'ından kodlanmış, T-12 onaylı sayılır |
+| 2 | Tip senkronu `types.ts`: `CurrentUser.primary_department_slug/title`, `AskResponse.audit_log_id/product_level/warnings`, `SourceCard` versiyon id'leri + `is_initial` + `project_code/name`, `DocumentListItem.file_kind/folder_id/review_status`, `UserRole` + `department_manager` | F1–F4, F9 | Hayır |
+| 3 | Roller: `ROLE_LABELS` "Departman Yöneticisi", `ROLE_VALUES`; `visibility.ts`/`Home.tsx`/`BalbalChat.tsx` müdürü **üyelik bazlı** ele alır | F9 | Hayır (mevcut etiket/seçim) |
+| 4 | `FileLink`: "Aç" → `?inline=1` (pdf/görüntü sekmede), "İndir" → düz; dosya adı backend'den | F5 | Hayır |
+| 5 | `SourceCardList`: önceki/sonraki versiyon tıklanabilir (`FileLink` + id), proje adı karttan (`projectOfDocument` türetmesi yalnızca bu kartta kalkar) | F3 | Hayır |
+| 6 | `AnswerView`: `warnings[]` sabit mesajlarıyla (Ç-7 durumu: Veri Yok / Yeterli Veri Bulunmamaktadır / paket sınırı), `product_level` rozeti; P1'de Excel footnote ve DSCR örnek soruları gizli | F2, F12 | **Küçük:** uyarı satırı + rozet — mevcut `badge`/`answer-notice` sınıflarıyla; "tasarım onayı bekliyor" |
+| 7 | `proposed` → gerçek: `api/directory.ts` (rehber), `api/folders.ts` (§10 birebir), `api/search.ts`; `SearchPanel` tek uca bağlanır (snippet + sayfa, kişiler gerçek); `DocumentsTab`/`UploadTab`/`AdminFoldersPage`/`TeamNewChat` `PendingNotice` dalları kalkar | F6–F8 | Hayır — ekranlar hazır, yalnızca veri kaynağı |
+| 8 | `DocumentTable`: `file_kind` metin rozeti; `review_status` **yalnızca gösterim** (Onaylı / Bekliyor / Onay bekliyor / Geri gönderildi) — aksiyon yok | F4 | **Küçük:** iki rozet; "tasarım onayı bekliyor" |
+| 9 | README + `docs/BACKEND_GAPS.md` durum satırları (bağlanan maddeler "yapıldı") | — | — |
+
+Hariç (PR notunda öneri): gündem/bildirim/ekip sohbeti/feedback/sohbet geçmişi uçları (backend yok), Yönetim › Ayarlar (SORU 2: hayır), stil düzenlemesi, örnek soru içerikleri (B-18), onay akışı (PR-2).
+
+### PR-2 — `feat/onay-akisi-arayuz` (PR-1'e bağımlı; tasarım onayı isteyen parça)
+
+Dal **PR-1'in üstünden** açılır (`feat/backend-sync-urun1`'den); PR-1 merge olmadan PR-2 açılırsa GitHub'da base = `feat/backend-sync-urun1` seçilir, PR-1 merge olunca base `main`'e çevrilir (GitHub bunu otomatik yapar).
+
+| # | İş | Tablo §2 | Yeni görsel öğe? |
+|---|---|---|---|
+| 1 | `api/documents.ts`: `submitDocument(id, body)`, `reviewDocument(id, body)`, `useDocuments({review_status})`; `api/admin-documents.ts`: `useReviewEvents(id)`; `types.ts`: `DocumentSubmitRequest`, `DocumentReviewRequest`, `ReviewEvent`, hata gövdesi `detail.fields` | F10 | Hayır |
+| 2 | **1. aşama paneli** — `MetadataSuggestionPanel`'in yükleyen modu: öneri satırları + düzenlenebilir alanlar (mevcut düzen) + güveni < 0.8 satırlarda "Onaylıyorum" kutusu (`inline-check`) + **"Onaya gönder"** → `POST /submit`; 409 `suggestion_pending` → mevcut `useSuggestion poll` ile bekle + bilgi satırı; 422 `low_confidence_not_confirmed` → `detail.fields` satırları işaretlenir, mesaj alanda; 422 `department_required` → departman alanı vurgulanır. `apply`/`reject` admin görünümünde kalır (yayınlamaz — açıklama metni) | F10a | **Evet:** kutu + düğme + hata vurgusu — "tasarım onayı bekliyor" |
+| 3 | `DocumentsTab`: müdür için **"Onay bekleyen"** süzgeci (`?review_status=pending_review`), personel için **"Geri gönderilenler"** (`changes_requested`) — mevcut `chips` deseni | F10b | **Evet:** iki süzgeç çipi — "tasarım onayı bekliyor" |
+| 4 | `DocumentDetailPanel`: durum + `review_comment` + `submitted_at/reviewed_at`; müdür ise **Onayla / Geri gönder** (yorum zorunlu, `Modal`) → `POST /review`; admin ise kayıt defteri listesi (`review-events`, salt okunur) | F10c/d | **Evet:** iki düğme + yorum modalı + defter listesi — "tasarım onayı bekliyor" |
+| 5 | Belge yüklendikten sonra `UploadTab` akışı: `ready` → öneri → 1. aşama paneli → "Onaya gönderildi" bilgi satırı (`badge ok`) | F10a | Hayır (mevcut akışın devamı) |
+| 6 | README + BACKEND_GAPS §4.7 "arayüz yapıldı" satırı | — | — |
+
+Hariç: `extra_fields`/etiket kataloğu/tür bazlı rehber (B-28b), `/api/me/agenda` `approval` sarmalaması (B-01, backend yok), bildirimler (B-02).
 
 ## 4. Yeniden kullanılacak parçalar
 
-| Parça | Nereden | Nasıl |
-|---|---|---|
-| `Urun1Home.tsx`, `.u1-*` stilleri, `Department`/`AskTab`/`Layout` koşulları | `feat/urun1-arayuz` | merge, değiştirilmeden |
-| `TeamNewChat`/`TeamConversation`/`proposed §5` Balbal'sız sohbet | `docs/ekip-sohbeti-ve-netlik` | merge (feat dalı içinde) |
-| `AdminFoldersPage`, `DocumentsTab.FolderDocuments`, `UploadTab` klasör seçimi, `lib/folders.ts` | `main` | yalnızca veri kaynağı değişir (`proposed §10` → `api/folders.ts`) |
-| `MetadataSuggestionPanel` (satır/alan düzeni, güven çubuğu, seçili alan gövdesi) | `main` | `isAdmin` kapısı yerine **rol-bağımsız "yükleyen"** modu; `apply` → `submit`; kutular eklenir |
-| `DocumentVisibilityCard`, `DocumentDetailPanel`, `DocumentTable`, `badge` sınıfları | `main` | yeni alanlar eklenir |
-| `SearchPanel` düzeni | `main` | veri kaynağı `/api/search` |
-| `FeedbackRow` | `main` | dokunulmaz (uç yok) |
+| Parça | Nereden | PR | Nasıl |
+|---|---|---|---|
+| `Urun1Home.tsx`, `.u1-*`, `Department`/`AskTab`/`Layout` koşulları | `feat/urun1-arayuz` | 1 | merge, değiştirilmeden |
+| Balbal'sız ekip sohbeti (`TeamNewChat`/`TeamConversation`/`proposed §5`) | `docs/ekip-sohbeti-ve-netlik` (feat dalı içinde) | 1 | merge |
+| `AdminFoldersPage`, `DocumentsTab.FolderDocuments`, `UploadTab` klasör seçimi, `lib/folders.ts` | `main` | 1 | veri kaynağı `proposed §10` → `api/folders.ts` |
+| `SearchPanel` düzeni | `main` | 1 | veri kaynağı `/api/search` |
+| `FileLink`, `SourceCardList`, `AnswerView`, `DocumentTable`, `badge` sınıfları | `main` | 1 | alan eklemeleri |
+| `MetadataSuggestionPanel` (satır düzeni, güven çubuğu, seçili alan gövdesi) | `main` | 2 | `isAdmin` kapısı yerine "yükleyen" modu; `apply` → `submit` |
+| `DocumentDetailPanel`, `Modal`, `chips` | `main` | 2 | aksiyonlar + süzgeçler |
+| `FeedbackRow` | `main` | — | dokunulmaz (uç yok) |
 
-## 5. Dosyalar (AI-BalBal `frontend/src`)
+## 5. Dosyalar
 
-`api/types.ts` (F1–F4, F9, warnings, review tipleri) · `api/documents.ts` (+`submit`, `review`, `?review_status`, `inlineUrl`) · **yeni** `api/search.ts`, `api/directory.ts`, `api/folders.ts`, `api/admin-documents.ts` · `api/proposed.ts` (§4, §10 ve `useDirectory` kaldırılır; §1–3, §5–9 kalır) · `components/common/FileLink.tsx` · `components/SourceCardList.tsx` · `components/balbal/AnswerView.tsx` · `components/shell/SearchPanel.tsx` · `components/MetadataSuggestionPanel.tsx` (→ 1. aşama) · `components/DocumentTable.tsx`, `DocumentDetailPanel.tsx` (+ `ReviewActions`, `ReviewEvents` küçük iç bileşenler) · `pages/department/{DocumentsTab,UploadTab}.tsx` · `pages/department/ProjectsTab.tsx` (dokunulmaz) · `lib/format.ts` (`ROLE_LABELS`, `REVIEW_STATUS_LABELS`, `FILE_KIND_LABELS`) · `lib/visibility.ts`, `pages/Home.tsx`, `components/balbal/BalbalChat.tsx` (müdür = üyelik) · `lib/strings.ts` (yeni metinler Türkçe) · `styles.css` (yalnızca rozet renk sınıfları varsa; yeni düzen yok) · `README.md`, `docs/BACKEND_GAPS.md` durum satırları.
+**PR-1:** `api/types.ts`, `api/documents.ts` (+`inlineUrl`), **yeni** `api/search.ts`, `api/directory.ts`, `api/folders.ts`; `api/proposed.ts` (§4 `useDirectory` ve §10 çıkar); `components/common/FileLink.tsx`, `components/SourceCardList.tsx`, `components/balbal/AnswerView.tsx`, `components/shell/SearchPanel.tsx`, `components/DocumentTable.tsx`; `pages/department/{DocumentsTab,UploadTab}.tsx`, `pages/admin/AdminFoldersPage.tsx`, `components/team/TeamNewChat.tsx` (yalnızca import), `lib/format.ts` (`ROLE_LABELS`, `FILE_KIND_LABELS`, `REVIEW_STATUS_LABELS`), `lib/visibility.ts`, `pages/Home.tsx`, `components/balbal/BalbalChat.tsx`, `lib/strings.ts`, `README.md`, `docs/BACKEND_GAPS.md`.
+**PR-2:** `api/types.ts` (+review tipleri), `api/documents.ts` (+`submit`/`review`/süzgeç), **yeni** `api/admin-documents.ts`; `components/MetadataSuggestionPanel.tsx`, `components/DocumentDetailPanel.tsx` (+ `ReviewActions`, `ReviewEvents` iç bileşenler), `pages/department/{DocumentsTab,UploadTab}.tsx`, `lib/strings.ts`, `styles.css` (yalnızca varsa rozet rengi), `README.md`, `docs/BACKEND_GAPS.md`.
+**Backend'e dokunulmaz.** company-ai'da merge sonrası tek iş: `frontend-balbal` submodule pinini yeni main'e almak (ayrı küçük commit, plan dışı).
 
-**Backend'e dokunulmaz.** company-ai tarafında bu PR'dan sonra yapılacak tek iş: Tansu merge edince `frontend-balbal` submodule pinini yeni main'e almak (ayrı küçük commit, bu planın dışında).
+## 6. Sıra (her adım ayrı commit; adım sonunda `npm run typecheck && npm run lint && npm run build`)
 
-## 6. Sıra (her adım ayrı commit, aynı dal; adım sonunda `npm run typecheck && npm run lint && npm run build`)
+**PR-1**
+1. `git checkout -b feat/backend-sync-urun1 origin/main` → `git merge origin/feat/urun1-arayuz` → build yeşil.
+2. `types.ts` + `format.ts` + roller (3 dosya).
+3. `FileLink` + `SourceCardList` + `AnswerView` (uyarılar, rozet, footnote/örnek gizleme).
+4. `api/directory.ts`, `api/folders.ts`, `api/search.ts`; `proposed.ts`'ten çıkar; `SearchPanel`, `DocumentsTab`, `UploadTab`, `AdminFoldersPage`, `TeamNewChat` bağla.
+5. `DocumentTable` rozetleri.
+6. Dev VM canlı doğrulama (S-01…S-07, §7): `frontend-balbal` submodule'ünde dal checkout (pin commit'lenmez) → `make up` → tarayıcı; `make set-products` ile P1 ve P1+P2 iki durum; sonra submodule `b219600`'a geri.
+7. README/BACKEND_GAPS → **PR-1 aç** (şablon §8) → Tansu'ya kısa özet → PR-2'ye geç.
 
-1. `git checkout -b feat/backend-sync-urun1 origin/main` → `git merge origin/feat/urun1-arayuz` (çakışma yoksa olduğu gibi) → build yeşil.
-2. `types.ts` + `format.ts` + roller (F1, F4, F9) → build.
-3. `FileLink` inline/indir (F5) + `SourceCardList` (F3) + `AnswerView` warnings/product_level/footnote (F2, F12).
-4. `api/directory.ts`, `api/folders.ts`, `api/search.ts`; `proposed.ts`'ten çıkar; `SearchPanel`, `DocumentsTab`, `UploadTab`, `AdminFoldersPage`, `TeamNewChat` bağlanır (F6–F8).
-5. Onay akışı (F10): `api/documents.ts` uçları → `MetadataSuggestionPanel` 1. aşama → `DocumentTable`/`DocumentsTab` rozet+süzgeç → `DocumentDetailPanel` müdür aksiyonları + admin defteri.
-6. Canlı doğrulama dev VM'de: `frontend-balbal` submodule'ünde dalı checkout et (pin commit'lenmez) → `make up` (Caddy imajı yeniden kurulur) → tarayıcı: `finans` yükler → 1. aşama → `finans_mudur` onaylar → `yonetim` görür; `hukuk` upload 409 mesajı; `finans_mudur` restricted belgeyi listede görür; arama snippet'li; klasör ağacı gerçek; Ürün 1 ekranı P1'de, sekmeli ekran P2'de (`make set-products` ile iki durum). Sonra submodule `b219600`'a geri alınır.
-7. README/BACKEND_GAPS durum satırları → PR aç (açıklama şablonu §8) → **dur**; merge Tansu'da.
+**PR-2** (PR-1 dalından)
+8. `git checkout -b feat/onay-akisi-arayuz feat/backend-sync-urun1`.
+9. API + tipler → 10. 1. aşama paneli → 11. süzgeçler + detay aksiyonları + defter → 12. canlı doğrulama (S-08) → 13. README/BACKEND_GAPS → **PR-2 aç** (base: `feat/backend-sync-urun1`) → Tansu'ya özet → **dur**. Merge kararları Tansu'da.
 
 ## 7. Kabul kriterleri
 
-| # | Kriter |
-|---|---|
-| S-01 | `npm run typecheck`, `npm run lint`, `npm run build` yeşil; Caddy imajı aynı Dockerfile ile kurulur (yeni bağımlılık yok — T-14) |
-| S-02 | P1 paketinde departman girişi = `Urun1Home`; P2 açıkken sekmeli ekran; ekip sohbeti düğmesi her pakette (T-22/T-23 **değişti** — v8.0 kararı; PR notunda açıkça) |
-| S-03 | Cevap kartı: `warnings` sabit metinleriyle (`missing_data`/`insufficient_data`/`product_limit`), `product_level` rozeti; Ç-7 etiketi ekranda; kaynak kartında önceki/sonraki versiyon tıklanabilir, proje adı backend'den |
-| S-04 | "Aç" PDF/görüntüyü sekmede açar (`?inline=1`), "İndir" başlık adlı dosya indirir; Excel yalnızca indirir |
-| S-05 | Arama: içerik eşleşmesinde snippet + sayfa; proje ve kişi sonuçları gerçek; yetkisiz belge görünmez (T-21) |
-| S-06 | Klasörler: `DocumentsTab` ağaç gerçek, `UploadTab` yazılabilir klasör listesi gerçek, admin klasör/grant/audit sayfası çalışır; "Backend bekleniyor" kutusu bu ekranlarda kalmaz |
-| S-07 | `department_manager`: etiket "Departman Yöneticisi", admin formu atayabilir, müdür kendi departmanının restricted belgesini listede görür, kartlar üyelik bazlı |
-| S-08 | Onay akışı uçtan uca tarayıcıda: personel yükler → 1. aşama (0.8 altı alan onaysız → 422 mesajı alanda görünür) → müdür kuyruğunda → Onayla/Geri gönder (yorum zorunlu) → onaylı belge aramada ve Balbal'da; onaysız belge meslektaşa görünmez; `hukuk` upload 409 mesajı okunur Türkçe |
-| S-09 | Ürün 2 öğeleri (gündem, görüş talebi, izin, yazışma) değişmedi; P2 kapalıyken görünmüyor (T-2, Ü-10) |
-| S-10 | PR açıklaması: değişen/neden listesi, "İçerdiği dallar", "Yeni görsel öğeler (tasarım onayı bekliyor)", "Kapsam dışı öneriler", `[ANAYASA KONTROLÜ]` notu (v2.0; Çekirdek + 01 Ürün + 02 Teknik + Ek-B; Ürün 1; gizli bilgi/yeni bağımlılık yok; kapsam dışı: öneri; kendi kararlar listesi) |
+| # | PR | Kriter |
+|---|---|---|
+| S-01 | 1,2 | `npm run typecheck`, `npm run lint`, `npm run build` yeşil; Caddy imajı aynı Dockerfile ile kurulur (yeni bağımlılık yok — T-14) |
+| S-02 | 1 | P1 paketinde departman girişi = `Urun1Home`; P2 açıkken sekmeli ekran; ekip sohbeti düğmesi her pakette (T-22/T-23 **v8.0 ile değişti** — PR notunda açıkça) |
+| S-03 | 1 | Cevap kartı: `warnings` sabit metinleriyle, `product_level` rozeti; P1'de DSCR örnekleri ve Excel footnote yok; kaynak kartında önceki/sonraki versiyon tıklanabilir, proje adı backend'den |
+| S-04 | 1 | "Aç" PDF/görüntüyü sekmede açar (`?inline=1`), "İndir" başlık adlı dosya indirir; Excel yalnızca indirir |
+| S-05 | 1 | Arama: içerik eşleşmesinde snippet + sayfa; proje ve kişi sonuçları gerçek; yetkisiz belge görünmez (T-21) |
+| S-06 | 1 | Klasörler: ağaç, yazılabilir klasör listesi, admin klasör/grant/audit gerçek; "Backend bekleniyor" bu ekranlarda kalmaz |
+| S-07 | 1 | `department_manager`: etiket, admin formu, müdür kendi departmanının restricted belgesini görür, kartlar üyelik bazlı; `review_status` rozeti **gösterilir** (aksiyon yok) |
+| S-08 | 2 | Onay akışı tarayıcıda uçtan uca: personel yükler → 1. aşama (0.8 altı alan onaysız → 422 alanda görünür; `suggestion_pending` bekleme satırı) → müdür "Onay bekleyen" → Onayla / Geri gönder (yorum zorunlu) → onaylı belge aramada ve Balbal'da; onaysız belge meslektaşa görünmez; `hukuk` upload 409 mesajı Türkçe okunur; admin defteri sıralı |
+| S-09 | 1,2 | Ürün 2 öğeleri değişmedi; P2 kapalıyken görünmüyor (T-2, Ü-10) |
+| S-10 | 1,2 | PR açıklaması: değişen/neden listesi, "İçerdiği dallar" (PR-1), "Bağımlı olduğu PR" (PR-2), **"Yeni görsel öğeler (tasarım onayı bekliyor)"**, "Kapsam dışı öneriler", `[ANAYASA KONTROLÜ]` notu (v2.0; Çekirdek + 01 Ürün + 02 Teknik + Ek-B; Ürün 1; gizli bilgi/yeni bağımlılık yok; kapsam dışı: öneri; kendi kararlar) |
 
-LLM çağrısı: canlı doğrulamada Balbal soruları için **en fazla 3** (`/api/ask`, P1 örnek soru + onay sonrası belge sorusu + `product_limit` tetiklemesi için bir DSCR sorusu); gerisi LLM'siz.
+LLM çağrısı: canlı doğrulamada toplam **en fazla 3** `/api/ask` (P1 örnek soru, `product_limit` için bir DSCR sorusu, PR-2'de onay sonrası belge sorusu); gerisi LLM'siz.
 
-## 8. PR açıklama iskeleti
+## 8. PR açıklama iskeleti (ikisi için aynı biçim)
 
 ```
-feat: Ürün 1 arayüzünü company-ai backend'inin yeni alanlarına bağla
+feat: <başlık>
 
-İçerdiği dallar: feat/urun1-arayuz (Ürün 1 ekranı), docs/ekip-sohbeti-ve-netlik (v8.0, Balbal'sız ekip sohbeti)
-Neler değişti / neden: (F1…F12 tablosu — her satır "backend'de X var, arayüz bağlı değildi, şimdi Y")
+Bağımlı olduğu PR: (PR-2 için: #<PR-1>)      İçerdiği dallar: (PR-1 için: feat/urun1-arayuz, docs/ekip-sohbeti-ve-netlik)
+Neler değişti / neden: (satır satır — "backend'de X var, arayüz bağlı değildi, şimdi Y")
 Backend'e dokunulmadı; yeni bağımlılık yok.
-Yeni görsel öğeler (T-12 — Ürün Yetkilisi tasarım onayı bekliyor): onay durumu rozeti, "Onaya gönder", "Onaylıyorum" kutusu, "Onayla / Geri gönder", kayıt defteri listesi (admin)
+Yeni görsel öğeler (T-12 — Ürün Yetkilisi tasarım onayı bekliyor): …
 Kapsam dışı öneriler (Ç-16): …
-Doğrulama: typecheck/lint/build; dev VM'de tarayıcı akışı (S-01…S-09)
-[ANAYASA KONTROLÜ] … (Ç-14 formatı)
+Doğrulama: typecheck/lint/build; dev VM tarayıcı akışı (S-…)
+[ANAYASA KONTROLÜ]  (Ç-14 formatı: versiyon, okunan modüller, ürün etiketi, gizli bilgi/yeni bağımlılık, kapsam dışı, kendi kararlar)
 ```
+
+Tansu'ya kısa Türkçe özet (her PR için 5–8 satır: ne değişti, neyi onaylaması bekleniyor, nasıl deneyeceği) PR yorumu olarak ve company-ai NOT'una işlenir.
 
 ---
 
-## SORU (Naci cevaplamalı)
+## SORU — cevaplandı (02.10.2026)
 
-1. **Onay akışı bu PR'da mı?** Önerim **evet** (F10, §3/8): backend'de tam, arayüzsüz kullanılamaz; `docs/gorev-devri-urun2` §6/2 de ilk sırada sayıyor. Alternatif: F1–F9 + F12 ile küçük bir PR, onay akışı ikinci PR — Tansu'nun incelemesi kolaylaşır. (Ben tek PR'dan yanayım ama iki PR'a bölmek de mümkün: `feat/backend-sync-urun1` + `feat/onay-akisi-arayuz`.)
-2. **Yönetim › Ayarlar (`enabled_products`, F11)** eklensin mi? Önerim **hayır** (`make set-products` var; T-12 yeni ekran; ürün sahibinin aracı). Evet dersen `AdminLayout`'a dördüncü sekme, üç onay kutusu.
-3. **T-12 yaklaşımı:** yeni küçük öğeleri mevcut dil parçalarıyla kodlayıp PR'da "tasarım onayı bekliyor" işaretlemek (önerim) mi, yoksa Tansu canvas'ta onaylayana kadar F10 arayüzünü **hiç** kodlamamak mı? İkincisi F10'u PR dışına atar (SORU 1 → alternatif).
-4. **PR'ı ben açarım, merge etmem** — teyit. PR açıldığında Tansu'ya iletilecek kısa Türkçe özet de hazırlarım (NOT'a da işlenir).
+1. Onay akışı → **PR-2 `feat/onay-akisi-arayuz`**, PR-1'e bağımlı (Naci; planın "tek PR" önerisi yerine).
+2. Yönetim › Ayarlar → **eklenmez**.
+3. Küçük yeni öğeler mevcut dil parçalarıyla kodlanır, PR'da **"tasarım onayı bekliyor"** işaretlenir.
+4. PR'lar açılır, **merge edilmez**; Tansu'ya kısa özet hazırlanır.
+
+Kalan açık soru yok; "uygula" onayı bekleniyor.
 
 ---
 
 ## Uygulama sırası (özet)
 
-1. Dal + merge (§6/1) → 2. tipler/roller → 3. cevap/kaynak/dosya linkleri → 4. `proposed`→gerçek (rehber, klasör, arama) → 5. onay akışı → 6. dev VM canlı doğrulama (submodule geçici checkout) → 7. docs + PR → dur (merge Tansu'da). company-ai tarafında: NOT güncellemesi (Tansu'ya devredilmiş kalemler "PR'da yapıldı") + bu planın raporu; submodule pini merge sonrası ayrı commit.
+**PR-1:** dal + merge → tipler/roller → dosya linkleri + kaynak + cevap kartı → `proposed`→gerçek (rehber, klasör, arama) → tablo rozetleri → dev VM canlı → docs → PR-1 + Tansu özeti. **PR-2:** PR-1 dalından → API/tipler → 1. aşama paneli → süzgeçler + detay aksiyonları + defter → canlı → docs → PR-2 (base PR-1) + özet → **dur**. company-ai: NOT güncellemesi + rapor; submodule pini merge sonrası ayrı commit.
