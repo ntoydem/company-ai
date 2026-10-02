@@ -284,6 +284,16 @@ onayı düşürür (müdür hariç). Kayıt defteri `document_review_events` + `
 personel yüklemesi müdür atanana kadar 409 alır (B-18'de `hukuk_mudur`/`enerji_mudur`). Kapsam dışı (B-28b):
 `extra_fields`, `tag_catalog`, tür bazlı alan rehberi, klasör önerisi.
 
+**AI-BalBal frontend senkronu — PR-1 (02.10.2026, `<commit>`):** `ftansu/AI-BalBal` reposunda `feat/backend-sync-urun1`
+dalı + **PR #2** (https://github.com/ftansu/AI-BalBal/pull/2; merge Tansu'da, main'e push yok — Anayasa T-14). İçerik:
+`feat/urun1-arayuz` merge'i (Ürün 1 giriş ekranı, ekip sohbeti v8.0), backend tiplerinin eşitlenmesi (`enabled_products`,
+`primary_department_slug`/`title`, `warnings`/`product_level`/`audit_log_id`, SourceCard versiyon id'leri + proje,
+`file_kind`/`folder_id`/`review_status`, `department_manager`), `?inline=1` dosya linkleri, Ç-7 uyarı etiketleri,
+`/api/search` · `/api/directory` · klasör uçları gerçek API'ye (`proposed.ts` §4/§10 kaldırıldı), belge listesinde dosya
+türü + onay durumu rozeti (yalnızca gösterim). Backend'e dokunulmadı; company-ai'da yalnızca docs. `frontend-balbal`
+submodule pini **merge sonrası** güncellenecek. Plan `docs/plans/AIBALBAL_FRONTEND_SYNC_PLAN.md` (rev. 2, iki PR), rapor
+`docs/reports/AIBALBAL_SYNC_PR1_REPORT.md`. Sırada PR-2 `feat/onay-akisi-arayuz` (B-28 onay akışı arayüzü; PR-1'e bağımlı).
+
 **Olası gelecek faz (kapsam dışı, planlanmadı): Ç-7.1 4 adımlı "veri yok" protokolü** — anlama kontrolü → durum etiketi
 (`missing_data`/`insufficient_data` zaten ayrı) → "elimde şunlar var, göstereyim mi" (yalnızca `retrieved_document_ids`'ten
 **kodla** üretilir, LLM'e yazdırılmaz — ADR-014) → açık uçlu kapanış. AI-BalBal `AnswerView` ile birlikte tasarlanmalı;
