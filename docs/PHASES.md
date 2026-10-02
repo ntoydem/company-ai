@@ -260,7 +260,7 @@ karşılaştırma yok, sabit cümle + ayrı değerler, her pakette geçerli), `q
 `warnings[].kind` `insufficient_data` (chunk var, model yetmez dedi) ↔ `missing_data` (sıfır chunk). Ayrı bir phase
 değil; plan `docs/plans/URUN1_UYUM_PLAN.md`, rapor `docs/reports/URUN1_UYUM_REPORT.md`.
 
-**B-08 departman yöneticisi rolü (02.10.2026, `<commit>`):** `UserRole.department_manager` (migration `0012`, enum `ADD VALUE`;
+**B-08 departman yöneticisi rolü (02.10.2026, `6cfb3f0`):** `UserRole.department_manager` (migration `0012`, enum `ADD VALUE`;
 downgrade tipi yeniden kurar, müdürleri `employee`'ye düşürür). Kural `allowed_document_ids`'in üyelik dalında tek satır:
 müdür üye olduğu departmanların `normal` **ve** `restricted` belgelerini görür (üyelik ∪ klasör grant'i, aynı iki seviye),
 `board` asla, başka departman asla; `management`/`admin`/`employee` değişmedi. Yeni uç/tablo/provider metodu yok;

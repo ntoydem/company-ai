@@ -1,6 +1,6 @@
 # B-08 Raporu — Departman yöneticisi rolü (`department_manager`)
 
-**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit + `docs/PHASES.md` notu)  **Commit:** `<commit>`
+**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok (Naci kararı: düz commit + `docs/PHASES.md` notu)  **Commit:** `6cfb3f0`
 **Plan:** `docs/plans/B08_DEPARTMAN_MUDURU_PLAN.md` · **ADR:** ADR-004 concretization (yeni ADR yok) · **Migration:** `0012_user_role_department_manager`
 
 Naci'nin SORU cevapları (02.10.2026): (1) **(a)** tek demo müdür `finans_mudur` (`department_manager`, üyelik `finans`); (2) rol/üyelik değişikliği kayıt defteri bu fazda **yok**, ayrı küçük iş; (3) müdür `board` **görmez**, kural **sabit** (tablo değil) → NOT §7.2 #1 KAPANDI; (4) etiketsiz düz commit + PHASES.md notu. **LLM çağrısı: 0.**
