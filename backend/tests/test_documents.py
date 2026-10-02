@@ -388,6 +388,8 @@ def test_get_document_returns_full_metadata(
     assert body["tags"] == []
     assert body["ingestion_status"] == "uploaded"
     assert body["page_count"] is None
+    assert body["uploaded_by_id"] == str(admin_user.id)  # B-28 UI: only the uploader submits
+    assert body["review_status"] == "pending_metadata"
     facility = client.get(f"/api/documents/{facility_id}").json()
     assert facility["superseded_by_document_id"] == amendment_id
     assert facility["status"] == "superseded"

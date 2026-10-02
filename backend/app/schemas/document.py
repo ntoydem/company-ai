@@ -54,6 +54,9 @@ class DocumentDetailResponse(DocumentListItem):
 
     tags: list[str]
     # B-28 review trail (the full ledger is admin-only, `/api/admin/documents/{id}/review-events`).
+    # `uploaded_by_id` lets the UI show "Onaya gönder" only to the uploader (the server still
+    # enforces it, 403 `not_the_uploader`) — AI-BalBal PR-2.
+    uploaded_by_id: UUID | None
     review_comment: str | None
     submitted_at: datetime | None
     reviewed_at: datetime | None
