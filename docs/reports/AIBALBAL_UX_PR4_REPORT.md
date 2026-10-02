@@ -1,6 +1,6 @@
 # AI-BalBal PR #4 Raporu — iki küçük UX düzeltmesi (`feat/ux-kucuk-duzeltmeler`)
 
-**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok  **company-ai commit:** `<commit>`
+**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok  **company-ai commit:** `f3cba4b`
 **PR:** https://github.com/ftansu/AI-BalBal/pull/4 (**açık, merge edilmedi**; base `main` = `b709f09`) · **Dal:** `feat/ux-kucuk-duzeltmeler` @ `159b46c` (1 commit, 3 dosya) · **Backend:** dokunulmadı · **LLM:** 0
 
 ## 1. Kaynak
