@@ -1,6 +1,6 @@
 # AI-BalBal PR-2 Raporu — B-28 onay akışı arayüzü (`feat/onay-akisi-arayuz`)
 
-**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok  **company-ai commit:** `<commit>`
+**Tarih:** 02.10.2026  **Model:** Claude Fable 5.1  **Tag:** yok  **company-ai commit:** `26e807d`
 **Plan:** `docs/plans/AIBALBAL_PR2_PLAN.md` · **Hedef repo:** `ftansu/AI-BalBal` · **PR:** https://github.com/ftansu/AI-BalBal/pull/3 (**açık, merge edilmedi**; base `feat/backend-sync-urun1` = PR #2) · **Dal:** `feat/onay-akisi-arayuz` @ `a072968` (PR-1 dalı + 4 commit) · **Backend ön koşulu:** company-ai `a8308b2` (`DocumentDetailResponse.uploaded_by_id`)
 
 Naci'nin SORU cevapları: (1) `uploaded_by_id` backend'e eklendi (düz commit); (2) yerel 4'lü tek çip grubu, yalnızca sayısı >0; (3) ≤2 CSS kuralı; (4) PR-2 base = PR-1 dalı. Backend'e bu alan dışında dokunulmadı. **LLM çağrısı: 0** (canlı akış Excel ile, curl).

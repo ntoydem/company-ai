@@ -294,7 +294,7 @@ türü + onay durumu rozeti (yalnızca gösterim). Backend'e dokunulmadı; compa
 submodule pini **merge sonrası** güncellenecek. Plan `docs/plans/AIBALBAL_FRONTEND_SYNC_PLAN.md` (rev. 2, iki PR), rapor
 `docs/reports/AIBALBAL_SYNC_PR1_REPORT.md`. Sırada PR-2 `feat/onay-akisi-arayuz` (B-28 onay akışı arayüzü; PR-1'e bağımlı).
 
-**AI-BalBal frontend senkronu — PR-2 (02.10.2026, `<commit>`):** `feat/onay-akisi-arayuz` + **PR #3**
+**AI-BalBal frontend senkronu — PR-2 (02.10.2026, `26e807d`):** `feat/onay-akisi-arayuz` + **PR #3**
 (https://github.com/ftansu/AI-BalBal/pull/3; base PR #2, merge Tansu'da). B-28 onay akışı arayüzü: 1. aşama paneli
 (yükleyen; %80 altı "Onaylıyorum", "Onaya gönder", 422 vurgusu), belge detayında onay durumu kartı + müdüre Onayla / Geri
 gönder (yorum zorunlu), Belgeler'de onay durumu çipleri (yerel), yöneticiye kayıt defteri; `ApiError.code/fields`.
