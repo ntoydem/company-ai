@@ -14,6 +14,17 @@ Kısaltmalar: **kural N** = `CLAUDE.md`'deki N numaralı değişmez kural. **ADR
 
 ## 0. Güncelleme — Tansu'nun cevapları (30.09.2026, Word yorumları, özet)
 
+> **03.10.2026 — PR #4 MERGE OLDU, PR #5 hâlâ açık:** Tansu PR #4 ve #5'i onayladığını söyledi; `gh pr view` ile
+> kontrol edildi — **PR #4** gerçekten `MERGED` (merge commit `92bd778`); **PR #5** (`feat/b28b-arayuz`) hâlâ `OPEN`,
+> `mergedAt: null`, GitHub review API'sinde kayıtlı bir onay yok (`reviews: []`) — yorum bırakılmış olabilir, formal
+> onay/merge yok. Naci'nin talimatıyla yalnızca PR #4 işlendi: `frontend-balbal` pini `b709f09` → `92bd778`
+> (company-ai commit `63efe16`, pushlandı); dev Caddy yeni sürümle kuruldu; canlı doğrulama PR #4 kapsamıyla
+> sınırlı (giriş, SPA `/departman/finans` ve `/departman/finans/belgeler` 200, bundle'da "Belgeler"/"Onaylı"
+> string'leri, "Test Belgesi — Onay Akışı Denemesi" üzerinde `status=draft` + `review_status=approved` senaryosu —
+> tam olarak PR #4'ün çözdüğü kafa karıştırıcı durum). Rapor `docs/reports/AIBALBAL_PR4_MERGE_REPORT.md`. PR #5
+> B-28b arayüzü (etiket kataloğu, ek alanlar, Yönetim › Etiketler/Tür rehberi, arama rozeti) main'de **yok**;
+> Tansu'dan beklenen PR #5'i gerçekten merge etmesi (ya da Naci'nin açık talimatı).
+>
 > **02.10.2026 — PR #2 ve #3 MERGE EDİLDİ (Tansu'nun sözlü onayıyla):** "02.10.2026 — Tansu PR #2/#3'ü sözlü olarak onayladı (Naci aktardı), vakti kısıtlı olduğu için GitHub'da merge işlemini Naci'nin açık talimatıyla biz gerçekleştirdik. Tansu döndüğünde PR'ları ve canlı sonucu inceleyebilir, gerekirse geri alabilir veya düzeltme isteyebilir." AI-BalBal `main` = `b709f09` (PR #2 `fa329e5` + PR #3 `b709f09`, merge commit'leri; dallar silinmedi). company-ai `frontend-balbal` pini `b219600` → `b709f09` (`81178cb`); dev Caddy yeni sürümle kuruldu ve canlı doğrulandı (giriş, arama, klasörler, rehber, inline/indirme, Ürün 1 ekranı bundle'da, onay akışı `finans` → `finans_mudur` → `yonetim` görür/arar). Rapor `docs/reports/AIBALBAL_MERGE_REPORT.md`. Tansu'dan beklenen: PR #2/#3 sonradan inceleme, 9 küçük görsel öğe için tasarım onayı/düzeltme (T-12), gerekirse geri alma.
 >
 > **02.10.2026 — Tarayıcı testi ve UX notu (T-12, Tansu'nun kararına):** Naci onay akışını tarayıcıdan uçtan uca doğruladı — "Test Belgesi — Onay Akışı Denemesi": `finans` yükledi → %80 altı `confidentiality` önerisini "Onaylıyorum" ile onaylayıp onaya gönderdi → `finans_mudur` onayladı; defter `uploaded → field_confirmed → submitted → approved`, DB `review_status = approved`. **Gözlem:** onaylı belgede "Durum" sütunu `status` alanını gösteriyor ("Taslak" — belgenin hukuki yaşam döngüsü, onay akışı buna dokunmaz) ve onay rozeti yalnızca onaylı DEĞİLKEN görünüyor; "onaylandı" bilgisi rozetin *kaybolmasıyla* anlatılıyor, bu kullanıcıyı yanıltabiliyor ("Taslak" yazıyor, onaylı mı?). **Öneri (kod değiştirilmedi, tasarım kararı Tansu'da):** (a) "Durum" (`status`) ile "Onay" (`review_status`) sütunlarını ayırmak, ya da (b) onaylı belgede de görünür bir "Onaylı" rozeti göstermek. Backend tarafında iki alan zaten ayrı eksendir (ADR-024); değişiklik yalnızca arayüz gösterimi.

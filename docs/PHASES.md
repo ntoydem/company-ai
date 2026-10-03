@@ -338,6 +338,15 @@ rozeti, admin'e `tags.dropped` notu. 3 CSS kuralı; typecheck/lint/build yeşil;
 200, pin `b709f09`'a geri. Backend'e dokunulmadı. Plan `docs/plans/AIBALBAL_PR5_PLAN.md`, rapor
 `docs/reports/AIBALBAL_PR5_REPORT.md`.
 
+**AI-BalBal PR #4 merge ve submodule pini (03.10.2026, `63efe16`):** Tansu PR #4 ve #5'i onayladığını söyledi;
+`gh pr view` ile kontrol edildi — **PR #4 gerçekten `MERGED`** (merge commit `92bd778`); **PR #5 hâlâ `OPEN`**
+(`mergedAt: null`, `reviews: []` — yorum olabilir, formal onay/merge yok). Naci'nin talimatıyla yalnızca PR #4
+işlendi: `frontend-balbal` pini `b709f09` → `92bd778`; dev Caddy yeni sürümle kuruldu; canlı doğrulama PR #4
+kapsamıyla sınırlı — SPA `/departman/finans` ve `/departman/finans/belgeler` 200, bundle'da "Belgeler"/"Onaylı"
+string'leri, "Test Belgesi — Onay Akışı Denemesi" (`status=draft`, `review_status=approved`) PR #4'ün çözdüğü
+senaryoyu canlı veride doğruladı. PR #5 (B-28b arayüzü) **pinlenmedi**, main'de yok. Rapor
+`docs/reports/AIBALBAL_PR4_MERGE_REPORT.md`.
+
 **Olası gelecek faz (kapsam dışı, planlanmadı): Ç-7.1 4 adımlı "veri yok" protokolü** — anlama kontrolü → durum etiketi
 (`missing_data`/`insufficient_data` zaten ayrı) → "elimde şunlar var, göstereyim mi" (yalnızca `retrieved_document_ids`'ten
 **kodla** üretilir, LLM'e yazdırılmaz — ADR-014) → açık uçlu kapanış. AI-BalBal `AnswerView` ile birlikte tasarlanmalı;
