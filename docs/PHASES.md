@@ -347,6 +347,15 @@ string'leri, "Test Belgesi — Onay Akışı Denemesi" (`status=draft`, `review_
 senaryoyu canlı veride doğruladı. PR #5 (B-28b arayüzü) **pinlenmedi**, main'de yok. Rapor
 `docs/reports/AIBALBAL_PR4_MERGE_REPORT.md`.
 
+**AI-BalBal PR #5 merge ve submodule pini (03.10.2026, `9abcde0`):** `gh pr view 5` tekrar kontrol
+edildi — `feat/b28b-arayuz` artık `MERGED` (merge commit `59421ed`). `frontend-balbal` pini `92bd778` →
+`59421ed`; dev Caddy yeni sürümle kuruldu. Canlı doğrulama: Yönetim › Etiketler ve Tür rehberi sayfaları
+200 + backend verisi (59 etiket, 10 aile); uçtan uca yükleme → gerçek LLM etiket/ek alan önerisi →
+"Onaylıyorum" + "+ Alan ekle" ile submit (AI/kullanıcı kaynak ayrımı doğru, `extra_fields.source`) →
+`finans_mudur` onayı; arama `matched_on` hem `content` hem `extra_field` için doğrulandı; Sinyaller ucu
+elle eklenen anahtarı saydı. Test belgesi temizlendi (`documents` = 75). PR #4 ve #5'in ikisi de artık
+main'de. Rapor `docs/reports/AIBALBAL_PR5_MERGE_REPORT.md`.
+
 **Olası gelecek faz (kapsam dışı, planlanmadı): Ç-7.1 4 adımlı "veri yok" protokolü** — anlama kontrolü → durum etiketi
 (`missing_data`/`insufficient_data` zaten ayrı) → "elimde şunlar var, göstereyim mi" (yalnızca `retrieved_document_ids`'ten
 **kodla** üretilir, LLM'e yazdırılmaz — ADR-014) → açık uçlu kapanış. AI-BalBal `AnswerView` ile birlikte tasarlanmalı;

@@ -14,6 +14,17 @@ Kısaltmalar: **kural N** = `CLAUDE.md`'deki N numaralı değişmez kural. **ADR
 
 ## 0. Güncelleme — Tansu'nun cevapları (30.09.2026, Word yorumları, özet)
 
+> **03.10.2026 — PR #5 DE MERGE OLDU:** Tekrar kontrol edildi — `feat/b28b-arayuz` artık `MERGED`
+> (merge commit `59421ed`, 2026-10-03T08:25:46Z). `frontend-balbal` pini `92bd778` → `59421ed`
+> (company-ai commit `9abcde0`, pushlandı); dev Caddy yeni sürümle kuruldu. Canlı doğrulama: Yönetim ›
+> Etiketler ve Tür rehberi sayfaları 200 + backend verisi dolu (59 etiket, 10 aile); uçtan uca belge
+> yükleme → AI etiket/ek alan önerisi (gerçek LLM) → "Onaylıyorum" + "+ Alan ekle" ile submit (AI/kullanıcı
+> kaynak ayrımı doğru) → `finans_mudur` onayı; arama `matched_on` hem `content` hem `extra_field` için
+> doğrulandı; Sinyaller ucu elle eklenen anahtarı saydı. Test belgesi sonradan temizlendi
+> (`documents` = 75). Rapor `docs/reports/AIBALBAL_PR5_MERGE_REPORT.md`. Artık PR #4 ve #5'in **ikisi de**
+> main'de. Tansu'dan beklenen: T-12 tasarım onayı (toplam 16 görsel öğe, iki PR birlikte), gerekirse
+> geri alma.
+>
 > **03.10.2026 — PR #4 MERGE OLDU, PR #5 hâlâ açık:** Tansu PR #4 ve #5'i onayladığını söyledi; `gh pr view` ile
 > kontrol edildi — **PR #4** gerçekten `MERGED` (merge commit `92bd778`); **PR #5** (`feat/b28b-arayuz`) hâlâ `OPEN`,
 > `mergedAt: null`, GitHub review API'sinde kayıtlı bir onay yok (`reviews: []`) — yorum bırakılmış olabilir, formal
