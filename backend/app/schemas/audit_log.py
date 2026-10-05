@@ -36,3 +36,5 @@ class AuditLogDetail(AuditLogListItem):
     request_id: str | None
     product_level: str | None
     warnings: list[dict[str, Any]]
+    # ADR-027: the assist block the user saw (None when ASSIST_MODE was off / answered).
+    assist: dict[str, Any] | None = None

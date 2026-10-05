@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import logging
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -20,6 +20,12 @@ from app.schemas.ask import AskRequest, SourceCard
 from app.schemas.authorization import AuthorizationScope
 from app.schemas.retrieval import RetrievalFilters
 from app.services import answer_prompt
+from app.services.assist import (
+    Assist,
+    build_insufficient_assist,
+    build_zero_chunk_assist,
+    split_question_line,
+)
 from app.services.audit_writer import write_audit_row
 from app.services.authorization import allowed_document_ids
 from app.services.llm import LLMClient, LLMError, LLMRequest
@@ -45,6 +51,8 @@ class AskResult:
     # What retrieval returned (for the audit row's `chunks_retrieved`); kept on the result
     # so a caller that owns the audit row (the router, Phase 4.3) can write it.
     chunks: list[RetrievedChunk] = field(default_factory=list)
+    # ADR-027: code-generated help next to a no-answer; None when ASSIST_MODE is off.
+    assist: Assist | None = None
 
 
 def _no_answer() -> AskResult:
@@ -105,6 +113,7 @@ def _write_audit_log(
     tokens_out: int,
     execution_ms: int,
     error: str | None,
+    assist: Assist | None = None,
 ) -> None:
     """SPEC_06 §1: one row per `/api/ask` call, success or failure."""
     write_audit_row(
@@ -124,6 +133,7 @@ def _write_audit_log(
         tokens_out=tokens_out,
         execution_ms=execution_ms,
         error=error,
+        assist=assist,
     )
 
 
@@ -146,6 +156,13 @@ def answer_question(
 
     if not chunks:
         result = _no_answer()
+        if settings.assist_mode_enabled:
+            # ADR-027/ADR-021: still no LLM here — every lookup stays inside `allowed`.
+            scope = AuthorizationScope(department=request.department)
+            allowed = allowed_document_ids(user, scope, SqlDocumentIdsProvider(session))
+            result = replace(
+                result, assist=build_zero_chunk_assist(session, allowed, request.question)
+            )
     else:
         scope = AuthorizationScope(department=request.department)
         allowed = allowed_document_ids(user, scope, SqlDocumentIdsProvider(session))
@@ -159,7 +176,7 @@ def answer_question(
         try:
             response = llm.complete(
                 LLMRequest(
-                    system=answer_prompt.SYSTEM_PROMPT,
+                    system=answer_prompt.system_prompt(settings.assist_mode_enabled),
                     user=user_prompt,
                     model=settings.llm_model_answer,
                     max_output_tokens=settings.llm_max_output_tokens,
@@ -183,7 +200,26 @@ def answer_question(
                     error=str(exc),
                 )
             raise
-        if answer_prompt.is_no_answer(response.text):
+        # ADR-027: the model's optional `SORU:` line is separated first; the fixed sentence
+        # is still canonicalised exactly as before (ADR-014).
+        answer_text, model_question = (
+            split_question_line(response.text)
+            if settings.assist_mode_enabled
+            else (response.text, None)
+        )
+        if answer_prompt.is_no_answer(answer_text):
+            assist = (
+                build_insufficient_assist(
+                    session,
+                    allowed,
+                    request.question,
+                    documents=by_id,
+                    chunks=chunks,
+                    model_question=model_question,
+                )
+                if settings.assist_mode_enabled
+                else None
+            )
             result = AskResult(
                 answer=answer_prompt.NO_ANSWER_TEXT,
                 answered=False,
@@ -192,16 +228,21 @@ def answer_question(
                 tokens_in=response.tokens_in,
                 tokens_out=response.tokens_out,
                 chunks=chunks,
+                assist=assist,
             )
         else:
-            refs = answer_prompt.parse_citations(response.text)
+            if model_question is not None:
+                # Rule 11 allows the line only on a no-answer; on an answered reply it is
+                # not shown (the answer carries its own citations).
+                log.info("assist question ignored on an answered reply")
+            refs = answer_prompt.parse_citations(answer_text)
             cards, unknown = _source_cards(refs, sources)
             if unknown:
                 log.warning("unknown citation labels", extra={"labels": unknown})
             if not cards:
                 log.warning("answer without citations")
             result = AskResult(
-                answer=response.text.strip(),
+                answer=answer_text.strip(),
                 answered=True,
                 sources=cards,
                 retrieved_document_ids=retrieved_ids,
@@ -239,5 +280,6 @@ def answer_question(
             tokens_out=result.tokens_out,
             execution_ms=round((time.perf_counter() - started) * 1000),
             error=None,
+            assist=result.assist,
         )
     return result

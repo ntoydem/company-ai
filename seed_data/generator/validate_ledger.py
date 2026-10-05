@@ -53,7 +53,14 @@ IZMIR_POST_LICENCE_KEYS = (
     "operation_start",
 )
 QUOTAS = {"İzmir RES": 12, "Ankara RES": 35}
-CATEGORY_QUOTAS = {"hallucination": 3, "isolation": 3, "authorization": 3, "comparison": 3}
+CATEGORY_QUOTAS = {
+    "hallucination": 3,
+    "isolation": 3,
+    "authorization": 3,
+    "comparison": 3,
+    "ambiguous": 3,
+    "term_mismatch": 3,
+}
 MIN_QUESTIONS = 60
 FX_CROSS_TOLERANCE = 0.02
 # "<Name> A.Ş." style company suffixes; every match must be whitelisted (SPEC_05 §11).
@@ -859,6 +866,15 @@ def check_questions(
             report.error(
                 f, f"{p}.expected_answer", "Q4: answerable question needs an expected_answer"
             )
+        # Q7 (ADR-027): assist categories are no-answer questions with a declared assist kind;
+        # `expect_assist` never rides on a question that expects an answer.
+        if q.category in ("ambiguous", "term_mismatch"):
+            if not q.expect_no_answer or q.expected_answer is not None:
+                report.error(f, f"{p}", f"Q7: {q.category} questions expect no answer")
+            if q.expect_assist is None:
+                report.error(f, f"{p}.expect_assist", f"Q7: {q.category} needs expect_assist")
+        if q.expect_assist is not None and not q.expect_no_answer:
+            report.error(f, f"{p}.expect_assist", "Q7: expect_assist requires expect_no_answer")
         for j, source in enumerate(q.required_sources):
             if source not in doc_names and source not in doc_types:
                 report.error(

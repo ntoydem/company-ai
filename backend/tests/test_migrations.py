@@ -24,7 +24,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
     assert "users" not in inspect(engine).get_table_names()
 
     command.upgrade(cfg, "head")
-    assert _current_revision() == "0014"
+    assert _current_revision() == "0015"
     tables = inspect(engine).get_table_names()
     assert "users" in tables
     assert "documents" in tables
@@ -88,7 +88,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
 
 def test_upgrade_head_is_idempotent() -> None:
     command.upgrade(alembic_config(), "head")
-    assert _current_revision() == "0014"
+    assert _current_revision() == "0015"
 
 
 def test_0010_corrects_an_existing_phase_1_2_tree_and_backfills_users() -> None:
@@ -295,3 +295,19 @@ def test_0014_seeds_change_tags_existing_tags_and_the_starter_guide() -> None:
     command.downgrade(cfg, "0013")
     assert "tag_catalog" not in inspect(engine).get_table_names()
     command.upgrade(cfg, "head")
+
+
+def test_0015_adds_the_nullable_audit_log_assist_column() -> None:
+    """ADR-027: `audit_log.assist` stores the assist block the user saw (NULL when
+    ASSIST_MODE is off); downgrade removes it."""
+    cfg = alembic_config()
+    engine = get_engine()
+    columns_sql = text(
+        "SELECT column_name FROM information_schema.columns WHERE table_name = 'audit_log'"
+    )
+    command.downgrade(cfg, "0014")
+    with engine.connect() as conn:
+        assert "assist" not in {row[0] for row in conn.execute(columns_sql)}
+    command.upgrade(cfg, "head")
+    with engine.connect() as conn:
+        assert "assist" in {row[0] for row in conn.execute(columns_sql)}

@@ -81,6 +81,16 @@ def build_search_query(question: str) -> str:
     Question terms first, then the glossary's document-side terms (Phase 3.2b): a Turkish
     "finansman" question also ORs `financing`/`facility`/`loan`, so the English page that
     actually states the figure can rank. Nothing is expanded when no term is known."""
+    terms = question_terms(question)
+    if not terms:
+        return ""
+    return " OR ".join(terms + expand_terms([turkish_lower(t) for t in terms]))
+
+
+def question_terms(question: str) -> list[str]:
+    """The question's own search-bearing tokens (original spelling, apostrophe suffixes
+    stripped, stopwords and duplicates dropped) — the first half of `build_search_query`,
+    also used by the assist block (ADR-027) to tell which terms found nothing."""
     cleaned = _APOSTROPHE_SUFFIX.sub("", question)
     terms: list[str] = []
     seen: set[str] = set()
@@ -90,6 +100,4 @@ def build_search_query(question: str) -> str:
             continue
         seen.add(key)
         terms.append(token)
-    if not terms:
-        return ""
-    return " OR ".join(terms + expand_terms([turkish_lower(t) for t in terms]))
+    return terms

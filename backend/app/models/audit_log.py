@@ -63,6 +63,8 @@ class AuditLog(Base):
     # the query_type→product mapping never rewrites history. NULL / [] before migration 0009.
     product_level: Mapped[str | None] = mapped_column(String(2), nullable=True)
     warnings: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list, server_default="[]")
+    # ADR-027: the assist block shown next to a no-answer (NULL when ASSIST_MODE is off).
+    assist: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
 
     def __repr__(self) -> str:
         return f"AuditLog(user_id={self.user_id!r}, timestamp={self.timestamp!r})"

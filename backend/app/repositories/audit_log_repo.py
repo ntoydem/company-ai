@@ -39,6 +39,7 @@ def create(
     chunks_retrieved: list[dict[str, Any]] | None = None,
     product_level: str | None = None,
     warnings: list[dict[str, Any]] | None = None,
+    assist: dict[str, Any] | None = None,
 ) -> AuditLog:
     row = AuditLog(
         user_id=user_id,
@@ -60,6 +61,7 @@ def create(
         error=error,
         product_level=product_level,
         warnings=warnings or [],
+        assist=assist,
     )
     session.add(row)
     session.commit()

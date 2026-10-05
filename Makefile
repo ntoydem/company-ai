@@ -13,7 +13,7 @@ CADDY_PORT := $(or $(CADDY_PORT),8080)
 SVC ?=
 EVAL_ARGS ?=
 
-.PHONY: help env-check dirs up up-full down ps logs build test test-llm lint format prompt-doc validate-ledger \
+.PHONY: help env-check dirs up up-full restart-backend down ps logs build test test-llm lint format prompt-doc validate-ledger \
         migrate migration seed-admin seed-demo-users seed-demo-departments seed-demo-folders seed-demo-projects \
         prose validate-documents seed-demo-documents build-frontend update-frontend dev-frontend excel validate-excel \
         psql shell seed reset-demo eval backup restore clean
@@ -36,6 +36,10 @@ up: dirs ## postgres + backend + ocr-worker + caddy'yi başlat (build dahil); ar
 
 up-full: dirs ## full profil (embed dahil; 16 GB VM)
 	$(COMPOSE) --profile full up -d --build
+	CADDY_PORT=$(CADDY_PORT) bash scripts/wait_for_services.sh 120
+
+restart-backend: dirs ## .env bayrağı değişti (örn. ASSIST_MODE) → backend'i yeniden yarat; ayarlar süreç başında okunur
+	$(COMPOSE) up -d --force-recreate --no-deps backend
 	CADDY_PORT=$(CADDY_PORT) bash scripts/wait_for_services.sh 120
 
 down: env-check ## container'ları durdur (veri kalır)
@@ -80,6 +84,9 @@ lint: env-check ## ruff + mypy (backend), ruff (ocr-worker), prompt dokümanı g
 	@$(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-answer-prompt 2>/dev/null \
 		| diff -q - <(sed -n '/^```text$$/,/^```$$/{//!p}' docs/prompts/ANSWER_SYSTEM_PROMPT.md) >/dev/null \
 		|| { echo "docs/prompts/ANSWER_SYSTEM_PROMPT.md güncel değil: make prompt-doc"; exit 1; }
+	@$(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-answer-prompt-assist 2>/dev/null \
+		| diff -q - <(sed -n '/^```text$$/,/^```$$/{//!p}' docs/prompts/ANSWER_SYSTEM_PROMPT_ASSIST.md) >/dev/null \
+		|| { echo "docs/prompts/ANSWER_SYSTEM_PROMPT_ASSIST.md güncel değil: make prompt-doc"; exit 1; }
 	@$(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-excel-prompts 2>/dev/null \
 		| diff -q - <(sed -n '/^```text$$/,/^```$$/{//!p}' docs/prompts/EXCEL_PROMPTS.md) >/dev/null \
 		|| { echo "docs/prompts/EXCEL_PROMPTS.md güncel değil: make prompt-doc"; exit 1; }
@@ -112,6 +119,10 @@ prompt-doc: env-check ## /api/ask sistem promptunu docs/prompts/ANSWER_SYSTEM_PR
 	   printf '%s\n\n' 'Kaynak: `backend/app/services/answer_prompt.py::SYSTEM_PROMPT`. Bu dosya yalnızca gözden geçirme kopyasıdır; `make lint` ikisinin aynı olduğunu doğrular. Değişiklik Python sabitinde yapılır, sonra `make prompt-doc` çalıştırılır.'; \
 	   echo '```text'; $(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-answer-prompt 2>/dev/null; echo '```'; } \
 	   > docs/prompts/ANSWER_SYSTEM_PROMPT.md && echo "yazıldı: docs/prompts/ANSWER_SYSTEM_PROMPT.md"
+	@{ printf '%s\n\n' '# Cevap sistem promptu — ASSIST_MODE=true sürümü (ADR-027)'; \
+	   printf '%s\n\n' 'Kaynak: `backend/app/services/answer_prompt.py::SYSTEM_PROMPT_ASSIST`. Yalnızca `ASSIST_MODE=true` iken yüklenir; 1–7 ve 9–10 numaralı kurallar `SYSTEM_PROMPT` ile birebir aynıdır, 8 sıkılaştırılmış, 11 yenidir. Gözden geçirme kopyası; `make lint` eşitliği denetler, değişiklik Python sabitinde yapılır.'; \
+	   echo '```text'; $(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-answer-prompt-assist 2>/dev/null; echo '```'; } \
+	   > docs/prompts/ANSWER_SYSTEM_PROMPT_ASSIST.md && echo "yazıldı: docs/prompts/ANSWER_SYSTEM_PROMPT_ASSIST.md"
 	@{ printf '%s\n\n' '# Excel plan + cevap promptları (Phase 4.2)'; \
 	   printf '%s\n\n' 'Kaynak: `backend/app/services/excel_ask.py::PLAN_SYSTEM_PROMPT` ve `ANSWER_SYSTEM_PROMPT`. Gözden geçirme kopyası; `make lint` eşitliği denetler, değişiklik Python sabitinde yapılır.'; \
 	   echo '```text'; $(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-excel-prompts 2>/dev/null; echo '```'; } \

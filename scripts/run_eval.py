@@ -29,7 +29,11 @@ from app.core.request_id import REQUEST_ID_HEADER
 from app.models.document import Document
 from app.models.document_chunk import DocumentChunk
 from app.repositories import audit_log_repo, user_repo
+from app.repositories.document_repo import SqlDocumentIdsProvider
+from app.schemas.authorization import AuthorizationScope
 from app.schemas.retrieval import RetrievalFilters
+from app.services import temporal
+from app.services.authorization import allowed_document_ids
 from app.services.retrieval import retrieve
 from app.services.search_query import build_search_query
 from scripts import eval_lib
@@ -107,6 +111,13 @@ def ask_with_retry(
                 tokens_out=data["tokens_out"],
                 latency_ms=latency_ms,
                 request_id=response.headers.get(REQUEST_ID_HEADER),
+                cited_pages=tuple(
+                    (str(s["document_id"]), int(s["page_number"])) for s in data["sources"]
+                ),
+                assist=data.get("assist"),
+                retrieved_document_ids=tuple(
+                    str(i) for i in data.get("retrieved_document_ids", [])
+                ),
             )
         if response is not None and response.status_code != _RETRYABLE_STATUS:
             # Not a rate-limit/availability issue (e.g. 401/422) — retrying won't help.
@@ -124,6 +135,59 @@ def ask_with_retry(
             extra={"attempt": attempt, "delay_s": delay, "error": transport_error or "http 503"},
         )
         time.sleep(delay)
+
+
+class SafetyIndex:
+    """ADR-027: what the G1–G3 invariants compare against, read once from the live DB (the
+    eval runs inside the backend container). Visibility per demo user comes from the real
+    gate (`allowed_document_ids`, ADR-004), never from a copy of its rules."""
+
+    def __init__(self) -> None:
+        settings = get_settings()
+        self._today = temporal.today(settings)
+        with get_session_factory()() as session:
+            rows = session.execute(
+                select(DocumentChunk.document_id, DocumentChunk.page_number, DocumentChunk.text)
+            ).all()
+            self._page_text = {(str(d), int(p)): t for d, p, t in rows}
+            documents = list(session.scalars(select(Document)).all())
+            self._header = {
+                str(d.id): " ".join(
+                    part
+                    for part in (
+                        d.title,
+                        d.document_type,
+                        d.counterparty,
+                        f"Tarih: {d.document_date:%d.%m.%Y}",
+                        f"Yürürlük: {d.effective_date:%d.%m.%Y}" if d.effective_date else "",
+                        f"Versiyon: {d.version}",
+                        temporal.expiration_note(d, self._today) or "",
+                    )
+                    if part
+                )
+                for d in documents
+            }
+            self._visible: dict[str, frozenset[str]] = {}
+            for username in ("admin", "yonetim", "finans", "hukuk", "enerji"):
+                user = user_repo.get_by_username(session, username)
+                ids = (
+                    allowed_document_ids(
+                        user, AuthorizationScope(), SqlDocumentIdsProvider(session)
+                    )
+                    if user is not None
+                    else set()
+                )
+                self._visible[username] = frozenset(str(i) for i in ids)
+
+    def context(self, ask_as_user: str, outcome: AskOutcome) -> eval_lib.SafetyContext:
+        parts = [f"BUGÜN: {self._today:%d.%m.%Y}"]
+        for document_id, page in outcome.cited_pages:
+            parts.append(self._header.get(document_id, ""))
+            parts.append(self._page_text.get((document_id, page), ""))
+        return eval_lib.SafetyContext(
+            grounding_text=" ".join(parts),
+            visible_document_ids=self._visible.get(ask_as_user, frozenset()),
+        )
 
 
 def _majority_model(results: list[QuestionResult]) -> str | None:
@@ -304,6 +368,7 @@ def main(argv: list[str] | None = None) -> int:
         return sessions[user]
 
     rate_limiter = RateLimiter(args.min_interval_s)
+    safety_index = SafetyIndex()
     results: list[QuestionResult] = []
     consecutive_errors = 0
     partial = False
@@ -321,7 +386,12 @@ def main(argv: list[str] | None = None) -> int:
                 max_retries=args.max_retries,
                 retry_base_delay_s=args.retry_base_delay_s,
             )
-            result = eval_lib.score_question(question, expected, catalog, outcome)
+            safety = (
+                safety_index.context(question.ask_as_user, outcome)
+                if outcome.error is None
+                else None
+            )
+            result = eval_lib.score_question(question, expected, catalog, outcome, safety)
             results.append(result)
 
             if outcome.error is not None:
@@ -374,6 +444,8 @@ def run_consistency(
     retrieval miss (target page not in prompt) and a model refusal (target page in prompt,
     still "bilgi bulamadım") are counted separately (plan §1)."""
     targets_index = _Targets(args, raws)
+    safety_index = SafetyIndex()
+    catalog = eval_lib.build_document_catalog(args.manifest)
     password = settings.demo_user_password.get_secret_value()
     sessions: dict[str, EvalSession] = {}
     rate_limiter = RateLimiter(args.min_interval_s)
@@ -406,6 +478,13 @@ def run_consistency(
                     question.required_phrases or question.forbidden_phrases
                 ):
                     phrase_ok = eval_lib.phrase_check_passes(question, outcome.answer_text)[0]
+                safety_ok: bool | None = None
+                assist_ok: bool | None = None
+                if outcome.error is None:
+                    ctx = safety_index.context(question.ask_as_user, outcome)
+                    safety_ok = not eval_lib.safety_checks(question, outcome, catalog, ctx)
+                    status, _ = eval_lib.assist_check(question, outcome)
+                    assist_ok = None if status == "skipped" else status == "pass"
                 outcomes.append(
                     RepeatOutcome(
                         id=question.id,
@@ -417,6 +496,8 @@ def run_consistency(
                         value_ok=value_ok,
                         error=outcome.error,
                         phrase_ok=phrase_ok,
+                        safety_ok=safety_ok,
+                        assist_ok=assist_ok,
                     )
                 )
     finally:

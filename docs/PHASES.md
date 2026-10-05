@@ -379,3 +379,20 @@ yazıldı (`tag: AI_ASSUMPTION`, `note` alanında onay kaydı); `validate-ledger
 güncellendi (reseed gerekmedi, diğer 74 belge dokunulmadı); canlı doğrulama (`yonetim`, 2 LLM çağrısı): "Ankara
 RES sigorta poliçesi bitmiş mi?" → "09.01.2025 tarihinde sona ermiştir" + doğru kaynaklar. Plan
 `docs/plans/TARIH_SAAT_PLAN.md`, rapor `docs/reports/TARIH_SAAT_REPORT.md` (§9).
+
+**Balbal davranış mantalitesi — Tansu Not 2 (05.10.2026, ADR-027, dal `feat/davranis-mantalitesi`, etiket
+`pre-assist-mode`; `main`'e HENÜZ birleştirilmedi):** `ASSIST_MODE` bayrağı (varsayılan kapalı = bugünkü davranış
+byte-identik; geri alma `.env` + `make restart-backend`). Açıkken cevap verilemeyen soruda sabit cümle `answer`'da
+aynen kalır, yanına kodla üretilen `assist` bloğu gelir: eşleşmeyen terimler (yetkili belgelerde LIMIT-1 FTS sondası),
+glossary'den yetkili belgelerde doğrulanmış aday terimler, "elimde şunlar var" (sıfır parçada metadata eşleşmesi,
+yetersiz veride `retrieved_document_ids`'ten en iyi sayfa), tek netleştirme sorusu (sıfır parçada sabit şablon —
+LLM yine çağrılmaz, ADR-021; yetersiz veride modelin `SORU:` satırı, rakam/tarih/para ve yetkisiz başlık denetiminden
+geçmezse düşer). `AskWarning.kind` ve Ç-7 durumları değişmedi. Prompt'un bayraklı sürümü (`SYSTEM_PROMPT_ASSIST`):
+rule 8 "Süre:" satırını kelimesi kelimesine kopyala, rule 11 tek soru; 1–7/9–10 aynı; örnek yok.
+`audit_log.assist` (migration 0015). **Eval:** G1–G3 güvenlik değişmezleri (uydurma sayı/tarih yok — yazım
+normalizasyonlu; kaynaksız cevap yok; yetkisiz/yanlış proje/yasak belge önerisi yok) her soruda %100 kapı;
+`ambiguous`/`term_mismatch` kategorileri (≥%80) + `expect_assist`; `questions.json` v5 = 64 + 11 **TASLAK** soru
+(Naci onayı bekliyor — canlı R0–R2 ölçümü onaydan sonra). Aynı turda bulunan hata: `DEMO_MODE`/`ASSIST_MODE` env
+adları pydantic-settings tarafından okunmuyordu (alan adı `*_ENABLED` bekleniyordu) — alias ile düzeltildi, test
+eklendi. `partial` (kısmi cevap) Tansu Not 8 gelene kadar ertelendi; Not 7 kapsam dışı. Plan
+`docs/plans/DAVRANIS_MANTALITESI_PLAN.md`, rapor `docs/reports/DAVRANIS_MANTALITESI_REPORT.md`.

@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "demo_today": "2026-09-15",
   "questions": [
     {
@@ -1192,6 +1192,187 @@
         "daha sonra",
         "daha erken",
         "daha geç"
+      ]
+    },
+    {
+      "id": "GEN-AMB-001",
+      "category": "ambiguous",
+      "question": "Sözleşmenin vadesi ne zaman doluyor?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": null,
+      "required_sources": [],
+      "forbidden_sources": [],
+      "ask_as_user": "yonetim",
+      "expect_no_answer": true,
+      "notes": "TASLAK (Naci onayı bekliyor). Hangi sözleşme belli değil; birden çok sözleşme/kredi var. Beklenen: sabit cümle + clarify.",
+      "expect_assist": "clarify"
+    },
+    {
+      "id": "GEN-AMB-002",
+      "category": "ambiguous",
+      "question": "Raporda belirtilen DSCR değeri kaç?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": "finans",
+      "required_sources": [],
+      "forbidden_sources": [],
+      "ask_as_user": "finans",
+      "expect_no_answer": true,
+      "notes": "TASLAK. Hangi rapor/dönem belli değil (covenant raporları çeyrek bazlı). Model tek bir çeyreği seçip cevaplarsa 'answered' → kategori düşer; bu kasıtlı bir ölçüm.",
+      "expect_assist": "clarify"
+    },
+    {
+      "id": "GEN-AMB-003",
+      "category": "ambiguous",
+      "question": "Son tadil neyi değiştirdi?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": null,
+      "required_sources": [],
+      "forbidden_sources": [],
+      "ask_as_user": "yonetim",
+      "expect_no_answer": true,
+      "notes": "TASLAK. İki ayrı tadil zinciri var (kredi sözleşmesi tadilleri, lisans tadili); 'son tadil' hangisi belirsiz.",
+      "expect_assist": "clarify"
+    },
+    {
+      "id": "GEN-AMB-004",
+      "category": "ambiguous",
+      "question": "Lisans ne zaman alındı?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": "enerji_grubu",
+      "required_sources": [],
+      "forbidden_sources": [],
+      "ask_as_user": "enerji",
+      "expect_no_answer": true,
+      "notes": "TASLAK. Ankara üretim lisansı mı, İzmir önlisansı mı belirsiz; proje adı yok.",
+      "expect_assist": "clarify"
+    },
+    {
+      "id": "GEN-AMB-005",
+      "category": "ambiguous",
+      "question": "Toplantıda ne karar alındı?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": null,
+      "required_sources": [],
+      "forbidden_sources": [],
+      "ask_as_user": "yonetim",
+      "expect_no_answer": true,
+      "notes": "TASLAK. Hangi toplantı/karar belirsiz (yönetim kurulu ve pay sahipleri kararları var).",
+      "expect_assist": "clarify"
+    },
+    {
+      "id": "GEN-TRM-001",
+      "category": "term_mismatch",
+      "question": "Ankara RES sigorta primi ne kadar?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": true,
+      "notes": "TASLAK. 'prim' belgelerde geçmiyor; sigorta belgeleri var → unmatched ['primi'] + available sigorta belgeleri. Rakam uydurulmamalı.",
+      "expect_assist": "term_mismatch"
+    },
+    {
+      "id": "GEN-TRM-002",
+      "category": "term_mismatch",
+      "question": "İzmir RES türbin tedarikçisi kim?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "İzmir RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [],
+      "forbidden_sources": [
+        "Ankara RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": true,
+      "notes": "TASLAK. İzmir'de türbin tedarikçisi yok (development); Ankara'nın tedarikçisi aktarılmamalı (izolasyon G3).",
+      "expect_assist": "term_mismatch"
+    },
+    {
+      "id": "GEN-TRM-003",
+      "category": "term_mismatch",
+      "question": "Ankara RES kredisinin spread'i kaç baz puan?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": true,
+      "notes": "TASLAK. Belgeler 'margin' der; 'spread' geçmez. Modelin spread=margin diye marjı cevaplaması bu kategoride 'answered' sayılır → kasıtlı ölçüm (Not 2: karşılık öner, varsayıp cevaplama).",
+      "expect_assist": "term_mismatch"
+    },
+    {
+      "id": "GEN-TRM-004",
+      "category": "term_mismatch",
+      "question": "Ankara RES EPC sözleşmesinde cezai şart tutarı nedir?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": true,
+      "notes": "TASLAK. 'cezai şart' Türkçe karşılığı EPC belgesinde (İngilizce) geçmez; EPC belgeleri available olmalı, tutar uydurulmamalı.",
+      "expect_assist": "term_mismatch"
+    },
+    {
+      "id": "GEN-TRM-005",
+      "category": "term_mismatch",
+      "question": "Ankara RES santralinin emre amadelik bedeli nedir?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": true,
+      "notes": "TASLAK. Belgeler 'kullanılabilirlik/availability' der; 'emre amadelik' geçmez, 'bedel' diye bir değer yok.",
+      "expect_assist": "term_mismatch"
+    },
+    {
+      "id": "ANK-OPS-004",
+      "category": "temporal",
+      "question": "Ankara RES sigorta poliçesi bitmiş mi?",
+      "expected_answer": "ledger:ankara_res.documents[36].expiration_date.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Sigorta Yenileme Bildirimi — İşletme Dönemi"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "TASLAK. ADR-026/027: kodun ürettiği 'Süre:' satırı birebir aktarılmalı (rule 8 sıkılaştırması). Değer ledger documents[36] = DOC-ANK-OPS-009 expiration_date.",
+      "required_phrases": [
+        "09.01.2025 tarihinde sona erdi"
       ]
     }
   ]

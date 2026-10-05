@@ -46,6 +46,7 @@ from app.schemas.ask import (
 from app.schemas.excel import NO_INTERPRETATION_NOTICE as EXCEL_NOTICE
 from app.schemas.excel import ExcelAskRequest, ExcelSourceCard
 from app.services.ask import answer_question
+from app.services.assist import Assist
 from app.services.audit_writer import write_audit_row
 from app.services.excel_ask import answer_data_question, excel_document_ids
 from app.services.llm import LLMClient, LLMError
@@ -87,6 +88,8 @@ class RoutedAnswer:
     product_level: ProductLevel = "P1"
     warnings: list[AskWarning] = field(default_factory=list)
     audit_log_id: UUID | None = None
+    # ADR-027: the document pipeline's assist block (None when off / answered / DATA-only).
+    assist: Assist | None = None
 
 
 def merge_mixed_answer(document_answer: str, data_answer: str) -> str:
@@ -200,6 +203,7 @@ def _run(
         tokens_out=(doc.tokens_out if doc else 0) + (data.tokens_out if data else 0),
         product_level=PRODUCT_LEVEL_BY_TYPE[query_type],
         warnings=warnings + no_answer,
+        assist=doc.assist if (doc is not None and not answered) else None,
     )
 
 
@@ -285,6 +289,7 @@ def answer_routed_question(
         error=None,
         product_level=result.product_level,
         warnings=result.warnings,
+        assist=result.assist,
     )
     return RoutedAnswer(
         query_type=result.query_type,
@@ -301,4 +306,5 @@ def answer_routed_question(
         product_level=result.product_level,
         warnings=result.warnings,
         audit_log_id=audit_log_id,
+        assist=result.assist,
     )

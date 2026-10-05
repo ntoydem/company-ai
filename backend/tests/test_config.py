@@ -49,14 +49,18 @@ def test_demo_mode_defaults_on_with_istanbul_as_the_real_calendar_timezone(
     never need a second change to go live."""
     assert settings.demo_mode_enabled is True
     assert settings.company_timezone == "Europe/Istanbul"
+    assert settings.assist_mode_enabled is False  # ADR-027 default: today's behaviour
 
 
-def test_documented_demo_mode_env_name_is_honoured(monkeypatch: pytest.MonkeyPatch) -> None:
-    """`.env.example` says `DEMO_MODE=false` is the rollback switch — without the alias
-    pydantic-settings looked for DEMO_MODE_ENABLED and silently kept the demo default
-    (found live on 05.10.2026 during the ADR-027 rollback rehearsal)."""
+def test_documented_env_switch_names_are_honoured(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The `.env.example` names (`DEMO_MODE`, `ASSIST_MODE`) must be the ones read — found
+    live on 05.10.2026: without the aliases pydantic-settings looked for *_ENABLED and
+    silently kept the defaults, so the documented rollback switch did nothing."""
     monkeypatch.setenv("DEMO_MODE", "false")
-    assert Settings(_env_file=None).demo_mode_enabled is False  # type: ignore[call-arg]
+    monkeypatch.setenv("ASSIST_MODE", "true")
+    settings = Settings(_env_file=None)  # type: ignore[call-arg]
+    assert settings.demo_mode_enabled is False
+    assert settings.assist_mode_enabled is True
+    monkeypatch.setenv("DEMO_MODE_ENABLED", "true")
     monkeypatch.delenv("DEMO_MODE")
-    monkeypatch.setenv("DEMO_MODE_ENABLED", "false")
-    assert Settings(_env_file=None).demo_mode_enabled is False  # type: ignore[call-arg]
+    assert Settings(_env_file=None).demo_mode_enabled is True  # type: ignore[call-arg]

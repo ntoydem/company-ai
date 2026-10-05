@@ -13,6 +13,7 @@ from app.excel.calc import CalculationEngine
 from app.models.user import User
 from app.schemas.ask import AskRequest, AskResponse
 from app.services.ask_router import answer_routed_question
+from app.services.assist import assist_block
 from app.services.llm import LLMClient
 from app.services.router import Router
 
@@ -46,4 +47,5 @@ def ask(
         audit_log_id=result.audit_log_id,
         product_level=result.product_level,
         warnings=result.warnings,
+        assist=assist_block(result.assist),
     )

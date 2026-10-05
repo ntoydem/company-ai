@@ -61,6 +61,37 @@ def product_limit_warning() -> AskWarning:
     return AskWarning(kind="product_limit", message=PRODUCT_LIMIT_WARNING)
 
 
+class AssistAvailableDocument(BaseModel):
+    """One "elimde şunlar var" entry (ADR-027): an allowed document the question touched —
+    built by code from `retrieved_document_ids` / the user's own metadata matches, never
+    from the model's text. Organisational info only; access still goes through the gate."""
+
+    model_config = ConfigDict(frozen=True)
+
+    document_id: UUID
+    title: str
+    document_type: str
+    document_date: date
+    project_code: str | None = None
+    page_number: int | None = None
+
+
+class AssistBlock(BaseModel):
+    """ADR-027 (Tansu Not 2): help shown *next to* the fixed no-answer sentence, which stays
+    the verdict (ADR-014). Everything here is code-generated except `question`, which may be
+    the model's one clarifying line — kept only after code validation (no digits, dates,
+    currency; no document outside the allowed set), else a fixed template. `None` on the
+    wire while ASSIST_MODE is off (today's default) and on every answered reply."""
+
+    model_config = ConfigDict(frozen=True)
+
+    kind: Literal["none", "clarify", "term_mismatch"]
+    question: str | None = None
+    unmatched_terms: list[str] = Field(default_factory=list)
+    candidate_terms: list[str] = Field(default_factory=list)
+    available: list[AssistAvailableDocument] = Field(default_factory=list)
+
+
 class AskRequest(BaseModel):
     """`project_id` was removed 30.09.2026 (B-20/6, Aşama B): one conversation may span
     projects, the answer keeps them apart by citing sources. Pydantic's default
@@ -123,3 +154,5 @@ class AskResponse(BaseModel):
     audit_log_id: UUID | None = None
     product_level: ProductLevel = "P1"
     warnings: list[AskWarning] = Field(default_factory=list)
+    # ADR-027: additive; `None` unless ASSIST_MODE is on and the question was not answered.
+    assist: AssistBlock | None = None
