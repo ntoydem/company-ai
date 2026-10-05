@@ -5,12 +5,14 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import SecretStr
+from pydantic import AliasChoices, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore", populate_by_name=True
+    )
 
     app_name: str = "Company AI"
     app_env: Literal["dev", "prod"] = "dev"
@@ -23,7 +25,11 @@ class Settings(BaseSettings):
     # All "current / historical / which operating year" logic is relative to this date.
     # Code never reads `demo_today`/`company_timezone` directly (ADR-026) — only
     # `app.services.temporal.today(settings)` does; everywhere else goes through it.
-    demo_mode_enabled: bool = True
+    # The env name is the documented switch (`DEMO_MODE`), not the field name — pydantic-settings
+    # would otherwise look for DEMO_MODE_ENABLED and silently keep the default (found 05.10.2026).
+    demo_mode_enabled: bool = Field(
+        default=True, validation_alias=AliasChoices("DEMO_MODE", "DEMO_MODE_ENABLED")
+    )
     demo_today: date = date(2026, 9, 15)
     # Used only when `demo_mode_enabled` is False: the customer's own calendar day,
     # not the container's UTC clock (ADR-026).

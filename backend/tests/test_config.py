@@ -49,3 +49,14 @@ def test_demo_mode_defaults_on_with_istanbul_as_the_real_calendar_timezone(
     never need a second change to go live."""
     assert settings.demo_mode_enabled is True
     assert settings.company_timezone == "Europe/Istanbul"
+
+
+def test_documented_demo_mode_env_name_is_honoured(monkeypatch: pytest.MonkeyPatch) -> None:
+    """`.env.example` says `DEMO_MODE=false` is the rollback switch — without the alias
+    pydantic-settings looked for DEMO_MODE_ENABLED and silently kept the demo default
+    (found live on 05.10.2026 during the ADR-027 rollback rehearsal)."""
+    monkeypatch.setenv("DEMO_MODE", "false")
+    assert Settings(_env_file=None).demo_mode_enabled is False  # type: ignore[call-arg]
+    monkeypatch.delenv("DEMO_MODE")
+    monkeypatch.setenv("DEMO_MODE_ENABLED", "false")
+    assert Settings(_env_file=None).demo_mode_enabled is False  # type: ignore[call-arg]
