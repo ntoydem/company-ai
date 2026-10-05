@@ -1,6 +1,6 @@
 # Tarih/saat Raporu — demo takvimi vs gerçek takvim, tarih hesabının koda taşınması
 
-**Tarih:** 05.10.2026  **Model:** Claude Sonnet 5  **Tag:** yok (düz commit + PHASES.md notu)  **Commit:** bu rapor ile aynı commit
+**Tarih:** 05.10.2026  **Model:** Claude Sonnet 5  **Tag:** yok (düz commit + PHASES.md notu)  **Commit:** `012dfda`
 **Plan:** `docs/plans/TARIH_SAAT_PLAN.md` · **ADR:** **ADR-026** (yeni) · **Kapsam:** backend + ledger (B-28b'den bağımsız, cross-cutting) + AI-BalBal küçük bir PR ("Bugün" rozeti)
 
 Naci'nin SORU cevapları (05.10.2026, planın önerisiyle aynı yönde): (1) `DOC-ANK-OPS-009`'a `expiration_date` eklensin, "yenileme eksik, süresi dolmuş" kurgusu — **tarih yazılmadı**, 2-3 aday §6'da sunuluyor, onay bekliyor; (2) sistem-olgusu soruları yalnızca (a) frontend rozeti, backend kısa devresi (b) **yok**; (3) `company_timezone` varsayılanı `Europe/Istanbul`; (4) diğer üç aday (EPC-007, DEV-001, İzmir DEV-001) bu turda eklenmedi.
