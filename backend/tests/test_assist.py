@@ -18,6 +18,7 @@ from app.services import retrieval as retrieval_module
 from app.services.answer_prompt import NO_ANSWER_TEXT, SYSTEM_PROMPT, SYSTEM_PROMPT_ASSIST
 from app.services.assist import (
     CLARIFY_TEMPLATE,
+    mismatch_terms,
     split_question_line,
     term_mismatch_template,
     validate_question,
@@ -47,6 +48,25 @@ def test_question_terms_drop_stopwords_and_suffixes() -> None:
     ]
     assert question_terms("prim ne kadar?") == ["prim", "kadar"]
     assert question_terms("ne nedir mi?") == []
+
+
+def test_mismatch_terms_ignore_generic_glossary_known_and_short_words() -> None:
+    """A mismatch is a real word the corpus *and* the glossary lack: generic question words
+    ("zaman", "değeri"), glossary-known words ("vadesi" → tenor, "ihracat kredi kurumu" →
+    export credit agency) and three-letter tokens are not."""
+    terms = [
+        "Ankara",
+        "RES",
+        "kredisinin",
+        "vadesi",
+        "zaman",
+        "ihracat",
+        "kredi",
+        "kurumu",
+        "primi",
+    ]
+    assert mismatch_terms(terms, terms) == ["Ankara", "primi"]
+    assert mismatch_terms(["DSKO", "RES", "değeri"], ["DSKO", "RES", "değeri"]) == ["DSKO"]
 
 
 def test_split_question_line_separates_the_marker_line_only() -> None:
@@ -99,14 +119,23 @@ def test_zero_chunks_clarify_without_any_llm_call(
     assist_on: None,
 ) -> None:
     _document(db_session, title="Facility", department=None, text="DSCR covenant 1,25x")
-    body = _ask(client, "Bursa RES'in kapasitesi nedir?")
+    # "kapasite" is glossary-known (→ capacity) and "zaman" is a generic word: neither is a
+    # terminology mismatch, so the help is a clarifying question, not a "term not found".
+    body = _ask(client, "Kapasite ne zaman değişti?")
     assert fake_llm.requests == []  # ADR-021 holds with the flag on
     assert body["answered"] is False and body["answer"] == NO_ANSWER_TEXT
     assist = body["assist"]
     assert assist["kind"] == "clarify" and assist["question"] == CLARIFY_TEMPLATE
-    assert assist["available"] == [] and assist["candidate_terms"] == []
-    assert set(assist["unmatched_terms"]) == {"Bursa", "RES", "kapasitesi"}
+    assert assist["available"] == [] and assist["unmatched_terms"] == []
     assert (body["tokens_in"], body["tokens_out"], body["model"]) == (0, 0, None)
+
+    # An unknown word (not in the corpus, not in the glossary) is a term mismatch even with
+    # nothing else to show.
+    body = _ask(client, "Bursa RES DSKO kaç?")
+    assert fake_llm.requests == []
+    assert body["assist"]["kind"] == "term_mismatch"
+    assert body["assist"]["unmatched_terms"] == ["Bursa", "DSKO"]
+    assert body["assist"]["question"] == term_mismatch_template(["Bursa", "DSKO"])
 
 
 def test_zero_chunks_term_mismatch_lists_metadata_matches_from_allowed_documents(
@@ -123,8 +152,9 @@ def test_zero_chunks_term_mismatch_lists_metadata_matches_from_allowed_documents
     assert fake_llm.requests == []
     assist = body["assist"]
     assert assist["kind"] == "term_mismatch"
-    assert assist["unmatched_terms"] == ["Sigorta", "primi"]
-    assert assist["question"] == term_mismatch_template(["Sigorta", "primi"])
+    # "Sigorta" is in an allowed title → matched (metadata); only "primi" is unknown.
+    assert assist["unmatched_terms"] == ["primi"]
+    assert assist["question"] == term_mismatch_template(["primi"])
     assert [a["document_id"] for a in assist["available"]] == [str(doc.id)]
     assert assist["available"][0]["title"] == "Sigorta Yenileme Bildirimi"
 

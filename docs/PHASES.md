@@ -391,8 +391,9 @@ geçmezse düşer). `AskWarning.kind` ve Ç-7 durumları değişmedi. Prompt'un 
 rule 8 "Süre:" satırını kelimesi kelimesine kopyala, rule 11 tek soru; 1–7/9–10 aynı; örnek yok.
 `audit_log.assist` (migration 0015). **Eval:** G1–G3 güvenlik değişmezleri (uydurma sayı/tarih yok — yazım
 normalizasyonlu; kaynaksız cevap yok; yetkisiz/yanlış proje/yasak belge önerisi yok) her soruda %100 kapı;
-`ambiguous`/`term_mismatch` kategorileri (≥%80) + `expect_assist`; `questions.json` v5 = 64 + 11 **TASLAK** soru
-(Naci onayı bekliyor — canlı R0–R2 ölçümü onaydan sonra). Aynı turda bulunan hata: `DEMO_MODE`/`ASSIST_MODE` env
-adları pydantic-settings tarafından okunmuyordu (alan adı `*_ENABLED` bekleniyordu) — alias ile düzeltildi, test
-eklendi. `partial` (kısmi cevap) Tansu Not 8 gelene kadar ertelendi; Not 7 kapsam dışı. Plan
+`ambiguous`/`term_mismatch` kategorileri (≥%80) + `expect_assist`; `questions.json` v5 = 64 + 12 **TASLAK** soru
+(5 belirsiz, 4 terim uyuşmazlığı, 1 rule 8, 2 negatif kontrol — Naci onayı bekliyor; LLM'siz kuru koşu yapıldı,
+rapor §8). Aynı turda bulunan hata: `DEMO_MODE`/`ASSIST_MODE` env adları pydantic-settings tarafından okunmuyordu
+(alan adı `*_ENABLED` bekleniyordu) — alias ile düzeltildi, test eklendi; `DEMO_MODE` kısmı `main`'e tek dosyalık
+hotfix olarak alındı (`65c4ed9`). `partial` (kısmi cevap) Tansu Not 8 gelene kadar ertelendi; Not 7 kapsam dışı. Plan
 `docs/plans/DAVRANIS_MANTALITESI_PLAN.md`, rapor `docs/reports/DAVRANIS_MANTALITESI_REPORT.md`.

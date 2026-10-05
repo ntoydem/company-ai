@@ -33,7 +33,7 @@ from app.models.document import Document
 from app.repositories import document_repo
 from app.repositories.document_chunk_repo import RetrievedChunk, search_fts
 from app.schemas.ask import AssistAvailableDocument, AssistBlock
-from app.services.search_glossary import expand_terms
+from app.services.search_glossary import GLOSSARY, expand_terms
 from app.services.search_query import question_terms, turkish_lower
 
 log = logging.getLogger(__name__)
@@ -49,6 +49,60 @@ MIN_PROBE_TERM_CHARS = 3
 # ≥ 4 characters ("RES" matches every project tag) and not matching more documents than
 # we would list (a term found in > MAX_AVAILABLE documents is a non-term for this purpose).
 MIN_SPECIFIC_TERM_CHARS = 4
+
+# Words that stay in a question after the retrieval stopwords but carry no subject of
+# their own ("zaman", "doluyor", "değeri"): their absence from the corpus says nothing
+# about a terminology mismatch. Assist-side only — retrieval's query is untouched.
+GENERIC_TERMS = frozenset(
+    {
+        "alındı",
+        "alınmış",
+        "bedel",
+        "bedeli",
+        "belirtilen",
+        "belirtilmiş",
+        "bitmiş",
+        "bitti",
+        "bugün",
+        "bunun",
+        "değer",
+        "değeri",
+        "değişti",
+        "değiştirdi",
+        "dolar",
+        "doldu",
+        "dolmuş",
+        "doluyor",
+        "güncel",
+        "ilk",
+        "kadar",
+        "kaçtı",
+        "kimdir",
+        "kurum",
+        "kurumu",
+        "kurumun",
+        "neye",
+        "neyi",
+        "son",
+        "sonra",
+        "toplam",
+        "tutar",
+        "tutarı",
+        "verildi",
+        "yapıldı",
+        "yıl",
+        "yıllık",
+        "zaman",
+        "önce",
+        "önceki",
+        "şimdi",
+        "şu",
+    }
+)
+# A matched term is "specific" (it can vouch for an "elimde şunlar var" entry) only if it
+# occurs in a modest share of the user's documents — "Ankara" is in most of them.
+SPECIFIC_MAX_DOC_SHARE = 0.25
+SPECIFIC_MAX_DOCS = 10
 
 QUESTION_MARKER = "SORU:"
 CLARIFY_TEMPLATE = "Hangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?"
@@ -103,15 +157,82 @@ def _available_card(document: Document, page_number: int | None) -> AvailableDoc
 
 
 def unmatched_terms(session: Session, allowed: set[UUID], terms: list[str]) -> list[str]:
-    """Question terms that match no chunk the user may see — one LIMIT-1 FTS probe each."""
+    """Question terms found nowhere the user may see — neither in a chunk (one LIMIT-1 FTS
+    probe) nor in a title/type/tag (`search_metadata`)."""
     if not allowed:
         return []
     out: list[str] = []
     for term in terms:
         if len(term) < MIN_PROBE_TERM_CHARS:
             continue
-        if not search_fts(session, allowed_ids=allowed, query=term, top_k=1):
-            out.append(term)
+        if search_fts(session, allowed_ids=allowed, query=term, top_k=1):
+            continue
+        if len(term) >= MIN_SPECIFIC_TERM_CHARS and document_repo.search_metadata(
+            session, allowed, term, limit=1
+        ):
+            continue
+        out.append(term)
+    return out
+
+
+def _glossary_known(lowered_terms: list[str]) -> set[str]:
+    """Lower-cased question tokens covered by a glossary key — single-word keys by prefix
+    ("vadesi" ← "vade"), multi-word keys ("ihracat kredi") by every word they contain."""
+    joined = " ".join(lowered_terms)
+    known: set[str] = set()
+    for key in GLOSSARY:
+        if " " in key:
+            if key in joined:
+                known.update(t for t in lowered_terms if any(t.startswith(w) for w in key.split()))
+        else:
+            known.update(t for t in lowered_terms if t.startswith(key))
+    return known
+
+
+def mismatch_terms(unmatched: list[str], all_terms: list[str] | None = None) -> list[str]:
+    """The unmatched terms that *are* a terminology mismatch: at least four characters, not
+    a generic question word, and unknown to the glossary — a glossary-known word ("vade" →
+    tenor) was already expanded into the retrieval query, so its equivalents either exist
+    (then the question is answerable) or do not (then nothing is missing but the fact)."""
+    lowered_all = [turkish_lower(t) for t in (all_terms or unmatched)]
+    known = _glossary_known(lowered_all)
+    return [
+        t
+        for t in unmatched
+        if len(t) >= MIN_SPECIFIC_TERM_CHARS
+        and turkish_lower(t) not in GENERIC_TERMS
+        and turkish_lower(t) not in known
+    ]
+
+
+def _can_be_specific(term: str) -> bool:
+    """Four characters, or a three-letter upper-case acronym (EPC, COD, ECA); "RES" passes
+    this test but fails the document-share cut, which is the point of having both."""
+    return len(term) >= MIN_SPECIFIC_TERM_CHARS or (len(term) == 3 and term.isupper())
+
+
+def specific_matched_terms(
+    session: Session, allowed: set[UUID], terms: list[str], unmatched: list[str]
+) -> dict[str, set[UUID]]:
+    """Matched terms that single documents out, with the documents they occur in. A term
+    present in more than SPECIFIC_MAX_DOCS / SPECIFIC_MAX_DOC_SHARE of the allowed set
+    ("Ankara", "RES") cannot vouch for an "elimde şunlar var" entry."""
+    if not allowed:
+        return {}
+    limit = max(SPECIFIC_MAX_DOCS, int(len(allowed) * SPECIFIC_MAX_DOC_SHARE))
+    out: dict[str, set[UUID]] = {}
+    for term in terms:
+        if not _can_be_specific(term) or term in unmatched:
+            continue
+        if turkish_lower(term) in GENERIC_TERMS:
+            continue
+        docs = {
+            c.document_id for c in search_fts(session, allowed_ids=allowed, query=term, top_k=400)
+        }
+        for document in document_repo.search_metadata(session, allowed, term, limit=limit + 1):
+            docs.add(document.id)
+        if 0 < len(docs) <= limit:
+            out[term] = docs
     return out
 
 
@@ -215,26 +336,25 @@ def validate_question(
 # ---------------------------------------------------------------- assembly
 
 
-def _kind_for(
-    unmatched: list[str], candidates: list[str], available: list[AvailableDocument]
-) -> AssistKind:
-    if unmatched and (candidates or available):
-        return "term_mismatch"
-    return "clarify"
+def _kind_for(mismatched: list[str]) -> AssistKind:
+    """`term_mismatch` when the question uses a word the corpus and the glossary both lack;
+    otherwise `clarify` (every word is known, the question still could not be answered)."""
+    return "term_mismatch" if mismatched else "clarify"
 
 
 def build_zero_chunk_assist(session: Session, allowed: set[UUID], question: str) -> Assist:
     """Nothing retrieved: no LLM (ADR-021). Everything here is a lookup inside `allowed`."""
     terms = question_terms(question)
     unmatched = unmatched_terms(session, allowed, terms)
+    mismatched = mismatch_terms(unmatched, terms)
     candidates = candidate_terms(session, allowed, unmatched)
     available = available_from_metadata(session, allowed, terms)
-    kind = _kind_for(unmatched, candidates, available)
-    text = term_mismatch_template(unmatched) if kind == "term_mismatch" else CLARIFY_TEMPLATE
+    kind = _kind_for(mismatched)
+    text = term_mismatch_template(mismatched) if kind == "term_mismatch" else CLARIFY_TEMPLATE
     return Assist(
         kind=kind,
         question=text,
-        unmatched_terms=tuple(unmatched),
+        unmatched_terms=tuple(mismatched),
         candidate_terms=tuple(candidates),
         available=tuple(available),
     )
@@ -254,15 +374,15 @@ def build_insufficient_assist(
     `validate_question`; otherwise fall back to the fixed template."""
     terms = question_terms(question)
     unmatched = unmatched_terms(session, allowed, terms)
+    mismatched = mismatch_terms(unmatched, terms)
     candidates = candidate_terms(session, allowed, unmatched)
-    # "Elimde şunlar var" only when something specific in the question did match — if the
-    # retrieved pages came from short, generic tokens alone ("RES", "kaç"), listing them
-    # would suggest the corpus knows the subject when it does not.
-    specific_matched = [
-        t for t in terms if len(t) >= MIN_SPECIFIC_TERM_CHARS and t not in unmatched
-    ]
-    available = available_from_chunks(documents, chunks) if specific_matched else []
-    kind = _kind_for(unmatched, candidates, available)
+    # "Elimde şunlar var" = the retrieved documents that a *specific* question term vouches
+    # for. Pages pulled in by generic tokens alone ("Ankara", "RES", "kaç") are not listed:
+    # that would suggest the corpus knows the subject when it does not.
+    specific = specific_matched_terms(session, allowed, terms, unmatched)
+    vouched: set[UUID] = set().union(*specific.values()) if specific else set()
+    available = available_from_chunks(documents, [c for c in chunks if c.document_id in vouched])
+    kind = _kind_for(mismatched)
     kept: str | None = None
     reason: str | None = None
     if model_question is not None:
@@ -272,12 +392,12 @@ def build_insufficient_assist(
         if reason is not None:
             log.info("assist question dropped", extra={"reason": reason})
     text = kept or (
-        term_mismatch_template(unmatched) if kind == "term_mismatch" else CLARIFY_TEMPLATE
+        term_mismatch_template(mismatched) if kind == "term_mismatch" else CLARIFY_TEMPLATE
     )
     return Assist(
         kind=kind,
         question=text,
-        unmatched_terms=tuple(unmatched),
+        unmatched_terms=tuple(mismatched),
         candidate_terms=tuple(candidates),
         available=tuple(available),
         dropped_reason=reason,

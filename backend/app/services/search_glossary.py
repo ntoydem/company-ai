@@ -48,6 +48,7 @@ GLOSSARY: dict[str, tuple[str, ...]] = {
     "kurulu güç": ("capacity", "installed capacity", "MW"),
     "üretim": ("generation", "production", "output"),
     "lisans": ("licence", "license"),
+    "rapor": ("report",),
     "önlisans": ("pre-licence", "pre-license"),
     "yüklenici": ("contractor", "EPC"),
     "epc": ("epc", "contractor"),

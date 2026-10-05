@@ -53,8 +53,8 @@ def _question(**overrides: object) -> ls.Question:
 
 def test_load_questions_returns_the_committed_questions() -> None:
     question_set = load_questions()
-    # v5 (ADR-027): 64 + 5 ambiguous + 5 term_mismatch + 1 temporal (rule 8 verbatim copy)
-    assert len(question_set.questions) == 75
+    # v5 (ADR-027): 64 + 5 ambiguous + 4 term_mismatch + 1 temporal (rule 8) + 2 negative controls
+    assert len(question_set.questions) == 76
     assert question_set.version == 5
 
 

@@ -26,7 +26,7 @@ Naci'nin SORU cevapları (05.10.2026): (1) Not 7 kapsam dışı, varsayım yok; 
 
 ## 2. Yapılanlar
 
-- **`app/core/config.py`:** `assist_mode_enabled` (env `ASSIST_MODE`, varsayılan `False`). **Bulunan hata:** `DEMO_MODE` (ADR-026) ve `ASSIST_MODE` env adları pydantic-settings tarafından **okunmuyordu** — alan adından `*_ENABLED` türetiliyor, dokümante edilen anahtar sessizce yoksayılıyordu. `validation_alias=AliasChoices(...)` ile iki ad da çalışıyor; `populate_by_name=True`; regresyon testi `test_config.py::test_documented_env_switch_names_are_honoured`. Demo davranışı etkilenmemişti (varsayılan zaten demo takvimi); yalnızca geri alma anahtarı ölüydü. **`main`'de hâlâ ölü — bu dal birleşince düzelir ya da ayrı bir hotfix ister (§7).**
+- **`app/core/config.py`:** `assist_mode_enabled` (env `ASSIST_MODE`, varsayılan `False`). **Bulunan hata:** `DEMO_MODE` (ADR-026) ve `ASSIST_MODE` env adları pydantic-settings tarafından **okunmuyordu** — alan adından `*_ENABLED` türetiliyor, dokümante edilen anahtar sessizce yoksayılıyordu. `validation_alias=AliasChoices(...)` ile iki ad da çalışıyor; `populate_by_name=True`; regresyon testi `test_config.py::test_documented_env_switch_names_are_honoured`. Demo davranışı etkilenmemişti (varsayılan zaten demo takvimi); yalnızca geri alma anahtarı ölüydü. **`main`'e tek dosyalık hotfix olarak alındı (`65c4ed9`, §7).**
 - **`app/services/assist.py` (yeni):** `question_terms` (search_query'den ayrıştırıldı), `unmatched_terms` (yetkili belgelerde LIMIT-1 FTS sondası), `candidate_terms` (glossary → yetkili belgelerde doğrulanmış), `available_from_metadata` (≥ 4 karakter, > 5 belgeye uyan "genel" terim sayılmaz), `available_from_chunks` (belge başına en iyi sayfa, rank sırası, ≤ 5; yalnızca sorudaki ≥ 4 karakterlik bir terim gerçekten eşleştiyse — "RES"/"kaç" gibi kısa token'ların getirdiği sayfalar listelenmez), `split_question_line` / `validate_question` (`SORU:` satırı: tek cümle, `?`, ≤ 200, rakam/€/$/₺/% yok, yetkisiz başlık yok), `build_zero_chunk_assist` / `build_insufficient_assist`, `assist_block` / `assist_json`.
 - **`answer_prompt.py`:** `SYSTEM_PROMPT_ASSIST` = kural 1–7/9–10 aynı + **rule 8** sıkılaştırılmış ("Süre:" satırını değiştirmeden kopyala) + **rule 11** (tek `SORU:` satırı; rakam/tarih/isim yok; öneri değil). `system_prompt(assist)` bayrağa göre seçer. Prompt'ta örnek **yok**.
 - **`ask.py` / `ask_router.py` / `api/ask.py` / `schemas/ask.py`:** `AskResult.assist` → `RoutedAnswer.assist` → `AskResponse.assist: AssistBlock | None` (additive). Sıfır parçada bayrak açıkken `allowed` hesaplanır, assist kodla; LLM yolunda `SORU:` ayrılır, `is_no_answer` eskisi gibi kanonikleştirir, cevaplı yanıtta satır atılır. `warnings`/`AskWarning.kind` **değişmedi**.
@@ -41,7 +41,7 @@ Naci'nin SORU cevapları (05.10.2026): (1) Not 7 kapsam dışı, varsayım yok; 
 ## 3. Doğrulama
 
 - `make lint` (ruff, mypy 119 dosya, 4 prompt dokümanı diff'i, ledger/belge/Excel doğrulaması): **0 error(s)** — ruff/format temiz, mypy 119 dosya, `ANSWER_SYSTEM_PROMPT.md` + `ANSWER_SYSTEM_PROMPT_ASSIST.md` + Excel + router prompt dokümanları eşit, `validate_ledger`/`validate_documents --prose-only`/`validate_excel` 0 hata.
-- `make test` (tek başına, temiz koşu): **522 passed, 15 deselected, 10 dk 13 sn; ocr-worker 9 passed** (495 → 522: +27 yeni test — `test_assist.py` 9, `test_eval_lib.py` 5, `test_config.py` 1, `test_migrations.py` 1, ve mevcut dosyalardaki güncellemeler).
+- `make test` (tek başına, temiz koşu, kuru koşu düzeltmelerinden sonra): **523 passed, 15 deselected, 10 dk 45 sn; ocr-worker 9 passed** (495 → 523: +28 yeni test — `test_assist.py` 11, `test_eval_lib.py` 5, `test_config.py` 1, `test_migrations.py` 1, mevcut dosyalardaki güncellemeler).
 - `make validate-ledger`: **0 error(s), 0 warning(s)** (75 soru, Q7 dahil).
 - **Canlı geri alma provası (dev VM, `enerji`):** kapalı → `assist: null`. **İlk `ASSIST_MODE=true` denemesi: `assist` yine `null`** — env konteynere ulaşıyordu (`env` ile doğrulandı) ama `Settings` okumuyordu → alias hatası bulundu ve düzeltildi (§2). Düzeltmeden sonra: açık → "Sigorta primi nedir?" → `kind: term_mismatch`, `unmatched_terms: ["primi"]`, `available`: Sigorta Yenileme Bildirimi (s.2) + Construction All Risks Insurance Policy Summary …; "Bursa RES DSKO kaç?" → `unmatched: ["Bursa","DSKO"]`, ilk sürümde `available` "RES" tag'i yüzünden alakasız 5 belge listeledi → `available_from_chunks` yalnızca ≥ 4 karakterlik eşleşen terim varsa ve metadata eşleşmesi > 5 belgeyse sayılmaz kuralları eklendi (birim testli); kapalı → `assist: null`. `.env` **kapalı** bırakıldı. LLM: prova sırasında router + 2 cevap çağrısı (~5 çağrı) — "LLM'siz" dediğim prova router'ın her soruda çalıştığını unuttuğum için tam LLM'siz değildi; raporda düzelttim.
 
@@ -63,29 +63,71 @@ Sabit cümle `answer`'da ve `audit_log.answer`'da **aynen**; `is_no_answer` kano
 | `partial` şema/prompt'ta hiç yok (ileride additive) | Not 8 gelmeden sözleşme vaat etmemek |
 | Config alias düzeltmesi bu dalda | `main`'de ayrı hotfix Naci kararına (§7) |
 
-## 6. Onaya sunulan 11 taslak eval sorusu (canlı R0–R2 öncesi)
+## 6. Onaya sunulan 12 taslak eval sorusu (canlı R0–R2 öncesi) — Naci'nin 1. tur düzeltmeleriyle
 
-Hepsi `questions.json`'da `notes: "TASLAK …"` ile; onaylanmayan silinir/değişir. `expected_project` olmayanlar `yonetim`/`finans`/`enerji` ile sorulur.
+Hepsi `questions.json`'da `notes: "TASLAK …"` ile. Değişiklikler: **GEN-TRM-003 (spread/margin) çıkarıldı** — kuru koşu belgelerin "margin" kelimesini hiç kullanmadığını gösterdi ("baseline index plus 3.25%"), eş anlamlı kontrol olamaz; yerine **iki negatif kontrol** eklendi (glossary eş anlamlısıyla sorulan, belgede cevabı olan sorular: `expect_assist` yok, normal cevap beklenir).
 
 | ID | Kategori | Soru | Kullanıcı | Beklenti |
 |---|---|---|---|---|
-| GEN-AMB-001 | ambiguous | Sözleşmenin vadesi ne zaman doluyor? | yonetim | cevapsız + `clarify` (hangi sözleşme?) |
-| GEN-AMB-002 | ambiguous | Raporda belirtilen DSCR değeri kaç? | finans | cevapsız + `clarify` (hangi rapor/dönem?) — model tek çeyreği seçip cevaplarsa kategori düşer, kasıtlı ölçüm |
-| GEN-AMB-003 | ambiguous | Son tadil neyi değiştirdi? | yonetim | cevapsız + `clarify` (kredi tadilleri mi, lisans tadili mi?) |
-| GEN-AMB-004 | ambiguous | Lisans ne zaman alındı? | enerji | cevapsız + `clarify` (Ankara üretim lisansı / İzmir önlisansı) |
-| GEN-AMB-005 | ambiguous | Toplantıda ne karar alındı? | yonetim | cevapsız + `clarify` |
-| GEN-TRM-001 | term_mismatch | Ankara RES sigorta primi ne kadar? | enerji | cevapsız + `term_mismatch` (`primi` eşleşmez; sigorta belgeleri `available`); rakam yok |
-| GEN-TRM-002 | term_mismatch | İzmir RES türbin tedarikçisi kim? | enerji | cevapsız + `term_mismatch`; Ankara'nın tedarikçisi aktarılmaz (G3) |
-| GEN-TRM-003 | term_mismatch | Ankara RES kredisinin spread'i kaç baz puan? | finans | cevapsız + `term_mismatch` (belge "margin" der); model spread=margin diye cevaplarsa düşer — Not 2: karşılık öner, varsayıp cevaplama |
-| GEN-TRM-004 | term_mismatch | Ankara RES EPC sözleşmesinde cezai şart tutarı nedir? | enerji | cevapsız + `term_mismatch`; EPC belgeleri `available`, tutar uydurulmaz |
-| GEN-TRM-005 | term_mismatch | Ankara RES santralinin emre amadelik bedeli nedir? | enerji | cevapsız + `term_mismatch` (belge "kullanılabilirlik" der) |
-| ANK-OPS-004 | temporal | Ankara RES sigorta poliçesi bitmiş mi? | enerji | cevaplı; `required_phrases: ["09.01.2025 tarihinde sona erdi"]` (rule 8 birebir kopya, `--repeat 3`) |
+| GEN-AMB-001 | ambiguous | Sözleşmenin vadesi ne zaman doluyor? | yonetim | cevapsız + `clarify` |
+| GEN-AMB-002 | ambiguous | Raporda belirtilen DSCR değeri kaç? | finans | cevapsız + `clarify` (model tek çeyreği seçip cevaplarsa kategori düşer — kasıtlı ölçüm) |
+| GEN-AMB-003 | ambiguous | Son tadil neyi değiştirdi? | yonetim | cevapsız + `clarify` |
+| GEN-AMB-004 | ambiguous | Lisans ne zaman alındı? | enerji | cevapsız + `clarify` (available: İzmir Önlisans + Ankara Üretim Lisansı — belirsizliği gösterir) |
+| GEN-AMB-005 | ambiguous | Toplantıda ne karar alındı? | yonetim | cevapsız + `clarify` (7 karar/toplantı belgesi görünür — gerçekten belirsiz, §8-d) |
+| GEN-TRM-001 | term_mismatch | Ankara RES sigorta primi ne kadar? | enerji | cevapsız + `term_mismatch` (`primi`); available sigorta belgeleri |
+| GEN-TRM-002 | term_mismatch | İzmir RES türbin tedarikçisi kim? | enerji | cevapsız + `term_mismatch` (`tedarikçisi`); Ankara'nın tedarikçisi aktarılmaz (G3) |
+| GEN-TRM-004 | term_mismatch | Ankara RES EPC sözleşmesinde cezai şart tutarı nedir? | enerji | cevapsız + `term_mismatch` (`cezai`). **Dikkat (§8-b):** "liquidated damages" tek bir chunk'ta (EPC Change Order 01) geçiyor; model o parçayı okuyup tutarı alıntılı verirse bu *doğru* bir cevaptır ve soru yeniden sınıflanmalıdır — ölçüm karar verecek |
+| GEN-TRM-005 | term_mismatch | Ankara RES santralinin emre amadelik bedeli nedir? | enerji | cevapsız + `term_mismatch` (`santralinin`, `emre`, `amadelik`); available boş |
+| ANK-OPS-004 | temporal | Ankara RES sigorta poliçesi bitmiş mi? | enerji | cevaplı; `required_phrases: ["09.01.2025 tarihinde sona erdi"]` (rule 8 birebir kopya, ×3) |
+| **ANK-NEG-001** | document (negatif kontrol) | Ankara RES kredisinin vadesi kaç yıl? | finans | **cevaplı** (`tenor_years.current` = 14; "vade" → glossary → tenor, 4 chunk); `expect_assist` yok, gereksiz netleştirme olmamalı |
+| **ANK-NEG-002** | document (negatif kontrol) | Ankara RES finansmanında ihracat kredi kurumu kredisi ne kadar? | finans | **cevaplı** (`eca_debt` = 30.000.000 EUR; "ihracat kredi" → "export credit agency", 21 chunk); `expect_assist` yok |
 
-**Ölçüm planı (onaydan sonra):** önce günlük kota kontrolü (Gemini konsolu / tek deneme isteği); **R0** bayrak kapalı, 14 (%100 kategorileri) + 11 yeni = 25 soru × 1 → yalnızca G1–G3 raporlanır (yeni kategorilerde `assist_check` `skipped`); **R1** bayrak açık, 14 soru × 3 (`--repeat 3`, güvenlik + ifade); **R2** bayrak açık, 11 soru × 2 (ANK-OPS-004 × 3). Toplam ≤ ~100 `/api/ask` çağrısı (her biri router + cevap). Komut: `make eval MODEL=gemini-3.5-flash EVAL_ARGS="--ids <liste> [--repeat N]"`; bayrak `.env`'de açılır/kapanır + `make restart-backend`.
+**Ölçüm planı (onaydan sonra):** önce günlük kota kontrolü (tek deneme isteği + Gemini konsolu); **R0** bayrak kapalı, 14 (%100 kategorileri) + 12 yeni = 26 soru × 1 → yalnızca G1–G3 (yeni kategorilerde `assist_check` `skipped`); **R1** bayrak açık, 14 soru × 3 (`--repeat 3`); **R2** bayrak açık, 12 soru × 2 (ANK-OPS-004 × 3). R0 veya R1'de tek bir G1–G3 ihlalinde **dur ve raporla** (otomatik düzeltme/tekrar yok); R1 temizse R2; en fazla **bir** prompt revizyonu denemesi. Toplam ≤ ~105 `/api/ask` çağrısı (her biri router + cevap). Komut: `make eval MODEL=gemini-3.5-flash EVAL_ARGS="--ids <liste> [--repeat N]"`; bayrak `.env` + `make restart-backend`.
+
+## 8. LLM'siz kuru koşu (05.10.2026, dev korpusu, salt okunur)
+
+Script: `scratchpad/dry_run.py` (konteyner içinde, `allowed_document_ids` gerçek kapıdan, `retrieve()` gerçek retrieval, assist fonksiyonları kodla). **Hiç LLM çağrısı yok.**
+
+**a) Görünürlük** — her sorunun kullanıcısı beklenen belgeleri görüyor: `enerji` 36 belge görür, `DOC-ANK-OPS-009` ✅ (ANK-OPS-004 ve GEN-TRM-001), `DOC-ANK-EPC-007` ✅, `DOC-IZM-DEV-001` ✅; `finans` 16 belge, `DOC-ANK-FIN-004/005` ✅ (NEG-001/002); `yonetim` 75.
+
+**b) "Belgelerde yok" terimleri** (tüm korpus, ILIKE alt-dize + FTS):
+
+| Terim | Alt-dize chunk | FTS chunk | Not |
+|---|---|---|---|
+| prim / premium | 16 / 0 | 0 / 0 | alt-dize eşleşmeleri başka kelimelerin içinde; kelime olarak yok ✅ |
+| cezai / ceza / penalty | 0 | 0 | yok ✅ |
+| **liquidated damages** | **1** | **1** | EPC Change Order 01 (COD Deferral) — kavram İngilizce tek chunk'ta var (GEN-TRM-004 uyarısı) |
+| emre amade / availability payment / availability fee | 0 | 0 | yok ✅ |
+| tedarikçi / turbine supplier | 0 | 0 | yok ✅ ("supplier" 2 chunk, yalnızca Ankara Yedek Parça Sözleşmesi) |
+| spread / **margin** | 0 / **0** | 0 / 0 | belgeler "baseline index plus 3.25%" der → GEN-TRM-003 çıkarıldı |
+| tenor / export credit agency | 4 / 21 | — | negatif kontrollerin dayanağı ✅ |
+
+**c) Kodla assist tahmini** (ilk sürümdeki iki sorun ve düzeltmesi: (1) her cevapsız soru `term_mismatch` görünüyordu, çünkü Türkçe çekimli/generic kelimeler ("vadesi", "zaman", "değeri") chunk'ta eşleşmiyor → artık mismatch = ≥ 4 karakter, generic değil, glossary'de yok; (2) "Bursa RES DSKO kaç?" için "RES" tag'i yüzünden 5 alakasız belge listeleniyordu → "elimde şunlar var" yalnızca ≤ max(10, %25) belgede geçen *özgül* bir terimin kefil olduğu belgeleri listeler). Glossary'ye `rapor → report` eklendi (gerçek belge terimi). Düzeltme sonrası tahmin:
+
+| Soru | Uyuşmayan | Yol | Tahmini kind | available (ilk 3) | Beklenti |
+|---|---|---|---|---|---|
+| GEN-AMB-001 | — (vadesi→tenor glossary; zaman/doluyor generic) | LLM | clarify | Sözleşme Uyum Değerlendirmesi, Kira/İrtifak Sözleşmesi Taslağı, Grup İlişkili Taraf Hizmet Sözleşmesi | clarify ✅ |
+| GEN-AMB-002 | — | LLM | clarify | Facility Agreement s.7, Draft s.4, Amendment 01 s.4 | clarify ✅ |
+| GEN-AMB-003 | — | LLM | clarify | Licence Amendment 01, Ankara RES Üretim Lisansı | clarify ✅ |
+| GEN-AMB-004 | — | LLM | clarify | İzmir RES Önlisans Belgesi, Ankara RES Üretim Lisansı | clarify ✅ |
+| GEN-AMB-005 | — | LLM | clarify | YK Kararı — Denetim Komitesi, ÇED Olumlu Kararı, Pay Sahipleri Kararı — Kâr Dağıtım | clarify ✅ |
+| GEN-TRM-001 | primi | LLM | term_mismatch | Sigorta Yenileme Bildirimi s.2, Construction All Risks Insurance s.1 | term_mismatch ✅ |
+| GEN-TRM-002 | tedarikçisi | LLM | term_mismatch | Askeri Yasak Bölgeler Ön Görüş, İzmir Önlisans, İzmir Bağlantı Görüşü (hepsi İzmir) | term_mismatch ✅ |
+| GEN-TRM-004 | cezai | LLM | term_mismatch | EPC Contract s.1, Independent Engineer's Completion Report, Warranty & Defects Liability Certificate | term_mismatch ✅ (LD uyarısı) |
+| GEN-TRM-005 | santralinin, emre, amadelik | LLM | term_mismatch | — | term_mismatch ✅ |
+| ANK-OPS-004 | — | LLM | (clarify, yalnızca model reddederse) | Sigorta Yenileme Bildirimi s.2 | cevap bekleniyor |
+| ANK-NEG-001 | — | LLM | (clarify, yalnızca reddederse) | — | cevap bekleniyor |
+| ANK-NEG-002 | — (kurumu generic) | LLM | (clarify, yalnızca reddederse) | — | cevap bekleniyor |
+
+"Yol = LLM": tüm sorularda retrieval parça buluyor (soru kelimeleri ve glossary açılımları korpusa dokunuyor), yani cevap/ret kararı modele ait; sıfır parça yolu bu sette hiç tetiklenmiyor. Not: router sınıflandırması her soruda bir LLM çağrısıdır (Phase 4.3) — "LLM'siz" ifadesi yalnızca cevap hattı içindir.
+
+**d) GEN-AMB-005 belirsizliği:** `yonetim`'in görebildiği 7 karar/toplantı belgesi (3 Yönetim Kurulu Kararı, 2 Pay Sahipleri Kararı, 1 ÇED Olumlu Kararı, 1 Halkın Katılımı Toplantısı Tutanağı) — "toplantıda ne karar alındı?" gerçekten belirsiz ✅.
+
+**e) Testler:** semantik düzeltmeleriyle birlikte `test_assist.py` 11 test (yeni: `test_mismatch_terms_ignore_generic_glossary_known_and_short_words`), `test_search_glossary`/`test_search_query`/`test_eval_lib` yeşil; `validate-ledger` 0 hata (76 soru, Q7).
 
 ## 7. Açık noktalar / sonraki adım
 
 - **Naci:** §6 sorularını onayla/değiştir → ölçüm turları → sonuçlar bu rapora işlenir → birleştirme kararı + `assist-mode-1`.
-- **`main` hotfix kararı:** `DEMO_MODE` alias düzeltmesi şu an yalnızca bu dalda; `main`'de `DEMO_MODE=false` hâlâ etkisiz (demo varsayılanı korunuyor, risk düşük). Öneri: bu dal birleşmeden önce tek dosyalık hotfix (`config.py` + test) `main`'e ayrıca alınsın — onay bekliyor.
+- **`main` hotfix — yapıldı (Naci, 05.10.2026):** `DEMO_MODE` alias düzeltmesi tek dosyalık commit olarak `main`'e alındı (`65c4ed9`; worktree'de `test_config.py` 8/8 geçti), `.env`/`.env.example` ikisinde de `DEMO_MODE=true` olduğu önce doğrulandı → davranış değişmedi. Dal `main` üzerine rebase edildi.
 - Not 8 gelince `partial`; Not 7 ayrı değerlendirme.
 - AI-BalBal: `assist` bloğunun arayüzü ayrı PR (netleştirme sorusu, aday terim çipleri, "elimde şunlar var" listesi) — ölçüm sonrası.

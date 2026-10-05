@@ -1304,23 +1304,6 @@
       "expect_assist": "term_mismatch"
     },
     {
-      "id": "GEN-TRM-003",
-      "category": "term_mismatch",
-      "question": "Ankara RES kredisinin spread'i kaç baz puan?",
-      "expected_answer": null,
-      "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
-      "expected_department": "finans",
-      "required_sources": [],
-      "forbidden_sources": [
-        "İzmir RES"
-      ],
-      "ask_as_user": "finans",
-      "expect_no_answer": true,
-      "notes": "TASLAK. Belgeler 'margin' der; 'spread' geçmez. Modelin spread=margin diye marjı cevaplaması bu kategoride 'answered' sayılır → kasıtlı ölçüm (Not 2: karşılık öner, varsayıp cevaplama).",
-      "expect_assist": "term_mismatch"
-    },
-    {
       "id": "GEN-TRM-004",
       "category": "term_mismatch",
       "question": "Ankara RES EPC sözleşmesinde cezai şart tutarı nedir?",
@@ -1374,6 +1357,42 @@
       "required_phrases": [
         "09.01.2025 tarihinde sona erdi"
       ]
+    },
+    {
+      "id": "ANK-NEG-001",
+      "category": "document",
+      "question": "Ankara RES kredisinin vadesi kaç yıl?",
+      "expected_answer": "ledger:ankara_res.project.finance.tenor_years.current.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "TASLAK — NEGATİF KONTROL (ADR-027): soru glossary eş anlamlısıyla ('vade' → tenor; belgeler İngilizce 'tenor' der, 4 chunk). Beklenen: normal cevap (güncel vade), expect_assist yok, gereksiz netleştirme yok. Model 12 ve 14'ü birlikte verirse de 14 geçmeli."
+    },
+    {
+      "id": "ANK-NEG-002",
+      "category": "document",
+      "question": "Ankara RES finansmanında ihracat kredi kurumu kredisi ne kadar?",
+      "expected_answer": "ledger:ankara_res.project.finance.eca_debt.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "TASLAK — NEGATİF KONTROL (ADR-027): 'ihracat kredi kurumu' glossary ile 'export credit agency'ye açılır (21 chunk). Beklenen: normal cevap, expect_assist yok. GEN-TRM-003 (spread/margin) bunun yerine çıkarıldı: belgeler 'margin' kelimesini hiç kullanmıyor ('baseline index plus 3.25%'), dolayısıyla eş anlamlı kontrol olamaz."
     }
   ]
 }
