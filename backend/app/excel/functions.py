@@ -115,11 +115,26 @@ def outstanding_debt(
     raw = str(params.get("as_of") or "")
     period = normalize_period(raw) if raw else None
     if period is None or raw.lower() in {"today", "bugün", "demo_today", "güncel"}:
+        # ADR-026: `Outstanding_DemoToday` is a value frozen at generation time, not a live
+        # calculation. `Ledger_DemoToday` (same generation run) records which day it is for;
+        # if the system's current day has moved on, the frozen figure is stale and must be
+        # refused rather than served silently (rule 2/5).
+        today = cast(date, params["_today"])
+        baked_raw, _ = _first_named(engine, workbooks, "Ledger_DemoToday", prefer="Financial_Model")
+        baked_today = date.fromisoformat(str(baked_raw))
+        if baked_today != today:
+            raise FunctionError(
+                f"Outstanding_DemoToday was computed for {baked_today.isoformat()}, not "
+                f"today ({today.isoformat()}) — workbooks need regenerating"
+            )
         value, source = _first_named(
             engine, workbooks, "Outstanding_DemoToday", prefer="Financial_Model"
         )
         return CalcResult(
-            value=float(value), unit="EUR", source=source, detail="outstanding on DEMO_TODAY"
+            value=float(value),
+            unit="EUR",
+            source=source,
+            detail=f"outstanding on {today.isoformat()} (workbook snapshot)",
         )
     if period.startswith("Q"):
         value, source = _first_named(
@@ -222,9 +237,16 @@ FUNCTIONS: dict[str, FunctionSpec] = {
 
 
 def run_function(
-    engine: CalculationEngine, workbooks: list[LoadedWorkbook], name: str, params: dict[str, Any]
+    engine: CalculationEngine,
+    workbooks: list[LoadedWorkbook],
+    name: str,
+    params: dict[str, Any],
+    *,
+    today: date,
 ) -> CalcResult:
     spec = FUNCTIONS.get(name)
     if spec is None:
         raise FunctionError(f"unknown function {name}")
-    return spec.run(engine, workbooks, params)
+    # `_today` is the system's own date (ADR-026), injected here — never part of the LLM's
+    # plan JSON. Only `outstanding_debt` reads it (drift check against the baked snapshot).
+    return spec.run(engine, workbooks, {**params, "_today": today})

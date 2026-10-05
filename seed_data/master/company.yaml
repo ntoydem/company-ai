@@ -63,6 +63,7 @@ documents:
     name: {value: "Yönetim Kurulu Kararı — Ankara RES Finansman Onayı", tag: USER_FACT}
     document_date: {value: 2021-09-15, tag: USER_FACT}
     effective_date: {value: 2021-09-15, tag: USER_FACT}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "ABC Enerji A.Ş."]
@@ -85,6 +86,7 @@ documents:
     name: {value: "Yönetim Kurulu Kararı — İzmir RES Geliştirme Bütçesi Onayı", tag: AI_ASSUMPTION}
     document_date: {value: 2023-03-25, tag: AI_ASSUMPTION}
     effective_date: {value: 2023-03-25, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["ABC Enerji A.Ş.", "DEF İzmir Rüzgar Enerji A.Ş."]
@@ -106,6 +108,7 @@ documents:
     name: {value: "Pay Sahipleri Kararı — GHI Yatırım A.Ş. Ortaklık Onayı", tag: AI_ASSUMPTION}
     document_date: {value: 2021-05-01, tag: AI_ASSUMPTION}
     effective_date: {value: 2021-05-01, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["ABC Enerji A.Ş.", "GHI Yatırım A.Ş.", "DEF Enerji Üretim A.Ş."]
@@ -127,6 +130,7 @@ documents:
     name: {value: "Sigorta Programı Özeti (Şirketler Grubu)", tag: AI_ASSUMPTION}
     document_date: {value: 2026-02-01, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["ABC Enerji A.Ş.", "STU Sigorta"]
@@ -148,6 +152,7 @@ documents:
     name: {value: "Yıllık Yönetim Raporu — 2025", tag: AI_ASSUMPTION}
     document_date: {value: 2026-02-15, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["ABC Enerji A.Ş."]
@@ -169,6 +174,7 @@ documents:
     name: {value: "Grup İlişkili Taraf Hizmet Sözleşmesi", tag: AI_ASSUMPTION}
     document_date: {value: 2022-01-10, tag: AI_ASSUMPTION}
     effective_date: {value: 2022-01-10, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["ABC Enerji A.Ş.", "DEF Enerji Üretim A.Ş.", "DEF İzmir Rüzgar Enerji A.Ş."]
@@ -190,6 +196,7 @@ documents:
     name: {value: "Kurumsal Yönetim ve Uyum Politikası", tag: AI_ASSUMPTION}
     document_date: {value: 2021-01-15, tag: AI_ASSUMPTION}
     effective_date: {value: 2021-01-15, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["ABC Enerji A.Ş."]
@@ -211,6 +218,7 @@ documents:
     name: {value: "Yönetim Kurulu Kararı — Denetim Komitesi Ataması", tag: AI_ASSUMPTION}
     document_date: {value: 2022-03-01, tag: AI_ASSUMPTION}
     effective_date: {value: 2022-03-01, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["ABC Enerji A.Ş."]
@@ -232,6 +240,7 @@ documents:
     name: {value: "Grup Risk Raporu — 2026", tag: AI_ASSUMPTION}
     document_date: {value: 2026-03-01, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["ABC Enerji A.Ş."]
@@ -253,6 +262,7 @@ documents:
     name: {value: "Pay Sahipleri Kararı — Kâr Dağıtım Politikası", tag: AI_ASSUMPTION}
     document_date: {value: 2026-04-01, tag: AI_ASSUMPTION}
     effective_date: {value: 2026-04-01, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["ABC Enerji A.Ş.", "GHI Yatırım A.Ş."]

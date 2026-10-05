@@ -228,6 +228,16 @@ def test_demo_today_must_agree_across_files(tmp_path: Path) -> None:
     assert _has(_run(_mutated(tmp_path, "fx_rates.yaml", shift)), "C10")
 
 
+def test_expiration_date_must_be_after_effective_date(tmp_path: Path) -> None:
+    """ADR-026: an expiration before the document even starts is nonsensical."""
+
+    def before_effective(data: dict[str, Any]) -> None:
+        doc = data["documents"][0]
+        doc["expiration_date"] = {"value": date(2020, 6, 14), "tag": "AI_ASSUMPTION"}
+
+    assert _has(_run(_mutated(tmp_path, "ankara_res.yaml", before_effective)), "C11")
+
+
 def test_resolve_path_supports_negative_index() -> None:
     root = {"a": {"b": [{"c": 1}, {"c": 2}]}}
     assert vl.resolve_path(root, "a.b[-1].c") == 2

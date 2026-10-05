@@ -293,6 +293,10 @@ def _build_document(
         "effective_date": doc["effective_date"]["value"].isoformat()
         if doc.get("effective_date")
         else None,
+        # ADR-026: validity end, when the ledger records one (null for most documents).
+        "expiration_date": doc["expiration_date"]["value"].isoformat()
+        if doc.get("expiration_date")
+        else None,
         "status": doc["status"],
         "version_label": doc["version"],
         # DB `documents.version` (int): position in the 6-link facility chain (1-6), or 1

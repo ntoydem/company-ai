@@ -139,6 +139,9 @@ def _seed_one(
         effective_date=date.fromisoformat(entry["effective_date"])
         if entry["effective_date"]
         else None,
+        expiration_date=date.fromisoformat(entry["expiration_date"])
+        if entry.get("expiration_date")
+        else None,
         version=entry["version_number"],
         department=entry["department"],
         subdepartment=entry["subdepartment"],

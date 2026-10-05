@@ -104,6 +104,24 @@ def test_me_with_valid_cookie_returns_current_user(
     assert body["role"] == "admin"
 
 
+def test_login_and_me_carry_todays_date_from_temporal(
+    client: TestClient, db_session: Session, settings: Settings
+) -> None:
+    """ADR-026: the frontend's "Bugün: …" badge reads this field, never a date it computed
+    itself — `today`/`demo_mode_enabled` must match `app.services.temporal.today(settings)`."""
+    ensure_admin_user(db_session, settings)
+
+    login_body = _login(
+        client, settings.admin_username, settings.admin_password.get_secret_value()
+    ).json()
+    assert login_body["today"] == settings.demo_today.isoformat()
+    assert login_body["demo_mode_enabled"] is True
+
+    me_body = client.get("/api/auth/me").json()
+    assert me_body["today"] == login_body["today"]
+    assert me_body["demo_mode_enabled"] == login_body["demo_mode_enabled"]
+
+
 def test_me_returns_direct_department_memberships(
     client: TestClient, db_session: Session, employee_user: User
 ) -> None:

@@ -15,6 +15,7 @@ from uuid import UUID
 from app.models.document import Document
 from app.repositories.document_chunk_repo import RetrievedChunk
 from app.services.search_query import turkish_lower
+from app.services.temporal import expiration_note
 from app.services.version_chain import ChainPosition
 
 NO_ANSWER_TEXT = (
@@ -59,8 +60,10 @@ _RULES = [
     "7. Kaynaklar İngilizce olsa bile Türkçe cevap ver. Sayıları kaynaktaki biçimde yaz "
     "(örneğin 1,20x), tarihleri GG.AA.YYYY biçiminde yaz. Kısa ve düz yaz; gerekmedikçe "
     "başlık veya madde işareti kullanma.",
-    '8. Bugünün tarihi "BUGÜN" satırında verilir; "şu anda", "kaçıncı yıl" gibi '
-    "hesaplarda gerçek takvimi değil bu tarihi kullan.",
+    '8. Bugünün tarihi "BUGÜN" satırında verilir, yalnızca bağlam içindir. Kalan gün, süre '
+    "doldu mu, kaç yıl geçti gibi tarih farkı hesaplarını SEN yapma. Bir kaynakta hazır "
+    'hesaplanmış bir satır varsa (örn. "Süre: …") onu aynen aktar; yoksa bu hesap için '
+    "veri yok demektir, kendi başına tarih çıkarımı yapma.",
     "9. Kaynaklardan birden fazlası aynı terim veya kavram için farklı bir tanım ya da "
     "açıklama veriyorsa (5. kuraldaki zincir/versiyon ilişkisi geçerli değilse), hepsini "
     "kendi kaynak etiketiyle ayrı ayrı yaz; birini diğerine tercih etme, hangisinin doğru "
@@ -155,7 +158,7 @@ def describe_metadata(document: Any) -> str:
     return " | ".join(parts)
 
 
-def format_source(source: PromptSource) -> str:
+def format_source(source: PromptSource, today: date) -> str:
     document = source.document
     header = (
         f"[{source.ref}] Belge: {document.title} | Tarih: {_fmt(document.document_date)} | "
@@ -164,6 +167,10 @@ def format_source(source: PromptSource) -> str:
     )
     metadata = describe_metadata(document)
     lines = [header, f"Zincir: {describe_chain(source.position)}"]
+    # ADR-026: ready-made, code-computed — the model reads it, never recomputes it (rule 3/8).
+    note = expiration_note(document, today)
+    if note:
+        lines.append(note)
     if metadata:
         lines.append(metadata)
     lines.append(source.chunk.text.strip())
@@ -171,7 +178,7 @@ def format_source(source: PromptSource) -> str:
 
 
 def build_user_prompt(question: str, sources: list[PromptSource], today: date) -> str:
-    blocks = "\n\n".join(format_source(source) for source in sources)
+    blocks = "\n\n".join(format_source(source, today) for source in sources)
     return f"BUGÜN: {_fmt(today)}\n\nSORU: {question.strip()}\n\nKAYNAKLAR:\n{blocks}"
 
 

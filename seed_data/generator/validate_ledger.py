@@ -316,6 +316,21 @@ def check_document_dates(
             report.error(file, f"documents[{i}].effective_date.value", "C8: must be a date or null")
         if effective and effective < doc_date:
             report.error(file, f"documents[{i}].effective_date.value", "C8: before document_date")
+        # ADR-026: a document's validity end, when it has one — must postdate whichever of
+        # effective_date/document_date marks it starting, so "doldu mu" is never ambiguous.
+        expiration = fact_date(doc.expiration_date)
+        if doc.expiration_date is not None and expiration is None:
+            report.error(
+                file, f"documents[{i}].expiration_date.value", "C11: must be a date or null"
+            )
+        if expiration:
+            starts = effective or doc_date
+            if expiration <= starts:
+                report.error(
+                    file,
+                    f"documents[{i}].expiration_date.value",
+                    "C11: must be after effective_date/document_date",
+                )
         if doc.supersedes and doc.supersedes in by_id:
             older = fact_date(by_id[doc.supersedes].document_date)
             if older and doc_date <= older:

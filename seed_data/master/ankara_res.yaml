@@ -209,6 +209,7 @@ documents:
     name: {value: "Ankara RES Üretim Lisansı", tag: USER_FACT}
     document_date: {value: 2020-06-15, tag: USER_FACT}
     effective_date: {value: 2020-06-15, tag: USER_FACT}
+    expiration_date: null
     version: EXECUTED
     status: amended
     parties: ["DEF Enerji Üretim A.Ş."]
@@ -230,6 +231,7 @@ documents:
     name: {value: "Licence Amendment 01 (Kapasite Tadili)", tag: USER_FACT}
     document_date: {value: 2021-02-10, tag: USER_FACT}
     effective_date: {value: 2021-02-10, tag: USER_FACT}
+    expiration_date: null
     version: AMD01
     status: executed
     parties: ["DEF Enerji Üretim A.Ş."]
@@ -251,6 +253,7 @@ documents:
     name: {value: "Facility Agreement — Draft", tag: USER_FACT}
     document_date: {value: 2021-06-15, tag: USER_FACT}
     effective_date: null
+    expiration_date: null
     version: DRAFT
     status: draft
     parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
@@ -272,6 +275,7 @@ documents:
     name: {value: "Facility Agreement — V01", tag: USER_FACT}
     document_date: {value: 2021-07-20, tag: USER_FACT}
     effective_date: null
+    expiration_date: null
     version: V01
     status: superseded
     parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
@@ -293,6 +297,7 @@ documents:
     name: {value: "Facility Agreement — V02", tag: USER_FACT}
     document_date: {value: 2021-08-25, tag: USER_FACT}
     effective_date: null
+    expiration_date: null
     version: V02
     status: superseded
     parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
@@ -314,6 +319,7 @@ documents:
     name: {value: "Facility Agreement", tag: USER_FACT}
     document_date: {value: 2021-09-30, tag: USER_FACT}
     effective_date: {value: 2021-09-30, tag: USER_FACT}
+    expiration_date: null
     version: EXECUTED
     status: superseded
     parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
@@ -343,6 +349,7 @@ documents:
     name: {value: "Facility Agreement Amendment 01", tag: USER_FACT}
     document_date: {value: 2025-03-15, tag: USER_FACT}
     effective_date: {value: 2025-03-15, tag: USER_FACT}
+    expiration_date: null
     version: AMD01
     status: superseded
     parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
@@ -364,6 +371,7 @@ documents:
     name: {value: "Facility Agreement Amendment 02", tag: USER_FACT, note: "Finansal olmayan: geri ödeme takvimi eki ve covenant test dönemi tanımı yeniden düzenlendi (SORU 1)"}
     document_date: {value: 2026-02-20, tag: USER_FACT}
     effective_date: {value: 2026-02-20, tag: USER_FACT}
+    expiration_date: null
     version: AMD02
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
@@ -385,6 +393,7 @@ documents:
     name: {value: "Covenant Compliance Report Q2 2026", tag: USER_FACT}
     document_date: {value: 2026-07-20, tag: USER_FACT}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank"]
@@ -408,6 +417,7 @@ documents:
     name: {value: "EPC Contract", tag: USER_FACT}
     document_date: {value: 2021-10-20, tag: USER_FACT}
     effective_date: {value: 2021-10-20, tag: USER_FACT}
+    expiration_date: null
     version: EXECUTED
     status: amended
     parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
@@ -429,6 +439,7 @@ documents:
     name: {value: "Provisional Acceptance & COD Certificate", tag: USER_FACT}
     document_date: {value: 2023-10-15, tag: USER_FACT}
     effective_date: {value: 2023-10-15, tag: USER_FACT}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş.", "MNO Teknik Danışmanlık Ltd."]
@@ -450,6 +461,7 @@ documents:
     name: {value: "EPC Change Order 01 (COD Deferral)", tag: USER_FACT}
     document_date: {value: 2023-05-12, tag: USER_FACT}
     effective_date: {value: 2023-05-12, tag: USER_FACT}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
@@ -471,6 +483,7 @@ documents:
     name: {value: "Aylık Üretim Raporu — Ağustos 2026", tag: USER_FACT}
     document_date: {value: 2026-09-05, tag: USER_FACT}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş."]
@@ -494,6 +507,7 @@ documents:
     name: {value: "Ankara RES Bağlantı Anlaşması", tag: AI_ASSUMPTION}
     document_date: {value: 2021-05-10, tag: AI_ASSUMPTION}
     effective_date: {value: 2021-05-10, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "TEİAŞ"]
@@ -515,6 +529,7 @@ documents:
     name: {value: "Ankara RES Yapı Ruhsatı", tag: AI_ASSUMPTION}
     document_date: {value: 2021-12-05, tag: AI_ASSUMPTION}
     effective_date: {value: 2021-12-05, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş."]
@@ -536,6 +551,7 @@ documents:
     name: {value: "Ankara RES ÇED Olumlu Kararı", tag: AI_ASSUMPTION}
     document_date: {value: 2019-11-05, tag: AI_ASSUMPTION}
     effective_date: {value: 2019-11-05, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş."]
@@ -557,6 +573,7 @@ documents:
     name: {value: "Ankara RES Saha Kullanım Hakkı Sözleşmesi", tag: AI_ASSUMPTION}
     document_date: {value: 2019-03-01, tag: AI_ASSUMPTION}
     effective_date: {value: 2019-03-01, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş."]
@@ -578,6 +595,7 @@ documents:
     name: {value: "Ankara RES Common Terms Agreement", tag: AI_ASSUMPTION}
     document_date: {value: 2021-09-30, tag: AI_ASSUMPTION}
     effective_date: {value: 2021-09-30, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
@@ -599,6 +617,7 @@ documents:
     name: {value: "Ankara RES Security Agreement (Share Pledge)", tag: AI_ASSUMPTION}
     document_date: {value: 2021-11-10, tag: AI_ASSUMPTION}
     effective_date: {value: 2021-11-10, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "ABC Enerji A.Ş.", "GHI Yatırım A.Ş.", "PQR Bank"]
@@ -620,6 +639,7 @@ documents:
     name: {value: "Ankara RES Account Pledge Agreement", tag: AI_ASSUMPTION}
     document_date: {value: 2021-11-10, tag: AI_ASSUMPTION}
     effective_date: {value: 2021-11-10, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank"]
@@ -641,6 +661,7 @@ documents:
     name: {value: "Ankara RES Insurance Assignment Agreement", tag: AI_ASSUMPTION}
     document_date: {value: 2021-11-12, tag: AI_ASSUMPTION}
     effective_date: {value: 2021-11-12, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "STU Sigorta", "PQR Bank"]
@@ -662,6 +683,7 @@ documents:
     name: {value: "Ankara RES Drawdown Notice — Tranche 1", tag: AI_ASSUMPTION}
     document_date: {value: 2021-12-15, tag: AI_ASSUMPTION}
     effective_date: {value: 2021-12-15, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank"]
@@ -683,6 +705,7 @@ documents:
     name: {value: "Ankara RES Waiver Letter — Q4 2024 Covenant Test", tag: AI_ASSUMPTION}
     document_date: {value: 2025-01-20, tag: AI_ASSUMPTION}
     effective_date: {value: 2025-01-20, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
@@ -704,6 +727,7 @@ documents:
     name: {value: "Ankara RES Covenant Compliance Report — Q4 2024", tag: AI_ASSUMPTION}
     document_date: {value: 2025-01-10, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank"]
@@ -725,6 +749,7 @@ documents:
     name: {value: "Ankara RES Mechanical Completion Certificate", tag: AI_ASSUMPTION}
     document_date: {value: 2023-07-20, tag: AI_ASSUMPTION}
     effective_date: {value: 2023-07-20, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
@@ -746,6 +771,7 @@ documents:
     name: {value: "Ankara RES Independent Engineer's Completion Report", tag: AI_ASSUMPTION}
     document_date: {value: 2023-09-25, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş.", "MNO Teknik Danışmanlık Ltd."]
@@ -767,6 +793,7 @@ documents:
     name: {value: "Ankara RES Punch List Closure Confirmation", tag: AI_ASSUMPTION}
     document_date: {value: 2023-10-05, tag: AI_ASSUMPTION}
     effective_date: {value: 2023-10-05, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
@@ -788,6 +815,7 @@ documents:
     name: {value: "Ankara RES Construction All Risks Insurance Policy Summary", tag: AI_ASSUMPTION}
     document_date: {value: 2022-01-05, tag: AI_ASSUMPTION}
     effective_date: {value: 2022-01-05, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş.", "STU Sigorta"]
@@ -809,6 +837,7 @@ documents:
     name: {value: "Ankara RES Performance Test Results Report", tag: AI_ASSUMPTION}
     document_date: {value: 2023-10-10, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş.", "MNO Teknik Danışmanlık Ltd."]
@@ -830,6 +859,7 @@ documents:
     name: {value: "Ankara RES Warranty & Defects Liability Certificate", tag: AI_ASSUMPTION}
     document_date: {value: 2024-10-15, tag: AI_ASSUMPTION}
     effective_date: {value: 2024-10-15, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
@@ -851,6 +881,7 @@ documents:
     name: {value: "Ankara RES Şebeke Bağlantı Tamamlama Belgesi", tag: AI_ASSUMPTION}
     document_date: {value: 2023-09-01, tag: AI_ASSUMPTION}
     effective_date: {value: 2023-09-01, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş.", "TEİAŞ"]
@@ -872,6 +903,7 @@ documents:
     name: {value: "Ankara RES O&M Agreement", tag: AI_ASSUMPTION}
     document_date: {value: 2023-10-15, tag: AI_ASSUMPTION}
     effective_date: {value: 2023-10-15, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
@@ -893,6 +925,7 @@ documents:
     name: {value: "Bakım Raporu — Temmuz 2024 (Türbin T-07 Arızası)", tag: AI_ASSUMPTION}
     document_date: {value: 2024-08-05, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş."]
@@ -914,6 +947,7 @@ documents:
     name: {value: "Aylık Üretim Raporu — Aralık 2023", tag: AI_ASSUMPTION}
     document_date: {value: 2024-01-05, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş."]
@@ -935,6 +969,7 @@ documents:
     name: {value: "Aylık Üretim Raporu — Haziran 2025", tag: AI_ASSUMPTION}
     document_date: {value: 2025-07-05, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş."]
@@ -956,6 +991,7 @@ documents:
     name: {value: "Yıllık Performans Değerlendirme Notu — 2024-2025 Dönemi", tag: AI_ASSUMPTION}
     document_date: {value: 2025-10-20, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş."]
@@ -977,6 +1013,7 @@ documents:
     name: {value: "Sigorta Yenileme Bildirimi — İşletme Dönemi", tag: AI_ASSUMPTION}
     document_date: {value: 2024-01-10, tag: AI_ASSUMPTION}
     effective_date: {value: 2024-01-10, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "STU Sigorta"]
@@ -998,6 +1035,7 @@ documents:
     name: {value: "Ankara RES Kullanılabilirlik Garantisi Uyum Raporu", tag: AI_ASSUMPTION}
     document_date: {value: 2026-09-05, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş.", "XYZ Wind Turbines GmbH"]
@@ -1019,6 +1057,7 @@ documents:
     name: {value: "Ankara RES Yedek Parça Tedarik Sözleşmesi", tag: AI_ASSUMPTION}
     document_date: {value: 2023-11-01, tag: AI_ASSUMPTION}
     effective_date: {value: 2023-11-01, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "XYZ Wind Turbines GmbH"]
@@ -1040,6 +1079,7 @@ documents:
     name: {value: "Yıllık Bakım Planı — 2026", tag: AI_ASSUMPTION}
     document_date: {value: 2026-01-15, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
@@ -1061,6 +1101,7 @@ documents:
     name: {value: "Hukuki Görüş — Finansman Ön Koşulları", tag: AI_ASSUMPTION}
     document_date: {value: 2021-11-01, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş.", "KLM Hukuk Bürosu"]
@@ -1082,6 +1123,7 @@ documents:
     name: {value: "Arazi Kullanım Hakkı Hukuki İnceleme Notu", tag: AI_ASSUMPTION}
     document_date: {value: 2019-02-15, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş.", "KLM Hukuk Bürosu"]
@@ -1103,6 +1145,7 @@ documents:
     name: {value: "Sözleşme Uyum Değerlendirmesi — EPC ve Finansman Sözleşmeleri", tag: AI_ASSUMPTION}
     document_date: {value: 2021-10-25, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş.", "KLM Hukuk Bürosu"]
@@ -1124,6 +1167,7 @@ documents:
     name: {value: "Yıllık İşletme Bütçesi Onayı — 2026", tag: AI_ASSUMPTION}
     document_date: {value: 2025-12-10, tag: AI_ASSUMPTION}
     effective_date: {value: 2025-12-10, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş."]
@@ -1145,6 +1189,7 @@ documents:
     name: {value: "Sigorta Programı Yıllık Gözden Geçirme Notu", tag: AI_ASSUMPTION}
     document_date: {value: 2026-01-15, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF Enerji Üretim A.Ş.", "STU Sigorta"]
@@ -1167,6 +1212,7 @@ documents:
     name: {value: "Financial Model 2026", tag: AI_ASSUMPTION}
     document_date: {value: 2026-09-01, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: V2026
     status: active
     parties: ["DEF Enerji Üretim A.Ş."]
@@ -1187,6 +1233,7 @@ documents:
     name: {value: "Covenant Report (workbook)", tag: AI_ASSUMPTION}
     document_date: {value: 2026-08-15, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: Q2_2026
     status: active
     parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank"]
@@ -1207,6 +1254,7 @@ documents:
     name: {value: "Budget vs Actual 2026", tag: AI_ASSUMPTION}
     document_date: {value: 2026-07-31, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: Q2_2026
     status: active
     parties: ["DEF Enerji Üretim A.Ş."]
@@ -1227,6 +1275,7 @@ documents:
     name: {value: "Monthly Production 2026", tag: AI_ASSUMPTION}
     document_date: {value: 2026-09-05, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: "2026-08"
     status: active
     parties: ["DEF Enerji Üretim A.Ş."]

@@ -360,3 +360,18 @@ main'de. Rapor `docs/reports/AIBALBAL_PR5_MERGE_REPORT.md`.
 (`missing_data`/`insufficient_data` zaten ayrı) → "elimde şunlar var, göstereyim mi" (yalnızca `retrieved_document_ids`'ten
 **kodla** üretilir, LLM'e yazdırılmaz — ADR-014) → açık uçlu kapanış. AI-BalBal `AnswerView` ile birlikte tasarlanmalı;
 ayrı UX fazı, şimdi yapılmadı.
+
+**Tarih/saat — demo takvimi vs gerçek takvim, tarih hesabının koda taşınması (05.10.2026, ADR-026):**
+`app.services.temporal.today(settings)` tek giriş noktası (`demo_mode_enabled` bayrağı, varsayılan açık; kapatılınca
+`company_timezone`'da gerçek gün — geri alma tek env değişkeni `DEMO_MODE=false`). `expiration_note()` saf fonksiyonu
+kalan gün/süre dolmuş hesabını koda taşıdı (rule 3'ün tarihe uygulanması); `answer_prompt` rule 8 buna göre yeniden
+yazıldı, model artık tarih farkını kendisi hesaplamıyor. `documents.expiration_date` ledger şemasına eklendi
+(`Fact | None`, yeni doğrulama kuralı **C11**); 74 belgenin tamamına `expiration_date: null` yazıldı, **hiçbirine
+gerçek tarih verilmedi**. Excel `outstanding_debt('today')` canlı hesaba çevrilmedi (V0 sadeliği) — bunun yerine
+workbook'un kendi gömülü `Ledger_DemoToday`'i okunup sistemin bugünüyle karşılaştırılıyor, uyuşmazsa sessiz bayat
+değer yerine açık "veri yok". "Bugünün tarihi nedir?" sorusu Ç-7'nin beş veri durumuna girmiyor (belge sorusu değil);
+Naci kararı: yalnızca AI-BalBal'da küçük bir üst bar rozeti (`CurrentUser.today`/`demo_mode_enabled`, PR
+`ftansu/AI-BalBal#8`, merge edilmedi) — backend'de kısa devre **yok**, Balbal bu soruya hâlâ "yeterli bilgi
+bulamadım" diyor. `DOC-ANK-OPS-009` için "sigorta süresi dolmuş" kurgusunun gerçek tarihi üç adaydan Naci'nin
+seçimini bekliyor (rapor §6) — onay gelmeden ledger'a yazılmadı. Plan `docs/plans/TARIH_SAAT_PLAN.md`, rapor
+`docs/reports/TARIH_SAAT_REPORT.md`.

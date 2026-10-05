@@ -111,6 +111,9 @@ def _meta(wb: Workbook, raws: dict[str, Any]) -> None:
     ws["A4"] = "demo_today"
     ws["B4"] = raws["ankara_res"]["meta"]["demo_today"].isoformat()
     ws.sheet_state = "hidden"
+    # ADR-026: the day this workbook's snapshot values (e.g. `Outstanding_DemoToday`) were
+    # computed for — read back at query time so a stale snapshot is refused, not served.
+    _name(wb, "Ledger_DemoToday", META_SHEET, "B4")
 
 
 # ---------------------------------------------------------------- 1. Financial Model

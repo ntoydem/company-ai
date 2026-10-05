@@ -391,6 +391,9 @@ class Document(_Strict):
     name: Fact
     document_date: Fact
     effective_date: Fact | None
+    # ADR-026: validity end, when the document type has one (e.g. a renewal notice without a
+    # successor on file). `null` for everything else — most documents never expire.
+    expiration_date: Fact | None
     version: str
     status: DocumentStatus
     parties: list[str]

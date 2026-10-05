@@ -66,6 +66,7 @@ documents:
     name: {value: "İzmir RES Önlisans Belgesi", tag: USER_FACT}
     document_date: {value: 2024-01-18, tag: USER_FACT}
     effective_date: {value: 2024-01-18, tag: USER_FACT}
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
@@ -87,6 +88,7 @@ documents:
     name: {value: "Arazi Edinim Durum Raporu", tag: USER_FACT}
     document_date: {value: 2024-09-30, tag: USER_FACT}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "KLM Hukuk Bürosu"]
@@ -108,6 +110,7 @@ documents:
     name: {value: "ÇED Süreci Durum Yazısı", tag: USER_FACT}
     document_date: {value: 2026-08-27, tag: USER_FACT}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "MNO Teknik Danışmanlık Ltd."]
@@ -129,6 +132,7 @@ documents:
     name: {value: "Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu", tag: USER_FACT}
     document_date: {value: 2025-01-20, tag: USER_FACT}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "MNO Teknik Danışmanlık Ltd."]
@@ -151,6 +155,7 @@ documents:
     name: {value: "İzmir RES Bağlantı Görüşü Başvurusu", tag: AI_ASSUMPTION}
     document_date: {value: 2025-06-10, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "TEİAŞ"]
@@ -172,6 +177,7 @@ documents:
     name: {value: "Kamu Duyurusu ve Halkın Katılımı Toplantısı Tutanağı", tag: AI_ASSUMPTION}
     document_date: {value: 2025-08-20, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
@@ -193,6 +199,7 @@ documents:
     name: {value: "Rüzgar Ölçüm Kampanyası Raporu", tag: AI_ASSUMPTION}
     document_date: {value: 2024-06-15, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "MNO Teknik Danışmanlık Ltd."]
@@ -214,6 +221,7 @@ documents:
     name: {value: "Askeri Yasak Bölgeler Ön Görüş Talebi", tag: AI_ASSUMPTION}
     document_date: {value: 2025-09-01, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
@@ -235,6 +243,7 @@ documents:
     name: {value: "Arazi Mülkiyeti Hukuki İnceleme Notu", tag: AI_ASSUMPTION}
     document_date: {value: 2024-03-15, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "KLM Hukuk Bürosu"]
@@ -256,6 +265,7 @@ documents:
     name: {value: "Kira/İrtifak Hakkı Sözleşmesi Taslağı", tag: AI_ASSUMPTION}
     document_date: {value: 2024-05-01, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: DRAFT
     status: draft
     parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
@@ -277,6 +287,7 @@ documents:
     name: {value: "Şirket Yapısı Hukuki Görüşü — İzmir SPV", tag: AI_ASSUMPTION}
     document_date: {value: 2023-03-01, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "ABC Enerji A.Ş.", "KLM Hukuk Bürosu"]
@@ -298,6 +309,7 @@ documents:
     name: {value: "Önlisans Süre Uzatımı Hukuki Değerlendirmesi", tag: AI_ASSUMPTION}
     document_date: {value: 2023-11-01, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "KLM Hukuk Bürosu"]
@@ -319,6 +331,7 @@ documents:
     name: {value: "İzmir RES Geliştirme Bütçesi Onayı", tag: AI_ASSUMPTION}
     document_date: {value: 2023-04-01, tag: AI_ASSUMPTION}
     effective_date: {value: 2023-04-01, tag: AI_ASSUMPTION}
+    expiration_date: null
     version: EXECUTED
     status: executed
     parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
@@ -340,6 +353,7 @@ documents:
     name: {value: "Saha Güvenliği ve İdari Düzenlemeler Notu", tag: AI_ASSUMPTION}
     document_date: {value: 2024-05-15, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
@@ -361,6 +375,7 @@ documents:
     name: {value: "Proje Maliyet Takip Notu — Geliştirme Aşaması", tag: AI_ASSUMPTION}
     document_date: {value: 2026-06-01, tag: AI_ASSUMPTION}
     effective_date: null
+    expiration_date: null
     version: EXECUTED
     status: active
     parties: ["DEF İzmir Rüzgar Enerji A.Ş."]

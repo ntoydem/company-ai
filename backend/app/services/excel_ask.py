@@ -37,6 +37,7 @@ from app.schemas.excel import ExcelAskRequest, ExcelSourceCard
 from app.services.audit_writer import write_audit_row
 from app.services.authorization import allowed_document_ids
 from app.services.llm import LLMClient, LLMRequest
+from app.services.temporal import today as temporal_today
 
 log = logging.getLogger(__name__)
 
@@ -253,7 +254,11 @@ def answer_data_question(
     try:
         if plan["kind"] == "function":
             calc = run_function(
-                engine, loaded, str(plan.get("name")), dict(plan.get("params") or {})
+                engine,
+                loaded,
+                str(plan.get("name")),
+                dict(plan.get("params") or {}),
+                today=temporal_today(settings),
             )
         elif plan["kind"] == "sql":
             query = engine.run_sql(loaded, str(plan.get("sql") or ""))

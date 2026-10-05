@@ -18,6 +18,7 @@ from app.services.security import (
     create_access_token,
     verify_password,
 )
+from app.services.temporal import today as temporal_today
 
 log = logging.getLogger(__name__)
 
@@ -73,7 +74,12 @@ def login(
         path="/",
     )
     log.info("login succeeded", extra={"username": user.username})
-    return CurrentUserResponse.from_user(user, company_settings_repo.enabled_products(session))
+    return CurrentUserResponse.from_user(
+        user,
+        company_settings_repo.enabled_products(session),
+        today=temporal_today(settings),
+        demo_mode_enabled=settings.demo_mode_enabled,
+    )
 
 
 @router.post("/logout", status_code=204)
@@ -86,7 +92,11 @@ def logout(response: Response) -> None:
 def me(
     session: Annotated[Session, Depends(get_session)],
     current_user: Annotated[User, Depends(get_current_user)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> CurrentUserResponse:
     return CurrentUserResponse.from_user(
-        current_user, company_settings_repo.enabled_products(session)
+        current_user,
+        company_settings_repo.enabled_products(session),
+        today=temporal_today(settings),
+        demo_mode_enabled=settings.demo_mode_enabled,
     )

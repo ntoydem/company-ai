@@ -25,6 +25,7 @@ from app.services.authorization import allowed_document_ids
 from app.services.llm import LLMClient, LLMError, LLMRequest
 from app.services.retrieval import retrieve
 from app.services.search_query import build_search_query
+from app.services.temporal import today as temporal_today
 from app.services.version_chain import evaluate_version_chains
 
 log = logging.getLogger(__name__)
@@ -150,12 +151,11 @@ def answer_question(
         allowed = allowed_document_ids(user, scope, SqlDocumentIdsProvider(session))
         documents = document_repo.load_with_chains(session, retrieved_ids, allowed_ids=allowed)
         by_id = {document.id: document for document in documents}
-        chain = evaluate_version_chains(documents, settings.demo_today)
+        now = temporal_today(settings)
+        chain = evaluate_version_chains(documents, now)
         sources = answer_prompt.order_sources(chunks, by_id, chain)
 
-        user_prompt = answer_prompt.build_user_prompt(
-            request.question, sources, settings.demo_today
-        )
+        user_prompt = answer_prompt.build_user_prompt(request.question, sources, now)
         try:
             response = llm.complete(
                 LLMRequest(

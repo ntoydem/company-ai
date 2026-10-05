@@ -21,7 +21,13 @@ class Settings(BaseSettings):
     app_data_dir: Path = Path("/data")
 
     # All "current / historical / which operating year" logic is relative to this date.
+    # Code never reads `demo_today`/`company_timezone` directly (ADR-026) — only
+    # `app.services.temporal.today(settings)` does; everywhere else goes through it.
+    demo_mode_enabled: bool = True
     demo_today: date = date(2026, 9, 15)
+    # Used only when `demo_mode_enabled` is False: the customer's own calendar day,
+    # not the container's UTC clock (ADR-026).
+    company_timezone: str = "Europe/Istanbul"
 
     admin_username: str = "admin"
     admin_password: SecretStr

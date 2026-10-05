@@ -112,6 +112,7 @@ def create_with_job(
     storage_path: str,
     uploaded_by_id: uuid.UUID | None,
     effective_date: date | None = None,
+    expiration_date: date | None = None,
     version: int = 1,
     supersedes_document_id: uuid.UUID | None = None,
     department: str | None = None,
@@ -128,9 +129,9 @@ def create_with_job(
     """Create `documents` + the initial `ingestion_jobs` row together — one is never
     committed without the other (ADR-006). The upload endpoint (Phase 0.2) only ever
     passes the first block of keyword arguments; `department`/`project_id`/
-    `confidentiality`/`source`/`related_document_ids`/`external_ref` exist for the
-    Phase 3.1 demo seed (and, later, Phase 3.2's metadata-suggestion acceptance flow) —
-    the upload form still does not accept them."""
+    `confidentiality`/`source`/`related_document_ids`/`external_ref`/`expiration_date`
+    exist for the Phase 3.1 demo seed (and, later, Phase 3.2's metadata-suggestion
+    acceptance flow) — the upload form still does not accept them."""
     document = Document(
         id=document_id,
         title=title,
@@ -140,6 +141,7 @@ def create_with_job(
         status=status,
         tags=tags,
         effective_date=effective_date,
+        expiration_date=expiration_date,
         version=version,
         supersedes_document_id=supersedes_document_id,
         department=department,

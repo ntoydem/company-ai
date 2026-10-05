@@ -1,10 +1,15 @@
+import uuid
 from datetime import date
 
+from app.models.document import Document, DocumentStatus
+from app.repositories.document_chunk_repo import RetrievedChunk
 from app.services.answer_prompt import (
     COMPARISON_NOTICE,
     NO_ANSWER_TEXT,
     SYSTEM_PROMPT,
+    PromptSource,
     describe_chain,
+    format_source,
     is_no_answer,
     parse_citations,
 )
@@ -89,4 +94,41 @@ def test_rule_10_forbids_cross_project_comparison_with_the_fixed_notice() -> Non
     assert COMPARISON_NOTICE in SYSTEM_PROMPT
     assert COMPARISON_NOTICE == (
         "Projeler arası karşılaştırma bu üründe yapılmaz; değerler ayrı ayrı aşağıdadır."
+    )
+
+
+def _source(**overrides: object) -> PromptSource:
+    document = Document(
+        title="Sigorta Yenileme Bildirimi",
+        document_type="Insurance Notice",
+        document_date=date(2024, 1, 10),
+        counterparty="STU Sigorta",
+        status=DocumentStatus.executed,
+        tags=[],
+        effective_date=date(2024, 1, 10),
+        expiration_date=overrides.pop("expiration_date", None),  # type: ignore[arg-type]
+        version=1,
+    )
+    chunk = RetrievedChunk(
+        id=uuid.uuid4(),
+        document_id=uuid.uuid4(),
+        chunk_index=0,
+        page_number=1,
+        text="metin",
+        rank=1.0,
+    )
+    return PromptSource(ref="K1", chunk=chunk, document=document, position=_position())
+
+
+def test_format_source_adds_the_expiration_line_only_when_the_document_has_one() -> None:
+    """ADR-026: the model reads a ready-made sentence, it never computes the date
+    difference itself (rule 3/8) — and an older source without `expiration_date` keeps
+    its exact previous text (no empty line is ever inserted)."""
+    without = format_source(_source(), date(2026, 9, 15))
+    assert "Süre:" not in without
+
+    with_one = format_source(_source(expiration_date=date(2025, 1, 9)), date(2026, 9, 15))
+    assert "Süre: 09.01.2025 tarihinde sona erdi (1 yıl 8 ay önce)" in with_one
+    assert (
+        with_one.replace("Süre: 09.01.2025 tarihinde sona erdi (1 yıl 8 ay önce)\n", "") == without
     )

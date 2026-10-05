@@ -14,6 +14,22 @@ Kısaltmalar: **kural N** = `CLAUDE.md`'deki N numaralı değişmez kural. **ADR
 
 ## 0. Güncelleme — Tansu'nun cevapları (30.09.2026, Word yorumları, özet)
 
+> **05.10.2026 — Tarih/saat ayrımı (ADR-026) + üst barda "Bugün" rozeti → AI-BalBal PR #8:** Naci'nin
+> teşhisinde "Bugünün tarihi nedir?" sorusu Balbal'a sorulduğunda cevapsız kalıyordu (`insufficient_data`) —
+> backend tarafında demo tarihi (`DEMO_TODAY`) ile gerçek takvim artık tek bir bayrakla (`DEMO_MODE`) ayrılıyor
+> ve "kaç gün kaldı/süresi doldu mu" hesabı prompt'tan koda taşındı (kural 3'ün tarihe uygulanması). **Karar
+> (Naci):** bu bilgi bir Balbal/LLM cevabı değil — Ç-7'nin beş veri durumundan hiçbirine girmiyor, çünkü belge
+> sorusu değil, sistemin kendi olgusu. Bu yüzden Balbal'a aynı soru hâlâ "yeterli bilgi bulamadım" diyecek
+> (bilinçli, değiştirilmedi); bunun yerine `feat/bugun-rozeti` dalı → **PR #8**
+> (https://github.com/ftansu/AI-BalBal/pull/8; main'e, **merge edilmedi**, T-12 tasarım onayı bekliyor): üst
+> barda, departman rozetinin yanına küçük bir **"Bugün: 15.09.2026 (demo)"** rozeti — `/api/auth/login`\|`/me`
+> artık `today`/`demo_mode_enabled` döndürüyor, arayüz kendi tarih hesabını yapmıyor. Yeni CSS yok (mevcut
+> `.topbar-dept` stili). Ayrıca: Ankara RES'in bir sigorta belgesine (`DOC-ANK-OPS-009`) "yenileme eksik, süresi
+> dolmuş" kurgusu eklenecek, ama **gerçek tarih henüz ledger'a yazılmadı** — Naci üç aday arasından seçecek
+> (`docs/reports/TARIH_SAAT_REPORT.md` §6). Plan `docs/plans/TARIH_SAAT_PLAN.md`, rapor
+> `docs/reports/TARIH_SAAT_REPORT.md`. **Tansu'ya:** PR #8 bekleyen tek, küçük bir görsel öğe; #4/#5'ten
+> bağımsız.
+>
 > **03.10.2026 — PR #5 DE MERGE OLDU:** Tekrar kontrol edildi — `feat/b28b-arayuz` artık `MERGED`
 > (merge commit `59421ed`, 2026-10-03T08:25:46Z). `frontend-balbal` pini `92bd778` → `59421ed`
 > (company-ai commit `9abcde0`, pushlandı); dev Caddy yeni sürümle kuruldu. Canlı doğrulama: Yönetim ›

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-02T16:48:38+00:00",
+  "generated_at": "2026-10-05T19:07:43+00:00",
   "ledger_demo_today": "2026-09-15",
   "workbooks": [
     {
@@ -47,6 +47,7 @@
         "Inputs_DemoToday",
         "Inputs_Margin",
         "Inputs_TotalDebt",
+        "Ledger_DemoToday",
         "Outstanding_DemoToday"
       ]
     },
@@ -90,6 +91,7 @@
         "DSCR_Q4_2023",
         "DSCR_Q4_2024",
         "DSCR_Q4_2025",
+        "Ledger_DemoToday",
         "Outstanding_Q1_2024",
         "Outstanding_Q1_2025",
         "Outstanding_Q1_2026",
@@ -153,6 +155,7 @@
         "Budget_Q4_2023",
         "Budget_Q4_2024",
         "Budget_Q4_2025",
+        "Ledger_DemoToday",
         "Variance_Q1_2024",
         "Variance_Q1_2025",
         "Variance_Q1_2026",
@@ -196,6 +199,7 @@
       ],
       "named_ranges": [
         "Capacity_MW",
+        "Ledger_DemoToday",
         "MWh_Total_2023",
         "MWh_Total_2024",
         "MWh_Total_2025",
