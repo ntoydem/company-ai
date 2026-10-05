@@ -3,7 +3,7 @@
 **Tarih:** 05.10.2026  **Model:** Claude Sonnet 5  **Tag:** yok (düz commit + PHASES.md notu)  **Commit:** `012dfda`
 **Plan:** `docs/plans/TARIH_SAAT_PLAN.md` · **ADR:** **ADR-026** (yeni) · **Kapsam:** backend + ledger (B-28b'den bağımsız, cross-cutting) + AI-BalBal küçük bir PR ("Bugün" rozeti)
 
-Naci'nin SORU cevapları (05.10.2026, planın önerisiyle aynı yönde): (1) `DOC-ANK-OPS-009`'a `expiration_date` eklensin, "yenileme eksik, süresi dolmuş" kurgusu — **tarih yazılmadı**, 2-3 aday §6'da sunuluyor, onay bekliyor; (2) sistem-olgusu soruları yalnızca (a) frontend rozeti, backend kısa devresi (b) **yok**; (3) `company_timezone` varsayılanı `Europe/Istanbul`; (4) diğer üç aday (EPC-007, DEV-001, İzmir DEV-001) bu turda eklenmedi.
+Naci'nin SORU cevapları (05.10.2026, planın önerisiyle aynı yönde): (1) `DOC-ANK-OPS-009`'a `expiration_date` eklensin, "yenileme eksik, süresi dolmuş" kurgusu — ilk turda **tarih yazılmadı**, 3 aday sunuldu; (1b, aynı gün) **Naci aday A'yı (09.01.2025) seçti ve onayladı** — bkz. §9; (2) sistem-olgusu soruları yalnızca (a) frontend rozeti, backend kısa devresi (b) **yok**; (3) `company_timezone` varsayılanı `Europe/Istanbul`; (4) diğer üç aday (EPC-007, DEV-001, İzmir DEV-001) bu turda eklenmedi.
 
 ## 1. Kabul kriterleri (plan §7)
 
@@ -16,7 +16,7 @@ Naci'nin SORU cevapları (05.10.2026, planın önerisiyle aynı yönde): (1) `DO
 | T05 | `outstanding_debt('today')`: workbook `Ledger_DemoToday` ile `temporal.today()` eşleşirse eski davranış; eşleşmezse açık uyarı, sessiz bayat değer yok | ✅ | `test_excel_engine.py::test_outstanding_debt_today_refuses_a_stale_snapshot` (bir gün kaydırılmış `today` → `FunctionError`) |
 | T06 | Sistem-olgusu kısa devresi (SORU 2 cevabına göre) | N/A | SORU 2: yalnızca (a) frontend — backend kısa devresi yapılmadı, bu yüzden kriter uygulanmadı |
 | T07 | `validate-ledger` 0 hata/uyarı; yeni ledger şema testi: `expiration_date` doluysa `>= effective_date` | ✅ | `make validate-ledger` → `0 error(s), 0 warning(s)`; `test_validate_ledger.py::test_expiration_date_must_be_after_effective_date` (yeni kural **C11**) |
-| T08 | Canlı doğrulama (küçük, hedefli) | ⏭ ertelendi | `DOC-ANK-OPS-009`'un gerçek `expiration_date`'i yazılmadan (SORU 1 onayı bekliyor) "süresi doldu mu" sorusu canlı test edilemez; mekanizma (`expiration_note`, rule 8, Excel drift) birim testle doğrulandı. Naci tarih onaylayınca tek bir takip turu (ledger yazımı + 1-2 soruluk canlı doğrulama) yeterli |
+| T08 | Canlı doğrulama (küçük, hedefli) | ✅ (§9) | Aday A onaylandıktan sonra tamamlandı — bkz. §9 |
 
 ## 2. Yapılanlar
 
@@ -75,8 +75,23 @@ Ledger'a **hiçbir tarih yazılmadı**. "Sigorta Yenileme Bildirimi — İşletm
 
 Onayınızdan sonra: `seed_data/master/ankara_res.yaml`'de `DOC-ANK-OPS-009`'un `expiration_date: null` satırı seçtiğiniz tarihle değiştirilir, `make validate-ledger` + `make seed-demo-documents` (var olan kurulumda tek seferlik) + 1-2 soruluk canlı doğrulama ("Ankara RES sigorta poliçesinin süresi doldu mu?") yapılır, kısa bir takip notu + commit ile kapatılır.
 
+## 9. Takip turu (05.10.2026, aynı gün) — aday A onaylandı, ledger'a yazıldı
+
+**Önce kontrol:** `DOC-ANK-OPS-009`'un prose kaynağı (`seed_data/generator/prose/DOC-ANK-OPS-009.yaml`) okundu — iki bölüm ("Yenileme Kapsamı", "Yürürlük"), yalnızca `[[effective_date]]` (yürürlüğe giriş) ve `[[document_date]]` token'larını kullanıyor; **hiçbir yerde bir geçerlilik süresi, bitiş tarihi veya "N yıl geçerlidir" türünde bir ifade yok**. Ledger'daki `key_facts: {}` de boş — cover page'e ek bir tarih/süre basılmıyor. **Çelişki yok** — `make prose` çalıştırılmadı, PDF yeniden üretilmedi, `hand_edited` korumasına dokunulmadı.
+
+**Ledger yazımı:** `seed_data/master/ankara_res.yaml`, `DOC-ANK-OPS-009.expiration_date` → `{value: 2025-01-09, tag: AI_ASSUMPTION, note: "Naci onayı 05.10.2026 — bir yıllık poliçe döneminin sonu; yenileme belgesi ledger'da yok (kasıtlı, 'süresi dolmuş' demo senaryosu)"}` + açıklayıcı YAML yorumu. `tag: AI_ASSUMPTION` — belgenin diğer tüm alanlarıyla aynı kategori (kurgusal demo verisi); ledger'da "insan onaylı kurgu" için ayrı bir etiket yok, bu yüzden onay bilgisi `note` alanına ve commit mesajına yazıldı.
+
+- `make validate-ledger` → **0 error(s), 0 warning(s)** (yeni **C11** kuralı dahil).
+- `make lint` → **0 error(s)** (ruff, mypy 118 dosya, prompt-doküman eşitliği, ledger/belge/Excel doğrulaması).
+- **Reseed gerekmedi:** `demo_documents_seed.py` create-if-missing (idempotent) olduğu için bu belge zaten DB'de vardı; tam reset yerine dev DB'deki tek satır (`documents.expiration_date`, `external_ref=DOC-ANK-OPS-009`) doğrudan ledger'daki değere eşitlendi — diğer 74 belge, katalog, admin olayları vb. dokunulmadı.
+- **Canlı doğrulama** (`yonetim`, Caddy üzerinden, **2 LLM çağrısı**):
+  - *"Ankara RES sigorta poliçesi bitmiş mi?"* → **"Ankara RES sigorta poliçesi 09.01.2025 tarihinde sona ermiştir [K71], [K72]."** (`answered: true`, iki kaynak da aynı belgenin iki sayfası, `warnings: []`).
+  - *"Ankara RES sigorta poliçesinin süresi ne zaman doldu?"* → aynı tarih ve kaynakla tekrar doğrulandı.
+  - **Küçük gözlem (kod hatası değil):** model her iki cevapta da "sona ermiştir" kelimesini **boşluksuz** yazdı ("sonaermiştir") — tarih, yön (doldu/dolmadı) ve kaynak doğru; yalnızca `gemini-3.5-flash-lite`'ın `expiration_note`'u birebir alıntılamak yerine hafifçe yeniden ifade etmesinden kaynaklanıyor (rule 8 "onu aynen aktar" diyor, model tam harfiyen uymadı). Bloke edici değil; ileride rule 8'e "bu satırı **değiştirmeden** aktar" gibi daha keskin bir ifade eklenebilir — bu turda düzeltilmedi.
+
 ## 7. Sonraki adım
 
-- Naci'nin §6'daki tarih onayı → tek, küçük bir takip turu.
+- ~~Naci'nin §6'daki tarih onayı~~ — **kapandı, bkz. §9.**
 - AI-BalBal PR #8 ve (varsa bekleyen diğer PR'lar) Tansu'nun kararını bekliyor.
 - B-01 (Gündeminiz) geldiğinde `temporal.py`'deki `expiration_note`/`today` fonksiyonları doğrudan yeniden kullanılabilir — ayrı bir hesap yazılmaz.
+- Küçük not: rule 8'in "aynen aktar" talimatına modelin birebir uyması (§9'daki boşluksuz kelime gözlemi) ileride gözden geçirilebilir; bloke edici değil.

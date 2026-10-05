@@ -1013,7 +1013,9 @@ documents:
     name: {value: "Sigorta Yenileme Bildirimi — İşletme Dönemi", tag: AI_ASSUMPTION}
     document_date: {value: 2024-01-10, tag: AI_ASSUMPTION}
     effective_date: {value: 2024-01-10, tag: AI_ASSUMPTION}
-    expiration_date: null
+    # ADR-026 demo kurgusu: yenileme eksik, poliçe süresi dolmuş (1 yıllık dönem, yıldönümünden
+    # bir gün önce biter). Naci onayı 05.10.2026 — docs/reports/TARIH_SAAT_REPORT.md §6, aday A.
+    expiration_date: {value: 2025-01-09, tag: AI_ASSUMPTION, note: "Naci onayı 05.10.2026 — bir yıllık poliçe döneminin sonu; yenileme belgesi ledger'da yok (kasıtlı, 'süresi dolmuş' demo senaryosu)"}
     version: EXECUTED
     status: executed
     parties: ["DEF Enerji Üretim A.Ş.", "STU Sigorta"]

@@ -372,6 +372,10 @@ workbook'un kendi gömülü `Ledger_DemoToday`'i okunup sistemin bugünüyle kar
 değer yerine açık "veri yok". "Bugünün tarihi nedir?" sorusu Ç-7'nin beş veri durumuna girmiyor (belge sorusu değil);
 Naci kararı: yalnızca AI-BalBal'da küçük bir üst bar rozeti (`CurrentUser.today`/`demo_mode_enabled`, PR
 `ftansu/AI-BalBal#8`, merge edilmedi) — backend'de kısa devre **yok**, Balbal bu soruya hâlâ "yeterli bilgi
-bulamadım" diyor. `DOC-ANK-OPS-009` için "sigorta süresi dolmuş" kurgusunun gerçek tarihi üç adaydan Naci'nin
-seçimini bekliyor (rapor §6) — onay gelmeden ledger'a yazılmadı. Plan `docs/plans/TARIH_SAAT_PLAN.md`, rapor
-`docs/reports/TARIH_SAAT_REPORT.md`.
+bulamadım" diyor. **Aynı gün takip turu:** Naci üç adaydan **A**'yı (09.01.2025) onayladı; prose kaynağı
+(`seed_data/generator/prose/DOC-ANK-OPS-009.yaml`) önce kontrol edildi — çelişkili bir süre/bitiş tarihi
+içermediği doğrulandı, `make prose`/PDF yeniden üretimi yapılmadı. `DOC-ANK-OPS-009.expiration_date` ledger'a
+yazıldı (`tag: AI_ASSUMPTION`, `note` alanında onay kaydı); `validate-ledger`/`lint` 0 hata; dev DB'deki tek satır
+güncellendi (reseed gerekmedi, diğer 74 belge dokunulmadı); canlı doğrulama (`yonetim`, 2 LLM çağrısı): "Ankara
+RES sigorta poliçesi bitmiş mi?" → "09.01.2025 tarihinde sona ermiştir" + doğru kaynaklar. Plan
+`docs/plans/TARIH_SAAT_PLAN.md`, rapor `docs/reports/TARIH_SAAT_REPORT.md` (§9).

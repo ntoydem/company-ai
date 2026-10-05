@@ -24,10 +24,11 @@ Kısaltmalar: **kural N** = `CLAUDE.md`'deki N numaralı değişmez kural. **ADR
 > (https://github.com/ftansu/AI-BalBal/pull/8; main'e, **merge edilmedi**, T-12 tasarım onayı bekliyor): üst
 > barda, departman rozetinin yanına küçük bir **"Bugün: 15.09.2026 (demo)"** rozeti — `/api/auth/login`\|`/me`
 > artık `today`/`demo_mode_enabled` döndürüyor, arayüz kendi tarih hesabını yapmıyor. Yeni CSS yok (mevcut
-> `.topbar-dept` stili). Ayrıca: Ankara RES'in bir sigorta belgesine (`DOC-ANK-OPS-009`) "yenileme eksik, süresi
-> dolmuş" kurgusu eklenecek, ama **gerçek tarih henüz ledger'a yazılmadı** — Naci üç aday arasından seçecek
-> (`docs/reports/TARIH_SAAT_REPORT.md` §6). Plan `docs/plans/TARIH_SAAT_PLAN.md`, rapor
-> `docs/reports/TARIH_SAAT_REPORT.md`. **Tansu'ya:** PR #8 bekleyen tek, küçük bir görsel öğe; #4/#5'ten
+> `.topbar-dept` stili). Ayrıca (aynı gün, kapandı): Ankara RES'in bir sigorta belgesine (`DOC-ANK-OPS-009`)
+> "yenileme eksik, 09.01.2025'te süresi dolmuş" kurgusu — Naci üç aday arasından onayladı, prose kaynağı
+> çelişki içermediği doğrulandıktan sonra ledger'a yazıldı, canlı doğrulandı ("Ankara RES sigorta poliçesi
+> bitmiş mi?" → doğru tarih + kaynak). Plan `docs/plans/TARIH_SAAT_PLAN.md`, rapor
+> `docs/reports/TARIH_SAAT_REPORT.md` (§9). **Tansu'ya:** PR #8 bekleyen tek, küçük bir görsel öğe; #4/#5'ten
 > bağımsız.
 >
 > **03.10.2026 — PR #5 DE MERGE OLDU:** Tekrar kontrol edildi — `feat/b28b-arayuz` artık `MERGED`
