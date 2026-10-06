@@ -381,7 +381,7 @@ RES sigorta poliçesi bitmiş mi?" → "09.01.2025 tarihinde sona ermiştir" + d
 `docs/plans/TARIH_SAAT_PLAN.md`, rapor `docs/reports/TARIH_SAAT_REPORT.md` (§9).
 
 **Balbal davranış mantalitesi — Tansu Not 2 (05.10.2026, ADR-027, dal `feat/davranis-mantalitesi`, etiket
-`pre-assist-mode`; `main`'e HENÜZ birleştirilmedi):** `ASSIST_MODE` bayrağı (varsayılan kapalı = bugünkü davranış
+`pre-assist-mode`; `main`'e 06.10.2026 akşamı birleştirildi, etiket `assist-mode-1`):** `ASSIST_MODE` bayrağı (varsayılan kapalı = bugünkü davranış
 byte-identik; geri alma `.env` + `make restart-backend`). Açıkken cevap verilemeyen soruda sabit cümle `answer`'da
 aynen kalır, yanına kodla üretilen `assist` bloğu gelir: eşleşmeyen terimler (yetkili belgelerde LIMIT-1 FTS sondası),
 glossary'den yetkili belgelerde doğrulanmış aday terimler, "elimde şunlar var" (sıfır parçada metadata eşleşmesi,
@@ -407,7 +407,7 @@ cevaplanan tekrarlarda 2/2 birebir kopya, 1/3 ret. Tansu için yan yana tablo
 hotfix olarak alındı (`65c4ed9`). `partial` (kısmi cevap) Tansu Not 8 gelene kadar ertelendi; Not 7 kapsam dışı. Plan
 `docs/plans/DAVRANIS_MANTALITESI_PLAN.md`, rapor `docs/reports/DAVRANIS_MANTALITESI_REPORT.md`.
 
-**Belge işleme durumu — Tansu Not 7 (06.10.2026, ADR-028; iki dal, `main`'e HENÜZ birleştirilmedi):** dal 1
+**Belge işleme durumu — Tansu Not 7 (06.10.2026, ADR-028; iki dal, 06.10.2026 akşamı `main`'e birleştirildi — sıra dal 1 → davranis (ADR-027) → dal 2, her adımda test+lint yeşil, etiket `assist-mode-1` = `bbf67fe`; canlı `ASSIST_MODE=false`):** dal 1
 `feat/not7-isleme-durumu` (bayraksız): `ocr-worker` hata sınıflandırması — `encrypted` (ocrmypdf exit 8), `corrupt`
 (PyMuPDF açamıyor / resim format hatası), `no_text` (OCR bitti, tüm sayfalar boş — önceden sessizce `ready` + 0 chunk),
 `unknown` (diğer; yalnızca bu 3 deneme); kod `ingestion_error`'da, kullanıcı sade Türkçe `reason` görür (ham kod yalnızca

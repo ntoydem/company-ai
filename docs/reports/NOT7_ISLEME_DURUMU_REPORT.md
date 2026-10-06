@@ -77,3 +77,31 @@ Dal 2 (dal 1 + davranis üzerine): 12 dosya, ~+330 — `backend/app/services/pen
 ## 9. Kaynak kullanımı
 - RAM (docker stats): backend 31 MiB, ocr-worker 76 MiB, caddy 11 MiB, postgres ~1 GiB.
 - LLM: canlı doğrulama 3 çağrı + regresyon 14 çağrı (flash-lite); worker doğrulaması LLM'siz.
+
+## 10. Birleştirme öncesi kontrol ve birleştirme (Naci, 06.10.2026 — ikinci tur)
+
+**1. İki kayıp sorunun ×3 tekrarı, bayrak kapalı / açık (dal 2 checkout'u, flash-lite, 12 çağrı):**
+
+| Soru | Ölçüt | Bayrak KAPALI (×3) | Bayrak AÇIK (×3) |
+|---|---|---|---|
+| ANK-ISO-002 "Hangi projenin üretim lisansı var?" | yasak kaynak `ÇED Süreci Durum Yazısı` alıntılandı | **2/3** (18:55:44, 18:56:36) | **1/3** (18:59:06) |
+| GEN-CMP-003 "…kurulu gücü hangisi daha büyük?" | beklenen `Licence Amendment 01 (Kapasite Tadili)` kaynağı gelmedi | **2/3** (yalnızca 18:57:54'te geldi) | **3/3** |
+| Her ikisi | G1–G3 | 6/6 ✅ | 6/6 ✅ |
+
+Kaynak: `audit_log.sources` (kapalı: `consistency_185756`, açık: `consistency_190053`; tutarlılık modu kaynak kuralını puanlamadığından alıntılar denetim kaydından okundu). Kapalıyken de aynı düşme var → **model/retrieval değişkenliği**, assist/Not 7 ile ilgisi yok; birleştirmeye engel yok. Yan gözlem (ADR-027'den beri, bu turda değişmedi): `audit_log.assist` boşken SQL `NULL` değil JSON `null` yazılıyor (`jsonb_typeof = 'null'`, 97 satır; 0015 öncesi 783 satır SQL NULL) — ORM her ikisini `None` okur, davranış etkilenmez; istenirse `JSONB(none_as_null=True)` ile tek satırlık düzeltme.
+
+**2.** Tansu'nun docx'i commit edildi (`7e5c4ca`, dal 2 → main).
+
+**3. Birleştirme sırası ve sonuçlar (hepsi bayrak kapalı):**
+
+| Adım | Birleştirme | Commit | `make test` | `make lint` |
+|---|---|---|---|---|
+| 1 | `feat/not7-isleme-durumu` → `main` (fast-forward) | `ff97e7e` | backend 517 ✅, worker 18 ✅ (test DB geçici 0014) | ✅ |
+| 2 | `feat/davranis-mantalitesi` → `main` (`docs/ARCHITECTURE.md` çakışması: ADR-027 önce, ADR-028 sonra) | `eec10bf` | backend 535 ✅, worker 18 ✅ (test DB 0015'e alındı) | ✅ |
+| 3 | `feat/not7-balbal-davranisi` → `main` | `bbf67fe` (`docs/ARCHITECTURE.md` çakışması: dal 2 sürümü alındı; `git diff feat/not7-balbal-davranisi main` boş) | backend 547 ✅, worker 18 ✅ | ✅ |
+
+Etiket: `assist-mode-1` → `bbf67fe`, `origin/main` ve etiket push edildi.
+
+**4. VM `main`'de:** checkout `main` @ `bbf67fe`; `make restart-backend` (19:36 UTC) → `get_settings()`: `assist_mode_enabled=False`, `demo_mode_enabled=True`. Bayrak kapalı `/api/ask` örneği (enerji, GEN-TRM-002 "İzmir RES türbin tedarikçisi kim?") R0'daki (eski `main` kodu, 06.10 sabahı) kayıtla karşılaştırıldı: `answered=false`, `answer` sabit cümle, `cited_titles=[]`, `query_type=DOCUMENT_QUERY`, `assist=null` — **ortak alanlar birebir aynı**; yalnızca ek anahtarlar `pending_notice=null`, `pending_documents=[]` (additive). (İlk deneme ANK-AUT-001'de router bu kez `MIXED_QUERY` dedi — router değişkenliği, bayrakla ilgisiz; o yüzden ikinci soru gösterildi.) Worker: `up -d --build ocr-worker` (imaj 19:37 UTC); konteynerdeki `worker/errors.py` ve `worker/pipeline.py` md5'leri `main` ile aynı; `errors` modülü yüklü. Not: canlı worker **bind-mount** olduğundan imaj yalnızca bağımlılık taşır, kod checkout'tan gelir.
+
+**5. LLM'siz tarama (canlı DB, `ingestion_status=ready`, Excel/CSV hariç):** 76 `ready` belge (72 PDF/resim + 4 Excel). Chunk'sız: **0**; sayfasız: **0**; tüm sayfaları boş: **0** → Not 7'nin `no_text` kapsamına girecek belge **yok**. En az bir boş sayfası olan: **1** — `fatura` (external_ref yok, elle yüklenmiş test belgesi; 2 sayfa, 2. sayfa boş, 1 chunk) → kapsam dışı (yalnızca tüm sayfalar boşsa hata). `failed`/`uploaded`/`ocr`: 0. Düzeltme yapılmadı.
