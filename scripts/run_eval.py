@@ -18,6 +18,7 @@ import time
 from collections import Counter
 from pathlib import Path
 from typing import Any
+from uuid import UUID
 
 import httpx
 from sqlalchemy import select
@@ -118,6 +119,7 @@ def ask_with_retry(
                 retrieved_document_ids=tuple(
                     str(i) for i in data.get("retrieved_document_ids", [])
                 ),
+                audit_log_id=str(data["audit_log_id"]) if data.get("audit_log_id") else None,
             )
         if response is not None and response.status_code != _RETRYABLE_STATUS:
             # Not a rate-limit/availability issue (e.g. 401/422) — retrying won't help.
@@ -151,6 +153,7 @@ class SafetyIndex:
             ).all()
             self._page_text = {(str(d), int(p)): t for d, p, t in rows}
             documents = list(session.scalars(select(Document)).all())
+            title_by_id = {d.id: d.title for d in documents}
             self._header = {
                 str(d.id): " ".join(
                     part
@@ -162,6 +165,14 @@ class SafetyIndex:
                         f"Yürürlük: {d.effective_date:%d.%m.%Y}" if d.effective_date else "",
                         f"Versiyon: {d.version}",
                         temporal.expiration_note(d, self._today) or "",
+                        # The prompt's "Zincir:" line names the neighbours — their titles
+                        # (e.g. "Amendment 01") are things the model saw.
+                        title_by_id.get(d.supersedes_document_id, "")
+                        if d.supersedes_document_id
+                        else "",
+                        title_by_id.get(d.superseded_by_document_id, "")
+                        if d.superseded_by_document_id
+                        else "",
                     )
                     if part
                 )
@@ -179,9 +190,22 @@ class SafetyIndex:
                 )
                 self._visible[username] = frozenset(str(i) for i in ids)
 
+    def _retrieved_pages(self, outcome: AskOutcome) -> set[tuple[str, int]]:
+        """Every (document, page) the prompt carried — from this call's audit row
+        (`chunks_retrieved`); falls back to the cited pages when the row is unavailable."""
+        pages = set(outcome.cited_pages)
+        if outcome.audit_log_id:
+            with get_session_factory()() as session:
+                row = audit_log_repo.get(session, UUID(outcome.audit_log_id))
+                if row is not None:
+                    pages |= {
+                        (c["document_id"], int(c["page_number"])) for c in row.chunks_retrieved
+                    }
+        return pages
+
     def context(self, ask_as_user: str, outcome: AskOutcome) -> eval_lib.SafetyContext:
         parts = [f"BUGÜN: {self._today:%d.%m.%Y}"]
-        for document_id, page in outcome.cited_pages:
+        for document_id, page in sorted(self._retrieved_pages(outcome)):
             parts.append(self._header.get(document_id, ""))
             parts.append(self._page_text.get((document_id, page), ""))
         return eval_lib.SafetyContext(

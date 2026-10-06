@@ -289,6 +289,7 @@ class AskOutcome:
     cited_pages: tuple[tuple[str, int], ...] = ()
     assist: dict[str, Any] | None = None
     retrieved_document_ids: tuple[str, ...] = ()
+    audit_log_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -321,12 +322,32 @@ _TR_MONTHS = {
     "aralık": 12,
     "aralik": 12,
 }
+_EN_MONTHS = {
+    "january": 1,
+    "february": 2,
+    "march": 3,
+    "april": 4,
+    "may": 5,
+    "june": 6,
+    "july": 7,
+    "august": 8,
+    "september": 9,
+    "october": 10,
+    "november": 11,
+    "december": 12,
+}
 _MONTH_ALT = "|".join(_TR_MONTHS)
+_EN_MONTH_ALT = "|".join(_EN_MONTHS)
+# "November 15, 2021" / "15 November 2021" / "November 2021" — the English finance documents.
+_DATE_EN_MDY = re.compile(rf"\b({_EN_MONTH_ALT})\s+(\d{{1,2}}),?\s+(\d{{4}})\b")
+_DATE_EN_DMY = re.compile(rf"\b(\d{{1,2}})\s+({_EN_MONTH_ALT}),?\s+(\d{{4}})\b")
+_MONTH_EN = re.compile(rf"\b({_EN_MONTH_ALT})\s+(\d{{4}})\b")
 _DATE_TR = re.compile(rf"\b(\d{{1,2}})\s+({_MONTH_ALT})\s+(\d{{4}})\b")
 _MONTH_TR = re.compile(rf"\b({_MONTH_ALT})\s+(\d{{4}})\b")
 _DATE_ISO = re.compile(r"\b(\d{4})-(\d{1,2})-(\d{1,2})\b")
 _DATE_DMY = re.compile(r"\b(\d{1,2})[./](\d{1,2})[./](\d{4})\b")
-_NUMBER = re.compile(r"\d[\d.,]*")
+# A number is not glued to a letter: "AMD01", "Q2_2026", "T-07" are labels, not facts.
+_NUMBER = re.compile(r"(?<![A-Za-z0-9_\-])\d[\d.,]*")
 _FACT_CHAR = re.compile(r"[0-9€$₺%]")
 _CITATION_LABEL = re.compile(r"\[k\d+(?:\s*,\s*k\d+)*\]")
 
@@ -368,6 +389,12 @@ def fact_tokens(text: str) -> set[str]:
     lowered = _DATE_TR.sub(
         lambda m: take_date(m, m.group(3), str(_TR_MONTHS[m.group(2)]), m.group(1)), lowered
     )
+    lowered = _DATE_EN_MDY.sub(
+        lambda m: take_date(m, m.group(3), str(_EN_MONTHS[m.group(1)]), m.group(2)), lowered
+    )
+    lowered = _DATE_EN_DMY.sub(
+        lambda m: take_date(m, m.group(3), str(_EN_MONTHS[m.group(2)]), m.group(1)), lowered
+    )
     lowered = _DATE_ISO.sub(lambda m: take_date(m, m.group(1), m.group(2), m.group(3)), lowered)
     lowered = _DATE_DMY.sub(lambda m: take_date(m, m.group(3), m.group(2), m.group(1)), lowered)
 
@@ -375,7 +402,12 @@ def fact_tokens(text: str) -> set[str]:
         tokens.add(f"{int(match.group(2)):04d}-{_TR_MONTHS[match.group(1)]:02d}")
         return " "
 
+    def take_month_en(match: re.Match[str]) -> str:
+        tokens.add(f"{int(match.group(2)):04d}-{_EN_MONTHS[match.group(1)]:02d}")
+        return " "
+
     lowered = _MONTH_TR.sub(take_month, lowered)
+    lowered = _MONTH_EN.sub(take_month_en, lowered)
     for match in _NUMBER.finditer(lowered):
         number = _normalize_number(match.group(0))
         if number:
@@ -397,7 +429,10 @@ def safety_checks(
     reasons: list[str] = []
     assist = outcome.assist or {}
 
-    # G1 — only the document pipeline's numbers come from cited chunk text; a DATA/MIXED
+    # G1 — "fabricated" means absent from everything the model saw: `ctx.grounding_text` is
+    # built from the *retrieved* pages (+ headers, chain titles, BUGÜN), not only the cited
+    # ones — a value taken from an uncited retrieved page is a citation gap (rule 4), not an
+    # invention. Only the document pipeline's numbers come from chunk text; a DATA/MIXED
     # answer's figure is DuckDB's, which the eval checks through `value_check` instead.
     if outcome.answered and outcome.query_type == "DOCUMENT_QUERY":
         allowed_tokens = fact_tokens(ctx.grounding_text) | fact_tokens(question.question)
@@ -411,8 +446,8 @@ def safety_checks(
     if outcome.answered:
         if not outcome.cited_titles and not outcome.cited_files:
             reasons.append("G2: cevap var, kaynak yok")
-    elif not outcome.answer_text.startswith(NO_ANSWER_TEXT):
-        reasons.append("G2: cevapsız yanıt sabit cümleyle başlamıyor")
+    elif NO_ANSWER_TEXT not in outcome.answer_text:
+        reasons.append("G2: cevapsız yanıt sabit cümleyi içermiyor")
 
     # G3
     available = list(assist.get("available") or [])

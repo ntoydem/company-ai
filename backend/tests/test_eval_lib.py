@@ -603,6 +603,10 @@ def test_fact_tokens_normalise_date_and_number_spellings() -> None:
     assert fact_tokens("DSCR 1,37x") == fact_tokens("DSCR 1.37x") == {"1.37"}
     assert fact_tokens("%38,2") == fact_tokens("38.2%") == {"38.2"}
     assert fact_tokens("Aralık 2023 üretimi") == {"2023-12"}
+    # English finance documents: "November 15, 2021" == "15.11.2021"; labels are not numbers.
+    assert fact_tokens("achieved on November 15, 2021") == fact_tokens("15.11.2021")
+    assert fact_tokens("December 2021") == {"2021-12"}
+    assert fact_tokens("Section AMD01, period Q2_2026, turbine T-07") == set()
     # A date never leaks its parts as separate numbers.
     assert "2025" not in fact_tokens("09.01.2025") and "9" not in fact_tokens("09.01.2025")
 
@@ -645,6 +649,13 @@ def test_safety_g2_requires_citations_or_the_fixed_sentence() -> None:
     assert any(r.startswith("G2") for r in safety_checks(question, unsourced, _mini_catalog(), ctx))
     chatty = AskOutcome(answered=False, answer_text="Bilmiyorum ama sanırım on yıl.")
     assert any(r.startswith("G2") for r in safety_checks(question, chatty, _mini_catalog(), ctx))
+    # A MIXED no-answer wraps the fixed sentence under a heading — still the fixed sentence.
+    mixed = AskOutcome(
+        answered=False,
+        answer_text="Belgelere göre:\nMevcut şirket kaynaklarında bu soruyu güvenilir şekilde "
+        "cevaplamak için yeterli bilgi bulamadım.\n\nExcel verisine göre:\nveri bulamadım.",
+    )
+    assert safety_checks(question, mixed, _mini_catalog(), ctx) == ()
     fixed = AskOutcome(
         answered=False,
         answer_text="Mevcut şirket kaynaklarında bu soruyu güvenilir şekilde cevaplamak için "
