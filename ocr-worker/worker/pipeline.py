@@ -10,9 +10,10 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import pymupdf
 from sqlalchemy import Engine, select, update
 
-from worker import image_to_pdf, ocr, storage
+from worker import errors, image_to_pdf, ocr, storage
 from worker.chunking import chunk_page_text
 from worker.config import Config
 from worker.db import Tables
@@ -20,7 +21,6 @@ from worker.extract import extract_pages
 
 log = logging.getLogger(__name__)
 
-FAILURE_MESSAGE = "Belge işlenirken bir hata oluştu."
 MAX_ATTEMPTS = 3
 
 
@@ -95,9 +95,11 @@ def _process(engine: Engine, tables: Tables, config: Config, job: LockedJob) -> 
     converted_input: Path | None = None
     if extension in ("png", "jpg", "jpeg"):
         converted_input = original_path.with_name("_ocr_input.pdf")
+        # A corrupt image raises pymupdf.FileDataError here → `corrupt` (worker/errors.py).
         image_to_pdf.convert(original_path, converted_input)
         ocr_input = converted_input
     else:
+        _assert_openable_pdf(original_path)
         ocr_input = original_path
 
     ocr_output = storage.ocr_pdf_path(config.documents_dir, job.document_id)
@@ -115,6 +117,10 @@ def _process(engine: Engine, tables: Tables, config: Config, job: LockedJob) -> 
         )
 
     page_texts: list[tuple[int, str]] = list(extract_pages(ocr_output))
+    if not any(text.strip() for _, text in page_texts):
+        # Before Not 7 this silently became `ready` with zero chunks — invisible to search
+        # and to the uploader alike. Now it is a failure the user can act on (rescan).
+        raise errors.IngestionError(errors.NO_TEXT, f"{len(page_texts)} blank page(s)")
     text_sidecar = storage.text_sidecar_path(config.documents_dir, job.document_id)
     text_sidecar.write_text("\n\f\n".join(text for _, text in page_texts), encoding="utf-8")
 
@@ -155,28 +161,45 @@ def _process(engine: Engine, tables: Tables, config: Config, job: LockedJob) -> 
         )
 
 
+def _assert_openable_pdf(path: Path) -> None:
+    """`corrupt` must be certain (Naci, Not 7 SORU 4): only "PyMuPDF cannot open it" counts.
+    ocrmypdf's own exit code 2 is ambiguous (DPI, fonts, signatures) and stays `unknown`."""
+    doc = pymupdf.open(path)  # raises pymupdf.FileDataError / EmptyFileError
+    doc.close()
+
+
 def _handle_failure(engine: Engine, tables: Tables, job: LockedJob, exc: Exception) -> None:
+    """Store a closed error *code* (worker/errors.py), never a sentence or the exception.
+    Deterministic causes fail at once; `unknown` is retried up to `MAX_ATTEMPTS`."""
+    code = errors.classify(exc)
+    final = job.attempts >= MAX_ATTEMPTS or not errors.is_retryable(code)
     log.error(
         "ingestion job failed",
-        extra={"document_id": str(job.document_id), "attempts": job.attempts, "error": repr(exc)},
+        extra={
+            "document_id": str(job.document_id),
+            "attempts": job.attempts,
+            "code": code,
+            "final": final,
+            "error": repr(exc),
+        },
     )
     with engine.begin() as conn:
-        if job.attempts >= MAX_ATTEMPTS:
+        if final:
             conn.execute(
                 update(tables.ingestion_jobs)
                 .where(tables.ingestion_jobs.c.id == job.id)
-                .values(status="failed", error=FAILURE_MESSAGE)
+                .values(status="failed", error=code)
             )
             conn.execute(
                 update(tables.documents)
                 .where(tables.documents.c.id == job.document_id)
-                .values(ingestion_status="failed", ingestion_error=FAILURE_MESSAGE)
+                .values(ingestion_status="failed", ingestion_error=code)
             )
         else:
             conn.execute(
                 update(tables.ingestion_jobs)
                 .where(tables.ingestion_jobs.c.id == job.id)
-                .values(status="queued", error=FAILURE_MESSAGE)
+                .values(status="queued", error=code)
             )
 
 

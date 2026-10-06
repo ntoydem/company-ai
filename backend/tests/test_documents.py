@@ -175,7 +175,8 @@ def test_get_document_status_returns_fields(client: TestClient, admin_user: User
     body = response.json()
     assert body["id"] == document_id
     assert body["ingestion_status"] == "uploaded"
-    assert body["ingestion_error"] is None
+    assert body["reason"] is None
+    assert body["ingestion_error"] is None  # deprecated alias of `reason`, never the raw code
     assert body["page_count"] is None
 
 

@@ -192,6 +192,24 @@ bir departman slug'ına karşı doğrulanır (422); `project_id` verilirse var o
 `supersedes_document_id` ile bir belge başka birinin yerini aldığında, eskisinin `status`'u otomatik olarak
 `superseded` olur (Phase 3.2).
 
+**İşleme durumu ve "Son yüklenen belgeler" kartı (Tansu Not 7, 06.10.2026, ADR-028):** `ocr-worker` bir belgeyi
+okuyamadığında `ingestion_error`'a kapalı bir **kod** yazar (`no_text` boş tarama, `encrypted` parolalı, `corrupt`
+açılamayan dosya, `unknown` diğer); bu kodlar sadece kesin tanındığında kullanılır ve `unknown` dışındakiler yeniden
+denenmez. Kullanıcı kodu değil, sade Türkçe karşılığını görür (`app/services/ingestion_errors.py`; ham kod yalnızca
+admin'in gördüğü belge detayında `ingestion_error`, herkes için `ingestion_reason`). Boş çıkan tarama artık sessizce
+`ready` olmaz, `no_text` ile "Daha net bir tarama yükleyin" der. Desteklenen biçimler PDF, PNG/JPG, Excel (xlsx/xlsm)
+ve CSV'dir — **Word yoktur** (415).
+```bash
+curl -b cookies.txt http://localhost:8080/api/documents/<id>/status
+# {"id":"…","ingestion_status":"failed","reason":"Belge parola korumalı olduğu için açılamadı. …","ingestion_error":<reason ile aynı, eski alan>,"page_count":null}
+curl -b cookies.txt "http://localhost:8080/api/documents/recent?department=finans&limit=5"
+# [{"document_id":"…","title":"…","card_state":"queued|processing|pending_approval|ready|failed",
+#   "queue_position":1,"approver":"uploader|department_manager","reason":null, …}]
+```
+`/recent`: `/api/documents` ile **aynı yetki kapısı** (`include_pending`), son 7 günün en yeni belgeleri + ne kadar
+eski olursa olsun hâlâ kuyrukta/işlenen/okunamayan belgeler; okunamayanlar en üstte; varsayılan 5, en çok 20 satır.
+`card_state=ready` = onaylı + işlenmiş = "Balbal kullanabilir". Süre tahmini verilmez.
+
 **Dosya türü, indirme adı, tarayıcıda açma (Aşama B, 30.09.2026):** her liste/detay/yükleme cevabında
 `file_kind: pdf | image | xlsx | xlsm | csv` bulunur (saklanan dosyadan türetilir). `GET /api/documents/{id}/download`
 dosyayı **belge başlığıyla** adlandırır (`Ankara RES Kredi Sözleşmesi.pdf`; Türkçe karakterler korunur, RFC 5987) ve

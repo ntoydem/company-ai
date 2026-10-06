@@ -79,18 +79,53 @@ class DocumentDetailResponse(DocumentListItem):
     supersedes_document_id: UUID | None
     superseded_by_document_id: UUID | None
     related_document_ids: list[UUID]
+    # Not 7: the raw worker code (`no_text` / `encrypted` / `corrupt` / `unknown`) is for
+    # admin only — everyone else gets `null` here and the Turkish `ingestion_reason`.
     ingestion_error: str | None
+    ingestion_reason: str | None = None
     page_count: int | None
     has_macros: bool
 
 
 class DocumentStatusResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    """`GET /api/documents/{id}/status`. `reason` is the plain Turkish line for a failed
+    document (`app/services/ingestion_errors.py`); the raw code is never returned here.
+    `ingestion_error` is a deprecated alias carrying the *same* Turkish line, kept so the
+    deployed AI-BalBal upload tab (which renders this field) keeps showing a reason until
+    its PR switches to `reason`."""
 
     id: UUID
     ingestion_status: IngestionStatus
+    reason: str | None
     ingestion_error: str | None
     page_count: int | None
+
+
+CardState = Literal["queued", "processing", "pending_approval", "ready", "failed"]
+Approver = Literal["uploader", "department_manager"]
+
+
+class RecentDocumentItem(BaseModel):
+    """One row of the "Son yüklenen belgeler" card (`GET /api/documents/recent`, Tansu Not 7
+    §2). `card_state` is derived server-side (`app/services/document_card.py`) so every
+    client shows the same thing; `ready` means "Balbal kullanabilir" (approved + ingested).
+    `reason` is the mapped Turkish line, never the worker's raw code."""
+
+    document_id: UUID
+    title: str
+    document_type: str
+    file_kind: FileKind | None
+    created_at: datetime
+    uploaded_by_id: UUID | None
+    ingestion_status: IngestionStatus
+    review_status: DocumentReviewStatus
+    card_state: CardState
+    # Only while `queued`: 1 = next in line. No time estimate — none is known.
+    queue_position: int | None = None
+    # Only while `pending_approval`: whose move it is.
+    approver: Approver | None = None
+    # Only when `failed`.
+    reason: str | None = None
 
 
 class MetadataSuggestionResponse(BaseModel):

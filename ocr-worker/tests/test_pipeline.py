@@ -146,38 +146,157 @@ def test_scanned_pdf_ocr_produces_readable_text(
     assert "DSCR" in text_sidecar.read_text(encoding="utf-8")
 
 
-def test_corrupt_pdf_fails_after_three_attempts(
-    engine: Engine, tables: Tables, config: Config
-) -> None:
-    document_id = uuid.uuid4()
-    doc_dir = config.documents_dir / str(document_id)
-    doc_dir.mkdir(parents=True)
-    (doc_dir / "original.pdf").write_bytes(b"%PDF-1.4\ngarbage, not a real pdf")
+def _make_blank_scanned_pdf(path: Path, page_count: int = 2) -> None:
+    """Image-only pages with nothing on them: OCR runs and finds no text."""
+    out = pymupdf.open()
+    try:
+        blank = pymupdf.open()
+        blank.new_page(width=595, height=842)
+        pix = blank[0].get_pixmap(dpi=100)
+        blank.close()
+        for _ in range(page_count):
+            page = out.new_page(width=pix.width, height=pix.height)
+            page.insert_image(page.rect, pixmap=pix)
+        out.save(path)
+    finally:
+        out.close()
 
-    _insert_document_with_job(
-        engine,
-        tables,
-        document_id=document_id,
-        title="Corrupt",
-        storage_path=f"{document_id}/original.pdf",
-    )
 
-    for _ in range(3):
-        assert process_one_job(engine, tables, config) is True
+def _make_encrypted_pdf(path: Path) -> None:
+    doc = pymupdf.open()
+    try:
+        page = doc.new_page(width=595, height=842)
+        page.insert_text((72, 72), DSCR_TEXT)
+        doc.save(path, encryption=pymupdf.PDF_ENCRYPT_AES_256, user_pw="gizli", owner_pw="sahip")
+    finally:
+        doc.close()
 
+
+def _read_outcome(
+    engine: Engine, tables: Tables, document_id: uuid.UUID
+) -> tuple[str, int, str, str]:
     with engine.begin() as conn:
         job_row = conn.execute(
-            select(tables.ingestion_jobs.c.status, tables.ingestion_jobs.c.attempts).where(
-                tables.ingestion_jobs.c.document_id == document_id
-            )
+            select(
+                tables.ingestion_jobs.c.status,
+                tables.ingestion_jobs.c.attempts,
+                tables.ingestion_jobs.c.error,
+            ).where(tables.ingestion_jobs.c.document_id == document_id)
         ).one()
         doc_row = conn.execute(
             select(tables.documents.c.ingestion_status, tables.documents.c.ingestion_error).where(
                 tables.documents.c.id == document_id
             )
         ).one()
+    if job_row.status == "failed":  # a requeued job carries the code, the document not yet
+        assert doc_row.ingestion_error == job_row.error
+    return job_row.status, job_row.attempts, doc_row.ingestion_status, doc_row.ingestion_error
 
-    assert job_row.status == "failed"
-    assert job_row.attempts == 3
-    assert doc_row.ingestion_status == "failed"
-    assert doc_row.ingestion_error
+
+def _prepare(config: Config, document_id: uuid.UUID) -> Path:
+    doc_dir = config.documents_dir / str(document_id)
+    doc_dir.mkdir(parents=True)
+    return doc_dir
+
+
+def test_corrupt_pdf_fails_at_once_with_code_corrupt(
+    engine: Engine, tables: Tables, config: Config
+) -> None:
+    """PyMuPDF cannot open the bytes at all → certain, no retry (Not 7, SORU 4)."""
+    document_id = uuid.uuid4()
+    doc_dir = _prepare(config, document_id)
+    (doc_dir / "original.pdf").write_bytes(b"%PDF-1.4\ngarbage, not a real pdf")
+    _insert_document_with_job(
+        engine, tables, document_id=document_id, title="Corrupt", storage_path="x/original.pdf"
+    )
+
+    assert process_one_job(engine, tables, config) is True
+    assert process_one_job(engine, tables, config) is False  # nothing requeued
+
+    assert _read_outcome(engine, tables, document_id) == ("failed", 1, "failed", "corrupt")
+
+
+def test_corrupt_image_fails_at_once_with_code_corrupt(
+    engine: Engine, tables: Tables, config: Config
+) -> None:
+    document_id = uuid.uuid4()
+    doc_dir = _prepare(config, document_id)
+    (doc_dir / "original.png").write_bytes(b"\x89PNG\r\n\x1a\nnot really an image")
+    _insert_document_with_job(
+        engine,
+        tables,
+        document_id=document_id,
+        title="Corrupt image",
+        storage_path="x/original.png",
+    )
+
+    assert process_one_job(engine, tables, config) is True
+
+    assert _read_outcome(engine, tables, document_id) == ("failed", 1, "failed", "corrupt")
+
+
+def test_encrypted_pdf_fails_at_once_with_code_encrypted(
+    engine: Engine, tables: Tables, config: Config
+) -> None:
+    """ocrmypdf refuses encrypted input with exit code 8 (ExitCode.encrypted_pdf)."""
+    document_id = uuid.uuid4()
+    doc_dir = _prepare(config, document_id)
+    _make_encrypted_pdf(doc_dir / "original.pdf")
+    _insert_document_with_job(
+        engine, tables, document_id=document_id, title="Encrypted", storage_path="x/original.pdf"
+    )
+
+    assert process_one_job(engine, tables, config) is True
+    assert process_one_job(engine, tables, config) is False
+
+    assert _read_outcome(engine, tables, document_id) == ("failed", 1, "failed", "encrypted")
+
+
+def test_blank_scanned_pdf_fails_with_code_no_text_instead_of_silent_ready(
+    engine: Engine, tables: Tables, config: Config
+) -> None:
+    """Before Not 7 this became `ready` with zero chunks (the pipeline never checked);
+    now the uploader is told to rescan. No page/chunk rows are written."""
+    document_id = uuid.uuid4()
+    doc_dir = _prepare(config, document_id)
+    _make_blank_scanned_pdf(doc_dir / "original.pdf")
+    _insert_document_with_job(
+        engine, tables, document_id=document_id, title="Blank scan", storage_path="x/original.pdf"
+    )
+
+    assert process_one_job(engine, tables, config) is True
+
+    assert _read_outcome(engine, tables, document_id) == ("failed", 1, "failed", "no_text")
+    with engine.begin() as conn:
+        pages = conn.execute(
+            select(func.count())
+            .select_from(tables.document_pages)
+            .where(tables.document_pages.c.document_id == document_id)
+        ).scalar_one()
+    assert pages == 0
+
+
+def test_unknown_failure_is_retried_three_times_then_fails_with_code_unknown(
+    engine: Engine, tables: Tables, config: Config, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Anything not certainly classified keeps ADR-006's three attempts. The stored value
+    is the code, never the exception text."""
+    from worker import pipeline
+
+    def _boom(*_: object, **__: object) -> None:
+        raise RuntimeError("tesseract crashed: Traceback (most recent call last) ...")
+
+    monkeypatch.setattr(pipeline.ocr, "run_ocr", _boom)
+    document_id = uuid.uuid4()
+    doc_dir = _prepare(config, document_id)
+    _make_digital_pdf(doc_dir / "original.pdf", page_count=1, text=DSCR_TEXT)
+    _insert_document_with_job(
+        engine, tables, document_id=document_id, title="Flaky", storage_path="x/original.pdf"
+    )
+
+    for _ in range(2):
+        assert process_one_job(engine, tables, config) is True
+        assert _read_outcome(engine, tables, document_id)[0] == "queued"
+    assert process_one_job(engine, tables, config) is True
+
+    assert _read_outcome(engine, tables, document_id) == ("failed", 3, "failed", "unknown")

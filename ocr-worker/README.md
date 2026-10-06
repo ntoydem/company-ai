@@ -19,6 +19,7 @@ worker/
   image_to_pdf.py   # png/jpg -> single-page PDF (PyMuPDF)
   ocr.py            # ocrmypdf subprocess wrapper
   extract.py        # per-page text extraction (PyMuPDF)
+  errors.py         # failure classification: no_text / encrypted / corrupt / unknown (Not 7)
   chunking.py       # chunk_page_text(): ~800 words, 100-word overlap, page-bounded
   pipeline.py        # lock_next_job / process_one_job / handle_failure / stale-job requeue
   main.py             # poll loop entrypoint (`python -m worker.main`)
@@ -34,11 +35,16 @@ to PDF first → `ocrmypdf --language tur+eng --skip-text --rotate-pages --deske
 (`tsv_turkish`/`tsv_simple` are Postgres-generated, `embedding` stays NULL until Phase 3.4)
 → `documents.ingestion_status=ready`, `ingestion_jobs.status=done`.
 
-On failure: up to 3 attempts (tracked in `ingestion_jobs.attempts`), then
-`ingestion_jobs.status=failed` + `documents.ingestion_status=failed` with a fixed Turkish
-message in `ingestion_error` (never the raw exception — that goes to the structured log
-only). A `running` job whose `locked_at` is stale (default: >10 minutes, crash recovery —
-this worker's own addition, not specified by ADR-006) is requeued automatically.
+On failure (Tansu Not 7, ADR-028): the exception is classified in `worker/errors.py` into a
+closed code — `encrypted` (ocrmypdf exit code 8), `corrupt` (PyMuPDF cannot open the file /
+format violation in the image), `no_text` (OCR finished, every page blank — previously this
+became `ready` with zero chunks), `unknown` (everything else, including ocrmypdf exit code 2,
+which is ambiguous). The code is written to `ingestion_jobs.error` and
+`documents.ingestion_error`; the raw exception goes to the structured log only, and the
+backend maps the code to the Turkish line the user sees. `unknown` is retried up to 3
+attempts (`ingestion_jobs.attempts`); the other codes are deterministic and fail at once.
+A `running` job whose `locked_at` is stale (default: >10 minutes, crash recovery — this
+worker's own addition, not specified by ADR-006) is requeued automatically.
 
 ## Running
 
