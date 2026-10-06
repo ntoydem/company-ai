@@ -75,10 +75,39 @@ _RULES = [
     f"ayrı ayrı ver:\n{COMPARISON_NOTICE}",
 ]
 
-SYSTEM_PROMPT = (
+_PREAMBLE = (
     "Sen bir şirket bilgi asistanısın. Görevin, aşağıda verilen şirket kaynaklarında yazanı "
-    "bulup aktarmaktır. Yorum yapmazsın.\n\nKURALLAR\n" + "\n".join(_RULES)
+    "bulup aktarmaktır. Yorum yapmazsın.\n\nKURALLAR\n"
 )
+
+SYSTEM_PROMPT = _PREAMBLE + "\n".join(_RULES)
+
+# ADR-027 (ASSIST_MODE only): rule 8 tightened to a verbatim copy of the code-computed
+# "Süre:" line (TARIH_SAAT_REPORT §9: the model paraphrased it), plus rule 11 — one bounded
+# clarifying question, parsed and validated by code (`services/assist.py`). Rules 1–7 and
+# 9–10 are byte-identical to `SYSTEM_PROMPT`; no worked example is ever put in the prompt —
+# examples live in the eval set.
+_RULE_8_ASSIST = (
+    '8. Bugünün tarihi "BUGÜN" satırında verilir, yalnızca bağlam içindir. Kalan gün, süre '
+    'doldu mu, kaç yıl geçti gibi tarih farkı hesaplarını SEN yapma. Bir kaynakta "Süre:" '
+    "ile başlayan bir satır varsa onu değiştirmeden, kelimesi kelimesine, boşluk ve "
+    "noktalama dahil kopyala; yeniden ifade etme, eş anlamlı kullanma. Böyle bir satır "
+    "yoksa bu hesap için veri yok demektir, kendi başına tarih çıkarımı yapma."
+)
+_RULE_11_ASSIST = (
+    "11. Cevap veremediğinde, sorunun ne anlama geldiğini netleştirecek TEK bir kısa soru "
+    'ekleyebilirsin: 2. kuraldaki cümleden sonra yeni bir satırda "SORU:" ile başla ve soru '
+    "işaretiyle bitir. Bu soruda rakam, tarih, para, yüzde veya kaynaklarda geçmeyen bir "
+    "isim kullanma. Bu bir öneri ya da tahmin değildir; yalnızca kullanıcının neyi "
+    "sorduğunu anlamaya yarar."
+)
+_RULES_ASSIST = [*_RULES[:7], _RULE_8_ASSIST, *_RULES[8:], _RULE_11_ASSIST]
+SYSTEM_PROMPT_ASSIST = _PREAMBLE + "\n".join(_RULES_ASSIST)
+
+
+def system_prompt(assist: bool) -> str:
+    """The one place the ASSIST_MODE flag selects a prompt (ADR-027)."""
+    return SYSTEM_PROMPT_ASSIST if assist else SYSTEM_PROMPT
 
 
 @dataclass(frozen=True)

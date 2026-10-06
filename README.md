@@ -420,6 +420,7 @@ ve cevaba `product_limit` uyarısı eklenir. Excel yükleme ve `/inspect` Ürün
 | `audit_log_id` | Bu cevabın `audit_log` satırı (yalnızca admin API'siyle okunur; id'yi bilmek yetki vermez) |
 | `product_level` | Cevabın üretildiği katman: `DOCUMENT_QUERY → P1`, `DATA/MIXED → P2` (nihai tipe göre) |
 | `warnings[]` | `{kind, message, action?}` — `missing_data` (hiç kaynak bulunamadı), `insufficient_data` (kaynak bulundu ama güvenilir cevaba yetmedi — Ç-7 "Yeterli Veri Bulunmamaktadır", 01.10.2026), ikisinde de `action: request_data` (B-11 butonu); `product_limit`. Metinler sabit, LLM üretmez |
+| `assist` | **ADR-027 (Tansu Not 2), yalnızca `ASSIST_MODE=true` iken ve cevap verilemediğinde**; aksi halde `null`. `{kind: clarify\|term_mismatch, question, unmatched_terms[], candidate_terms[], available[]}` — sabit cümle `answer`'da **aynen kalır**, yardım bu alanda. `available` ve `candidate_terms` kodla ve yalnızca kullanıcının yetkili belgelerinden; `question` modelin tek satırı (`SORU:`) ama rakam/tarih/para içeriyorsa veya yetkisiz bir belge adı geçiyorsa düşer, sabit şablon gösterilir. Sıfır parça yolunda LLM yine çağrılmaz. Geri alma: `.env` `ASSIST_MODE=false` + `make restart-backend` |
 | `sources[].supersedes_document_id`, `superseded_by_document_id`, `is_initial` | Versiyon zinciri komşularının id'si (yetkisiz komşu → `null`, başlığı gibi) ve "ilk halka" işareti |
 
 Denetim kaydı satırı da `product_level` ve `warnings` taşır (`GET /api/audit-log/{id}`). "Beğendim / hatalı" geri

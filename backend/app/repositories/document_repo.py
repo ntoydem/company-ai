@@ -385,6 +385,17 @@ def search_metadata(
     return list(session.scalars(stmt).all())
 
 
+def titles_outside(session: Session, ids: Iterable[uuid.UUID]) -> list[str]:
+    """Titles of every document NOT in `ids` (ADR-027): the assist block's clarifying
+    question is rejected if it names one of these. Server-side only — the list itself is
+    never returned to a client (it is exactly what the caller may not see)."""
+    id_list = list(ids)
+    stmt = select(Document.title)
+    if id_list:
+        stmt = stmt.where(Document.id.not_in(id_list))
+    return list(session.scalars(stmt).all())
+
+
 def get_many(session: Session, ids: Iterable[uuid.UUID]) -> list[Document]:
     id_list = list(ids)
     if not id_list:

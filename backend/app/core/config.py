@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     # Code never reads `demo_today`/`company_timezone` directly (ADR-026) — only
     # `app.services.temporal.today(settings)` does; everywhere else goes through it.
     # The env name is the documented switch (`DEMO_MODE`), not the field name — pydantic-settings
-    # would otherwise look for DEMO_MODE_ENABLED and silently keep the default (found 05.10.2026).
+    # would otherwise look for DEMO_MODE_ENABLED and silently keep the default.
     demo_mode_enabled: bool = Field(
         default=True, validation_alias=AliasChoices("DEMO_MODE", "DEMO_MODE_ENABLED")
     )
@@ -55,6 +55,14 @@ class Settings(BaseSettings):
     # Thinking budget stays low (SPEC_01 §5); Gemini maps this to `thinking_level`.
     llm_reasoning_effort: Literal["minimal", "low", "medium", "high"] = "low"
     anthropic_api_key: SecretStr | None = None
+
+    # ADR-027 (Tansu Not 2): when a question cannot be answered, add a code-generated
+    # `assist` block (what is available, which terms did not match, one bounded clarifying
+    # question) next to the fixed no-answer sentence. Off = today's behaviour, byte-identical.
+    # Rollback: ASSIST_MODE=false + `make restart-backend` (settings are read at start-up).
+    assist_mode_enabled: bool = Field(
+        default=False, validation_alias=AliasChoices("ASSIST_MODE", "ASSIST_MODE_ENABLED")
+    )
 
     # Phase 3.4
     embeddings_enabled: bool = False

@@ -27,8 +27,14 @@ QuestionCategory = Literal[
     "hallucination",
     "authorization",
     "comparison",
+    # ADR-027 (Tansu Not 2): a question that cannot be answered without knowing what the
+    # user means, and a question whose wording matches no document term — both expect the
+    # fixed no-answer sentence *plus* a code-generated assist block of the given kind.
+    "ambiguous",
+    "term_mismatch",
 ]
 DemoUser = Literal["admin", "yonetim", "finans", "hukuk", "enerji"]
+AssistKind = Literal["clarify", "term_mismatch"]
 
 DEPARTMENT_SLUGS = (
     "enerji_grubu",
@@ -508,6 +514,10 @@ class Question(_Strict):
     # comparative wording must not.
     required_phrases: list[str] = []
     forbidden_phrases: list[str] = []
+    # ADR-027: which `assist.kind` the answer must carry (ASSIST_MODE on). Only meaningful
+    # with `expect_no_answer: true`; scored as "skipped" when the response has no assist
+    # block (flag off), so the same question set measures both modes.
+    expect_assist: AssistKind | None = None
 
 
 class QuestionSet(_Strict):

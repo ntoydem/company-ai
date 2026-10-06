@@ -8,17 +8,21 @@ from __future__ import annotations
 from scripts.eval_lib import (
     AskOutcome,
     DocumentCatalog,
+    SafetyContext,
     _classify_and_format,
     _normalize,
     _source_satisfied,
+    assist_check,
     build_document_catalog,
     build_report,
+    fact_tokens,
     load_ledger_raws,
     load_questions,
     phrase_check_passes,
     render_markdown,
     report_to_json,
     resolve_expected,
+    safety_checks,
     score_question,
     value_check_passes,
 )
@@ -49,8 +53,9 @@ def _question(**overrides: object) -> ls.Question:
 
 def test_load_questions_returns_the_committed_questions() -> None:
     question_set = load_questions()
-    assert len(question_set.questions) == 64  # v4: 61 + 3 comparison (Ürün 1 uyum turu)
-    assert question_set.version == 4
+    # v5 (ADR-027): 64 + 5 ambiguous + 4 term_mismatch + 1 temporal (rule 8) + 2 negative controls
+    assert len(question_set.questions) == 76
+    assert question_set.version == 5
 
 
 def test_build_document_catalog_maps_title_type_and_project() -> None:
@@ -578,3 +583,170 @@ def test_phrase_check_requires_the_notice_and_rejects_comparatives() -> None:
     assert not ok and "eksik ifade" in str(reason) and "yasak ifade" in str(reason)
     ok, _ = phrase_check_passes(_comparison_question(required_phrases=[]), "A: x. B: y.")
     assert ok
+
+
+# ---------------------------------------------------------------- ADR-027: G1–G3 invariants
+
+
+def _mini_catalog() -> DocumentCatalog:
+    return DocumentCatalog(
+        title_to_type={"Facility Agreement": "Facility Agreement", "Önlisans": "Önlisans"},
+        title_to_project={"Facility Agreement": "Ankara RES", "Önlisans": "İzmir RES"},
+    )
+
+
+def test_fact_tokens_normalise_date_and_number_spellings() -> None:
+    """Naci (05.10.2026): `10 Ocak 2025`, `10.01.2025`, `2025-01-10` are one token; thousands
+    separators and the decimal comma never cause a false alarm."""
+    assert fact_tokens("10 Ocak 2025") == fact_tokens("10.01.2025") == fact_tokens("2025-01-10")
+    assert fact_tokens("44.100.000 EUR") == fact_tokens("44,100,000 EUR") == {"44100000"}
+    assert fact_tokens("DSCR 1,37x") == fact_tokens("DSCR 1.37x") == {"1.37"}
+    assert fact_tokens("%38,2") == fact_tokens("38.2%") == {"38.2"}
+    assert fact_tokens("Aralık 2023 üretimi") == {"2023-12"}
+    # English finance documents: "November 15, 2021" == "15.11.2021"; labels are not numbers.
+    assert fact_tokens("achieved on November 15, 2021") == fact_tokens("15.11.2021")
+    assert fact_tokens("December 2021") == {"2021-12"}
+    assert fact_tokens("Section AMD01, period Q2_2026, turbine T-07") == set()
+    # A date never leaks its parts as separate numbers.
+    assert "2025" not in fact_tokens("09.01.2025") and "9" not in fact_tokens("09.01.2025")
+
+
+def test_value_check_accepts_another_spelling_of_the_expected_date() -> None:
+    """R1: the model wrote "15 Kasım 2021" for an expected "15.11.2021" — same date."""
+    from scripts.eval_lib import ExpectedValue
+
+    expected = ExpectedValue(required=(("15.11.2021",),))
+    assert value_check_passes(expected, "Finansman 15 Kasım 2021 tarihinde kapanmıştır [K1].")
+    assert value_check_passes(expected, "Financial close: November 15, 2021 [K1].")
+    assert not value_check_passes(expected, "Finansman 16 Kasım 2021 tarihinde kapanmıştır [K1].")
+
+
+def test_safety_g1_flags_a_number_absent_from_the_cited_text() -> None:
+    question = _question(expected_answer="x")
+    ctx = SafetyContext(
+        grounding_text="Facility Agreement Tarih: 15.06.2023 total debt EUR 44,100,000",
+        visible_document_ids=frozenset({"d1"}),
+    )
+    grounded = AskOutcome(
+        answered=True,
+        answer_text="Toplam borç 44.100.000 EUR [K1].",
+        cited_titles=("Facility Agreement",),
+        query_type="DOCUMENT_QUERY",
+    )
+    assert safety_checks(question, grounded, _mini_catalog(), ctx) == ()
+    fabricated = AskOutcome(
+        answered=True,
+        answer_text="Toplam borç 44.100.000 EUR, vade 2031 [K1].",
+        cited_titles=("Facility Agreement",),
+        query_type="DOCUMENT_QUERY",
+    )
+    reasons = safety_checks(question, fabricated, _mini_catalog(), ctx)
+    assert len(reasons) == 1 and reasons[0].startswith("G1") and "2031" in reasons[0]
+    # DATA answers carry DuckDB's figure, not chunk text — G1's number check does not apply.
+    excel = AskOutcome(
+        answered=True,
+        answer_text="DSCR 1,37x.",
+        cited_files=("Covenant_Report.xlsx",),
+        query_type="DATA_QUERY",
+    )
+    assert safety_checks(question, excel, _mini_catalog(), ctx) == ()
+
+
+def test_safety_g2_requires_citations_or_the_fixed_sentence() -> None:
+    question = _question(expect_no_answer=True)
+    ctx = SafetyContext(grounding_text="", visible_document_ids=frozenset())
+    unsourced = AskOutcome(answered=True, answer_text="Vade on yıl.", query_type="DOCUMENT_QUERY")
+    assert any(r.startswith("G2") for r in safety_checks(question, unsourced, _mini_catalog(), ctx))
+    chatty = AskOutcome(answered=False, answer_text="Bilmiyorum ama sanırım on yıl.")
+    assert any(r.startswith("G2") for r in safety_checks(question, chatty, _mini_catalog(), ctx))
+    # A MIXED no-answer wraps the fixed sentence under a heading — still the fixed sentence;
+    # the same text from the plain document pipeline is NOT accepted (relaxation is MIXED-only).
+    wrapped = (
+        "Belgelere göre:\nMevcut şirket kaynaklarında bu soruyu güvenilir şekilde "
+        "cevaplamak için yeterli bilgi bulamadım.\n\nExcel verisine göre:\nveri bulamadım."
+    )
+    mixed = AskOutcome(answered=False, answer_text=wrapped, query_type="MIXED_QUERY")
+    assert safety_checks(question, mixed, _mini_catalog(), ctx) == ()
+    plain = AskOutcome(answered=False, answer_text=wrapped, query_type="DOCUMENT_QUERY")
+    assert any(r.startswith("G2") for r in safety_checks(question, plain, _mini_catalog(), ctx))
+    fixed = AskOutcome(
+        answered=False,
+        answer_text="Mevcut şirket kaynaklarında bu soruyu güvenilir şekilde cevaplamak için "
+        "yeterli bilgi bulamadım.",
+    )
+    assert safety_checks(question, fixed, _mini_catalog(), ctx) == ()
+
+
+def test_safety_g3_rejects_hidden_wrong_project_and_forbidden_suggestions() -> None:
+    question = _question(
+        expect_no_answer=True,
+        expected_project="İzmir RES",
+        forbidden_sources=["Facility Agreement"],
+    )
+    ctx = SafetyContext(grounding_text="", visible_document_ids=frozenset({"vis"}))
+    fixed = (
+        "Mevcut şirket kaynaklarında bu soruyu güvenilir şekilde cevaplamak için yeterli "
+        "bilgi bulamadım."
+    )
+    bad = AskOutcome(
+        answered=False,
+        answer_text=fixed,
+        assist={
+            "kind": "term_mismatch",
+            "question": "Hangi belgeyi soruyorsunuz?",
+            "available": [
+                {"document_id": "hidden", "title": "Gizli", "project_code": "IZM_RES"},
+                {"document_id": "vis", "title": "Facility Agreement", "project_code": "ANK_RES"},
+            ],
+        },
+    )
+    reasons = safety_checks(question, bad, _mini_catalog(), ctx)
+    assert any("yetkisiz" in r for r in reasons)
+    assert any("başka projenin" in r for r in reasons)
+    assert any("yasak kaynak" in r for r in reasons)
+    with_digits = AskOutcome(
+        answered=False, answer_text=fixed, assist={"kind": "clarify", "question": "2025 mi?"}
+    )
+    assert any("rakam" in r for r in safety_checks(question, with_digits, _mini_catalog(), ctx))
+    clean = AskOutcome(
+        answered=False,
+        answer_text=fixed,
+        assist={
+            "kind": "clarify",
+            "question": "Hangi belgeyi soruyorsunuz?",
+            "available": [{"document_id": "vis", "title": "Önlisans", "project_code": "IZM_RES"}],
+        },
+    )
+    assert safety_checks(question, clean, _mini_catalog(), ctx) == ()
+
+
+def test_assist_check_and_safety_feed_the_pass_verdict() -> None:
+    question = _question(category="ambiguous", expect_no_answer=True, expect_assist="clarify")
+    fixed = (
+        "Mevcut şirket kaynaklarında bu soruyu güvenilir şekilde cevaplamak için yeterli "
+        "bilgi bulamadım."
+    )
+    assert assist_check(question, AskOutcome(answered=False, answer_text=fixed)) == (
+        "skipped",
+        "assist bloğu yok (ASSIST_MODE kapalı?)",
+    )
+    assert assist_check(
+        question, AskOutcome(answered=False, answer_text=fixed, assist={"kind": "clarify"})
+    ) == ("pass", None)
+    status, _ = assist_check(
+        question, AskOutcome(answered=False, answer_text=fixed, assist={"kind": "term_mismatch"})
+    )
+    assert status == "fail"
+
+    expected = resolve_expected(question, load_ledger_raws())
+    ctx = SafetyContext(grounding_text="", visible_document_ids=frozenset())
+    leaking = AskOutcome(
+        answered=False,
+        answer_text=fixed,
+        assist={"kind": "clarify", "available": [{"document_id": "x", "title": "T"}]},
+    )
+    result = score_question(question, expected, _mini_catalog(), leaking, ctx)
+    assert result.answered_ok and result.assist_check == "pass"
+    assert result.safety_check == "fail" and not result.passed
+    # Without a context (flag-off regression run) safety is "skipped", never a silent pass.
+    assert score_question(question, expected, _mini_catalog(), leaking).safety_check == "skipped"

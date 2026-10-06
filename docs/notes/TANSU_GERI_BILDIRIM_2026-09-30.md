@@ -14,6 +14,22 @@ Kısaltmalar: **kural N** = `CLAUDE.md`'deki N numaralı değişmez kural. **ADR
 
 ## 0. Güncelleme — Tansu'nun cevapları (30.09.2026, Word yorumları, özet)
 
+> **05.10.2026 — Not 2 ("Balbal davranış mantalitesi") kodlandı, bayrak arkasında, henüz açık değil (ADR-027,
+> dal `feat/davranis-mantalitesi`, `main`'e birleştirilmedi):** "veri yok" uydurma yapmama kuralı olarak kaldı,
+> yardım etmeme kuralı olmaktan çıktı. Cevap verilemeyince sabit cümle **aynen** duruyor (Ç-7 durumları ve uyarı
+> türleri değişmedi), yanına kodla üretilen bir `assist` bloğu geliyor: hangi kelimeler belgelerde hiç eşleşmedi,
+> eşleşmeyenler için belgelerde gerçekten geçen yakın terimler, "elimde şunlar var" (yalnızca kullanıcının görebildiği
+> belgeler), tek bir kısa netleştirme sorusu. Sıfır kaynak yolunda model yine çağrılmıyor; model yalnızca bir soru
+> cümlesi yazabiliyor, o da rakam/tarih/para veya yetkisiz bir belge adı içeriyorsa düşüyor. Ç-7.1'in dört adımı bu
+> blokla karşılanıyor. **Henüz canlıda açık değil.** Ölçüm (06.10.2026, 12 yeni soru dahil, ~100 çağrı): yetki/izolasyon/
+> halüsinasyon sorularında bayrak açıkken de "uydurma yok / kaynaksız yok / yetkisiz öneri yok" değişmezleri 7/7 ve 42/42
+> tuttu; yeni sorularda 24/25 (tek ihlal bir demo belgesindeki bozuk sayı — assist'le ilgisiz). **Tansu'ya karar:** belirsiz
+> sorularda (ör. "Sözleşmenin vadesi ne zaman doluyor?") Balbal 10 denemenin 2'sinde netleştirme sordu, 8'inde kaynakları
+> ayrı ayrı sıralayarak cevapladı — hangisi istenen davranış? Yan yana tablo (kullanıcıya giden metinler + yardım bloğu):
+> `docs/reports/ASSIST_KARSILASTIRMA_2026-10-06.md`. **Kısmi cevap (Not 8) bekliyor** —
+> Not 8 metni gelince o kısım tasarlanır; **Not 7 bu kapsamın dışında**. Arayüz tarafı (AI-BalBal) ölçümden sonra
+> ayrı PR. Rapor `docs/reports/DAVRANIS_MANTALITESI_REPORT.md`, plan `docs/plans/DAVRANIS_MANTALITESI_PLAN.md`.
+>
 > **05.10.2026 — Tarih/saat ayrımı (ADR-026) + üst barda "Bugün" rozeti → AI-BalBal PR #8:** Naci'nin
 > teşhisinde "Bugünün tarihi nedir?" sorusu Balbal'a sorulduğunda cevapsız kalıyordu (`insufficient_data`) —
 > backend tarafında demo tarihi (`DEMO_TODAY`) ile gerçek takvim artık tek bir bayrakla (`DEMO_MODE`) ayrılıyor

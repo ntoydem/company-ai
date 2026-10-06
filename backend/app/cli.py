@@ -190,6 +190,15 @@ def cmd_print_answer_prompt() -> int:
     return 0
 
 
+def cmd_print_answer_prompt_assist() -> int:
+    """ADR-027: the ASSIST_MODE variant (rule 8 verbatim-copy, rule 11 one clarifying
+    question) for docs/prompts/ANSWER_SYSTEM_PROMPT_ASSIST.md; `make lint` diffs it too."""
+    from app.services.answer_prompt import SYSTEM_PROMPT_ASSIST
+
+    print(SYSTEM_PROMPT_ASSIST)
+    return 0
+
+
 def cmd_cleanup_audit_log() -> int:
     """Manual/scriptable equivalent of the background cleanup loop (SPEC_06 §1: 90-day
     retention) — for a host cron, or a one-off run outside the normal 6h interval."""
@@ -274,6 +283,10 @@ def main(argv: list[str] | None = None) -> int:
         "assert-pipeline-schema", help="fail if the Phase 0.2 pipeline tables are missing"
     )
     sub.add_parser("print-answer-prompt", help="print the /api/ask system prompt")
+    sub.add_parser(
+        "print-answer-prompt-assist",
+        help="print the /api/ask system prompt used when ASSIST_MODE=true (ADR-027)",
+    )
     sub.add_parser("print-excel-prompts", help="print the /api/excel/ask plan + answer prompts")
     sub.add_parser("print-router-prompts", help="print the /api/ask router + GENERAL prompts")
     sub.add_parser(
@@ -312,6 +325,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_assert_pipeline_schema()
     if args.command == "print-answer-prompt":
         return cmd_print_answer_prompt()
+    if args.command == "print-answer-prompt-assist":
+        return cmd_print_answer_prompt_assist()
     if args.command == "print-excel-prompts":
         return cmd_print_excel_prompts()
     if args.command == "print-router-prompts":
