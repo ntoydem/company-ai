@@ -66,6 +66,10 @@ def test_mismatch_terms_ignore_generic_glossary_known_and_short_words() -> None:
         "primi",
     ]
     assert mismatch_terms(terms, terms) == ["Ankara", "primi"]
+    # A project name the user has no documents for is not a terminology mismatch.
+    assert mismatch_terms(terms, terms, excluded={"ankara", "res"}) == ["primi"]
+    # R1 additions: general Turkish words ("signed", "rate", "minimum", "result").
+    assert mismatch_terms(["imzalandı", "oranı", "minimum", "sonucu"]) == []
     assert mismatch_terms(["DSKO", "RES", "değeri"], ["DSKO", "RES", "değeri"]) == ["DSKO"]
 
 
@@ -91,6 +95,18 @@ def test_validate_question_refuses_facts_and_hidden_titles() -> None:
     for text, expected in cases.items():
         kept, why = validate_question(text, hidden_titles=["Gizli Hukuk Notu"])
         assert kept is None and why == expected, text
+    # Restating the user's question clarifies nothing (R1, GEN-HAL-004).
+    original = "İzmir RES'in kredi faiz oranı nedir?"
+    echoed, why = validate_question(
+        "İzmir RES projesine ait kredi faiz oranı nedir?",
+        hidden_titles=[],
+        original_question=original,
+    )
+    assert echoed is None and why == "echoes the question"
+    kept, why = validate_question(
+        "Hangi dönemin faiz oranını soruyorsunuz?", hidden_titles=[], original_question=original
+    )
+    assert kept is not None and why is None
 
 
 # ---------------------------------------------------------------- flag off: byte-identical

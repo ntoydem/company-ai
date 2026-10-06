@@ -27,9 +27,11 @@ from datetime import date
 from typing import Any, Literal
 from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.document import Document
+from app.models.project import Project
 from app.repositories import document_repo
 from app.repositories.document_chunk_repo import RetrievedChunk, search_fts
 from app.schemas.ask import AssistAvailableDocument, AssistBlock
@@ -57,6 +59,8 @@ GENERIC_TERMS = frozenset(
     {
         "alındı",
         "alınmış",
+        "asgari",
+        "azami",
         "bedel",
         "bedeli",
         "belirtilen",
@@ -75,16 +79,27 @@ GENERIC_TERMS = frozenset(
         "doluyor",
         "güncel",
         "ilk",
+        "imzalanan",
+        "imzalandı",
+        "imzalanmış",
         "kadar",
         "kaçtı",
         "kimdir",
         "kurum",
         "kurumu",
         "kurumun",
+        "maksimum",
+        "minimum",
         "neye",
         "neyi",
+        "oran",
+        "oranları",
+        "oranı",
         "son",
         "sonra",
+        "sonucu",
+        "sonuç",
+        "sonuçları",
         "toplam",
         "tutar",
         "tutarı",
@@ -100,9 +115,15 @@ GENERIC_TERMS = frozenset(
     }
 )
 # A matched term is "specific" (it can vouch for an "elimde şunlar var" entry) only if it
-# occurs in a modest share of the user's documents — "Ankara" is in most of them.
+# occurs in a modest share of the user's documents — "Ankara" is in most of them — and is
+# long enough to carry a subject (R1: "sonucu"/"testi" vouched for unrelated pages).
 SPECIFIC_MAX_DOC_SHARE = 0.25
 SPECIFIC_MAX_DOCS = 10
+MIN_VOUCH_TERM_CHARS = 5
+# A model-written clarifying question that merely restates the user's question is dropped
+# (R1: "İzmir RES projesine ait kredi faiz oranı nedir?" for "İzmir RES'in kredi faiz oranı
+# nedir?") — it clarifies nothing. Share of the original's terms repeated in the model's.
+ECHO_OVERLAP = 0.7
 
 QUESTION_MARKER = "SORU:"
 CLARIFY_TEMPLATE = "Hangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?"
@@ -189,26 +210,41 @@ def _glossary_known(lowered_terms: list[str]) -> set[str]:
     return known
 
 
-def mismatch_terms(unmatched: list[str], all_terms: list[str] | None = None) -> list[str]:
+def project_words(session: Session) -> set[str]:
+    """Lower-cased words of every project name and code ("ankara", "res", "izm" …). A project
+    the user has no documents for is not a *terminology* mismatch (R1: "İzmir" flagged for a
+    finance user) — the question stays a `clarify`."""
+    words: set[str] = set()
+    for project in session.scalars(select(Project)).all():
+        for raw in (project.name, project.code):
+            words.update(w for w in re.split(r"[^\w]+", turkish_lower(raw)) if w)
+    return words
+
+
+def mismatch_terms(
+    unmatched: list[str], all_terms: list[str] | None = None, *, excluded: set[str] | None = None
+) -> list[str]:
     """The unmatched terms that *are* a terminology mismatch: at least four characters, not
-    a generic question word, and unknown to the glossary — a glossary-known word ("vade" →
-    tenor) was already expanded into the retrieval query, so its equivalents either exist
-    (then the question is answerable) or do not (then nothing is missing but the fact)."""
+    a generic question word, not a project name (`excluded`), and unknown to the glossary —
+    a glossary-known word ("vade" → tenor) was already expanded into the retrieval query,
+    so its equivalents either exist (then the question is answerable) or do not (then
+    nothing is missing but the fact)."""
     lowered_all = [turkish_lower(t) for t in (all_terms or unmatched)]
     known = _glossary_known(lowered_all)
+    skip = GENERIC_TERMS | (excluded or set())
     return [
         t
         for t in unmatched
         if len(t) >= MIN_SPECIFIC_TERM_CHARS
-        and turkish_lower(t) not in GENERIC_TERMS
+        and turkish_lower(t) not in skip
         and turkish_lower(t) not in known
     ]
 
 
 def _can_be_specific(term: str) -> bool:
-    """Four characters, or a three-letter upper-case acronym (EPC, COD, ECA); "RES" passes
+    """Five characters, or a 3–5 letter upper-case acronym (EPC, COD, DSCR); "RES" passes
     this test but fails the document-share cut, which is the point of having both."""
-    return len(term) >= MIN_SPECIFIC_TERM_CHARS or (len(term) == 3 and term.isupper())
+    return len(term) >= MIN_VOUCH_TERM_CHARS or (3 <= len(term) <= 5 and term.isupper())
 
 
 def specific_matched_terms(
@@ -310,11 +346,12 @@ def split_question_line(text: str) -> tuple[str, str | None]:
 
 
 def validate_question(
-    question: str, *, hidden_titles: Iterable[str]
+    question: str, *, hidden_titles: Iterable[str], original_question: str = ""
 ) -> tuple[str | None, str | None]:
     """Keep the model's clarifying question only if it is one short sentence ending in `?`,
-    carries no digit/date/currency/percent, and names no document outside the user's
-    allowed set. Returns (question or None, drop reason or None)."""
+    carries no digit/date/currency/percent, names no document outside the user's allowed
+    set, and does not merely restate the user's question. Returns (question or None, drop
+    reason or None)."""
     text = " ".join(question.split())
     if not text:
         return None, "empty"
@@ -330,6 +367,11 @@ def validate_question(
     for title in hidden_titles:
         if len(title) >= 6 and turkish_lower(title) in lowered:
             return None, "names a document outside the allowed set"
+    original = {turkish_lower(t) for t in question_terms(original_question) if len(t) >= 3}
+    if original:
+        repeated = {turkish_lower(t) for t in question_terms(text) if len(t) >= 3} & original
+        if len(repeated) / len(original) >= ECHO_OVERLAP:
+            return None, "echoes the question"
     return text, None
 
 
@@ -346,7 +388,7 @@ def build_zero_chunk_assist(session: Session, allowed: set[UUID], question: str)
     """Nothing retrieved: no LLM (ADR-021). Everything here is a lookup inside `allowed`."""
     terms = question_terms(question)
     unmatched = unmatched_terms(session, allowed, terms)
-    mismatched = mismatch_terms(unmatched, terms)
+    mismatched = mismatch_terms(unmatched, terms, excluded=project_words(session))
     candidates = candidate_terms(session, allowed, unmatched)
     available = available_from_metadata(session, allowed, terms)
     kind = _kind_for(mismatched)
@@ -374,7 +416,7 @@ def build_insufficient_assist(
     `validate_question`; otherwise fall back to the fixed template."""
     terms = question_terms(question)
     unmatched = unmatched_terms(session, allowed, terms)
-    mismatched = mismatch_terms(unmatched, terms)
+    mismatched = mismatch_terms(unmatched, terms, excluded=project_words(session))
     candidates = candidate_terms(session, allowed, unmatched)
     # "Elimde şunlar var" = the retrieved documents that a *specific* question term vouches
     # for. Pages pulled in by generic tokens alone ("Ankara", "RES", "kaç") are not listed:
@@ -387,7 +429,9 @@ def build_insufficient_assist(
     reason: str | None = None
     if model_question is not None:
         kept, reason = validate_question(
-            model_question, hidden_titles=document_repo.titles_outside(session, allowed)
+            model_question,
+            hidden_titles=document_repo.titles_outside(session, allowed),
+            original_question=question,
         )
         if reason is not None:
             log.info("assist question dropped", extra={"reason": reason})

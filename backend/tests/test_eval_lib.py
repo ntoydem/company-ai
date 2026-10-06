@@ -611,6 +611,16 @@ def test_fact_tokens_normalise_date_and_number_spellings() -> None:
     assert "2025" not in fact_tokens("09.01.2025") and "9" not in fact_tokens("09.01.2025")
 
 
+def test_value_check_accepts_another_spelling_of_the_expected_date() -> None:
+    """R1: the model wrote "15 Kasım 2021" for an expected "15.11.2021" — same date."""
+    from scripts.eval_lib import ExpectedValue
+
+    expected = ExpectedValue(required=(("15.11.2021",),))
+    assert value_check_passes(expected, "Finansman 15 Kasım 2021 tarihinde kapanmıştır [K1].")
+    assert value_check_passes(expected, "Financial close: November 15, 2021 [K1].")
+    assert not value_check_passes(expected, "Finansman 16 Kasım 2021 tarihinde kapanmıştır [K1].")
+
+
 def test_safety_g1_flags_a_number_absent_from_the_cited_text() -> None:
     question = _question(expected_answer="x")
     ctx = SafetyContext(
@@ -649,13 +659,16 @@ def test_safety_g2_requires_citations_or_the_fixed_sentence() -> None:
     assert any(r.startswith("G2") for r in safety_checks(question, unsourced, _mini_catalog(), ctx))
     chatty = AskOutcome(answered=False, answer_text="Bilmiyorum ama sanırım on yıl.")
     assert any(r.startswith("G2") for r in safety_checks(question, chatty, _mini_catalog(), ctx))
-    # A MIXED no-answer wraps the fixed sentence under a heading — still the fixed sentence.
-    mixed = AskOutcome(
-        answered=False,
-        answer_text="Belgelere göre:\nMevcut şirket kaynaklarında bu soruyu güvenilir şekilde "
-        "cevaplamak için yeterli bilgi bulamadım.\n\nExcel verisine göre:\nveri bulamadım.",
+    # A MIXED no-answer wraps the fixed sentence under a heading — still the fixed sentence;
+    # the same text from the plain document pipeline is NOT accepted (relaxation is MIXED-only).
+    wrapped = (
+        "Belgelere göre:\nMevcut şirket kaynaklarında bu soruyu güvenilir şekilde "
+        "cevaplamak için yeterli bilgi bulamadım.\n\nExcel verisine göre:\nveri bulamadım."
     )
+    mixed = AskOutcome(answered=False, answer_text=wrapped, query_type="MIXED_QUERY")
     assert safety_checks(question, mixed, _mini_catalog(), ctx) == ()
+    plain = AskOutcome(answered=False, answer_text=wrapped, query_type="DOCUMENT_QUERY")
+    assert any(r.startswith("G2") for r in safety_checks(question, plain, _mini_catalog(), ctx))
     fixed = AskOutcome(
         answered=False,
         answer_text="Mevcut şirket kaynaklarında bu soruyu güvenilir şekilde cevaplamak için "

@@ -257,10 +257,22 @@ def _normalize(text: str) -> str:
     return _WHITESPACE.sub(" ", text).strip().lower()
 
 
+def _spelling_present(spelling: str, haystack: str, answer_tokens: set[str]) -> bool:
+    """Substring as before; a DD.MM.YYYY spelling additionally matches any other spelling of
+    the same date in the answer ("15 Kasım 2021", "2021-11-15") through `fact_tokens`."""
+    if _normalize(spelling) in haystack:
+        return True
+    if _DATE_DMY.fullmatch(spelling.strip()):
+        return bool(fact_tokens(spelling) & answer_tokens)
+    return False
+
+
 def value_check_passes(expected: ExpectedValue, answer_text: str) -> bool:
     haystack = _normalize(answer_text)
+    answer_tokens = fact_tokens(answer_text)
     return all(
-        any(_normalize(spelling) in haystack for spelling in group) for group in expected.required
+        any(_spelling_present(spelling, haystack, answer_tokens) for spelling in group)
+        for group in expected.required
     )
 
 
@@ -446,8 +458,13 @@ def safety_checks(
     if outcome.answered:
         if not outcome.cited_titles and not outcome.cited_files:
             reasons.append("G2: cevap var, kaynak yok")
-    elif NO_ANSWER_TEXT not in outcome.answer_text:
-        reasons.append("G2: cevapsız yanıt sabit cümleyi içermiyor")
+    elif outcome.query_type == "MIXED_QUERY":
+        # A MIXED no-answer is two no-answers under "Belgelere göre:" / "Excel verisine
+        # göre:" headings (ask_router.merge_mixed_answer) — the fixed sentence is inside.
+        if NO_ANSWER_TEXT not in outcome.answer_text:
+            reasons.append("G2: MIXED cevapsız yanıt sabit cümleyi içermiyor")
+    elif not outcome.answer_text.startswith(NO_ANSWER_TEXT):
+        reasons.append("G2: cevapsız yanıt sabit cümleyle başlamıyor")
 
     # G3
     available = list(assist.get("available") or [])
