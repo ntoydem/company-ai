@@ -395,8 +395,14 @@ normalizasyonlu; kaynaksız cevap yok; yetkisiz/yanlış proje/yasak belge öner
 (5 belirsiz, 4 terim uyuşmazlığı, 1 rule 8, 2 negatif kontrol — Naci onayladı 06.10.2026; LLM'siz kuru koşu rapor §8).
 **Canlı ölçüm (06.10.2026, flash-lite):** R0 bayrak kapalı 26 soru → ilk puanlamadaki 4 G1/G2 işareti puanlayıcı hatasıydı
 (İngilizce ay adı, "AMD01" rakamı, MIXED cevapta sabit cümlenin yeri, alıntılanmamış ama prompt'taki değer) → düzeltildi,
-LLM'siz yeniden puanlama 26/26; R1 bayrak açık 14 soru × 3 → **G1–G3 42/42, Ü-3 9/9**; R2 ayrı seansta. Kalite
-gözlemleri (generic kelimeler, proje adı, soru yankısı) rapor §9. Aynı turda bulunan hata: `DEMO_MODE`/`ASSIST_MODE` env adları pydantic-settings tarafından okunmuyordu
+LLM'siz yeniden puanlama 26/26; R1 bayrak açık 14 soru × 3 → **G1–G3 42/42, Ü-3 9/9**. R1 gözlemlerinden 4 kod/sözlük
+düzeltmesi (generic kelimeler gerekçeli, proje adı istisnası, soru yankısı filtresi, kefil ≥ 5 karakter) + `value_check`
+tarih normalizasyonu + G2 gevşemesi yalnızca MIXED (G3 dokunulmadı, rapor §10). Pre-R2 (yetki 3 + izolasyon 4, açık)
+7/7; **R2** (11 soru × 2 + ANK-OPS-004 × 3) G1–G3 **24/25**: tek ihlal demo belgesindeki bozuk sayının ("9020")
+model tarafından "yüzde 90" diye yorumlanması (GEN-AMB-005, assist dışı, belge düzeltmesi ayrı iş); assist türü 10/10;
+negatif kontroller 4/4; belirsiz sorularda 2 netleştirme / 8 kaynak sıralama (kategori beklentisi Tansu'da); rule 8
+cevaplanan tekrarlarda 2/2 birebir kopya, 1/3 ret. Tansu için yan yana tablo
+`docs/reports/ASSIST_KARSILASTIRMA_2026-10-06.md`. Bayrak canlıda **kapalı**. Aynı turda bulunan hata: `DEMO_MODE`/`ASSIST_MODE` env adları pydantic-settings tarafından okunmuyordu
 (alan adı `*_ENABLED` bekleniyordu) — alias ile düzeltildi, test eklendi; `DEMO_MODE` kısmı `main`'e tek dosyalık
 hotfix olarak alındı (`65c4ed9`). `partial` (kısmi cevap) Tansu Not 8 gelene kadar ertelendi; Not 7 kapsam dışı. Plan
 `docs/plans/DAVRANIS_MANTALITESI_PLAN.md`, rapor `docs/reports/DAVRANIS_MANTALITESI_REPORT.md`.

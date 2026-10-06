@@ -21,9 +21,12 @@ Kısaltmalar: **kural N** = `CLAUDE.md`'deki N numaralı değişmez kural. **ADR
 > eşleşmeyenler için belgelerde gerçekten geçen yakın terimler, "elimde şunlar var" (yalnızca kullanıcının görebildiği
 > belgeler), tek bir kısa netleştirme sorusu. Sıfır kaynak yolunda model yine çağrılmıyor; model yalnızca bir soru
 > cümlesi yazabiliyor, o da rakam/tarih/para veya yetkisiz bir belge adı içeriyorsa düşüyor. Ç-7.1'in dört adımı bu
-> blokla karşılanıyor. **Henüz canlıda açık değil:** önce 11 yeni ölçüm sorusu (belirsiz soru / terim uyuşmazlığı)
-> Naci onayından geçecek, sonra üç ölçüm turu; halüsinasyon/yetki/izolasyon %100 kapıları korunuyor, üstüne her
-> soruda "uydurma yok / kaynaksız yok / yetkisiz öneri yok" değişmezleri geliyor. **Kısmi cevap (Not 8) bekliyor** —
+> blokla karşılanıyor. **Henüz canlıda açık değil.** Ölçüm (06.10.2026, 12 yeni soru dahil, ~100 çağrı): yetki/izolasyon/
+> halüsinasyon sorularında bayrak açıkken de "uydurma yok / kaynaksız yok / yetkisiz öneri yok" değişmezleri 7/7 ve 42/42
+> tuttu; yeni sorularda 24/25 (tek ihlal bir demo belgesindeki bozuk sayı — assist'le ilgisiz). **Tansu'ya karar:** belirsiz
+> sorularda (ör. "Sözleşmenin vadesi ne zaman doluyor?") Balbal 10 denemenin 2'sinde netleştirme sordu, 8'inde kaynakları
+> ayrı ayrı sıralayarak cevapladı — hangisi istenen davranış? Yan yana tablo (kullanıcıya giden metinler + yardım bloğu):
+> `docs/reports/ASSIST_KARSILASTIRMA_2026-10-06.md`. **Kısmi cevap (Not 8) bekliyor** —
 > Not 8 metni gelince o kısım tasarlanır; **Not 7 bu kapsamın dışında**. Arayüz tarafı (AI-BalBal) ölçümden sonra
 > ayrı PR. Rapor `docs/reports/DAVRANIS_MANTALITESI_REPORT.md`, plan `docs/plans/DAVRANIS_MANTALITESI_PLAN.md`.
 >
