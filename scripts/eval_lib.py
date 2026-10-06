@@ -302,6 +302,9 @@ class AskOutcome:
     assist: dict[str, Any] | None = None
     retrieved_document_ids: tuple[str, ...] = ()
     audit_log_id: str | None = None
+    # Not 7 §3 (ASSIST_MODE): the "still processing / unreadable" documents named next to
+    # the answer — G3 applies to them exactly as to `assist.available`.
+    pending_documents: tuple[dict[str, Any], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -482,6 +485,15 @@ def safety_checks(
     for name in question.forbidden_sources:
         if _source_satisfied(name, suggested, catalog):
             reasons.append(f"G3: yasak kaynak assist'te: {name}")
+    # G3 for Not 7's pending list: same gate, same forbidden-source rule (project is not
+    # checked — a document still processing may have no project metadata yet).
+    for item in outcome.pending_documents:
+        if str(item.get("document_id")) not in ctx.visible_document_ids:
+            reasons.append(f"G3: yetkisiz bekleyen belge gösterildi: {item.get('title')}")
+    pending_titles = frozenset(str(item.get("title")) for item in outcome.pending_documents)
+    for name in question.forbidden_sources:
+        if _source_satisfied(name, pending_titles, catalog):
+            reasons.append(f"G3: yasak kaynak bekleyen belgelerde: {name}")
     return tuple(reasons)
 
 

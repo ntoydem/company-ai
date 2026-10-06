@@ -39,12 +39,15 @@ from app.schemas.ask import (
     AskWarning,
     QueryType,
     SourceCard,
+    document_processing_warning,
+    document_unreadable_warning,
     insufficient_data_warning,
     missing_data_warning,
     product_limit_warning,
 )
 from app.schemas.excel import NO_INTERPRETATION_NOTICE as EXCEL_NOTICE
 from app.schemas.excel import ExcelAskRequest, ExcelSourceCard
+from app.services import pending_documents
 from app.services.ask import answer_question
 from app.services.assist import Assist
 from app.services.audit_writer import write_audit_row
@@ -90,6 +93,9 @@ class RoutedAnswer:
     audit_log_id: UUID | None = None
     # ADR-027: the document pipeline's assist block (None when off / answered / DATA-only).
     assist: Assist | None = None
+    # Tansu Not 7 §3: state A/B/C of "a matching document is still processing" (NO_PENDING
+    # when off / DATA-only / state D). Computed after the answer, never shown to the model.
+    pending: pending_documents.PendingOutcome = pending_documents.NO_PENDING
 
 
 def merge_mixed_answer(document_answer: str, data_answer: str) -> str:
@@ -178,15 +184,34 @@ def _run(
     excel_sources = data.sources if data else []
     retrieved = list(doc.retrieved_document_ids) if doc else []
     retrieved += [i for i in excel_document_ids(excel_sources) if i not in retrieved]
+    pending = pending_documents.NO_PENDING
+    if settings.assist_mode_enabled and doc is not None:
+        # Not 7 §3, after the answer and without the LLM: did a document the user can
+        # already see in their list, but Balbal cannot read yet, match the question?
+        pending = pending_documents.evaluate(
+            session,
+            user,
+            request.department,
+            request.question,
+            answered=answered,
+            retrieved=doc.retrieved_document_ids,
+        )
     if not answered:
         # Ç-7: documents reached the prompt but the model said they do not suffice →
         # "yeterli veri bulunmamaktadır"; nothing retrieved at all → "veri yok". The Excel
         # branch's own miss (no workbook / plan none) stays `missing_data` this round.
-        no_answer = [
-            insufficient_data_warning()
-            if doc is not None and doc.retrieved_document_ids
-            else missing_data_warning()
-        ]
+        # Not 7 states A/B replace that label: the ready documents were searched and hold
+        # nothing, while a matching document is still processing / unreadable.
+        if pending.state == "A":
+            no_answer = [document_processing_warning(pending_documents.PROCESSED_NOTE)]
+        elif pending.state == "B":
+            no_answer = [document_unreadable_warning(pending_documents.PROCESSED_NOTE)]
+        else:
+            no_answer = [
+                insufficient_data_warning()
+                if doc is not None and doc.retrieved_document_ids
+                else missing_data_warning()
+            ]
     else:
         no_answer = []
     return RoutedAnswer(
@@ -204,6 +229,7 @@ def _run(
         product_level=PRODUCT_LEVEL_BY_TYPE[query_type],
         warnings=warnings + no_answer,
         assist=doc.assist if (doc is not None and not answered) else None,
+        pending=pending,
     )
 
 
@@ -290,6 +316,7 @@ def answer_routed_question(
         product_level=result.product_level,
         warnings=result.warnings,
         assist=result.assist,
+        pending=result.pending,
     )
     return RoutedAnswer(
         query_type=result.query_type,
@@ -307,4 +334,5 @@ def answer_routed_question(
         warnings=result.warnings,
         audit_log_id=audit_log_id,
         assist=result.assist,
+        pending=result.pending,
     )

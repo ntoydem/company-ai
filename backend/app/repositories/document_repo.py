@@ -330,6 +330,31 @@ def list_recent(
     return list(session.scalars(stmt).all())
 
 
+def list_unresolved(
+    session: Session, ids: Iterable[uuid.UUID], *, since: datetime
+) -> list[Document]:
+    """Not 7 §3: among `ids`, documents still queued/processing (created since `since`) or
+    failed (however old — the user still has something to fix). Newest first."""
+    id_list = list(ids)
+    if not id_list:
+        return []
+    stmt = (
+        select(Document)
+        .where(Document.id.in_(id_list))
+        .where(
+            or_(
+                Document.ingestion_status == IngestionStatus.failed,
+                (
+                    Document.ingestion_status.in_([IngestionStatus.uploaded, IngestionStatus.ocr])
+                    & (Document.created_at >= since)
+                ),
+            )
+        )
+        .order_by(Document.created_at.desc(), Document.id)
+    )
+    return list(session.scalars(stmt).all())
+
+
 def latest_jobs(session: Session, ids: Iterable[uuid.UUID]) -> dict[uuid.UUID, IngestionJob]:
     """The newest `ingestion_jobs` row per document (one per document in practice)."""
     id_list = list(ids)
