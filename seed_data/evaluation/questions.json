@@ -1317,7 +1317,7 @@
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": true,
-      "notes": "TASLAK. 'cezai şart' Türkçe karşılığı EPC belgesinde (İngilizce) geçmez; EPC belgeleri available olmalı, tutar uydurulmamalı.",
+      "notes": "TASLAK. 'cezai şart' Türkçe karşılığı belgede geçmez; 'liquidated damages' tek chunk'ta, TUTARSIZ geçer ('standard liquidated damages as defined in the master contract' — EPC Change Order 01 s.3); ledger'da LD değeri yok. Naci 06.10.2026: negatif kontrole çevrilmesi istendi, ama alıntılanacak bir değer yok → term_mismatch olarak kaldı; model LD cümlesini alıntılayıp 'tutar belirtilmemiş' derse answered=true olur ve kategori düşer, bu bir güvenlik ihlali değildir — R2 öncesi karar.",
       "expect_assist": "term_mismatch"
     },
     {

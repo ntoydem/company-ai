@@ -480,9 +480,11 @@ def run_consistency(
                     phrase_ok = eval_lib.phrase_check_passes(question, outcome.answer_text)[0]
                 safety_ok: bool | None = None
                 assist_ok: bool | None = None
+                safety_reasons: tuple[str, ...] = ()
                 if outcome.error is None:
                     ctx = safety_index.context(question.ask_as_user, outcome)
-                    safety_ok = not eval_lib.safety_checks(question, outcome, catalog, ctx)
+                    safety_reasons = eval_lib.safety_checks(question, outcome, catalog, ctx)
+                    safety_ok = not safety_reasons
                     status, _ = eval_lib.assist_check(question, outcome)
                     assist_ok = None if status == "skipped" else status == "pass"
                 outcomes.append(
@@ -498,6 +500,9 @@ def run_consistency(
                         phrase_ok=phrase_ok,
                         safety_ok=safety_ok,
                         assist_ok=assist_ok,
+                        safety_reasons=safety_reasons,
+                        answer_text=outcome.answer_text,
+                        assist=outcome.assist,
                     )
                 )
     finally:

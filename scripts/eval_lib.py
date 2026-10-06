@@ -477,6 +477,9 @@ class QuestionResult:
     safety_reasons: tuple[str, ...] = ()
     assist_check: str = "skipped"
     assist_check_reason: str | None = None
+    # ADR-027: the assist block as returned (None when off) — kept so a flag-off and a
+    # flag-on run of the same question can be laid side by side (Tansu's comparison table).
+    assist: dict[str, Any] | None = None
 
 
 def phrase_check_passes(question: ls.Question, answer_text: str) -> tuple[bool, str | None]:
@@ -599,6 +602,7 @@ def score_question(
         safety_reasons=safety_reasons,
         assist_check=assist_status,
         assist_check_reason=assist_reason,
+        assist=outcome.assist,
     )
 
 
@@ -742,6 +746,7 @@ def report_to_json(report: EvalReport) -> dict[str, Any]:
                 "safety_reasons": list(r.safety_reasons),
                 "assist_check": r.assist_check,
                 "assist_check_reason": r.assist_check_reason,
+                "assist": r.assist,
                 "phrase_check": r.phrase_check,
                 "phrase_check_reason": r.phrase_check_reason,
                 "value_check": r.value_check,
@@ -1000,6 +1005,9 @@ class RepeatOutcome:
     phrase_ok: bool | None = None  # None = no phrase rules on the question
     safety_ok: bool | None = None  # ADR-027 G1–G3; None = not evaluated
     assist_ok: bool | None = None  # ADR-027 expect_assist; None = not applicable
+    safety_reasons: tuple[str, ...] = ()
+    answer_text: str = ""
+    assist: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
