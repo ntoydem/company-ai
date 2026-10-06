@@ -17,7 +17,14 @@ from typing import Any
 
 def _rows(path: Path) -> dict[str, dict[str, Any]]:
     data = json.loads(path.read_text(encoding="utf-8"))
-    items = data["results"] if isinstance(data, dict) else data
+    if isinstance(data, dict):  # results.json: the per-question list sits under one key
+        items = next(
+            v
+            for v in data.values()
+            if isinstance(v, list) and v and isinstance(v[0], dict) and "id" in v[0]
+        )
+    else:  # consistency_*.json: a flat list of repetitions
+        items = data
     out: dict[str, dict[str, Any]] = {}
     for item in items:
         if item["id"] not in out:  # consistency mode: keep the first repetition
