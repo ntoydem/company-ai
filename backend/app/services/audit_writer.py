@@ -17,6 +17,7 @@ from app.repositories import audit_log_repo
 from app.repositories.document_chunk_repo import RetrievedChunk
 from app.schemas.ask import AskWarning, SourceCard
 from app.schemas.excel import ExcelSourceCard
+from app.services import pending_documents
 from app.services.assist import Assist, assist_json
 
 log = logging.getLogger(__name__)
@@ -60,6 +61,7 @@ def write_audit_row(
     product_level: str | None = None,
     warnings: list[AskWarning] | None = None,
     assist: Assist | None = None,
+    pending: pending_documents.PendingOutcome | None = None,
 ) -> UUID | None:
     """SPEC_06 §1. `cost_estimate` stays `NULL` in V0 — no invented per-model pricing
     (Phase 3.2 SORU 2). Returns the new row's id (`AskResponse.audit_log_id`), or `None`
@@ -86,7 +88,7 @@ def write_audit_row(
             excel_files_used=sorted({card.file for card in excel_sources}),
             product_level=product_level,
             warnings=[w.model_dump(mode="json") for w in warnings or []],
-            assist=assist_json(assist),
+            assist=pending_documents.audit_json(assist_json(assist), pending),
         )
     except Exception:
         log.exception("audit log write failed")

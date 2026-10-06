@@ -406,3 +406,17 @@ cevaplanan tekrarlarda 2/2 birebir kopya, 1/3 ret. Tansu için yan yana tablo
 (alan adı `*_ENABLED` bekleniyordu) — alias ile düzeltildi, test eklendi; `DEMO_MODE` kısmı `main`'e tek dosyalık
 hotfix olarak alındı (`65c4ed9`). `partial` (kısmi cevap) Tansu Not 8 gelene kadar ertelendi; Not 7 kapsam dışı. Plan
 `docs/plans/DAVRANIS_MANTALITESI_PLAN.md`, rapor `docs/reports/DAVRANIS_MANTALITESI_REPORT.md`.
+
+**Belge işleme durumu — Tansu Not 7 (06.10.2026, ADR-028; iki dal, `main`'e HENÜZ birleştirilmedi):** dal 1
+`feat/not7-isleme-durumu` (bayraksız): `ocr-worker` hata sınıflandırması — `encrypted` (ocrmypdf exit 8), `corrupt`
+(PyMuPDF açamıyor / resim format hatası), `no_text` (OCR bitti, tüm sayfalar boş — önceden sessizce `ready` + 0 chunk),
+`unknown` (diğer; yalnızca bu 3 deneme); kod `ingestion_error`'da, kullanıcı sade Türkçe `reason` görür (ham kod yalnızca
+admin detayında); `GET /api/documents/recent` ("Son yüklenen belgeler" kartı: `/api/documents` ile aynı kapı, son 7 gün +
+çözülmemişler, `failed` üstte, `card_state/queue_position/approver/reason`). Desteklenen biçimler PDF/PNG/JPG/Excel/CSV —
+Word yok (Tansu metni düzeltildi). Dal 2 `feat/not7-balbal-davranisi` (davranis + dal 1 merge; `ASSIST_MODE` arkasında):
+cevaptan sonra LLM'siz Durum A/B/C/D — kullanıcının listede zaten gördüğü ama Balbal'ın okuyamadığı belgeler meta veriden
+eşleşirse `pending_notice` + `pending_documents[]` (≤3) ve `warnings.kind` `document_processing`/`document_unreadable`;
+`answer` sabit cümle aynen; audit `assist` JSON'una eklenir. Canlı: worker imajı yenilendi, gerçek yüklemeyle 3 hata kodu
+doğrulandı; A/B/D 3 canlı soruyla doğrulandı (sonra temizlendi); 14 soruluk G1–G3 regresyonu G1–G3 14/14 (iki kategori kaybı Not 7 dışı model değişkenliği, rapor §4). Arayüz (kart,
+cevap kutuları, `reason` alanına geçiş) ayrı AI-BalBal PR'ı; bildirim satırı ve Not 8 dışarıda. Plan
+`docs/plans/NOT7_ISLEME_DURUMU_PLAN.md`, rapor `docs/reports/NOT7_ISLEME_DURUMU_REPORT.md`.

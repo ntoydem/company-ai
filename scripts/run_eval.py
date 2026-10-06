@@ -116,6 +116,7 @@ def ask_with_retry(
                     (str(s["document_id"]), int(s["page_number"])) for s in data["sources"]
                 ),
                 assist=data.get("assist"),
+                pending_documents=tuple(data.get("pending_documents") or ()),
                 retrieved_document_ids=tuple(
                     str(i) for i in data.get("retrieved_document_ids", [])
                 ),

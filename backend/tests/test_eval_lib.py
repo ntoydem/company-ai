@@ -750,3 +750,31 @@ def test_assist_check_and_safety_feed_the_pass_verdict() -> None:
     assert result.safety_check == "fail" and not result.passed
     # Without a context (flag-off regression run) safety is "skipped", never a silent pass.
     assert score_question(question, expected, _mini_catalog(), leaking).safety_check == "skipped"
+
+
+def test_safety_g3_covers_not7_pending_documents() -> None:
+    """Not 7 §3: a pending document shown next to the answer is held to the same gate and
+    forbidden-source rule as `assist.available` (project is not checked — it may be unset)."""
+    question = _question(expect_no_answer=True, forbidden_sources=["Facility Agreement"])
+    ctx = SafetyContext(grounding_text="", visible_document_ids=frozenset({"vis"}))
+    fixed = (
+        "Mevcut şirket kaynaklarında bu soruyu güvenilir şekilde cevaplamak için yeterli "
+        "bilgi bulamadım."
+    )
+    bad = AskOutcome(
+        answered=False,
+        answer_text=fixed,
+        pending_documents=(
+            {"document_id": "hidden", "title": "Gizli Taslak", "status": "ocr"},
+            {"document_id": "vis", "title": "Facility Agreement", "status": "failed"},
+        ),
+    )
+    reasons = safety_checks(question, bad, _mini_catalog(), ctx)
+    assert any("yetkisiz bekleyen" in r for r in reasons)
+    assert any("yasak kaynak bekleyen" in r for r in reasons)
+    clean = AskOutcome(
+        answered=False,
+        answer_text=fixed,
+        pending_documents=({"document_id": "vis", "title": "Önlisans Taslak", "status": "ocr"},),
+    )
+    assert safety_checks(question, clean, _mini_catalog(), ctx) == ()

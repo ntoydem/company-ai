@@ -15,6 +15,7 @@ from app.schemas.ask import AskRequest, AskResponse
 from app.services.ask_router import answer_routed_question
 from app.services.assist import assist_block
 from app.services.llm import LLMClient
+from app.services.pending_documents import pending_cards
 from app.services.router import Router
 
 router = APIRouter(prefix="/api/ask", tags=["ask"])
@@ -48,4 +49,6 @@ def ask(
         product_level=result.product_level,
         warnings=result.warnings,
         assist=assist_block(result.assist),
+        pending_notice=result.pending.notice,
+        pending_documents=pending_cards(result.pending),
     )

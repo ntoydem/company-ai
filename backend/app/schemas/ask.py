@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Literal
 from uuid import UUID
 
@@ -40,10 +40,20 @@ PRODUCT_LIMIT_WARNING = (
 class AskWarning(BaseModel):
     model_config = ConfigDict(frozen=True)
 
-    kind: Literal["missing_data", "insufficient_data", "product_limit"]
+    # `document_processing` / `document_unreadable` (Tansu Not 7, ASSIST_MODE only): the
+    # ready documents hold nothing, but a matching document is still processing / could not
+    # be read — the UI shows "Belge işleniyor" / "Belge okunamadı" instead of "Veri yok".
+    kind: Literal[
+        "missing_data",
+        "insufficient_data",
+        "product_limit",
+        "document_processing",
+        "document_unreadable",
+    ]
     message: str
     # `request_data` = the B-11 "diğer departmandan bilgi talep et" button; the department
-    # is picked by the user, never suggested by the system (kural 1).
+    # is picked by the user, never suggested by the system (kural 1). The Not 7 kinds carry
+    # no action: the right move is to wait or re-upload, not to ask another department.
     action: Literal["request_data"] | None = None
 
 
@@ -59,6 +69,30 @@ def insufficient_data_warning() -> AskWarning:
 
 def product_limit_warning() -> AskWarning:
     return AskWarning(kind="product_limit", message=PRODUCT_LIMIT_WARNING)
+
+
+def document_processing_warning(note: str) -> AskWarning:
+    return AskWarning(kind="document_processing", message=note)
+
+
+def document_unreadable_warning(note: str) -> AskWarning:
+    return AskWarning(kind="document_unreadable", message=note)
+
+
+class PendingDocumentCard(BaseModel):
+    """One `pending_documents[]` entry (Tansu Not 7 §3): a queued/processing/unreadable
+    document whose metadata matched the question — code-built from the caller's own
+    handling set (the `/api/documents` gate), never from the model, which never sees it.
+    `reason` is the mapped Turkish line for a failed document, never the worker's code."""
+
+    model_config = ConfigDict(frozen=True)
+
+    document_id: UUID
+    title: str
+    status: Literal["uploaded", "ocr", "failed"]
+    uploaded_at: datetime
+    department: str | None = None
+    reason: str | None = None
 
 
 class AssistAvailableDocument(BaseModel):
@@ -156,3 +190,8 @@ class AskResponse(BaseModel):
     warnings: list[AskWarning] = Field(default_factory=list)
     # ADR-027: additive; `None` unless ASSIST_MODE is on and the question was not answered.
     assist: AssistBlock | None = None
+    # Tansu Not 7 §3 (ASSIST_MODE only, additive): the fixed sentence stays in `answer`
+    # (Naci SORU 6 (i)); the code-owned state A/B/C sentence travels here with the matching
+    # documents. `None` / `[]` with the flag off and in state D.
+    pending_notice: str | None = None
+    pending_documents: list[PendingDocumentCard] = Field(default_factory=list)
