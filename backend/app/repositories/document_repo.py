@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 from collections.abc import Iterable
-from datetime import date
+from datetime import date, datetime
 
 from sqlalchemy import Text, cast, func, or_, select
 from sqlalchemy.orm import Session
@@ -300,6 +300,59 @@ def list_by_ids(
     stmt = select(Document).where(Document.id.in_(id_list)).order_by(Document.created_at.desc())
     if review_statuses is not None:
         stmt = stmt.where(Document.review_status.in_(list(review_statuses)))
+    return list(session.scalars(stmt).all())
+
+
+def list_recent(
+    session: Session,
+    ids: Iterable[uuid.UUID],
+    *,
+    since: datetime,
+    unresolved: Iterable[IngestionStatus],
+    limit: int,
+) -> list[Document]:
+    """Not 7 card: among `ids` (the caller's allowed set), documents created since `since`
+    plus any still-unresolved one regardless of age; failed first, then newest first."""
+    id_list = list(ids)
+    if not id_list:
+        return []
+    stmt = (
+        select(Document)
+        .where(Document.id.in_(id_list))
+        .where(or_(Document.created_at >= since, Document.ingestion_status.in_(list(unresolved))))
+        .order_by(
+            (Document.ingestion_status == IngestionStatus.failed).desc(),
+            Document.created_at.desc(),
+            Document.id,
+        )
+        .limit(limit)
+    )
+    return list(session.scalars(stmt).all())
+
+
+def latest_jobs(session: Session, ids: Iterable[uuid.UUID]) -> dict[uuid.UUID, IngestionJob]:
+    """The newest `ingestion_jobs` row per document (one per document in practice)."""
+    id_list = list(ids)
+    if not id_list:
+        return {}
+    stmt = (
+        select(IngestionJob)
+        .where(IngestionJob.document_id.in_(id_list))
+        .order_by(IngestionJob.created_at.desc())
+    )
+    jobs: dict[uuid.UUID, IngestionJob] = {}
+    for job in session.scalars(stmt):
+        jobs.setdefault(job.document_id, job)
+    return jobs
+
+
+def queued_job_ids(session: Session) -> list[uuid.UUID]:
+    """Queue order the worker uses (`created_at`), for "Sırada N." — index + 1."""
+    stmt = (
+        select(IngestionJob.id)
+        .where(IngestionJob.status == IngestionJobStatus.queued)
+        .order_by(IngestionJob.created_at, IngestionJob.id)
+    )
     return list(session.scalars(stmt).all())
 
 

@@ -5,7 +5,7 @@ import logging
 import re
 import uuid
 import zipfile
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from typing import Annotated, BinaryIO
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
@@ -51,8 +51,15 @@ from app.schemas.document import (
     DocumentVisibilityUser,
     MetadataSuggestionApplyRequest,
     MetadataSuggestionResponse,
+    RecentDocumentItem,
 )
-from app.services import document_review, metadata_suggestion, type_family
+from app.services import (
+    document_card,
+    document_review,
+    ingestion_errors,
+    metadata_suggestion,
+    type_family,
+)
 from app.services.authorization import SingleDocumentIdsProvider, allowed_document_ids
 from app.services.document_store import LocalFileSystemStore
 from app.services.llm import LLMClient
@@ -462,6 +469,32 @@ def list_documents(
     return [DocumentListItem.model_validate(d) for d in documents]
 
 
+@router.get("/recent", response_model=list[RecentDocumentItem])
+def list_recent_documents(
+    session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    department: str | None = None,
+    limit: Annotated[int, Query(ge=1, le=document_card.MAX_LIMIT)] = document_card.DEFAULT_LIMIT,
+) -> list[RecentDocumentItem]:
+    """ "Son yüklenen belgeler" card (Tansu Not 7 §2): the newest documents of the last 7 days
+    plus anything still queued/processing/failed however old, failed rows first. Same gate
+    and same `include_pending` scope as the list above — a document absent from
+    `/api/documents` is absent here too (G3). Unflagged: read-only, today's visibility."""
+    scope = AuthorizationScope(department=department, include_pending=True)
+    allowed = allowed_document_ids(current_user, scope, SqlDocumentIdsProvider(session))
+    since = datetime.now(UTC) - timedelta(days=document_card.RECENT_WINDOW_DAYS)
+    documents = document_repo.list_recent(
+        session, allowed, since=since, unresolved=document_card.UNRESOLVED_STATUSES, limit=limit
+    )
+    jobs = document_repo.latest_jobs(session, [d.id for d in documents])
+    queued = (
+        document_repo.queued_job_ids(session)
+        if any(d.ingestion_status == IngestionStatus.uploaded for d in documents)
+        else []
+    )
+    return document_card.build_recent_items(documents, jobs, queued)
+
+
 @router.get("/{document_id}/download")
 def download_document(
     session: Annotated[Session, Depends(get_session)],
@@ -511,7 +544,24 @@ def get_document_status(
     document = document_repo.get(session, document_id)
     if document is None:
         raise HTTPException(404, DOCUMENT_NOT_FOUND_MESSAGE)
-    return DocumentStatusResponse.model_validate(document)
+    reason = ingestion_errors.reason_for(document.ingestion_error)
+    return DocumentStatusResponse(
+        id=document.id,
+        ingestion_status=document.ingestion_status,
+        reason=reason,
+        ingestion_error=reason,
+        page_count=document.page_count,
+    )
+
+
+def _detail_response(document: Document, user: User) -> DocumentDetailResponse:
+    """Not 7 (Naci SORU 2): everyone gets the Turkish `ingestion_reason`; the worker's raw
+    code stays with admin (and the audit/structured log)."""
+    body = DocumentDetailResponse.model_validate(document)
+    body.ingestion_reason = ingestion_errors.reason_for(document.ingestion_error)
+    if user.role != UserRole.admin:
+        body.ingestion_error = None
+    return body
 
 
 def _get_authorized_document(session: Session, user: User, document_id: uuid.UUID) -> Document:
@@ -535,7 +585,7 @@ def get_document(
     """Full metadata for one visible document (Phase 3.3, SORU 1). Unauthorized ids get
     the same 404 as `/status` (existence hidden; `/download` alone answers 403)."""
     document = _get_authorized_document(session, current_user, document_id)
-    return DocumentDetailResponse.model_validate(document)
+    return _detail_response(document, current_user)
 
 
 @router.post("/{document_id}/suggest-metadata", response_model=MetadataSuggestionResponse)
@@ -717,7 +767,7 @@ def edit_document_metadata(
         session, document, updates, current_user, extra_updates=body.extra_fields
     )
     session.commit()
-    return DocumentDetailResponse.model_validate(document)
+    return _detail_response(document, current_user)
 
 
 @router.get("/{document_id}/visibility", response_model=DocumentVisibilityResponse)
@@ -865,7 +915,7 @@ def submit_document(
             session, document_id=document.id, actor=current_user, kind=ReviewEventKind.auto_approved
         )
     session.commit()
-    return DocumentDetailResponse.model_validate(document)
+    return _detail_response(document, current_user)
 
 
 @router.post("/{document_id}/review", response_model=DocumentDetailResponse)
@@ -898,4 +948,4 @@ def review_document(
         session, document_id=document.id, actor=current_user, kind=kind, comment=comment
     )
     session.commit()
-    return DocumentDetailResponse.model_validate(document)
+    return _detail_response(document, current_user)
