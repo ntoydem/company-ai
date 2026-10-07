@@ -552,6 +552,7 @@ demo veriyi yükleyebilir.
 ```bash
 make prose               # yalnızca içerik değiştiğinde: LLM ile prose/*.yaml üretir/günceller, elle commit edilir
 make validate-documents  # prose (P1/P2: sayı/para birimi/gerçek isim sızıntısı yok) + üretilmiş PDF (G1-G6) kontrolü
+make validate-ocr        # ingest sonrası: taranmış belgelerin OCR metni ↔ manifest key_facts_used (DB gerekir; ADR-029)
 make seed                # ledger doğrula → 70 PDF render et → admin/demo kullanıcı/departman/proje → belgeleri yükle
                           # → ingestion_jobs'ın "ready" olmasını bekle
 make reset-demo           # yalnızca belgeleri siler (TRUNCATE documents CASCADE + dosyalar); kullanıcı/departman/
@@ -581,6 +582,7 @@ kendi belgelerine sahip (Ankara 3, İzmir 4 — Phase 5.1, bkz. `docs/reports/PH
 | `make set-products PRODUCTS=P1,P2` | Ürün paketini değiştir (B-25, bkz. "Ürün paketi ve cevap alanları") |
 | `make prose` | LLM ile `seed_data/generator/prose/*.yaml` üret (yalnızca içerik değiştiğinde, elle commit edilir) |
 | `make validate-documents` | Prose (P1/P2) + üretilmiş PDF (G1-G6) doğrulaması; `make lint`'in parçası (`--prose-only`) |
+| `make validate-ocr` | Taranmış demo belgelerin OCR sonrası `document_pages` metnini manifest `key_facts_used` ile biçimden bağımsız karşılaştırır (`%20` = `yüzde 20`, tarih/tutar yazımları); DB gerektirir, `make lint`'in parçası **değil**; `ARGS="--all"` dijital belgeler dahil (ADR-029) |
 | `make seed` | 15 demo belgeyi render edip yükler (bkz. "Demo veri (Phase 3.1)"); LLM çağırmaz |
 | `make reset-demo` | Demo belgeleri siler (kullanıcı/departman/proje korunur); `--yes` ile onaysız |
 | `make psql`, `make shell` | Postgres'e psql / backend container'ında bash |

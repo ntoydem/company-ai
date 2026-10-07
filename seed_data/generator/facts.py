@@ -107,9 +107,16 @@ def _format_money(value: float, language: str, currency: str = "EUR") -> str:
     return f"{grouped} {currency}"
 
 
-def format_percent(value: float, language: str) -> str:
+def format_percent(value: float, language: str, *, ocr_friendly: bool = False) -> str:
+    """`%20` (tr) / `20%` (en). `ocr_friendly` (tr only): `yüzde 20` — the Turkish `%` glyph
+    in front of the digits is misread by tesseract as "90" on rasterized pages ("9020",
+    DOC-CO-ADM-003, 06.10.2026); spelling it out keeps the fact readable after OCR.
+    Only `build_facts` passes it, for `source_type: scanned_pdf` documents."""
     text = f"{value:.2f}".rstrip("0").rstrip(".")
-    return f"%{text.replace('.', ',')}" if language == "tr" else f"{text}%"
+    if language == "tr":
+        text = text.replace(".", ",")
+        return f"yüzde {text}" if ocr_friendly else f"%{text}"
+    return f"{text}%"
 
 
 def _format_ratio(value: float, language: str) -> str:
@@ -153,8 +160,9 @@ def _format_ced_status(value: str, language: str) -> str:
     return str(value)
 
 
-def format_value(field_name: str, value: Any, language: str) -> str:
-    """Format a resolved `key_facts` scalar for prose substitution."""
+def format_value(field_name: str, value: Any, language: str, *, ocr_friendly: bool = False) -> str:
+    """Format a resolved `key_facts` scalar for prose substitution. `ocr_friendly` changes
+    only the percent kind (see `format_percent`)."""
     kind, unit = _FIELD_KIND.get(field_name, ("text", ""))
     if kind == "date":
         if not isinstance(value, date):
@@ -163,7 +171,7 @@ def format_value(field_name: str, value: Any, language: str) -> str:
     if kind == "money":
         return _format_money(float(value), language)
     if kind == "percent":
-        return format_percent(float(value), language)
+        return format_percent(float(value), language, ocr_friendly=ocr_friendly)
     if kind == "ratio":
         return _format_ratio(float(value), language)
     if kind == "number":
@@ -257,8 +265,13 @@ def build_facts(doc: dict[str, Any], raws: dict[str, Any]) -> dict[str, str]:
         )
     )
 
+    # Scanned documents are rasterized and OCR'd (generate_documents._rasterize): percent
+    # facts are spelled out so tesseract cannot turn "%20" into "9020" (Naci, 07.10.2026 —
+    # option (b); option (a), copying the digital text layer, was rejected because it would
+    # defeat the OCR test purpose of scanned documents).
+    ocr_friendly = doc.get("source_type") == "scanned_pdf"
     for field_name, path in doc.get("key_facts", {}).items():
         raw_value = resolve_path(raws[ledger_key], path)
-        facts[field_name] = format_value(field_name, raw_value, language)
+        facts[field_name] = format_value(field_name, raw_value, language, ocr_friendly=ocr_friendly)
 
     return facts

@@ -420,3 +420,12 @@ eşleşirse `pending_notice` + `pending_documents[]` (≤3) ve `warnings.kind` `
 doğrulandı; A/B/D 3 canlı soruyla doğrulandı (sonra temizlendi); 14 soruluk G1–G3 regresyonu G1–G3 14/14 (iki kategori kaybı Not 7 dışı model değişkenliği, rapor §4). Arayüz (kart,
 cevap kutuları, `reason` alanına geçiş) ayrı AI-BalBal PR'ı; bildirim satırı ve Not 8 dışarıda. Plan
 `docs/plans/NOT7_ISLEME_DURUMU_PLAN.md`, rapor `docs/reports/NOT7_ISLEME_DURUMU_REPORT.md`.
+
+**Taranmış belgede bozuk yüzde ("9020") — 07.10.2026, ADR-029:** `DOC-CO-ADM-003` s.3'teki "9020" (OCR'ın `%20`'yi
+"9020" okuması) için (b) generator taranmış belgelerde Türkçe yüzdeyi `yüzde 20` yazar (yalnızca `scanned_pdf`,
+`format_percent(ocr_friendly=True)`; prose/ledger/dijital belgeler değişmedi, diğer 77 PDF içerik olarak aynı) ve yalnızca
+ADM-003 yeniden üretilip canlı DB'de idempotent olarak değiştirildi (aynı `external_ref`, çift kayıt yok; s.3 artık
+"yüzde 20 oranındaki hisse devri"); (c) `make validate-ocr` (DB gerektirir, `lint` dışı) taranmış belgelerin OCR metnini
+manifest `key_facts_used` ile biçimden bağımsız karşılaştırır — bugün 11/11 (scanned), 61/61 (`--all`). (a) dijital
+metin katmanını kopyalamak reddedildi. Retrieval-only recall@80 42/42; GEN-AMB-005 ×3 bayrak kapalı: "9020" yok, 3. tekrar
+"yüzde 20 oranındaki"; G1–G3 3/3. `make test` 551+18, `make lint` yeşil. Rapor `docs/reports/OCR_YUZDE_DUZELTME_REPORT.md`.

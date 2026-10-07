@@ -15,7 +15,7 @@ EVAL_ARGS ?=
 
 .PHONY: help env-check dirs up up-full restart-backend down ps logs build test test-llm lint format prompt-doc validate-ledger \
         migrate migration seed-admin seed-demo-users seed-demo-departments seed-demo-folders seed-demo-projects \
-        prose validate-documents seed-demo-documents build-frontend update-frontend dev-frontend excel validate-excel \
+        prose validate-documents validate-ocr seed-demo-documents build-frontend update-frontend dev-frontend excel validate-excel \
         psql shell seed reset-demo eval backup restore clean
 
 help: ## Bu listeyi göster
@@ -113,6 +113,9 @@ validate-excel: env-check ## commit'li workbook'ları doğrula (cached değerler
 
 validate-documents: env-check ## üretilen 15 demo belgenin içeriğini doğrula (banner/isim/izolasyon/facts)
 	$(COMPOSE) run --rm -T --no-deps backend python -m seed_data.generator.validate_documents
+
+validate-ocr: dirs ## taranmış demo belgelerin OCR metnini (document_pages) manifest key_facts_used ile karşılaştır (DB gerekir; lint'in parçası DEĞİL). make validate-ocr ARGS="--all"
+	$(COMPOSE) run --rm -T backend python -m scripts.validate_ocr $(ARGS)
 
 prompt-doc: env-check ## /api/ask sistem promptunu docs/prompts/ANSWER_SYSTEM_PROMPT.md'ye yaz
 	@{ printf '%s\n\n' '# Cevap sistem promptu (Phase 0.3)'; \
