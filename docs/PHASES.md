@@ -429,3 +429,11 @@ ADM-003 yeniden üretilip canlı DB'de idempotent olarak değiştirildi (aynı `
 manifest `key_facts_used` ile biçimden bağımsız karşılaştırır — bugün 11/11 (scanned), 61/61 (`--all`). (a) dijital
 metin katmanını kopyalamak reddedildi. Retrieval-only recall@80 42/42; GEN-AMB-005 ×3 bayrak kapalı: "9020" yok, 3. tekrar
 "yüzde 20 oranındaki"; G1–G3 3/3. `make test` 551+18, `make lint` yeşil. Rapor `docs/reports/OCR_YUZDE_DUZELTME_REPORT.md`.
+
+**Belirsiz sorularda netleştirme — Tansu kararı (a), 07.10.2026 (ADR-027 eki; dal `feat/belirsizlik`):** belirsiz soruda
+Balbal kısa bir netleştirme sorusu sorar, kaynakları sıralayıp cevaplamaz. Adım 1: `SYSTEM_PROMPT_ASSIST` kural 12 (yalnızca
+bayrak açıkken; istisnalar: sürüm zinciri + güncel/ilk/son, adlandırılmış proje/belge/dönem, "tüm/hepsi/listele", çok projeli
+soru); kod yolu değişmedi (sabit cümle + `SORU:` → `clarify`). Adım 2: kodla tespitin LLM'siz kuru koşusu (3 varyant; en iyi
+varyant 5/5 belirsiz + 1 MIXED yanlış pozitif) — uygulanmadı, rapor §1/§6. Eval v6 = 80 soru (+3 negatif kontrol
+ANK-NEG-003/004, CO-NEG-005; + GEN-AMB-003-F). Ölçüm (07.10.2026, flash-lite): referans bayrak kapalı 73 soru G1–G3 73/73, belirsiz 5/5 cevaplandı; A (ilk metin) clarify 8/15; tek revizyon sonrası A2 **10/15** (AMB-001/002/005 3/3, AMB-004 1/3, AMB-003 0/3 — "son tadil" kural 12-a ile tek zincirde çözülüyor), G1–G3 15/15 → eşik 12/15 altında, B/C koşulmadı, bayrak kapalı kaldı; karar Naci'de (AMB-003 beklentisi / Adım 2 kod tespiti ikinci katman). Arayüz notu: `clarify`'da `assist.question` ana metin olmalı
+(NOT dosyası). Plan `docs/plans/BELIRSIZLIK_PLAN.md`, rapor `docs/reports/BELIRSIZLIK_REPORT.md`.

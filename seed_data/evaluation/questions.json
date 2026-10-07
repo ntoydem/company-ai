@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "demo_today": "2026-09-15",
   "questions": [
     {
@@ -1393,6 +1393,76 @@
       "ask_as_user": "finans",
       "expect_no_answer": false,
       "notes": "TASLAK — NEGATİF KONTROL (ADR-027): 'ihracat kredi kurumu' glossary ile 'export credit agency'ye açılır (21 chunk). Beklenen: normal cevap, expect_assist yok. GEN-TRM-003 (spread/margin) bunun yerine çıkarıldı: belgeler 'margin' kelimesini hiç kullanmıyor ('baseline index plus 3.25%'), dolayısıyla eş anlamlı kontrol olamaz."
+    },
+    {
+      "id": "ANK-NEG-003",
+      "category": "document",
+      "question": "Kredi sözleşmesinin vadesi kaç yıl?",
+      "expected_answer": "ledger:ankara_res.project.finance.tenor_years.current.value",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "NEGATİF KONTROL (BELIRSIZLIK_PLAN §3, Naci 07.10.2026): sözleşme adı verilmiyor ama finans kullanıcısının tek kredi sözleşmesi zinciri var; sürüm zinciri belirsizlik değildir (kural 12-a). Beklenen: güncel vade (14), netleştirme yok. ANK-NEG-001 ile aynı ledger deseni (initial/current → current)."
+    },
+    {
+      "id": "ANK-NEG-004",
+      "category": "document",
+      "question": "Üretim lisansı ne zaman alındı?",
+      "expected_answer": "ledger:ankara_res.project.timeline.licence.date",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Ankara RES Üretim Lisansı"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "NEGATİF KONTROL (BELIRSIZLIK_PLAN §3): GEN-AMB-004'ün karşıtı — 'üretim lisansı' yalnızca Ankara'da var (İzmir'de önlisans), proje adı olmadan da tek aday. Beklenen: 15.06.2020, netleştirme yok."
+    },
+    {
+      "id": "CO-NEG-005",
+      "category": "document",
+      "question": "Denetim komitesi üyeleri hangi kararla atandı?",
+      "expected_answer": "ledger:company.documents[7].effective_date.value",
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": "idari_isler",
+      "required_sources": [
+        "Yönetim Kurulu Kararı — Denetim Komitesi Ataması"
+      ],
+      "forbidden_sources": [],
+      "ask_as_user": "yonetim",
+      "expect_no_answer": false,
+      "notes": "NEGATİF KONTROL (BELIRSIZLIK_PLAN §3): GEN-AMB-005'in karşıtı — 'toplantı' yerine konu verildi, tek karar belgesi (DOC-CO-ADM-008). Belgenin key_facts'ı yok; değer kontrolü belgenin yürürlük tarihi (01.03.2022, documents[index] yolu — belge listesi sırası değişirse yol güncellenmeli), asıl ölçüt required_sources + cevap verilmesi."
+    },
+    {
+      "id": "GEN-AMB-003-F",
+      "category": "document",
+      "question": "Son tadil neyi değiştirdi?",
+      "expected_answer": "ledger:ankara_res.project.finance.facility_chain",
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement Amendment 02"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "NEGATİF KONTROL (Naci 07.10.2026, cevap 3): GEN-AMB-003 ile aynı soru, finans kullanıcısı — lisans tadilini görmez, tek tadil zinciri (kredi) → cevap beklenir, assist yok. expected_answer liste yolu → değer kontrolü atlanır (skip), ölçüt required_sources + answered."
     }
   ]
 }

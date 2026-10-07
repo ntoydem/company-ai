@@ -53,9 +53,10 @@ def _question(**overrides: object) -> ls.Question:
 
 def test_load_questions_returns_the_committed_questions() -> None:
     question_set = load_questions()
-    # v5 (ADR-027): 64 + 5 ambiguous + 4 term_mismatch + 1 temporal (rule 8) + 2 negative controls
-    assert len(question_set.questions) == 76
-    assert question_set.version == 5
+    # v5 (ADR-027): 64 + 5 ambiguous + 4 term_mismatch + 1 temporal (rule 8) + 2 negative controls;
+    # v6 (BELIRSIZLIK_PLAN §3): + 3 negative controls + GEN-AMB-003-F (same question, finance user)
+    assert len(question_set.questions) == 80
+    assert question_set.version == 6
 
 
 def test_build_document_catalog_maps_title_type_and_project() -> None:
