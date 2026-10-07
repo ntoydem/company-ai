@@ -30,6 +30,12 @@ Kısaltmalar: **kural N** = `CLAUDE.md`'deki N numaralı değişmez kural. **ADR
 > Not 8 metni gelince o kısım tasarlanır; **Not 7 bu kapsamın dışında**. Arayüz tarafı (AI-BalBal) ölçümden sonra
 > ayrı PR. Rapor `docs/reports/DAVRANIS_MANTALITESI_REPORT.md`, plan `docs/plans/DAVRANIS_MANTALITESI_PLAN.md`.
 >
+> **07.10.2026 — Tansu'nun kararı (belirsiz sorular, Not 2 ölçümündeki açık soru):** seçenek **(a)** — belirsiz
+> soruda Balbal **kısa bir netleştirme sorusu sorsun**, belgeleri/kaynakları sıralayıp cevaplamasın. Bugünkü durum: 10
+> denemenin 2'sinde netleştirme, 8'inde sıralayarak cevap (`docs/reports/ASSIST_KARSILASTIRMA_2026-10-06.md`). Uygulama
+> planı (seçenek karşılaştırması, ölçüm, kota): `docs/plans/BELIRSIZLIK_PLAN.md` — Naci onayı bekliyor; kod yazılmadı,
+> canlı ölçüm yapılmadı. `ASSIST_MODE` canlıda kapalı.
+>
 > **05.10.2026 — Tarih/saat ayrımı (ADR-026) + üst barda "Bugün" rozeti → AI-BalBal PR #8:** Naci'nin
 > teşhisinde "Bugünün tarihi nedir?" sorusu Balbal'a sorulduğunda cevapsız kalıyordu (`insufficient_data`) —
 > backend tarafında demo tarihi (`DEMO_TODAY`) ile gerçek takvim artık tek bir bayrakla (`DEMO_MODE`) ayrılıyor
