@@ -132,21 +132,3 @@ def test_format_source_adds_the_expiration_line_only_when_the_document_has_one()
     assert (
         with_one.replace("Süre: 09.01.2025 tarihinde sona erdi (1 yıl 8 ay önce)\n", "") == without
     )
-
-
-def test_rule_12_asks_one_question_on_ambiguity_only_in_the_assist_prompt() -> None:
-    """Tansu decision (a), 07.10.2026: an ambiguous question → the fixed sentence + one
-    SORU: line, never an enumeration; version chains, named scope, "tüm/hepsi/listele" and
-    multi-project questions are excluded. Flag off: today's prompt, byte-identical."""
-    from app.services.answer_prompt import SYSTEM_PROMPT_ASSIST
-
-    rule = SYSTEM_PROMPT_ASSIST.split("\n12. ", 1)[1]
-    assert "birini seçme ve hepsini sıralama" in rule
-    assert "sürüm zinciri" in rule and '"son"' in rule and '"güncel"' in rule
-    assert '"tüm"' in rule and '"hepsi"' in rule and '"listele"' in rule
-    assert (
-        "birden fazla projeyi ADIYLA" in rule
-    )  # revision 1: sources from two projects ≠ exclusion
-    assert "adayları listeleme" in rule and "tek başına kapsam vermez" in rule
-    assert "dönem" in rule and "farklı dönemler" not in rule  # Naci (c): no bare "periods"
-    assert "\n12. " not in SYSTEM_PROMPT

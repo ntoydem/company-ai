@@ -35,7 +35,7 @@ Kısaltmalar: **kural N** = `CLAUDE.md`'deki N numaralı değişmez kural. **ADR
 > denemenin 2'sinde netleştirme, 8'inde sıralayarak cevap (`docs/reports/ASSIST_KARSILASTIRMA_2026-10-06.md`). Uygulama
 > planı (seçenek karşılaştırması, ölçüm, kota): `docs/plans/BELIRSIZLIK_PLAN.md` — Naci onayı bekliyor; kod yazılmadı,
 > canlı ölçüm yapılmadı. `ASSIST_MODE` canlıda kapalı. **Uygulama (07.10.2026, Naci onayı):** Adım 1 = cevap
-> prompt'una kural 12 (yalnızca `ASSIST_MODE=true` sürümünde), Adım 2 = kodla tespitin LLM'siz kuru koşusu; dal `feat/belirsizlik`.
+> prompt'una kural 12 (ölçüldü: 10/15, eşik altı → **daldan çıkarıldı**), Adım 2 = kodla tespit **uygulandı** (yalnızca DOCUMENT_QUERY, bayrak arkasında, LLM öncesi; kuru koşu 5/5 belirsiz, 0 yanlış pozitif); dal `feat/belirsizlik`, `main`'e birleştirme Naci onayı bekliyor. Bilinen sınırlama: GEN-AMB-003'te "Ankara RES" cevabı iki Ankara tadil ailesi arasındaki belirsizliği çözmüyor (rapor §13).
 > **Arayüz notu (Naci, 07.10.2026, AI-BalBal PR'ı için):** netleştirme tetiklendiğinde (`answered=false` +
 > `assist.kind=clarify`) sabit cümle + "Yeterli veri bulunmamaktadır" etiketi yanıltıcıdır — arayüzde **`assist.question`
 > ana metin olsun**, sabit cümle ve etiket ikincil/sönük kalsın (backend sözleşmesi değişmez: `answer` sabit cümle, ADR-014).

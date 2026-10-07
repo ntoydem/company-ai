@@ -123,7 +123,7 @@ prompt-doc: env-check ## /api/ask sistem promptunu docs/prompts/ANSWER_SYSTEM_PR
 	   echo '```text'; $(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-answer-prompt 2>/dev/null; echo '```'; } \
 	   > docs/prompts/ANSWER_SYSTEM_PROMPT.md && echo "yazıldı: docs/prompts/ANSWER_SYSTEM_PROMPT.md"
 	@{ printf '%s\n\n' '# Cevap sistem promptu — ASSIST_MODE=true sürümü (ADR-027)'; \
-	   printf '%s\n\n' 'Kaynak: `backend/app/services/answer_prompt.py::SYSTEM_PROMPT_ASSIST`. Yalnızca `ASSIST_MODE=true` iken yüklenir; 1–7 ve 9–10 numaralı kurallar `SYSTEM_PROMPT` ile birebir aynıdır, 8 sıkılaştırılmış, 11 ve 12 yenidir. Gözden geçirme kopyası; `make lint` eşitliği denetler, değişiklik Python sabitinde yapılır.'; \
+	   printf '%s\n\n' 'Kaynak: `backend/app/services/answer_prompt.py::SYSTEM_PROMPT_ASSIST`. Yalnızca `ASSIST_MODE=true` iken yüklenir; 1–7 ve 9–10 numaralı kurallar `SYSTEM_PROMPT` ile birebir aynıdır, 8 sıkılaştırılmış, 11 yenidir. Gözden geçirme kopyası; `make lint` eşitliği denetler, değişiklik Python sabitinde yapılır.'; \
 	   echo '```text'; $(COMPOSE) run --rm -T --no-deps backend python -m app.cli print-answer-prompt-assist 2>/dev/null; echo '```'; } \
 	   > docs/prompts/ANSWER_SYSTEM_PROMPT_ASSIST.md && echo "yazıldı: docs/prompts/ANSWER_SYSTEM_PROMPT_ASSIST.md"
 	@{ printf '%s\n\n' '# Excel plan + cevap promptları (Phase 4.2)'; \

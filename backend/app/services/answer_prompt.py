@@ -101,27 +101,7 @@ _RULE_11_ASSIST = (
     "isim kullanma. Bu bir öneri ya da tahmin değildir; yalnızca kullanıcının neyi "
     "sorduğunu anlamaya yarar."
 )
-# Tansu's decision (a), 07.10.2026 (docs/plans/BELIRSIZLIK_PLAN.md): an ambiguous question
-# gets one clarifying question, not an enumeration of every candidate. Naci's additions:
-# a version chain is never ambiguity ("güncel/ilk/son" pick the link), "tüm/hepsi/listele"
-# is a deliberate list request, and "different periods" must not catch version chains.
-_RULE_12_ASSIST = (
-    "12. Soru hangi belgeyi, projeyi ya da raporu kastettiğini söylemiyorsa ve kaynaklar "
-    "birbirinden FARKLI belgelere, projelere ya da rapor dönemlerine ait farklı değerler "
-    "içeriyorsa, bunlardan birini seçme ve hepsini sıralama: 2. kuraldaki cümleyi yaz ve "
-    "11. kurala göre tek bir SORU: satırıyla hangisinin kastedildiğini sor. Birden fazla "
-    "aday olduğunu fark ettiysen bunu açıklayıp adayları listeleme; yalnızca sabit cümle ve "
-    "SORU: satırı. Kaynakların farklı projelere ait olması, soru projeleri adıyla saymıyorsa, "
-    "belirsizliktir ve soru sorulur. Bu kural şu durumlarda UYGULANMAZ: (a) aynı belgenin "
-    "sürüm zinciri (Zincir: satırı aynı belge ailesini gösteriyorsa) belirsizlik değildir — "
-    '5. kural geçerlidir ve "güncel", "ilk", "son", "orijinal" gibi kelimeler o zincir içinde '
-    "kapsamı belirler; kaynaklarda birden fazla ayrı belge ailesi (örneğin farklı türde iki "
-    'tadil zinciri) varsa "son" tek başına kapsam vermez ve soru sorulur; (b) soru proje adı, '
-    'belge adı veya dönem veriyorsa; (c) kullanıcı "tüm", "hepsi", "listele" gibi bir '
-    "ifadeyle hepsini istiyorsa; (d) soru 10. kuraldaki gibi birden fazla projeyi ADIYLA "
-    "sayıyorsa. 9. kural (aynı terimin farklı tanımları) bu kuraldan etkilenmez."
-)
-_RULES_ASSIST = [*_RULES[:7], _RULE_8_ASSIST, *_RULES[8:], _RULE_11_ASSIST, _RULE_12_ASSIST]
+_RULES_ASSIST = [*_RULES[:7], _RULE_8_ASSIST, *_RULES[8:], _RULE_11_ASSIST]
 SYSTEM_PROMPT_ASSIST = _PREAMBLE + "\n".join(_RULES_ASSIST)
 
 
