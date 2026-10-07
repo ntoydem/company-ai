@@ -1434,7 +1434,7 @@
       "id": "CO-NEG-005",
       "category": "document",
       "question": "Denetim komitesi üyeleri hangi kararla atandı?",
-      "expected_answer": "ledger:company.documents[7].effective_date.value",
+      "expected_answer": "ledger:company.documents[7].id",
       "expected_answer_aliases": [],
       "expected_project": null,
       "expected_department": "idari_isler",
@@ -1444,7 +1444,7 @@
       "forbidden_sources": [],
       "ask_as_user": "yonetim",
       "expect_no_answer": false,
-      "notes": "NEGATİF KONTROL (BELIRSIZLIK_PLAN §3): GEN-AMB-005'in karşıtı — 'toplantı' yerine konu verildi, tek karar belgesi (DOC-CO-ADM-008). Belgenin key_facts'ı yok; değer kontrolü belgenin yürürlük tarihi (01.03.2022, documents[index] yolu — belge listesi sırası değişirse yol güncellenmeli), asıl ölçüt required_sources + cevap verilmesi."
+      "notes": "NEGATİF KONTROL (BELIRSIZLIK_PLAN §3): GEN-AMB-005'in karşıtı — 'toplantı' yerine konu verildi, tek karar belgesi (DOC-CO-ADM-008). Soru bir tarih değil karar adını sorar; expected_answer belgenin id yolu → DOC-* referansı → değer kontrolü atlanır (skip), ölçüt required_sources + cevap (Naci 07.10.2026)."
     },
     {
       "id": "GEN-AMB-003-F",
@@ -1464,5 +1464,6 @@
       "expect_no_answer": false,
       "notes": "NEGATİF KONTROL (Naci 07.10.2026, cevap 3): GEN-AMB-003 ile aynı soru, finans kullanıcısı — lisans tadilini görmez, tek tadil zinciri (kredi) → cevap beklenir, assist yok. expected_answer liste yolu → değer kontrolü atlanır (skip), ölçüt required_sources + answered."
     }
-  ]
+  ],
+  "held_out": []
 }

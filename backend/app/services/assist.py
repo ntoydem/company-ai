@@ -161,12 +161,14 @@ class Assist:
     available: tuple[AvailableDocument, ...] = ()
     # Why a model-written question was dropped (logged, never shown) — None when kept.
     dropped_reason: str | None = field(default=None, compare=False)
+    # Adım 2 (services/ambiguity.py): which axis the code-detected ambiguity is on.
+    axis: Literal["project", "document"] | None = None
 
 
 # ---------------------------------------------------------------- code-side lookups
 
 
-def _available_card(document: Document, page_number: int | None) -> AvailableDocument:
+def available_card(document: Document, page_number: int | None) -> AvailableDocument:
     return AvailableDocument(
         document_id=document.id,
         title=document.title,
@@ -305,7 +307,7 @@ def available_from_metadata(
         for document in hits:
             by_id.setdefault(document.id, document)
     ordered = sorted(by_id.values(), key=lambda d: (d.title, d.id))[:MAX_AVAILABLE]
-    return [_available_card(document, None) for document in ordered]
+    return [available_card(document, None) for document in ordered]
 
 
 def available_from_chunks(
@@ -324,7 +326,7 @@ def available_from_chunks(
     for chunk in ranked[:MAX_AVAILABLE]:
         document = documents.get(chunk.document_id)
         if document is not None:
-            out.append(_available_card(document, chunk.page_number))
+            out.append(available_card(document, chunk.page_number))
     return out
 
 
@@ -460,6 +462,7 @@ def assist_block(assist: Assist | None) -> AssistBlock | None:
         question=assist.question,
         unmatched_terms=list(assist.unmatched_terms),
         candidate_terms=list(assist.candidate_terms),
+        axis=assist.axis,
         available=[
             AssistAvailableDocument(
                 document_id=a.document_id,

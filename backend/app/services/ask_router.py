@@ -147,6 +147,9 @@ def _run(
             llm,
             settings,
             write_audit=False,
+            # Adım 2: code-side ambiguity check only on the pure DOCUMENT path (a MIXED
+            # question legitimately spans a contract value and a report value).
+            check_ambiguity=query_type == "DOCUMENT_QUERY",
         )
     if routed.data_question is not None:
         data = answer_data_question(

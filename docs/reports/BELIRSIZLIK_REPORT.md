@@ -1,6 +1,6 @@
 # Rapor — Belirsiz sorularda netleştirme (Tansu kararı (a); kural 12 + kodla tespitin kuru koşusu)
 
-**Tarih:** 07.10.2026  **Model:** Fable 5.1  **Plan:** `docs/plans/BELIRSIZLIK_PLAN.md` (onay + 6 SORU cevabı, 07.10.2026)  **Dal:** `feat/belirsizlik` (`main` @ `eab24d0` üzerinden)  **Bayrak:** `ASSIST_MODE` — ölçüm sonrası canlıda **kapalı**.
+**Tarih:** 07.10.2026 (ikinci tur aynı gün: Adım 2 uygulandı, §8–§10)  **Model:** Fable 5.1  **Plan:** `docs/plans/BELIRSIZLIK_PLAN.md` (onay + 6 SORU cevabı, 07.10.2026)  **Dal:** `feat/belirsizlik` (`main` @ `eab24d0` üzerinden)  **Bayrak:** `ASSIST_MODE` — ölçüm sonrası canlıda **kapalı**.
 
 ## 1. Adım 2 — kodla belirsizlik tespiti, LLM'siz kuru koşu (kota 0)
 
@@ -81,3 +81,43 @@ Kuru koşu V3, DOCUMENT_QUERY yoluna sınırlanırsa, belirsiz 5 soruda LLM ça�
 | `Question.id` deseni genişletildi | Naci'nin verdiği id'ler (`CO-NEG-005`, `GEN-AMB-003-F`) eski desene uymuyordu |
 | CO-NEG-005 değer kontrolü belge yürürlük tarihi | ADM-008'in key_facts'ı yok; asıl ölçüt kaynak + cevap |
 | Kuru koşu scripti repoya alınmadı | Adım 2 uygulanmadı; rapor §1 sonuçları taşıyor |
+
+---
+
+## 8. Adım 2 uygulandı — kodla belirsizlik tespiti (Naci, 07.10.2026 ikinci tur)
+
+Naci kararları: kural 12 **dalda kalır, `main`'e alınmaz** (B/C ölçülmedi); GEN-AMB-003 beklentisi `clarify` kalır; yeni prompt revizyonu yok; Adım 2 (V3) uygulanır.
+
+- **Kod:** `app/services/ambiguity.py` — `detect(session, allowed, question, chunks, documents)`: sinyal (i) kapsamsız soru (ayırt edici terimlerin hepsi belge-sınıfı kelimesi; proje kelimesi yok; "tüm/hepsi/listele" yok; **istisna (b): soru bir adayın belge türünü ya da başlığını adıyla içeriyorsa kapsam verilmiştir**), sinyal (ii) yayılma (ilk 15 parçada ≥ 2 grup = proje + belge türü, ikinci grubun en iyi parçası ≥ 0,5 × birinci). İkisi de tutarsa LLM **çağrılmaz**: `answer` sabit cümle, `assist.kind=clarify`, `assist.axis=project|document`, `question` sabit şablon — `PROJECT_TEMPLATE` "Hangi projeyi kastediyorsunuz: A mi, B mi?" (proje adları yalnızca getirilen belgelerin projeleri) / `DOCUMENT_TEMPLATE` "Hangi belgeyi kastediyorsunuz: X; Y; Z?" (≤ 3 başlık, yalnızca getirilen = yetkili belgeler); `available` = grup temsilcileri (en iyi sayfa). Tüm metin kod (ADR-014); adlar `allowed_document_ids` kümesinin alt kümesinden (G3).
+- **Yol kısıtı:** `ask_router._run` → `answer_question(..., check_ambiguity=query_type == "DOCUMENT_QUERY")`; MIXED/DATA ve DATA→DOCUMENT geri düşüşünde kontrol yok. `ASSIST_MODE` kapalıyken `check_ambiguity` okunmaz → bayt-identik (`test_flag_off_is_byte_identical`).
+- **Audit:** mevcut `audit_log.assist` JSON'u (`kind`, `question`, `axis`, `available`); `model=None`, `tokens 0` (yalnızca router çağrısı yapılmış olur).
+- **Eşik notu (Naci 2):** `TOP_N=15`, `CLOSE=0.5` ve belge-sınıfı kelime listesi **tek kümeye** (`questions.json` v6'nın 5 `ambiguous` sorusu) göre ayarlandı; bu turda değiştirilmedi. Tek ekleme eşik değil, planın (b) istisnasının belge-türü yarısı: kuru koşuda ANK-NEG-004 ("Üretim lisansı ne zaman alındı?") ateşlendi çünkü "lisansı" sınıf kelimesi — soru adayın türünü ("Üretim Lisansı") adıyla söylüyor → `_names_a_candidate` ile dışlandı (test: `test_naming_the_document_type_is_scope`). Held-out seti gelince eşikler yeniden değerlendirilmez, yalnızca ölçülür.
+- **Testler:** `backend/tests/test_ambiguity.py` 9 test — iki projeli kapsamsız soru → LLM 0 çağrı + proje şablonu + audit; proje adı verilen → ateşlenmez; "tüm" → ateşlenmez; tek grup (sürüm zinciri) → ateşlenmez; iki belge ailesi tek projede → belge şablonu; MIXED → kontrol yok; bayrak kapalı → bayt-identik; adlar yalnızca getirilen belgelerden (G3); belge türünü adlandıran soru → ateşlenmez.
+
+## 9. Kuru koşu — 80 soru (Naci 3) → `docs/reports/DRY_RUN_AMBIGUITY_2026-10-07.md`
+
+**Sonuç: ateşlenen 6 = 5 belirsiz (5/5) + ANK-MIX-001 (router MIXED → yolda dışlanır); yanlış pozitif 0, yanlış negatif 0.** Özellikle kontrol edilenler (hepsi **ateşlenmedi**):
+
+| Soru | Not |
+|---|---|
+| GEN-AMB-003-F (finans) | tek grup (yalnızca kredi tadili zinciri görünür) → ateşlenmez; aynı soru `yonetim` ile 7 grup → "Hangi projeyi…" |
+| ANK-NEG-001, ANK-NEG-002 | "Ankara RES" proje kelimesi → kapsam var |
+| ANK-NEG-003 "Kredi sözleşmesinin vadesi kaç yıl?" | kapsamsız ✓ ama 2 grup ve ikinci grup < 0,5 × birinci → yayılma yok |
+| ANK-NEG-004 "Üretim lisansı ne zaman alındı?" | 11 grup, sınıf kelimesi ✓ → **(b) istisnası**: "üretim lisansı" bir adayın belge türü |
+| CO-NEG-005 | "denetim komitesi" ayırt edici (sınıf dışı) terim → kapsam var |
+| GEN-CMP-001…003 | "Ankara RES"/"İzmir RES" proje kelimeleri → kapsam var |
+| ANK-FIN-001…015 (tümü), temporal kategori (ANK-DEV-004/005, ANK-FIN-006/007/008/012/013, ANK-OPS-001/004, ANK-EPC-004, IZM-DEV-011) | proje adı ya da ayırt edici terim var → ateşlenmez |
+
+Ateşlenenlerin gerekçesi (tam tablo ekte): GEN-AMB-001 8 grup → belge şablonu; GEN-AMB-002 2 grup (Facility Agreement; Covenant Report Q4 2024) → belge şablonu; GEN-AMB-003 7 grup, iki proje → **proje şablonu** ("kredi tadili mi lisans tadili mi" yerine proje ekseni seçildi — eksen seçimi "≥ 2 proje → proje" kuralıyla; Tansu'ya gösterilecek nokta); GEN-AMB-004 11 grup → proje şablonu; GEN-AMB-005 5 grup → belge şablonu (Denetim Komitesi Ataması; ÇED Olumlu Kararı; …).
+
+## 10. Held-out hazırlığı (Naci 4), canlı doğrulama (Naci 5), CO-NEG-005 (Naci 6)
+
+- **Held-out:** `questions.json`'a üst düzey `"held_out": []` bloğu eklendi; `ledger_schema.QuestionSet.held_out: list[Question] = []` (aynı doğrulama kuralları), `run_eval` bu bloğu **hiç okumaz** (canlı ölçüm yok), `scripts/dry_run_ambiguity.py --held-out` kuru koşuya dahil eder. Tansu'nun 10 sorusu gelince: bloğa yaz → `make validate-ledger` → `--held-out` kuru koşu → sonuç raporda; Naci onayıyla `questions` bloğuna taşınır.
+- **Canlı doğrulama (bayrak açık, ×1, 2 çağrı):** `make eval EVAL_ARGS="--ids GEN-AMB-003,GEN-AMB-004"` → ikisi de `answered=false`, `assist.kind=clarify`, `question="Hangi projeyi kastediyorsunuz: Ankara RES mi, İzmir RES mi?"`, `model=gemini-3.5-flash-lite` ile `tokens_in≈774` = **yalnızca router çağrısı** (cevap modeli çağrılmadı), G1–G3 2/2 ✅; `results/gemini-3.5-flash-lite_2026-10-07/`. Ardından `ASSIST_MODE=false` + `make restart-backend`. B/C tam ölçümü yapılmadı (Naci 5: tespit LLM'den önce, yanlış pozitifler kuru koşuda görülür).
+- **CO-NEG-005 değer kontrolü kaldırıldı (gerekçe):** soru "hangi kararla atandı?" — bir **karar adı** sorar, tarih değil; referans koşusunda model doğru belgeyle (DOC-CO-ADM-008) cevapladı ama "01.03.2022"yi yazmadı → tarih ölçütü soruyla uyumsuz bir ret üretirdi. `expected_answer` artık `ledger:company.documents[7].id` (DOC-* referansı → `ExpectedValue.skip=True`, eval_lib'in belgelenmiş deseni: "a DOC-* document reference already covered by required_sources"); ölçüt = `required_sources` ("Yönetim Kurulu Kararı — Denetim Komitesi Ataması") + `answered`. Not: `documents[7]` liste indeksidir; belge sırası değişirse yol güncellenmeli (notes'ta).
+
+## 11. Durum
+Dal `feat/belirsizlik`: kural 12 (ölçülmemiş, dalda) + Adım 2 kod tespiti (kuru koşu 5/5, 0 yanlış pozitif; canlı 2/2). `main`'e **alınmadı**. `ASSIST_MODE` canlıda **kapalı**, backend yeniden başlatıldı. Testler §12.
+
+## 12. Testler (ikinci tur)
+`make test`: backend **561 passed** (15 deselected live_llm; +9 `test_ambiguity.py`), şema doğrulaması OK, ocr-worker **18 passed**; `make lint` ✅ (ruff + mypy strict + prompt dokümanları); `make validate-ledger` 0 hata (v6 + `held_out`).

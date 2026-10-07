@@ -526,3 +526,7 @@ class QuestionSet(_Strict):
     version: int
     demo_today: date
     questions: list[Question]
+    # Held-out questions (Tansu, pending Naci's approval): validated like the others, never
+    # asked by `run_eval` until moved into `questions`; `scripts/dry_run_ambiguity.py --held-out`
+    # runs the LLM-free check on them.
+    held_out: list[Question] = []

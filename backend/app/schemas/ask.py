@@ -124,6 +124,9 @@ class AssistBlock(BaseModel):
     unmatched_terms: list[str] = Field(default_factory=list)
     candidate_terms: list[str] = Field(default_factory=list)
     available: list[AssistAvailableDocument] = Field(default_factory=list)
+    # Adım 2 (07.10.2026): set when code detected the ambiguity before the LLM — the axis the
+    # fixed question asks about. None for model-written / template questions.
+    axis: Literal["project", "document"] | None = None
 
 
 class AskRequest(BaseModel):

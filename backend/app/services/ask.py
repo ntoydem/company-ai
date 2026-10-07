@@ -19,7 +19,7 @@ from app.repositories.document_repo import SqlDocumentIdsProvider
 from app.schemas.ask import AskRequest, SourceCard
 from app.schemas.authorization import AuthorizationScope
 from app.schemas.retrieval import RetrievalFilters
-from app.services import answer_prompt
+from app.services import ambiguity, answer_prompt
 from app.services.assist import (
     Assist,
     build_insufficient_assist,
@@ -145,9 +145,12 @@ def answer_question(
     settings: Settings,
     *,
     write_audit: bool = True,
+    check_ambiguity: bool = False,
 ) -> AskResult:
     """`write_audit=False` (Phase 4.3): the caller — the router — owns the one audit row of
-    the call and writes it from the returned `AskResult` (SORU 2: one row per call)."""
+    the call and writes it from the returned `AskResult` (SORU 2: one row per call).
+    `check_ambiguity` (Adım 2, ASSIST_MODE only): run `ambiguity.detect` before the LLM —
+    the router sets it only on the DOCUMENT_QUERY path."""
     started = time.perf_counter()
     filters = RetrievalFilters(department=request.department)
     query = build_search_query(request.question)
@@ -170,6 +173,36 @@ def answer_question(
         by_id = {document.id: document for document in documents}
         now = temporal_today(settings)
         chain = evaluate_version_chains(documents, now)
+        if settings.assist_mode_enabled and check_ambiguity:
+            found = ambiguity.detect(session, allowed, request.question, chunks, by_id)
+            if found is not None:
+                # Tansu decision (a): ask which one — no LLM call, fixed template, names
+                # only from the retrieved (allowed) documents.
+                log.info("ambiguity detected", extra={"axis": found.axis, "groups": found.groups})
+                result = AskResult(
+                    answer=answer_prompt.NO_ANSWER_TEXT,
+                    answered=False,
+                    retrieved_document_ids=retrieved_ids,
+                    chunks=chunks,
+                    assist=ambiguity.to_assist(found, chunks),
+                )
+                if write_audit:
+                    _write_audit_log(
+                        session,
+                        user,
+                        request,
+                        retrieved_ids=retrieved_ids,
+                        chunks=chunks,
+                        answer=result.answer,
+                        sources=[],
+                        model=None,
+                        tokens_in=0,
+                        tokens_out=0,
+                        execution_ms=round((time.perf_counter() - started) * 1000),
+                        error=None,
+                        assist=result.assist,
+                    )
+                return result
         sources = answer_prompt.order_sources(chunks, by_id, chain)
 
         user_prompt = answer_prompt.build_user_prompt(request.question, sources, now)
