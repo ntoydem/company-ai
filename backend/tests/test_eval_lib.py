@@ -55,8 +55,9 @@ def test_load_questions_returns_the_committed_questions() -> None:
     question_set = load_questions()
     # v5 (ADR-027): 64 + 5 ambiguous + 4 term_mismatch + 1 temporal (rule 8) + 2 negative controls;
     # v6 (BELIRSIZLIK_PLAN §3): + 3 negative controls + GEN-AMB-003-F (same question, finance user)
-    assert len(question_set.questions) == 80
-    assert question_set.version == 6
+    # v7 (Tansu Ürün 1 §B, B ölçümü): + 13 discovery
+    assert len(question_set.questions) == 93
+    assert question_set.version == 7
 
 
 def test_build_document_catalog_maps_title_type_and_project() -> None:
@@ -779,3 +780,51 @@ def test_safety_g3_covers_not7_pending_documents() -> None:
         pending_documents=({"document_id": "vis", "title": "Önlisans Taslak", "status": "ocr"},),
     )
     assert safety_checks(question, clean, _mini_catalog(), ctx) == ()
+
+
+def test_discovery_check_requires_a_shown_document_and_an_answer_or_question() -> None:
+    """B ölçümü (Tansu Ürün 1 §B): a discovery question passes when a required document is
+    surfaced (cited or in assist.available) AND Balbal either answers or asks; the fixed
+    sentence alone fails."""
+    from scripts.eval_lib import discovery_check
+
+    question = _question(
+        category="discovery",
+        expect_no_answer=False,
+        required_sources=["Facility Agreement"],
+    )
+    catalog = _mini_catalog()
+    fixed = (
+        "Mevcut şirket kaynaklarında bu soruyu güvenilir şekilde cevaplamak için yeterli "
+        "bilgi bulamadım."
+    )
+    alone = AskOutcome(answered=False, answer_text=fixed)
+    assert discovery_check(question, alone, catalog)[0] == "fail"
+    listed = AskOutcome(
+        answered=False,
+        answer_text=fixed,
+        assist={
+            "kind": "clarify",
+            "question": "Hangi sözleşmeyi kastediyorsunuz?",
+            "available": [{"document_id": "x", "title": "Facility Agreement"}],
+        },
+    )
+    assert discovery_check(question, listed, catalog) == ("pass", None)
+    listed_no_question = AskOutcome(
+        answered=False,
+        answer_text=fixed,
+        assist={
+            "kind": "clarify",
+            "question": None,
+            "available": [{"title": "Facility Agreement"}],
+        },
+    )
+    assert discovery_check(question, listed_no_question, catalog)[0] == "fail"
+    answered = AskOutcome(
+        answered=True,
+        answer_text="Kredi sözleşmesi mevcuttur [K1].",
+        cited_titles=("Facility Agreement",),
+    )
+    assert discovery_check(question, answered, catalog) == ("pass", None)
+    other = _question(category="document", expect_no_answer=False)
+    assert discovery_check(other, answered, catalog) == ("skipped", None)

@@ -862,7 +862,14 @@ def check_questions(
                 report.error(f, f"{p}.expected_project", "Q6: comparison spans projects, use null")
             if not q.forbidden_phrases:
                 report.error(f, f"{p}.forbidden_phrases", "Q6: comparison needs forbidden_phrases")
-        if not q.expect_no_answer and q.expected_answer is None:
+        if q.category == "discovery":
+            # Q8: a discovery question has no single expected value; it needs the documents
+            # Balbal should surface, and never declares a no-answer or an assist kind.
+            if not q.required_sources:
+                report.error(f, f"{p}.required_sources", "Q8: discovery needs required_sources")
+            if q.expect_no_answer or q.expect_assist is not None:
+                report.error(f, f"{p}", "Q8: discovery is scored by discovery_check, not no-answer")
+        elif not q.expect_no_answer and q.expected_answer is None:
             report.error(
                 f, f"{p}.expected_answer", "Q4: answerable question needs an expected_answer"
             )

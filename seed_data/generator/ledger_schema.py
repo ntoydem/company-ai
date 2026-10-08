@@ -32,6 +32,11 @@ QuestionCategory = Literal[
     # fixed no-answer sentence *plus* a code-generated assist block of the given kind.
     "ambiguous",
     "term_mismatch",
+    # Tansu Ürün 1 notu §B (08.10.2026): "X var mı / nerede" discovery questions — the answer
+    # must *show* the relevant documents and ask/offer, whichever way (answered with citations
+    # or the fixed sentence + assist.available + assist.question); the fixed sentence alone
+    # fails. Scored by `eval_lib.discovery_check`, threshold 80 %.
+    "discovery",
 ]
 DemoUser = Literal["admin", "yonetim", "finans", "hukuk", "enerji"]
 AssistKind = Literal["clarify", "term_mismatch"]

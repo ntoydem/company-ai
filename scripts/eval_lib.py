@@ -510,6 +510,34 @@ def assist_check(question: ls.Question, outcome: AskOutcome) -> tuple[str, str |
     return "fail", f"assist.kind={kind!r}, beklenen {question.expect_assist!r}"
 
 
+def discovery_check(
+    question: ls.Question, outcome: AskOutcome, catalog: DocumentCatalog
+) -> tuple[str, str | None]:
+    """Category `discovery` (Tansu Ürün 1 §B): the answer must *surface* at least one of the
+    `required_sources` — either cited in `sources` or listed in `assist.available` — AND
+    either answer or ask (`answered` or a non-empty `assist.question`). The fixed sentence
+    alone ("yeterli veri yok") fails. Fixed before the measurement (B_OLCUM_REPORT §1)."""
+    if question.category != "discovery":
+        return "skipped", None
+    available = tuple(
+        str(item.get("title")) for item in ((outcome.assist or {}).get("available") or [])
+    )
+    shown = catalog.cited_titles(outcome.cited_titles + available, outcome.cited_files)
+    found = [name for name in question.required_sources if _source_satisfied(name, shown, catalog)]
+    asked = outcome.answered or bool((outcome.assist or {}).get("question"))
+    if found and asked:
+        return "pass", None
+    reasons = []
+    if not found:
+        reasons.append(
+            "beklenen belge gösterilmedi"
+            + (f" (gösterilen: {sorted(shown)})" if shown else " (hiç belge yok)")
+        )
+    if not asked:
+        reasons.append("soru/seçenek yok — sabit cümle tek başına")
+    return "fail", "; ".join(reasons)
+
+
 @dataclass(frozen=True)
 class QuestionResult:
     id: str
@@ -541,6 +569,10 @@ class QuestionResult:
     safety_reasons: tuple[str, ...] = ()
     assist_check: str = "skipped"
     assist_check_reason: str | None = None
+    # Tansu Ürün 1 §B (B ölçümü, 08.10.2026): discovery questions — "show the documents and
+    # ask/offer"; "pass" | "fail" | "skipped" (other categories).
+    discovery_check: str = "skipped"
+    discovery_check_reason: str | None = None
     # ADR-027: the assist block as returned (None when off) — kept so a flag-off and a
     # flag-on run of the same question can be laid side by side (Tansu's comparison table).
     assist: dict[str, Any] | None = None
@@ -594,9 +626,14 @@ def score_question(
 
     cited = catalog.cited_titles(outcome.cited_titles, outcome.cited_files)
     answered_ok = outcome.answered == (not question.expect_no_answer)
+    discovery_status, discovery_reason = discovery_check(question, outcome, catalog)
+    if question.category == "discovery":
+        # Either an answer with citations or the fixed sentence with a list + question is
+        # acceptable; `discovery_check` is the whole criterion.
+        answered_ok = True
 
     missing_required = ()
-    if not question.expect_no_answer:
+    if not question.expect_no_answer and question.category != "discovery":
         missing_required = tuple(
             name
             for name in question.required_sources
@@ -637,6 +674,7 @@ def score_question(
         and phrase_ok
         and safety_check != "fail"
         and assist_status != "fail"
+        and discovery_status != "fail"
     )
 
     return QuestionResult(
@@ -666,6 +704,8 @@ def score_question(
         safety_reasons=safety_reasons,
         assist_check=assist_status,
         assist_check_reason=assist_reason,
+        discovery_check=discovery_status,
+        discovery_check_reason=discovery_reason,
         assist=outcome.assist,
     )
 
@@ -884,6 +924,8 @@ def render_markdown(report: EvalReport) -> str:
                 reasons.append("güvenlik: " + "; ".join(r.safety_reasons))
             if r.assist_check == "fail":
                 reasons.append(f"assist: {r.assist_check_reason}")
+            if r.discovery_check == "fail":
+                reasons.append(f"discovery: {r.discovery_check_reason}")
             snippet = r.answer_text[:200].replace("\n", " ")
             lines.append(f"- **{r.id}** ({r.category}): {'; '.join(reasons)} — cevap: “{snippet}”")
 

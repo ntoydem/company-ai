@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 7,
   "demo_today": "2026-09-15",
   "questions": [
     {
@@ -1463,6 +1463,236 @@
       "ask_as_user": "finans",
       "expect_no_answer": false,
       "notes": "NEGATİF KONTROL (Naci 07.10.2026, cevap 3): GEN-AMB-003 ile aynı soru, finans kullanıcısı — lisans tadilini görmez, tek tadil zinciri (kredi) → cevap beklenir, assist yok. expected_answer liste yolu → değer kontrolü atlanır (skip), ölçüt required_sources + answered."
+    },
+    {
+      "id": "GEN-DSC-001",
+      "category": "discovery",
+      "question": "Ankara'nın finansal modeli var mı?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Financial Model 2026"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. Tansu §B gözlemi (web testi 07.10). Workbook; belge hattında parçası yok."
+    },
+    {
+      "id": "GEN-DSC-002",
+      "category": "discovery",
+      "question": "Sözleşme var mı?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. §3.1."
+    },
+    {
+      "id": "GEN-DSC-003",
+      "category": "discovery",
+      "question": "Sigorta ne zaman bitiyor?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Sigorta Yenileme Bildirimi — İşletme Dönemi"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. §3.1; ADR-026 'Süre:' satırı var."
+    },
+    {
+      "id": "GEN-DSC-004",
+      "category": "discovery",
+      "question": "Lisans durumu ne?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Ankara RES Üretim Lisansı"
+      ],
+      "forbidden_sources": [],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. §3.1; enerji İzmir önlisansını da görür — belirsizlik kabul (liste + soru)."
+    },
+    {
+      "id": "GEN-DSC-005",
+      "category": "discovery",
+      "question": "Amendment var mı?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement Amendment 01"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "yonetim",
+      "expect_no_answer": false,
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. §3.1."
+    },
+    {
+      "id": "GEN-DSC-006",
+      "category": "discovery",
+      "question": "Ödeme planı yüklü mü?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Financial Model 2026"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. §3.1; plan yalnızca workbook Debt sayfasında."
+    },
+    {
+      "id": "GEN-DSC-007",
+      "category": "discovery",
+      "question": "ÇED raporu nerede?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Ankara RES ÇED Olumlu Kararı"
+      ],
+      "forbidden_sources": [],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. §3.1; İzmir ÇED Durum Yazısı da görünür."
+    },
+    {
+      "id": "GEN-DSC-008",
+      "category": "discovery",
+      "question": "Bütçe dosyası var mı?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Budget vs Actual 2026"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. §3.1; workbook enerji_grubu departmanında — finans görür mü, ölçüm gösterir."
+    },
+    {
+      "id": "GEN-DSC-009",
+      "category": "discovery",
+      "question": "Kredi sözleşmesinin son hali hangisi?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement Amendment 02"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. §3.1; zincir GÜNCEL halkası."
+    },
+    {
+      "id": "GEN-DSC-010",
+      "category": "discovery",
+      "question": "Teminat belgeleri neler?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Ankara RES Security Agreement (Share Pledge)"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. §3.1 (hukuk yerine finans: rehin belgeleri finans departmanında)."
+    },
+    {
+      "id": "GEN-DSC-011",
+      "category": "discovery",
+      "question": "ankaranın ilk kredi ödemesi ne zaman ne kadar?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "yonetim",
+      "expect_no_answer": false,
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. Tansu §C.2 (06.10): ilk taksit yalnızca Financial Model Debt sayfasında; PDF'lerde yok — beklenen: kredi belgelerini gösterip sor."
+    },
+    {
+      "id": "GEN-DSC-012",
+      "category": "discovery",
+      "question": "peki amendment var mı hiç?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement Amendment 01"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "yonetim",
+      "expect_no_answer": false,
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. Tansu §C.2 (06.10): bağlamsız devam sorusu (T9: hafıza yok)."
+    },
+    {
+      "id": "GEN-DSC-013",
+      "category": "discovery",
+      "question": "amendment ne demek biliyor musun?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Facility Agreement Amendment 01"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "yonetim",
+      "expect_no_answer": false,
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. Tansu §C.2 (06.10): terim sorusu; Ç-3 kararı Tansu'da — beklenen: tadil belgelerini gösterip sor, tanım cümlesi kurma."
     }
   ],
   "held_out": [
