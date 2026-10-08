@@ -531,3 +531,7 @@ Balbal Anayasası v1.1'in iki maddesi, bugün (30.09.2026) bağımsız olarak al
 
 - **Ü-3/Ü-4 (karşılaştırma):** Tansu'nun Ürün 2 cevabı (§7.2 #9, kapandı) Ü-4 ile birebir örtüşüyor: Ürün 2 **karşılaştırma gösterir** (yan yana değer + temel aritmetik), **değerlendirmez** (yorum/analiz/sonuç yok). Backend okuması: Ürün 1'de kural 10 (karşılaştırma yok), Ürün 2'de kural 10'un gevşetilmiş hali + kural 6 (yorum yok) aynen. Bu gevşetme Ürün 2 fazına bırakıldı, şimdi kod yok.
 - **Ton / karakter (Ek-F):** Tansu, Balbal'ın tonunu **"profesyonel ve yardımsever"** olarak yönlendirdi ve bunu Balbal'ın amacıyla bağladı. Bu içerik anayasanın **Ek-F (Karakter Tanımı)** bölümüne aittir ve **Tansu'nun kendi belgesine** işlenir — backend koduna değil. Bugünkü `answer_prompt.py` kuralları (1–10) içerik/kaynak/yetki kurallarıdır, karakter tanımı içermez; ileride Ek-F metni netleşirse sistem promptuna tek bir "ton" cümlesi olarak eklenmesi değerlendirilir, o zaman da `make prompt-doc` + eval ile ölçülür. **Bizim tarafımızda şimdilik aksiyon yok.**
+
+### 8.4 Anayasa v2.0 — yürürlük (08.10.2026)
+
+Anayasa v2.0 — 08.10.2026: Tansu, Naci ile yaptığı sözlü görüşmede v2.0'ı yürürlükteki sürüm olarak kabul etti (itiraz yok). Yazılı onay istenirse Tansu'dan ayrıca alınır. (§8.1–8.2'deki v1.1 atıfları 30.09.2026 tarihli, o günkü sürüme ilişkin tarihsel notlardır.)
