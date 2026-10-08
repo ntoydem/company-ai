@@ -849,6 +849,8 @@ def report_to_json(report: EvalReport) -> dict[str, Any]:
                 "safety_check": r.safety_check,
                 "safety_reasons": list(r.safety_reasons),
                 "assist_check": r.assist_check,
+                "discovery_check": r.discovery_check,
+                "discovery_check_reason": r.discovery_check_reason,
                 "assist_check_reason": r.assist_check_reason,
                 "assist": r.assist,
                 "phrase_check": r.phrase_check,
