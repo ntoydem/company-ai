@@ -495,7 +495,10 @@ class FxLedger(_Strict):
 
 
 class Question(_Strict):
-    id: str = Field(pattern=r"^(ANK|IZM|GEN)-[A-Z]{3}-\d{3}$")
+    # `CO-` = company-level (no project) questions; an optional `-X` suffix marks a variant of
+    # the same question asked as another user (GEN-AMB-003-F, BELIRSIZLIK_PLAN §3).
+    # `HO-` + two digits = held-out block ids (Tansu/Naci, 08.10.2026).
+    id: str = Field(pattern=r"^(ANK|IZM|GEN|CO|HO)-[A-Z]{3}-\d{2,3}(-[A-Z])?$")
     category: QuestionCategory
     question: str
     # One ledger path, or several for a question spanning projects (Ürün 1 uyum turu):
@@ -524,3 +527,7 @@ class QuestionSet(_Strict):
     version: int
     demo_today: date
     questions: list[Question]
+    # Held-out questions (Tansu, pending Naci's approval): validated like the others, never
+    # asked by `run_eval` until moved into `questions`; `scripts/dry_run_ambiguity.py --held-out`
+    # runs the LLM-free check on them.
+    held_out: list[Question] = []

@@ -43,6 +43,10 @@ GLOSSARY: dict[str, tuple[str, ...]] = {
     "sözleşme": ("agreement", "contract"),
     "anlaşma": ("agreement",),
     "bedel": ("price", "consideration", "contract price"),
+    # 08.10.2026 (held-out dry run, HO-NEG-03): the EPC contract is English — "EPC Contractor",
+    # "turnkey"; the Turkish question says "anahtar teslim müteahhit".
+    "anahtar teslim": ("epc", "turnkey", "epc contractor"),
+    "müteahhit": ("contractor", "epc contractor"),
     # energy / project
     "kapasite": ("capacity", "MW"),
     "kurulu güç": ("capacity", "installed capacity", "MW"),

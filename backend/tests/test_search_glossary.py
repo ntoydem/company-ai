@@ -42,3 +42,14 @@ def test_built_query_contains_english_terms_for_a_turkish_finance_question() -> 
     query = build_search_query("Ankara RES'in toplam finansman (kredi) tutarı nedir?")
     for term in ("financing", "facility", "loan", "amount"):
         assert term in query.split(" OR ")
+
+
+def test_turnkey_contractor_question_reaches_the_english_epc_terms() -> None:
+    """08.10.2026 (HO-NEG-03 "Anahtar teslim müteahhit kim?" retrieved nothing — the EPC
+    contract is English): the Turkish stems map to the document's own words."""
+    extra = expand_terms(["anahtar", "teslim", "müteahhit"])
+    assert "contractor" in extra
+    assert '"epc contractor"' in extra
+    assert "turnkey" in extra
+    query = build_search_query("Anahtar teslim müteahhit kim?")
+    assert "contractor" in query.lower()
