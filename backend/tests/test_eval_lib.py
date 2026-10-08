@@ -56,8 +56,9 @@ def test_load_questions_returns_the_committed_questions() -> None:
     # v5 (ADR-027): 64 + 5 ambiguous + 4 term_mismatch + 1 temporal (rule 8) + 2 negative controls;
     # v6 (BELIRSIZLIK_PLAN §3): + 3 negative controls + GEN-AMB-003-F (same question, finance user)
     # v7 (Tansu Ürün 1 §B, B ölçümü): + 13 discovery
-    assert len(question_set.questions) == 93
-    assert question_set.version == 7
+    # v8 (B ölçümü teşhis tekrarı): + 5 düzeltilmiş teşhis varyantı; held_out +6 discovery
+    assert len(question_set.questions) == 98
+    assert question_set.version == 8
 
 
 def test_build_document_catalog_maps_title_type_and_project() -> None:

@@ -38,7 +38,9 @@ QuestionCategory = Literal[
     # fails. Scored by `eval_lib.discovery_check`, threshold 80 %.
     "discovery",
 ]
-DemoUser = Literal["admin", "yonetim", "finans", "hukuk", "enerji"]
+# `finans_mudur`: the finance department_manager (sees `restricted`, B-08) — B ölçümü teşhis
+# tekrarı (08.10.2026) asks the restricted-workbook questions with the right role.
+DemoUser = Literal["admin", "yonetim", "finans", "hukuk", "enerji", "finans_mudur"]
 AssistKind = Literal["clarify", "term_mismatch"]
 
 DEPARTMENT_SLUGS = (

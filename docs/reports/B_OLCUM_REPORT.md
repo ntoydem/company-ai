@@ -90,7 +90,22 @@ Ortak soru: Tansu'nun "Ankara'nın finansal modeli var mı?" §3.1 listesinin il
 3. **Workbook'lar belge hattının dışında:** chunk'ı yok, başlıkları İngilizce, metadata araması glossary kullanmıyor → "X var mı" sorularında görünmüyorlar (yetkili kullanıcıda bile). Plan Adım 2 (b): `available_from_metadata` xlsx/csv'yi de kapsasın + kavram sözlüğü başlık aramasına.
 4. **ADR-027 sabitleri:** `MIN_SPECIFIC_TERM_CHARS=4` "ÇED"i düşürüyor (büyük harfli 3 harfli kısaltma istisnası `_can_be_specific`'te var, metadata eşleşmesinde yok); `GENERIC_TERMS` "bitiyor/demek/biliyor/musun" içermiyor → yanlış `term_mismatch` türü ve kötü soru metni (tür yanlış ama liste doğru).
 5. **Model eşiği:** DSC-003/007/013'te parçalar geldi, model "yetmez" dedi (kapalı) — Ç-1 (A) ile değişmez; açıkta liste + soru telafi ediyor.
-6. **Kriter hataları (3):** DSC-007/008/011 `required_sources` ya dar ya yanlış kullanıcıyla; kriter ölçüm sonrası **değiştirilmedi**; düzeltilmiş kriterle (007: İzmir ÇED yazısı da kabul; 011: Financial Model 2026; 008/001/006: `finans_mudur` ile sorulmalı) açık koşu kâğıt üzerinde **11/13** olurdu — bu bir yeniden ölçüm gerektirir, varsayılmaz.
+6. **Kriter/test hataları (3):** DSC-007/008/011 `required_sources` ya dar ya yanlış kullanıcıyla; DSC-001/006/008 yanlış rolle (employee). Kriter ölçüm sonrası **değiştirilmedi**. **Resmi sonuç bayrak açık 8/13'tür** (Naci, 08.10.2026); herhangi bir "düzeltilmiş kriterle şu olurdu" ifadesi sonuç **sayılmaz** — düzeltilmiş teşhis ayrı bir koşu olarak §3.6'da, "geçti" diye sunulmaz.
 
 ### 3.5 Sonraki adım önerisi (Naci kararı)
 Plan Adım 2 öncesi: (a) DSC-001/006/008'i `finans_mudur` (restricted görür) ile, DSC-007/011 kriterleri düzeltilmiş hâliyle yeniden tanımla → **tek koşu, bayrak açık, 5 çağrı**; (b) Tansu'ya yetki sorusu: finans uzmanı finansal modeli görmeli mi (ledger `restricted` → `normal`), görmeyecekse "veri yok" doğru cevap; (c) Adım 2'de workbook metadata + kavram sözlüğü + `GENERIC_TERMS`/kısaltma düzeltmeleri. Bayrak canlıda **kapalı**.
+
+### 3.6 Düzeltilmiş teşhis tekrarı (Naci 08.10.2026; resmi sonuç DEĞİL)
+**Resmi sonuç (değişmez):** bayrak açık **8/13**, sabit cümle tek başına 0, G1–G3 13/13 (§3.1).
+
+**Düzeltilmiş teşhis (ayrı koşu, 16:49–16:58 UTC, bayrak açık, 5 çağrı + 3 yeniden deneme; sonra bayrak kapalı + restart):** yalnızca gerçek test hataları düzeltildi — 001/006/008 doğru rolle (`finans_mudur`, `restricted` görür), 007/011 kriter düzeltmesi; `questions.json` v8'de `-M`/`-K` varyantları (notlarında "DÜZELTİLMİŞ TEŞHİS, resmi sonuç değil"). Sonuç **2/4 + 1 hata**; "geçti" olarak **sunulmaz**. Ham: `assets/B_OLCUM_teshis_results_2026-10-08.md`.
+
+| Varyant | Sonuç | Ne oldu | Teşhis |
+|---|---|---|---|
+| GEN-DSC-001-M (finans_mudur) | ✓ | **Cevaplandı**: "Ankara'nın finansal modeli bulunmaktadır; model Capex, özkaynak, toplam borç… içermektedir" — kaynak Financial Model 2026 (Excel yolu) | Rol doğrulandı: aynı soru employee ile "veri yok", department_manager ile cevap → DSC-001'in nedeni **yetki** (Tansu #15) |
+| GEN-DSC-006-M (finans_mudur) | ✗ | sabit cümle + `term_mismatch` «Ödeme, planı, yüklü», elimde **boş** | Yetkili kullanıcıda da workbook metadata'da görünmüyor: başlık İngilizce ("Financial Model 2026"), "ödeme planı" kavram sözlüğünde yok → Adım 2 D1/D2 doğrudan bu neden |
+| GEN-DSC-007-K (kriter: iki ÇED belgesi) | ✓ | `clarify` + elimde 5 belge, **ÇED Süreci Durum Yazısı** dahil | Kriter düzeltmesiyle liste + soru sağlandı; Ankara ÇED Olumlu Kararı yine listede yok ("ÇED" < 4 karakter → Adım 2 D4) |
+| GEN-DSC-008-M (finans_mudur) | ✗ | sabit cümle + `term_mismatch` «Bütçe, dosyası», elimde boş | Beklendiği gibi: "Budget vs Actual 2026" **`enerji_grubu`** departmanında — finans müdürü de görmez (doğru yetki davranışı). Test tasarım hatası sürüyor; doğru kullanıcı `enerji`/`yonetim` olmalıydı — bu koşuda düzeltilmedi (Naci'nin verdiği rol uygulandı) |
+| GEN-DSC-011-K (kriter: Financial Model 2026) | hata | **http 503 after 3 retries** (MIXED/Excel yolu; Gemini anlık yoğunluk, backend `LLMError` → 503) | Ölçüm yok; §3.2'de aynı soru iki kez cevaplanmıştı ("1.000.000", Financial Model) — kriter düzeltmesi o cevaplarla uyumlu, ama bu koşuda **doğrulanmadı** |
+
+G1–G3: koşan 4 soruda 4/4. Bu tablo resmi sonucu değiştirmez; Adım 2 (`docs/plans/ADIM2_PLAN.md`) D1/D2/D4'ün hedeflediği nedenleri (006-M, 007-K) doğrular ve yetki bulgusunu (001-M, 008-M) pekiştirir.

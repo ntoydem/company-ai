@@ -1,5 +1,5 @@
 {
-  "version": 7,
+  "version": 8,
   "demo_today": "2026-09-15",
   "questions": [
     {
@@ -1693,6 +1693,95 @@
       "ask_as_user": "yonetim",
       "expect_no_answer": false,
       "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. Tansu §C.2 (06.10): terim sorusu; Ç-3 kararı Tansu'da — beklenen: tadil belgelerini gösterip sor, tanım cümlesi kurma."
+    },
+    {
+      "id": "GEN-DSC-001-M",
+      "category": "discovery",
+      "question": "Ankara'nın finansal modeli var mı?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Financial Model 2026"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans_mudur",
+      "expect_no_answer": false,
+      "notes": "DÜZELTİLMİŞ TEŞHİS (Naci 08.10.2026, resmi sonuç değil): GEN-DSC-001 doğru rolle — finans_mudur `restricted` görür (Financial Model 2026)."
+    },
+    {
+      "id": "GEN-DSC-006-M",
+      "category": "discovery",
+      "question": "Ödeme planı yüklü mü?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Financial Model 2026"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans_mudur",
+      "expect_no_answer": false,
+      "notes": "DÜZELTİLMİŞ TEŞHİS (Naci 08.10.2026, resmi sonuç değil): GEN-DSC-006 doğru rolle — plan Financial Model 2026 Debt sayfasında, `restricted`."
+    },
+    {
+      "id": "GEN-DSC-008-M",
+      "category": "discovery",
+      "question": "Bütçe dosyası var mı?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Budget vs Actual 2026"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "finans_mudur",
+      "expect_no_answer": false,
+      "notes": "DÜZELTİLMİŞ TEŞHİS (Naci 08.10.2026, resmi sonuç değil): GEN-DSC-008 finans_mudur ile (Naci); NOT: 'Budget vs Actual 2026' `enerji_grubu` departmanında — finans müdürü de görmeyebilir, sonuç bunu gösterir."
+    },
+    {
+      "id": "GEN-DSC-007-K",
+      "category": "discovery",
+      "question": "ÇED raporu nerede?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Ankara RES ÇED Olumlu Kararı",
+        "ÇED Süreci Durum Yazısı"
+      ],
+      "forbidden_sources": [],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "DÜZELTİLMİŞ TEŞHİS (Naci 08.10.2026, resmi sonuç değil): GEN-DSC-007 kriter düzeltmesi — enerji iki ÇED belgesini de görür; ikisinden biri gösterilirse geçer."
+    },
+    {
+      "id": "GEN-DSC-011-K",
+      "category": "discovery",
+      "question": "ankaranın ilk kredi ödemesi ne zaman ne kadar?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Financial Model 2026"
+      ],
+      "forbidden_sources": [
+        "İzmir RES"
+      ],
+      "ask_as_user": "yonetim",
+      "expect_no_answer": false,
+      "notes": "DÜZELTİLMİŞ TEŞHİS (Naci 08.10.2026, resmi sonuç değil): GEN-DSC-011 kriter düzeltmesi — geri ödeme planı yalnızca Financial Model 2026 (Debt) içinde; beklenen kaynak o."
     }
   ],
   "held_out": [
@@ -1840,6 +1929,103 @@
       "ask_as_user": "enerji",
       "expect_no_answer": false,
       "notes": "HELD-OUT (Tansu taslağı, Naci onayı 08.10.2026): yalnızca LLM'siz kuru koşu; run_eval okumaz. Niyet: net. ced_status 'ongoing' → 'devam ediyor'."
+    },
+    {
+      "id": "HO-DSC-01",
+      "category": "discovery",
+      "question": "Sigorta poliçemiz hangi tarihe kadar geçerli?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Sigorta Yenileme Bildirimi — İşletme Dönemi"
+      ],
+      "forbidden_sources": [],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "HELD-OUT DISCOVERY (Naci 08.10.2026): Adım 2 bitene kadar koşulmaz ve ayar yaparken bakılmaz; Adım 2 sonrası bir kez ölçülür. Beklenen = ilgili belge gösterilir + soru/seçenek."
+    },
+    {
+      "id": "HO-DSC-02",
+      "category": "discovery",
+      "question": "Üretim lisansı belgesi nerede?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Ankara RES Üretim Lisansı"
+      ],
+      "forbidden_sources": [],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "HELD-OUT DISCOVERY (Naci 08.10.2026): Adım 2 bitene kadar koşulmaz ve ayar yaparken bakılmaz; Adım 2 sonrası bir kez ölçülür. Beklenen = ilgili belge gösterilir + soru/seçenek."
+    },
+    {
+      "id": "HO-DSC-03",
+      "category": "discovery",
+      "question": "ÇED kararı var mı?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "Ankara RES ÇED Olumlu Kararı",
+        "ÇED Süreci Durum Yazısı"
+      ],
+      "forbidden_sources": [],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "HELD-OUT DISCOVERY (Naci 08.10.2026): Adım 2 bitene kadar koşulmaz ve ayar yaparken bakılmaz; Adım 2 sonrası bir kez ölçülür. Beklenen = ilgili belge gösterilir + soru/seçenek."
+    },
+    {
+      "id": "HO-DSC-04",
+      "category": "discovery",
+      "question": "Hisse rehni sözleşmesi var mı?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Ankara RES Security Agreement (Share Pledge)"
+      ],
+      "forbidden_sources": [],
+      "ask_as_user": "finans",
+      "expect_no_answer": false,
+      "notes": "HELD-OUT DISCOVERY (Naci 08.10.2026): Adım 2 bitene kadar koşulmaz ve ayar yaparken bakılmaz; Adım 2 sonrası bir kez ölçülür. Beklenen = ilgili belge gösterilir + soru/seçenek."
+    },
+    {
+      "id": "HO-DSC-05",
+      "category": "discovery",
+      "question": "EPC sözleşmesi hangi dosyada?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "enerji_grubu",
+      "required_sources": [
+        "EPC Contract"
+      ],
+      "forbidden_sources": [],
+      "ask_as_user": "enerji",
+      "expect_no_answer": false,
+      "notes": "HELD-OUT DISCOVERY (Naci 08.10.2026): Adım 2 bitene kadar koşulmaz ve ayar yaparken bakılmaz; Adım 2 sonrası bir kez ölçülür. Beklenen = ilgili belge gösterilir + soru/seçenek."
+    },
+    {
+      "id": "HO-DSC-06",
+      "category": "discovery",
+      "question": "Kredi geri ödeme takvimi hangi belgede?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": "Ankara RES",
+      "expected_department": "finans",
+      "required_sources": [
+        "Financial Model 2026"
+      ],
+      "forbidden_sources": [],
+      "ask_as_user": "yonetim",
+      "expect_no_answer": false,
+      "notes": "HELD-OUT DISCOVERY (Naci 08.10.2026): Adım 2 bitene kadar koşulmaz ve ayar yaparken bakılmaz; Adım 2 sonrası bir kez ölçülür. Beklenen = ilgili belge gösterilir + soru/seçenek."
     }
   ]
 }
