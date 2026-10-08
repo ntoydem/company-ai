@@ -497,7 +497,8 @@ class FxLedger(_Strict):
 class Question(_Strict):
     # `CO-` = company-level (no project) questions; an optional `-X` suffix marks a variant of
     # the same question asked as another user (GEN-AMB-003-F, BELIRSIZLIK_PLAN §3).
-    id: str = Field(pattern=r"^(ANK|IZM|GEN|CO)-[A-Z]{3}-\d{3}(-[A-Z])?$")
+    # `HO-` + two digits = held-out block ids (Tansu/Naci, 08.10.2026).
+    id: str = Field(pattern=r"^(ANK|IZM|GEN|CO|HO)-[A-Z]{3}-\d{2,3}(-[A-Z])?$")
     category: QuestionCategory
     question: str
     # One ledger path, or several for a question spanning projects (Ürün 1 uyum turu):

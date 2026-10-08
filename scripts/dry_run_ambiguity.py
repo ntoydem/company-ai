@@ -45,7 +45,11 @@ class Row:
     chunks: int
     asked: str | None
     held_out: bool
-    route_excluded: bool  # category mixed/data: the router never sends these down DOCUMENT_QUERY
+    # category mixed/data: the router never sends these down DOCUMENT_QUERY
+    route_excluded: bool
+    allowed_count: int = 0
+    # top-N chunks by project/type: 'ANK_RES/Type ×n (best rank)'
+    distribution: str = ""
 
 
 def run(questions_path: Path, *, include_held_out: bool) -> list[Row]:
@@ -79,6 +83,14 @@ def run(questions_path: Path, *, include_held_out: bool) -> list[Row]:
                 else []
             )
             groups: OrderedDict = ambiguity._groups(chunks, docs)
+            dist: OrderedDict[str, list[float]] = OrderedDict()
+            for c in chunks[: ambiguity.TOP_N]:
+                doc = docs.get(c.document_id)
+                if doc is None:
+                    continue
+                key = f"{doc.project.code if doc.project else 'CO'}/{doc.document_type}"
+                dist.setdefault(key, []).append(c.rank)
+            distribution = "; ".join(f"{k} ×{len(r)} ({max(r):.2f})" for k, r in dist.items())
             scope_less = ambiguity._scope_less(session, allowed, q.question) if chunks else False
             found = ambiguity.detect(session, allowed, q.question, chunks, docs)
             rows.append(
@@ -95,9 +107,36 @@ def run(questions_path: Path, *, include_held_out: bool) -> list[Row]:
                     found.question if found else None,
                     held,
                     q.category in ("mixed", "data"),
+                    len(allowed),
+                    distribution,
                 )
             )
     return rows
+
+
+def render_detail(rows: list[Row]) -> str:
+    """Per-question detail (Naci, 08.10.2026): visible documents, top-N chunk distribution by
+    project/type, whether the stated intent held, and what the detector would ask."""
+    out = [
+        "| Soru | Kullanıcı | Niyet | Görebildiği belge "
+        "| Parça (top-N dağılımı: proje/tür ×n (en iyi rank)) "
+        "| Grup | Niyet tuttu mu | V3 | Eksen / soru |",
+        "|---|---|---|---|---|---|---|---|---|",
+    ]
+    for r in rows:
+        intent = "belirsiz" if r.expected_fire else "net"
+        held = (r.groups >= 2) if r.expected_fire else (r.groups <= 1 or not r.fired)
+        axis = ""
+        if r.asked:
+            axis = (
+                "proje: " if r.asked.startswith("Hangi projeyi") else "belge: "
+            ) + r.asked.replace("|", "/")
+        mark = "✅" if held else "⚠️"
+        out.append(
+            f"| {r.id} | {r.user} | {intent} | {r.allowed_count} | {r.distribution or '—'} "
+            f"| {r.groups} | {mark} | {'🔥' if r.fired else '–'} | {axis} |"
+        )
+    return "\n".join(out)
 
 
 def render(rows: list[Row]) -> str:
@@ -143,9 +182,16 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="dry_run_ambiguity")
     parser.add_argument("--questions", type=Path, default=eval_lib.DEFAULT_QUESTIONS)
     parser.add_argument("--held-out", action="store_true")
+    parser.add_argument("--detail", action="store_true", help="per-question distribution table")
+    parser.add_argument("--only-held-out", action="store_true")
     args = parser.parse_args(argv)
-    rows = run(args.questions, include_held_out=args.held_out)
+    rows = run(args.questions, include_held_out=args.held_out or args.only_held_out)
+    if args.only_held_out:
+        rows = [r for r in rows if r.held_out]
     print(render(rows))
+    if args.detail:
+        print()
+        print(render_detail(rows))
     return 1 if any(r.fired and not r.expected_fire and not r.route_excluded for r in rows) else 0
 
 
