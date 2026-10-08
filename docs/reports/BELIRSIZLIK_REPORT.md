@@ -164,3 +164,16 @@ Sorular `questions.json` → `held_out` bloğuna yazıldı (`Question.id` deseni
 - V3 kodla tespit `main`'e **girmedi**: held-out'ta belirsizlerde 2/5, netlerde 1 yanlış alarm (HO-NEG-02); dal `feat/belirsizlik` @ `7a6eaf5` etiketlendi (`ambiguity-v3-unmerged`), silinmedi.
 - Kriterler gevşetilmedi: eşikler, sınıf-kelime listesi ve `clarify ≥ 12/15` kapısı değiştirilmedi.
 - Belirsiz soru davranışı şimdilik şu kadarıyla sınırlı: prompt kuralı 12 denemesi (ölçüm 10/15, yalnızca git geçmişinde) + Tansu'nun (a) kararı (netleştirme sor) + `main`'deki ADR-027 hattı (cevap verilemeyince `clarify`). `chore/eval-v6-heldout` dalı yalnızca eval v6 + `held_out` + kuru koşu scripti (main'de `ambiguity.py` olmadığı için mesajla çıkar) + raporlar + glossary ("anahtar teslim", "müteahhit") taşır.
+
+## 17. `chore/eval-v6-heldout` birleştirme öncesi doğrulama (08.10.2026, Naci seçenek (a); kriter gevşetilmedi)
+- **`make eval --retrieval-only` (0 LLM çağrısı):** ölçülebilir soru 44/80 (v6 ile 42 → 44: ANK-NEG-003/004 eklendi), **recall@80 44/44 (%100)** → `results/retrieval-only_2026-10-08/recall_153644.*`. Glossary eklemesi ("anahtar teslim", "müteahhit") mevcut soruların recall'ını değiştirmedi; HO-NEG-03 `held_out`'ta olduğundan (run_eval okumaz) etkisi burada ölçülmez — birim test `test_turnkey_contractor_question_reaches_the_english_epc_terms` sorgunun artık "contractor" içerdiğini sabitler.
+- **4 yeni negatif kontrol ×1, bayrak KAPALI (4 çağrı):** `document` 4/4, **G1–G3 4/4** → `results/gemini-3.5-flash-lite_2026-10-08/`.
+
+| Soru | Cevap (özet) | Kaynak | Değer kontrolü |
+|---|---|---|---|
+| ANK-NEG-003 "Kredi sözleşmesinin vadesi kaç yıl?" (finans) | "14 yıldır; Amendment 01 ile önceki 12 yıl seviyesinden değiştirilmiştir" | Facility Agreement, Amendment 01 | ✅ `14 yıl` |
+| ANK-NEG-004 "Üretim lisansı ne zaman alındı?" (enerji) | "15.06.2020 tarihinde onaylanmıştır" | Ankara RES Üretim Lisansı | ✅ `15.06.2020` |
+| CO-NEG-005 "Denetim komitesi üyeleri hangi kararla atandı?" (yonetim) | DOC-CO-ADM-008 sayılı kararla | Yönetim Kurulu Kararı — Denetim Komitesi Ataması | atlanır (DOC-* yolu; ölçüt kaynak + cevap ✅) |
+| GEN-AMB-003-F "Son tadil neyi değiştirdi?" (finans) | Facility Agreement Amendment 02 … | Facility Agreement Amendment 02 | atlanır (liste yolu; ölçüt kaynak + cevap ✅) |
+
+Netleştirme/assist tetiklenmedi (bayrak kapalı; `assist=null`). Dal push edildi; `main`'e birleştirme Naci onayı bekliyor.
