@@ -35,7 +35,7 @@ from app.models.project import Project
 from app.repositories import document_repo
 from app.repositories.document_chunk_repo import RetrievedChunk, search_fts
 from app.schemas.ask import AssistAvailableDocument, AssistBlock
-from app.services.search_glossary import GLOSSARY, expand_terms
+from app.services.search_glossary import GLOSSARY, concept_matches, expand_terms, metadata_terms
 from app.services.search_query import question_terms, turkish_lower
 
 log = logging.getLogger(__name__)
@@ -59,6 +59,22 @@ GENERIC_TERMS = frozenset(
     {
         "alındı",
         "alınmış",
+        # Adım 2 D3 (08.10.2026, B ölçümü DSC-003/006/008/013): question verbs and filler
+        # words that leaked into `term_mismatch` ("«demek», «biliyor», «musun» bulamadım").
+        "biliyor",
+        "biter",
+        "bitecek",
+        "bitiyor",
+        "demek",
+        "dosya",
+        "dosyası",
+        "hiç",
+        "mevcut",
+        "musun",
+        "neler",
+        "nerede",
+        "peki",
+        "yüklü",
         "asgari",
         "azami",
         "bedel",
@@ -177,18 +193,43 @@ def _available_card(document: Document, page_number: int | None) -> AvailableDoc
     )
 
 
+def _metadata_probe_ok(term: str) -> bool:
+    """Adım 2 D4: a title/type probe needs ≥ 4 characters — or a 3–5 letter upper-case
+    acronym (ÇED, EPC, COD, DSCR), which `MIN_SPECIFIC_TERM_CHARS` alone kept out
+    (B ölçümü DSC-007: "ÇED raporu nerede?" never reached the ÇED documents)."""
+    return len(term) >= MIN_SPECIFIC_TERM_CHARS or (3 <= len(term) <= 5 and term.isupper())
+
+
+def _concept_covered(session: Session, allowed: set[UUID], terms: list[str]) -> set[str]:
+    """Adım 2 D2: lower-cased question tokens whose *concept* exists in the user's titles —
+    "finansal"/"modeli" are not missing when an allowed "Financial Model 2026" exists."""
+    lowered = [turkish_lower(t) for t in terms]
+    covered: set[str] = set()
+    for tokens, expansions in concept_matches(lowered):
+        if any(
+            document_repo.search_metadata(session, allowed, expansion, limit=1)
+            for expansion in expansions
+        ):
+            covered |= tokens
+    return covered
+
+
 def unmatched_terms(session: Session, allowed: set[UUID], terms: list[str]) -> list[str]:
     """Question terms found nowhere the user may see — neither in a chunk (one LIMIT-1 FTS
-    probe) nor in a title/type/tag (`search_metadata`)."""
+    probe), nor in a title/type/tag (`search_metadata`), nor — through the concept glossary
+    — as the Turkish name of a document the user's titles carry in English."""
     if not allowed:
         return []
+    covered = _concept_covered(session, allowed, terms)
     out: list[str] = []
     for term in terms:
         if len(term) < MIN_PROBE_TERM_CHARS:
             continue
+        if turkish_lower(term) in covered:
+            continue
         if search_fts(session, allowed_ids=allowed, query=term, top_k=1):
             continue
-        if len(term) >= MIN_SPECIFIC_TERM_CHARS and document_repo.search_metadata(
+        if _metadata_probe_ok(term) and document_repo.search_metadata(
             session, allowed, term, limit=1
         ):
             continue
@@ -296,9 +337,12 @@ def available_from_metadata(
     if not allowed:
         return []
     by_id: dict[UUID, Document] = {}
-    for term in terms:
-        if len(term) < MIN_SPECIFIC_TERM_CHARS:
-            continue
+    # Adım 2 D2/D4: the question's own terms (≥ 4 chars or an acronym) plus the concept
+    # glossary's title-side words ("finansal model" → "Financial Model"), so English-titled
+    # workbooks and Turkish questions meet. Still only `allowed` (G3), still ≤ MAX_AVAILABLE.
+    probes = [t for t in terms if _metadata_probe_ok(t)]
+    probes += [t for t in metadata_terms([turkish_lower(t) for t in terms]) if t not in probes]
+    for term in probes:
         hits = document_repo.search_metadata(session, allowed, term, limit=MAX_AVAILABLE + 1)
         if len(hits) > MAX_AVAILABLE:
             continue  # too common to point anywhere (e.g. a project code carried by every tag)
@@ -306,6 +350,18 @@ def available_from_metadata(
             by_id.setdefault(document.id, document)
     ordered = sorted(by_id.values(), key=lambda d: (d.title, d.id))[:MAX_AVAILABLE]
     return [_available_card(document, None) for document in ordered]
+
+
+_EXISTENCE_RE = re.compile(
+    r"\b(var m[ıi]|yüklü m[üu]|mevcut m[uü]|nerede|neler|hangi dosya|hangisi|hangileri)\b",
+    re.IGNORECASE,
+)
+
+
+def is_existence_question(text: str) -> bool:
+    """Adım 2 D5: "X var mı / yüklü mü / nerede / neler" asks *whether and where* something
+    exists — the answer is a list of the user's own documents, never a value."""
+    return bool(_EXISTENCE_RE.search(turkish_lower(text)))
 
 
 def available_from_chunks(
@@ -424,6 +480,16 @@ def build_insufficient_assist(
     specific = specific_matched_terms(session, allowed, terms, unmatched)
     vouched: set[UUID] = set().union(*specific.values()) if specific else set()
     available = available_from_chunks(documents, [c for c in chunks if c.document_id in vouched])
+    # Adım 2 D1/D5: documents that have no chunks (workbooks) or that only a *concept* of the
+    # question names never reach the prompt, so the chunk list misses them; add the metadata
+    # matches (same gate) — always for an existence question, otherwise only when the chunk
+    # list is empty. Chunk-vouched documents stay first.
+    if is_existence_question(question) or not available:
+        seen = {card.document_id for card in available}
+        for card in available_from_metadata(session, allowed, terms):
+            if card.document_id not in seen and len(available) < MAX_AVAILABLE:
+                available.append(card)
+                seen.add(card.document_id)
     kind = _kind_for(mismatched)
     kept: str | None = None
     reason: str | None = None

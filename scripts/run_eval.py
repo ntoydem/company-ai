@@ -246,6 +246,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--ids", default=None, help="comma-separated question ids (subset)")
     parser.add_argument(
+        "--held-out",
+        action="store_true",
+        help="include the held_out block (one-shot, after tuning; never the default)",
+    )
+    parser.add_argument(
         "--repeat", type=int, default=1, help="ask each question N times (consistency mode)"
     )
     parser.add_argument(
@@ -301,7 +306,12 @@ class _Targets:
 
 
 def _select_questions(args: argparse.Namespace) -> list[Any]:
-    questions = eval_lib.load_questions(args.questions).questions
+    question_set = eval_lib.load_questions(args.questions)
+    questions = list(question_set.questions)
+    if getattr(args, "held_out", False):
+        # Held-out questions are never part of a normal run; `--held-out` is the explicit,
+        # one-shot opt-in (Naci, 08.10.2026: measured once, after the tuning is done).
+        questions += list(question_set.held_out)
     if args.ids:
         wanted = {i.strip() for i in args.ids.split(",") if i.strip()}
         questions = [q for q in questions if q.id in wanted]

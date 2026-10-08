@@ -90,3 +90,63 @@ def expand_terms(lowered: list[str]) -> list[str]:
             seen.add(marker)
             extra.append(f'"{term}"' if " " in term else term)
     return extra
+
+
+# Adım 2 D2 (Tansu Ürün 1 §B, 08.10.2026): *concept* → the words that actually appear in
+# document titles/types. `search_metadata` is an ILIKE over title/type/counterparty/tags, so a
+# Turkish question word ("finansal model", "ödeme planı") never meets an English workbook
+# title ("Financial Model 2026") unless it is expanded here. Values are plain substrings (no
+# tsquery quoting); matching of keys follows `expand_terms` (prefix for one word, substring
+# of the joined token sequence for multi-word keys). Kept in code (Naci, 08.10.2026);
+# moving it to an admin table is a later job.
+CONCEPT_GLOSSARY: dict[str, tuple[str, ...]] = {
+    "finansal model": ("Financial Model", "Cashflow", "Debt", "DSCR"),
+    "finansal": ("Financial",),
+    "nakit akış": ("Cashflow", "Financial Model"),
+    "ödeme planı": ("Financial Model", "Debt", "Repayment", "Ödeme Planı"),
+    "geri ödeme": ("Repayment", "Financial Model"),
+    "bütçe": ("Budget",),
+    "sözleşme": ("Agreement", "Contract", "Sözleşme"),
+    "kredi": ("Facility Agreement", "Loan", "Kredi"),
+    "tadil": ("Amendment", "Tadil"),
+    "lisans": ("Lisans", "Licence", "License"),
+    "önlisans": ("Önlisans", "Pre-licence"),
+    "sigorta": ("Sigorta", "Insurance"),
+    "poliçe": ("Insurance", "Sigorta"),
+    "teminat": ("Pledge", "Security", "Teminat", "Guarantee"),
+    "rehin": ("Pledge",),
+    "çed": ("ÇED",),
+    "üretim": ("Production", "Üretim"),
+    "rapor": ("Report", "Rapor"),
+}
+
+
+def concept_matches(lowered: list[str]) -> list[tuple[frozenset[str], tuple[str, ...]]]:
+    """For `turkish_lower`ed question tokens: every CONCEPT_GLOSSARY key that applies, as
+    (the tokens it covers, its title-side expansions). Multi-word keys cover each of their
+    words that is present; one-word keys cover the tokens they prefix."""
+    joined = " ".join(lowered)
+    out: list[tuple[frozenset[str], tuple[str, ...]]] = []
+    for key, expansions in CONCEPT_GLOSSARY.items():
+        if " " in key:
+            if key in joined:
+                words = key.split()
+                covered = frozenset(
+                    token for token in lowered if any(token.startswith(w) for w in words)
+                )
+                out.append((covered, expansions))
+        else:
+            covered = frozenset(token for token in lowered if token.startswith(key))
+            if covered:
+                out.append((covered, expansions))
+    return out
+
+
+def metadata_terms(lowered: list[str]) -> list[str]:
+    """Extra title-side search strings for `search_metadata` (deduplicated, order kept)."""
+    out: list[str] = []
+    for _covered, expansions in concept_matches(lowered):
+        for term in expansions:
+            if term not in out:
+                out.append(term)
+    return out
