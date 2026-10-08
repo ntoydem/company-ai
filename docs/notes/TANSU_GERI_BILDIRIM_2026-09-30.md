@@ -500,6 +500,19 @@ Backend tarafı §3'te kalan maddelere (B-27 internet kısmı, Ürün 3, B-21, B
 - **Aşama 0 — kapandı:** Yükleme yetki açığı ara düzeltmesi (Tansu #6), bağımsız güvenlik yaması olarak uygulandı (§7.1 satır 4).
 - **Aşama A — "Balbal cevap döngüsü":** `B-07, B-09, B-13, B-17, B-05, B-25` eşlemesi, `warnings` alanının `missing_data`/`product_limit` türleri; somut karşılıkları `audit_log_id`, `product_level`, versiyon linki, `POST /api/ask/feedback`, `enabled_products`. **KAPANDI engel: company-ai `frontend/`'in kaderi netleşmemişti** (bu adımın hangi arayüze hizmet edeceği belirsizdi). Bu artık netleşti — AI-BalBal asıl frontend (yukarıda, §0 ve §4.4) — **Aşama A'nın önünde bekleyen bir engel kalmadı.** **UYGULANDI (30.09.2026):** plan `docs/plans/ASAMA_A_BALBAL_DONGUSU_PLAN.md`, rapor `docs/reports/ASAMA_A_BALBAL_DONGUSU_REPORT.md`; `POST /api/ask/feedback` bilinçli olarak yazılmadı (Tansu #1, Naci SORU 1 = A) — listedeki o kalem `warnings` + `audit_log_id` ile karşılandı. Sonraki aday: B-09/B-13/B-17/B-05 (küçük şema eklemeleri, §1) ve B-27'nin "AI-BalBal'ı Caddy'den sun" kısmı.
 
+### 7.3 Tansu'ya iletilecek — B ölçümü bulgusu (Naci, 08.10.2026; numara Naci'nin toplu soru listesine göre)
+
+### 15. Finans uzmanı finansal modeli görmeli mi? (B ölçümü bulgusu)
+"Ankara'nın finansal modeli var mı?" sorusunda Balbal belgeyi göstermedi: "Financial Model 2026" gizlilik sınıfı restricted, Proje Finans uzmanı yalnızca normal belgeleri görüyor. Bu, yetki kuralı gereği doğru davranış (yetkisiz belgenin adı bile söylenmez). Aynı durum ödeme planı ve bütçe workbook'unda da var.
+- A: Evet görmeli; belgeler normal'e çekilir (veri kütüphanesi bunu baştan yapar).
+- B: Görmemeli; Balbal bu durumda "bu konuda yetkiniz dahilinde belge yok" der ve müdüre yönlendirir.
+- Cevap:
+
+### Bilgi: "Ankara'nın ilk kredi ödemesi ne zaman?"
+Bu bir bulma hatası değil. Geri ödeme planı yalnızca Excel'de (Debt sayfası), hiçbir PDF'te yok. Yeni veri kütüphanesinde ödeme planı hem Excel hem de kredi sözleşmesindeki takvim maddesi olarak bulunursa Balbal cevaplayabilir.
+
+Dayanak: `docs/reports/B_OLCUM_REPORT.md` §3.3–3.4 (dal `feat/b-olcum`); kod: `authorization.py:41` (`employee` → yalnızca `normal`), Excel manifest `DOC-ANK-FIN-008 confidentiality=restricted`, `DOC-ANK-OPS-002` departman `enerji_grubu`.
+
 ---
 
 ## 8. Anayasa (Balbal Anayasası v1.1) ile ilgili geri bildirim
