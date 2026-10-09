@@ -60,6 +60,10 @@ Adım 4'ün ölçütü, modelin ne yapacağını değil, **tespit + daraltma kod
 
 **Durma kuralı (değişmez, eski kural):** NEG yanlış alarmı > 0 (dev) ya da held-out'ta > 1 → eşik **oynatılmaz**, tanım/sınıf-listesi gözden geçirilir, rapor yazılır, durulur.
 
+**09.10.2026 güncellemesi (ilk ölçüm sonrası, Naci kararı):** dev AMB'nin ilk 5 sorusu (GEN-AMB-001…005) ilk ölçümde 3/5 çıktı (ADIM4_REPORT.md §3.1); GEN-AMB-001/002'nin bu korpusta **belge varlığı** bakımından gerçekten belirsiz olmadığı kanıtlandı (§4.2) — ama **dev settten çıkarılmadı**, sayım ve kriter değişmedi. Belge-varlığı kriteriyle (iki projede de aynı belge türünden ≥ 2'şer belge) **tek** yeni soru eklendi: `GEN-AMB-006`. Sonuç iki ayrı sayı olarak raporlanır (orijinal 5 ve yeni soru), hedef karşılandı iddiası yapılmaz.
+
+**Held-out ve eşik kilidi — ertelendi (09.10.2026, Naci kararı):** held-out ölçümü ve nihai eşik kilidi **Adım 5'ten (veri kütüphanesi) sonrasına** ertelendi. Gerekçe: korpus Adım 5'te kökten değişecek (Ç-9 B yeniden adlandırma + yeni belgeler); şimdiki `0.5`/`0.75` eşikleri **yeni korpusta yeniden doğrulanacak** — bugünkü dev ölçümü (3/5 + 1 yeni soru) bir **ara doğrulama**dır, nihai kilit değildir. §3.2'deki sıra: Adım 4 (bu adım, kod + dev ölçüm) → Adım 5 (kütüphane) → Adım 4′ (yeniden ölçüm, yeni korpus, held-out burada istenir) → eşik kilidi.
+
 ## 4. Testler (deterministik, `make test`)
 
 - `test_project_axis.py` (yeni): `classify_project_axis` dört çıkış (named önceliği, disambiguate — eşit/yakın dağılım, dominant — net çoğunluk, none — aradaki boşluk); eşik env'den okunuyor (settings monkeypatch); `project_distribution` zero-chunk ve chunk'lı yoldan aynı sözlüğü üretiyor.

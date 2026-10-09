@@ -1270,6 +1270,21 @@
       "expect_assist": "clarify"
     },
     {
+      "id": "GEN-AMB-006",
+      "category": "ambiguous",
+      "question": "Hukuki inceleme notunda ne tespit edildi?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": "hukuk",
+      "required_sources": [],
+      "forbidden_sources": [],
+      "ask_as_user": "hukuk",
+      "expect_no_answer": true,
+      "notes": "Adım 4 (09.10.2026): belge-varlığı kriteriyle seçildi — 'Legal Review Memo' türünden Ankara'da 2, İzmir'de 2 belge var (tek tür, her iki projede ≥ 2); proje adı sorulmuyor. Dedektör çıktısına bakılmadan önce yazıldı (docs/reports/ADIM4_REPORT.md §4.2).",
+      "expect_assist": "disambiguate"
+    },
+    {
       "id": "GEN-TRM-001",
       "category": "term_mismatch",
       "question": "Ankara RES sigorta primi ne kadar?",
