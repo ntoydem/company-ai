@@ -1,6 +1,6 @@
 # Adım 4 — Proje ekseni belirsizlik tespiti + projesiz soruda proje çıkarımı — rapor
 
-**Tarih:** 09.10.2026 · **Plan:** `docs/plans/ADIM4_PLAN.md` (Naci onayı + SORU 1–5 cevapları 09.10.2026) · **Dal:** `feat/adim4-proje-ekseni` (`feat/adim2-ekf` üzerinden; `main`'e birleştirme yok) · **ADR:** ADR-030'un devamı (Ek-F rendering layer) · **Bayrak:** `EK_F_MODE` (ayrı bayrak yok); canlıda kapalı · **Ölçüm:** retrieval-only, **0 Gemini çağrısı** · **Durum:** kod + testler + lint bitti; ölçüm koşuldu; **kriter tam karşılanmadı** (AMB 3/5 < hedef 4/5), **sonuca bakarak gevşetilmedi** — §4.
+**Tarih:** 09.10.2026 · **Plan:** `docs/plans/ADIM4_PLAN.md` (Naci onayı + SORU 1–5 cevapları 09.10.2026) · **Dal:** `feat/adim4-proje-ekseni` (`feat/adim2-ekf` üzerinden; `main`'e birleştirme yok) · **ADR:** ADR-030'un devamı (Ek-F rendering layer) · **Bayrak:** `EK_F_MODE` (ayrı bayrak yok); canlıda kapalı · **Ölçüm:** retrieval-only, **0 Gemini çağrısı** · **Durum:** kod + testler + lint bitti; ölçüm koşuldu; **orijinal 5 soruluk kriter tam karşılanmadı** (AMB 3/5 < hedef 4/5), **sonuca bakarak gevşetilmedi**; belge-varlığı kriteriyle eklenen 1 yeni soru (GEN-AMB-006) **ayrı** sayıldı (1/1) — §3.1, §4. Held-out ölçümü ve eşik kilidi Adım 5'e ertelendi — §6.
 
 ## 1. Ne yapıldı (dosya / fonksiyon)
 
@@ -64,20 +64,46 @@ Ham çıktı: `docs/reports/assets/DRY_RUN_PROJECT_AXIS_2026-10-09.txt`. Eşikle
 
 | Kriter | Eşik | Sonuç |
 |---|---|---|
-| Dev AMB isabet | ≥ 4/5 | **3/5 — karşılanmadı** |
+| Dev AMB isabet (orijinal 5) | ≥ 4/5 | **3/5 — karşılanmadı** |
+| Dev AMB isabet (yeni, GEN-AMB-006) | — (bilgi amaçlı, ayrı) | **1/1** |
 | Dev NEG yanlış alarm | 0/9 | **0/9 ✅** |
 | ANK-NEG-004 | `dominant`/`ANK_RES` | **✅** |
 
-**Genel karar: kriter tam karşılanmadı.** Kurala göre eşik **oynatılmadı**; aşağıda tanım/kök neden incelendi, sonuca bakarak gevşetme yapılmadı.
+**Genel karar: orijinal 5 sorunun kriteri tam karşılanmadı.** Kurala göre eşik **oynatılmadı**, GEN-AMB-001/002 dev setten **çıkarılmadı**, sayım değiştirilmedi. GEN-AMB-006'nın sonucu (1/1) **ayrı** sayılır; "hedef karşılandı" iddiası yapılmaz — bu tek bir ek örnek, istatistiksel bir düzeltme değil.
 
-## 4. İki AMB kaçağının kök nedeni (eşik sorunu değil, korpus gerçeği)
+## 4. Kök neden ve ek kanıt — belge varlığı (eşik sorunu değil)
 
-**GEN-AMB-001 (Ankara 26 / İzmir 2, pay ≈ %93):** İzmir RES henüz geliştirme aşamasında; imzalı bir kredi/finansman sözleşmesi yok (bu, cevaplarda tekrar eden bir gerçek — bkz. `NACI_CEVAP_2026-10-08.md` §3.1). "Sözleşme" terimi bu yüzden gerçek belgelerde **doğası gereği** Ankara'ya ağırlıklı; dağılım objektif olarak çoğunluklu, yakın değil. Eski V3 detektörü bu soruyu kelime kalıbıyla ("belge-sınıfı kelimesi, proje adı yok") ateşliyordu — gerçek belge dağılımına bakmıyordu. Adım 4'ün sayıya dayalı tanımı burada **daha dürüst**: soru metni belirsiz görünse de, bu demo korpusunda gerçekten %93 Ankara'ya ait.
+### 4.1 GEN-AMB-001/002: "korpus-gereği-belirsiz-değil" — kanıt belge varlığından, dedektör çıktısından değil
 
-**GEN-AMB-002 (Ankara 6 / İzmir 0):** DSCR bir kredi taahhüdü ölçütüdür; İzmir'in henüz kredisi yok → İzmir'de **hiç** DSCR belgesi/parçası yok. Dağılımda ikinci proje **hiç görünmüyor** (`len(by_project) < 2`) → `none` otomatik, eşikten bağımsız. Hiçbir eşik değeri bu soruyu `disambiguate`'e taşıyamaz çünkü karşılaştırılacak ikinci bir aday hiç yok.
+Aşağıdaki sayılar **dedektörden değil**, `documents` tablosunun kendisinden: her iki proje için, sorunun konusuyla ilgili belge **türünün** kaç kez geçtiği.
 
-**Sonuç:** bu iki soru, dev `ambiguous` kategorisine eski (sözcük kalıbı tabanlı) V3 detektörüyle yazılmış; gerçek korpusta **cevaplar zaten tek projeye ait** (biri ağırlıklı, biri münhasıran). Adım 4'ün tanımı değil, bu iki sorunun **kategorisi** gözden geçirilmeli — ya held-out/dev AMB setinden çıkarılmalı ya da İzmir'e de "sözleşme"/"DSCR" içeren bir belge eklenerek gerçekten ambiguous hale getirilmeli (kütüphane adımı, Adım 5). Eşik **değiştirilmedi**.
+| Soru | İlgili belge türü | Ankara | İzmir | Kaynak |
+|---|---|---|---|---|
+| GEN-AMB-001 "Sözleşmenin vadesi ne zaman doluyor?" | `Facility Agreement` | **6** | **0** | `documents` tablosu, `document_type`/`project_id` grupla |
+| GEN-AMB-002 "Raporda belirtilen DSCR değeri kaç?" | `Covenant Report` | **3** | **0** | aynı |
+
+İzmir RES'in bu iki belge türünden **hiç** kaydı yok (henüz imzalı bir finansman sözleşmesi yok, dolayısıyla kredi taahhüdü/DSCR raporu da yok — `NACI_CEVAP_2026-10-08.md` §3.1 ile uyumlu). Bu, sorunun kendisinin değil, **bu korpusta bu konunun** iki projeye eşit dağılmadığının doğrudan kanıtı; dedektörün 3.1'de ürettiği `dominant`/`none` çıktısı bu belge-varlığı gerçeğinin bir **sonucu**, nedeni değil.
+
+**Not (sayıma/kritere etkisi yok):** GEN-AMB-001 ve GEN-AMB-002 bu bulguyla **"korpus-gereği-belirsiz-değil"** olarak işaretlenir (bilgi notu); dev AMB setinden çıkarılmadı, kriter (≥4/5, 5 soru üzerinden) ve sonuç (3/5) **aynen** kalır.
+
+### 4.2 Yeni soru — belge varlığı kriteriyle seçildi (GEN-AMB-006)
+
+Seçim kriteri yalnızca belge varlığı: `documents` tablosunda **iki projede de aynı belge türünden ≥ 2 kayıt** olan konular arandı (dedektör çıktısına bakılmadan). Tüm proje-belge türü kombinasyonları tarandığında bu koşulu sağlayan **tek** tür bulundu:
+
+| Belge türü | Ankara | İzmir |
+|---|---|---|
+| `Legal Review Memo` | **2** | **2** |
+
+(Diğer tüm türlerde en az bir proje 0 veya 1 kayıt taşıyor; `Teknik Rapor` İzmir'de 2 ama Ankara'da 0; `Budget Approval` her ikisinde 1.) Bu yüzden **en fazla 3** değil, **1** yeni soru eklendi — kriter başka bir seçeneğe izin vermedi, zorlanmadı.
+
+**GEN-AMB-006** ("Hukuki inceleme notunda ne tespit edildi?", `ask_as_user: hukuk`) önce yazıldı ve commit edildi (bcc71fe), **sonra** kuru koşu çalıştırıldı. Sonuç: `disambiguate`, `codes=('ANK_RES','IZM_RES')` — **1/1**, soruya göre değiştirilmedi.
+
+**Genel sonuç:** iki ayrı sayı — orijinal 5 sorunun 3/5'i (hedef ≥4/5 karşılanmadı) ve yeni 1 sorunun 1/1'i (bilgi amaçlı). Birleştirilip "4/6 ≥ 4/5" gibi bir iddia yapılmaz.
 
 ## 5. Durum
-- Dal `feat/adim4-proje-ekseni` push edilecek (`main`'e birleştirme yok); canlıda `EK_F_MODE=false`, `ASSIST_MODE=false` — bu ölçüm hiç dokunmadı (0 LLM, 0 bayrak değişimi).
-- Adım 4 kodu ve testleri tamamlandı; dev ölçüm kriteri **kısmen** karşılandı (NEG ve ANK-NEG-004 ✅, AMB 3/5 ❌). Held-out henüz istenmedi (Naci kararı: kod bitince istenecek — bu rapor o eşiği karşılıyor, ama AMB sonucu nedeniyle held-out istemeden önce Naci'nin §4'teki bulguyu değerlendirmesi gerekiyor).
+- Dal `feat/adim4-proje-ekseni` push edildi (`main`'e birleştirme yok); canlıda `EK_F_MODE=false`, `ASSIST_MODE=false` — bu ölçüm hiç dokunmadı (0 LLM, 0 bayrak değişimi).
+- Adım 4 kodu ve testleri tamamlandı; dev ölçüm: NEG ve ANK-NEG-004 ✅, orijinal AMB 3/5 ❌ (gevşetilmedi), yeni AMB 1/1 (ayrı, bilgi amaçlı).
+
+## 6. Held-out ve eşik kilidi — Adım 5'e ertelendi (Naci kararı, 09.10.2026)
+
+Held-out ölçümü (5 yeni AMB + 5 yeni NEG, Naci/danışman yazacak) ve nihai eşik kilidi **şimdi yapılmaz**; Adım 5 (veri kütüphanesi, Ç-9 B yeniden adlandırma + yeni belgeler) **sonrasına** ertelendi. Gerekçe: §4'teki bulgu zaten korpusun kendisinin eksik olduğunu gösteriyor (İzmir'de bazı belge türleri hiç yok); Adım 5 bu korpusu kökten değiştirecek, bugünkü `0.5`/`0.75` eşikleri o zaman **yeniden doğrulanacak**. Bu rapordaki ölçüm bir **ara doğrulamadır**, nihai kilit değildir — `docs/plans/ADIM4_PLAN.md` §3'teki sıra notuna işlendi.

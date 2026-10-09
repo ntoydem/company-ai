@@ -57,8 +57,9 @@ def test_load_questions_returns_the_committed_questions() -> None:
     # v6 (BELIRSIZLIK_PLAN §3): + 3 negative controls + GEN-AMB-003-F (same question, finance user)
     # v7 (Tansu Ürün 1 §B, B ölçümü): + 13 discovery
     # v8 (B ölçümü teşhis tekrarı): + 5 düzeltilmiş teşhis varyantı; held_out +6 discovery
-    assert len(question_set.questions) == 98
-    assert question_set.version == 8
+    # v9 (Adım 4, ADR-030): + GEN-AMB-006 (belge-varlığı kriteriyle seçilen dev AMB sorusu)
+    assert len(question_set.questions) == 99
+    assert question_set.version == 9
 
 
 def test_build_document_catalog_maps_title_type_and_project() -> None:

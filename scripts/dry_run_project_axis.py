@@ -42,6 +42,10 @@ from app.services.search_query import build_search_query, question_terms
 from scripts import eval_lib
 
 AMB_IDS = ("GEN-AMB-001", "GEN-AMB-002", "GEN-AMB-003", "GEN-AMB-004", "GEN-AMB-005")
+# 09.10.2026 (Naci): added after GEN-AMB-001/002 turned out not to be corpus-ambiguous
+# (ADIM4_REPORT.md §4) — kept separate so the two counts are never conflated (SORU rule:
+# report both numbers, never claim the combined target was met).
+AMB_IDS_NEW = ("GEN-AMB-006",)
 NEG_IDS = (
     "ANK-NEG-001",
     "ANK-NEG-002",
@@ -125,7 +129,20 @@ def main() -> int:
                 f"{qid} ({q.ask_as_user}, {path}) — {q.question!r}\n"
                 f"  → {decision.kind} codes={decision.codes} {'✅' if hit else '❌'}"
             )
-        print(f"\nAMB isabet: {amb_hits}/{len(AMB_IDS)}\n")
+        print(f"\nAMB isabet (orijinal 5): {amb_hits}/{len(AMB_IDS)}\n")
+
+        print("## Dev AMB — yeni (belge-varlığı kriteriyle, ayrı sayılır)\n")
+        amb_new_hits = 0
+        for qid in AMB_IDS_NEW:
+            q = by_id[qid]
+            path, decision = classify(session, q.ask_as_user, q.question)
+            hit = decision.kind == "disambiguate"
+            amb_new_hits += hit
+            print(
+                f"{qid} ({q.ask_as_user}, {path}) — {q.question!r}\n"
+                f"  → {decision.kind} codes={decision.codes} {'✅' if hit else '❌'}"
+            )
+        print(f"\nAMB isabet (yeni): {amb_new_hits}/{len(AMB_IDS_NEW)}\n")
 
         print("## Dev NEG (9) — beklenen: disambiguate DEĞİL, hedef yanlış alarm 0/9\n")
         for qid in NEG_IDS:
@@ -144,7 +161,7 @@ def main() -> int:
         print(f"\nNEG yanlış alarm: {len(neg_false_alarms)}/{len(NEG_IDS)} {neg_false_alarms}\n")
         print(f"ANK-NEG-004 == dominant/ANK_RES: {'✅' if ank_neg_004_ok else '❌'}")
 
-    ok = amb_hits >= 4 and not neg_false_alarms and ank_neg_004_ok
+    ok = amb_hits >= 4 and not neg_false_alarms and ank_neg_004_ok  # unchanged: original 5 only
     print(f"\nSonuç: {'✅ geçti' if ok else '❌ kaldı'}")
     return 0 if ok else 1
 
