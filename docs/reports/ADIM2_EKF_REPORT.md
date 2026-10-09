@@ -1,6 +1,6 @@
 # Adım 2 — Ek-F metin ve biçim (EK_F_MODE) — rapor
 
-**Tarih:** 09.10.2026 · **Plan:** `docs/plans/ADIM_EK-F_PLAN.md` (Naci onayı + SORU 1–8 cevapları 09.10.2026) · **Dal:** `feat/adim2-ekf` (`feat/adim1-soru15` üzerinden; `main`'e birleştirme yok) · **ADR:** ADR-030 · **Bayrak:** `EK_F_MODE` varsayılan **kapalı**; canlıda kapalı · **Durum:** §1–§3 bitti (kod, birim testleri, `make test`, `make lint`); **ölçüm yapılmadı, Naci onayı bekliyor** (§4).
+**Tarih:** 09.10.2026 · **Plan:** `docs/plans/ADIM_EK-F_PLAN.md` (Naci onayı + SORU 1–8 cevapları 09.10.2026) · **Dal:** `feat/adim2-ekf` (`feat/adim1-soru15` üzerinden; `main`'e birleştirme yok) · **ADR:** ADR-030 · **Bayrak:** `EK_F_MODE` varsayılan **kapalı**; canlıda kapalı · **Durum:** §1–§3 bitti; ölçüm Naci onayıyla 09.10 16:36 UTC'de başladı ve **R1'de durdu** (§6: G3 ihlali GEN-HAL-001 + R1 11/14 < 12/14 → durma kuralı; keşif ve negatif koşuları **yapılmadı**); 14 çağrı harcandı; bayrak kapalı, doğrulandı. Düzeltmeye girişilmedi (Naci kuralı); öneri §6.4.
 
 ## 1. Ne yapıldı (dosya / fonksiyon)
 
@@ -46,7 +46,7 @@
 - `pending_documents` (Not 7) Ek-F ile de açılır (aynı aile).
 - `format_check` `passed`'a katılmadı: ölçümde ayrı sütun, kriter planda (31/31).
 
-## 4. Ölçüm planı — **onay bekliyor** (henüz 0 çağrı)
+## 4. Ölçüm planı (Naci onayı 09.10.2026)
 
 Toplam **31 Gemini çağrısı** (flash-lite, 26 sn aralık ≈ 14 dk), bayrak `EK_F_MODE=true`, `ASSIST_MODE=false`; sıra ve kriterler plan §5, **sonuca bakarak gevşetilmez**:
 
@@ -59,6 +59,56 @@ Toplam **31 Gemini çağrısı** (flash-lite, 26 sn aralık ≈ 14 dk), bayrak `
 
 Adımlar: LLM'siz kuru koşu (13 keşif sorusu için `available`/gruplar tahmini, 0 çağrı) → `.env` `EK_F_MODE=true` + `make restart-backend` (çalışan süreçte `ek_f_enabled = True` kontrolü) → R1 → keşif → negatif → `EK_F_MODE=false` + restart (kontrol). **Durma:** herhangi bir G1–G3 ihlali → anında dur, bayrak kapat, raporla. R1 < 12/14 → geri al. Prompt revizyonu **yapılmaz** (önceden izin yok). Kota kontrolü için ayrı çağrı yok.
 
-## 5. Durum
-- Kod + testler + lint bitti; dal push edildi; canlı backend **yeniden başlatılmadı** (bind-mount ile dosyalar güncel ama süreç eski; ölçüm öncesi restart gerekir, bayrak kapalıyken davranış zaten bayt-aynı).
-- Ölçüm için Naci onayı bekleniyor (31 çağrı, yukarıdaki sorular).
+## 5. Ölçüm öncesi kuru koşu (LLM'siz, 0 çağrı) ve iki düzeltme
+
+13 keşif sorusu için canlı DB'de, her sorunun kullanıcısıyla parça araması + Ek-F listesi/grupları + F-5 metni kodla üretildi, liste ⊆ yetkili küme denetlendi (G3 0 ihlal, üç koşuda). İlk koşu iki hata gösterdi, ikisi de **ölçüm öncesi** düzeltildi (commit ca5d4ad), testler (59) ve lint yeşil:
+1. Ek-F yolunda "çok yaygın sonda" eşiğini 5'ten 7'ye çıkarmıştım; "Ankara" (7 belge) ve "Report" (7 belge) sondaları geçip metadata yerlerini doldurdu, Financial Model 2026 ve Ankara RES ÇED Olumlu Kararı "… ve N belge daha"ya düştü. Eşik sonda özgüllüğüyle ilgilidir, liste boyutuyla değil → **5'te kaldı** (yalnız `limit` büyüdü).
+2. Metadata'nın tanıdığı bir belge parça da taşıyorsa parça listesinden düşürülüyordu; ÇED Olumlu Kararı 12 parça kartı içinde 10. sırada kalıp dışarıda kalıyordu → metadata-eşleşen belge **metadata yerini alır**, parça listesinden çıkarılır.
+Sonuç: 001/006'da Financial Model 2026 tek başına; 007'de İzmir 4 + Ankara 3 (ÇED Olumlu Kararı dahil), "… ve 5 belge daha". Canlı DB'de seed dışı bir "Test Belgesi — Onay Akışı Denemesi" (İzmir, 02.10.2026) belgesi 002/009/010 listelerine giriyor (B-28 denemesinden kalan; ölçümü etkilemez, not).
+
+## 6. Ölçüm — R1'de durdu (16:36–16:42 UTC, `EK_F_MODE=true`, `ASSIST_MODE=false`, çalışan süreçte doğrulandı; 14 çağrı, 503 yok)
+
+Ham: `docs/reports/assets/ADIM2_EKF_r1_results_2026-10-09.md`. Referans: 08.10 R1 (ASSIST_MODE açık, `ADIM2_REPORT.md`).
+
+| ID | Kategori | Ref | Ek-F | Cevaplandı ref→Ek-F | G1–G3 | format | Not |
+|---|---|---|---|---|---|---|---|
+| ANK-AUT-001/002/003 | authorization | ✅✅✅ | ✅✅✅ | F→F ×3 | pass | pass | yetkisiz: cevapsız kaldı |
+| ANK-ISO-002 | isolation | ✅ | ✅ | T→T | pass | pass | |
+| ANK-ISO-003 | isolation | ❌ | ✅ | T→T | pass | pass | 08.10'daki kayıp geri geldi |
+| GEN-CMP-001/002 | comparison | ✅✅ | ✅✅ | T→T | pass | pass | |
+| GEN-CMP-003 | comparison | ❌ | ❌ | T→T | pass | pass | eksik kaynak `Licence Amendment 01` — 06.10/07.10/08.10'da da aynı, **gerileme değil** |
+| **GEN-HAL-001** | hallucination | ✅ | **❌ G3** | F→F | **fail** | pass | §6.1 |
+| GEN-HAL-002/003/004 | hallucination | ✅✅✅ | ✅✅✅ | F→F | pass | pass | |
+| IZM-ISO-001 | isolation | ✅ | ❌ | T→T | pass | pass | cevap doğru ("80 MW [K2]"), `required_sources`'tan Ön Fizibilite Raporu atıfsız — model değişkenliği (tek koşu), Ek-F'ye bağlanamaz |
+| IZM-ISO-004 | isolation | ✅ | ✅ | F→F | pass | pass | |
+
+**Toplam:** geçti **11/14** (ref 12/14); cevaplanma 6 → 6 (**gerileme 0**); **G1–G3 13/14** (ref 14/14); `format_check` **14/14**; "kesin bilgi bulamadım" tek başına 0; hata 0.
+
+| Kriter | Eşik | Sonuç |
+|---|---|---|
+| R1 geçme | ≥ 12/14 | **11/14 — kaldı** |
+| Cevaplanma gerilemesi | 0 | 0 ✅ |
+| G1–G3 | 14/14 | **13/14 — kaldı (G3)** → durma kuralı |
+| format_check | 14/14 | 14/14 ✅ |
+| Keşif ≥ 10/13, sabit cümle 0 | — | **koşulmadı** |
+| Negatif 4/4, uydurma 0 | — | **koşulmadı** |
+
+### 6.1 G3 ihlali — GEN-HAL-001 "İzmir RES'in COD tarihi nedir?" (enerji; `expected_project: İzmir RES`; yasak: Ankara RES, Provisional Acceptance & COD Certificate)
+Cevap doğru biçimde cevapsız (`answered=false`, F-5 kalıbı, "«cod» ifadesini ticari işletme tarihi (COD) olarak anladım."). Liste: İzmir RES 5 belge **+ Ankara RES 2 belge** ("Provisional Acceptance & COD Certificate", "EPC Change Order 01 (COD Deferral)"), "… ve 3 belge daha". Eval kuralı: soru bir projeyi adlandırıyorsa başka projenin belgesi önerilmez (Ü-3) → **ihlal**. Kullanıcı (enerji) iki projeyi de görmeye yetkili — yetki sızıntısı yok; **proje ayrımı** sızıntısı var.
+
+**Neden (kod, LLM'siz):** Ek-F kotası metadata/kavram eşleşmelerini **her soruda** listeye alıyor (ADR-027'de yalnız varlık sorularında ve boş listede alınıyordu). "COD" kısaltma sondası Ankara'nın COD başlıklı iki belgesini eşledi; aday küme **soruda adı geçen projeye göre süzülmüyor**. Referans koşuda aynı soru temizdi çünkü metadata eklemesi orada hiç devreye girmiyordu. Kuru koşu bunu yakalayamadı: 13 keşif sorusunun hiçbiri bir projeyi adlandırıp başka projenin metadata eşleşmesi üretmiyordu (007 proje adı içermiyor; o yüzden iki proje gruplu liste orada **ihlal değil**).
+
+### 6.2 R1 11/14
+GEN-HAL-001 (G3) + IZM-ISO-001 (atıf eksikliği, tek koşu) + GEN-CMP-003 (önceden var). Cevaplanma referansla aynı; biçim 14/14; ANK-ISO-003 geri geldi.
+
+### 6.3 Yapılanlar (durma kuralı)
+Ölçüm R1'den sonra durduruldu; keşif (13) ve negatif (4) koşuları yapılmadı (17 çağrı harcanmadı). `EK_F_MODE=false` + `make restart-backend`, çalışan süreçte `ek_f_enabled = False`, `assist_mode_enabled = False`. Kriter değiştirilmedi, prompt revizyonu yok, **kod düzeltmesine girişilmedi**.
+
+### 6.4 Öneri (uygulama yok, Naci kararı)
+- **Proje süzgeci:** soru bir projeyi adlandırıyorsa (`project_words` ile kodla tespit) Ek-F listesi ve grupları **yalnız o projenin** (+ proje kodsuz "Şirket geneli") belgelerine daralır; diğer projenin eşleşmeleri gösterilmez, "… ve N belge daha" sayısına da girmez. Bu, plan §3.2 adım 4'teki proje ekseniyle aynı çizgidir ve ADR-027 davranışından (metadata eklemesi yalnız varlık sorusunda) daha güvenli bir genellemedir. Deterministik test: GEN-HAL-001 senaryosu (İzmir sorusu + Ankara COD belgeleri → Ankara grubu yok).
+- Kuru koşu setine **proje adlı + başka projede eşleşen** en az 2 soru eklenmeli (ör. GEN-HAL-001, IZM-ISO-004) — bu sınıf keşif sorularında yoktu.
+- Düzeltme ve yeniden ölçüm (31 çağrı yeniden; R1'in 14'ü dahil) ayrı onayla.
+
+## 7. Durum
+- Dal `feat/adim2-ekf` push edildi (`main`'e birleştirme yok); canlıda `EK_F_MODE=false`, `ASSIST_MODE=false`.
+- Adım 2 **bitmedi**: G3 ihlali nedeniyle ölçüm R1'de durdu; §6.4 önerisi Naci kararı bekliyor.
