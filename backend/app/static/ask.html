@@ -14,8 +14,6 @@
   textarea { flex:1; min-height:64px; padding:10px; border:1px solid var(--line); border-radius:6px; font:inherit; resize:vertical; }
   button { padding:10px 18px; border:0; border-radius:6px; background:var(--accent); color:#fff; font:inherit; cursor:pointer; }
   button:disabled { opacity:.6; cursor:wait; }
-  .examples { margin:8px 0 20px; font-size:.9rem; }
-  .examples a { color:var(--accent); margin-right:12px; cursor:pointer; text-decoration:underline; }
   section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; margin-top:16px; }
   h2 { font-size:1rem; margin:0 0 8px; }
   .answer { white-space:pre-wrap; line-height:1.5; }
@@ -36,12 +34,7 @@
     <textarea id="q" placeholder="Sorunuzu yazın" required minlength="3" maxlength="1000"></textarea>
     <button id="btn" type="submit">Sor</button>
   </form>
-  <div class="examples">Örnek:
-    <a data-q="Ankara RES'in güncel minimum DSCR covenant'ı nedir?">güncel DSCR</a>
-    <a data-q="İlk DSCR covenant neydi?">ilk DSCR</a>
-    <a data-q="İzmir RES'in COD tarihi nedir?">İzmir COD</a>
-    <a data-q="Ankara RES kredisinin güncel vadesi kaç yıl?">güncel vade</a>
-  </div>
+  <!-- Ç-10 (Tansu A, 09.10.2026; ADR-030): örnek soru çipleri kaldırıldı -->
   <section id="out" hidden>
     <h2>Cevap</h2>
     <div class="answer" id="answer"></div>
@@ -55,7 +48,6 @@
   const fmtDate = (iso) => iso ? iso.split("-").reverse().join(".") : "-";
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
-  document.querySelectorAll(".examples a").forEach((a) => a.addEventListener("click", () => { $("q").value = a.dataset.q; $("form").requestSubmit(); }));
 
   $("form").addEventListener("submit", async (event) => {
     event.preventDefault();

@@ -132,3 +132,29 @@ def test_format_source_adds_the_expiration_line_only_when_the_document_has_one()
     assert (
         with_one.replace("Süre: 09.01.2025 tarihinde sona erdi (1 yıl 8 ay önce)\n", "") == without
     )
+
+
+# --- ADR-030 (Ek-F): F-2 rule only in the assist prompt; Ç-2 context line ---
+
+
+def test_closed_prompt_is_unchanged_and_assist_prompt_adds_the_no_filler_sentence() -> None:
+    from app.services.answer_prompt import SYSTEM_PROMPT_ASSIST, build_user_prompt
+
+    assert "dolgu ifadeleri" not in SYSTEM_PROMPT
+    assert "7. Kaynaklar İngilizce olsa bile" in SYSTEM_PROMPT_ASSIST
+    assert 'Selamlama, "memnuniyetle", "harika soru" gibi dolgu ifadeleri' in SYSTEM_PROMPT_ASSIST
+    assert SYSTEM_PROMPT_ASSIST.count("7. ") == 1
+    # Ç-2: the previous question is context, placed before SORU, absent when not given
+    plain = build_user_prompt("Amendment var mı?", [], date(2026, 9, 15))
+    assert "ÖNCEKİ SORU" not in plain
+    with_context = build_user_prompt(
+        "peki amendment var mı hiç?",
+        [],
+        date(2026, 9, 15),
+        previous_question="Kredi sözleşmesi nedir?",
+    )
+    assert "ÖNCEKİ SORU (yalnızca bağlam, cevaplanmaz): Kredi sözleşmesi nedir?" in with_context
+    assert with_context.index("ÖNCEKİ SORU") < with_context.index("SORU: peki")
+    assert build_user_prompt("x", [], date(2026, 9, 15), previous_question="   ") == plain.replace(
+        "Amendment var mı?", "x"
+    )

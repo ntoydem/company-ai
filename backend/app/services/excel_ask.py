@@ -10,6 +10,7 @@ import json
 import logging
 import time
 from dataclasses import dataclass, field
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Literal, cast
 from uuid import UUID
@@ -34,6 +35,7 @@ from app.repositories import document_repo
 from app.repositories.document_repo import SqlDocumentIdsProvider
 from app.schemas.authorization import AuthorizationScope
 from app.schemas.excel import ExcelAskRequest, ExcelSourceCard
+from app.services import tr_format
 from app.services.audit_writer import write_audit_row
 from app.services.authorization import allowed_document_ids
 from app.services.llm import LLMClient, LLMRequest
@@ -90,9 +92,13 @@ class ExcelAskResult:
 # ---------------------------------------------------------------- formatting
 
 
-def format_value(value: Any, unit: str | None) -> str:
+def format_value(value: Any, unit: str | None, *, ek_f: bool = False) -> str:
     """TR conventions (CLAUDE.md): thousands with `.`, decimals with `,`; `1,37x`,
-    `44.100.000 EUR`, `%38,2`, `108.858 MWh`."""
+    `44.100.000 EUR`, `%38,2`, `108.858 MWh`. With `ek_f` (ADR-030 F-8) the shared
+    `tr_format` rules apply instead (currency codes, ≥ 2 percent decimals, no rounding);
+    without it this is the Phase 4.2 formatter, byte for byte."""
+    if ek_f:
+        return tr_format.format_value(value, unit)
     if value is None:
         return "-"
     if isinstance(value, str):
@@ -109,8 +115,8 @@ def format_value(value: Any, unit: str | None) -> str:
     return f"{text} {unit}".strip() if unit else text
 
 
-def _value_variants(value: Any, unit: str | None) -> set[str]:
-    tr = format_value(value, unit)
+def _value_variants(value: Any, unit: str | None, *, ek_f: bool = False) -> set[str]:
+    tr = format_value(value, unit, ek_f=ek_f)
     variants = {tr}
     if isinstance(value, int | float):
         number = float(value)
@@ -194,13 +200,30 @@ def _card(source: SourceRange) -> ExcelSourceCard:
     )
 
 
-def _sql_value(result: QueryResult) -> tuple[Any, str]:
-    """A 1×1 result is *the* number; anything else is relayed as a compact table."""
+def _sql_value(result: QueryResult, *, ek_f: bool = False) -> tuple[Any, str, str]:
+    """A 1×1 result is *the* number; anything else is relayed as a compact table. With `ek_f`
+    (ADR-030 F-8) the 1×1 unit is read from the column label (`"Debt (EUR)"` → `EUR`) and the
+    table cells are formatted by code (`72.000.000 EUR`, `15.11.2021`) — the model never sees
+    a raw float or a `00:00:00` timestamp (ADIM1 DSC-001 finding). Without it: Phase 4.3
+    behaviour, byte for byte."""
     if len(result.rows) == 1 and len(result.columns) == 1:
-        return result.rows[0][0], ""
+        value = result.rows[0][0]
+        if not ek_f:
+            return value, "", ""
+        if isinstance(value, datetime | date):
+            return tr_format.format_date(value), "", ""
+        return value, tr_format.unit_from_label(result.columns[0]) or "", ""
     header = " | ".join(result.columns)
-    body = "\n".join(" | ".join(str(v) for v in row) for row in result.rows[:20])
-    return None, f"{header}\n{body}"
+    if not ek_f:
+        body = "\n".join(" | ".join(str(v) for v in row) for row in result.rows[:20])
+        return None, "", f"{header}\n{body}"
+    body = "\n".join(
+        " | ".join(
+            tr_format.format_cell(v, label) for v, label in zip(row, result.columns, strict=False)
+        )
+        for row in result.rows[:20]
+    )
+    return None, "", f"{header}\n{body}"
 
 
 # ---------------------------------------------------------------- pipeline
@@ -336,10 +359,10 @@ def answer_data_question(
         table_text = ""
     else:
         assert query is not None
-        value, table_text = _sql_value(query)
-        unit, detail = "", "SQL"
+        value, unit, table_text = _sql_value(query, ek_f=settings.ek_f_enabled)
+        detail = "SQL"
         sources = [_card(s) for s in query.sources]
-    formatted = format_value(value, unit) if value is not None else None
+    formatted = format_value(value, unit, ek_f=settings.ek_f_enabled) if value is not None else None
 
     result_block = (
         f"SORU: {request.question}\nSONUÇ: {formatted if formatted else table_text}\n"
@@ -359,7 +382,9 @@ def answer_data_question(
     answer = answer_response.text.strip()
     # ADR-011: the final figure never comes from the model — if the phrased answer does not
     # carry the engine's number verbatim, the template wins.
-    if value is not None and not any(v in answer for v in _value_variants(value, unit)):
+    if value is not None and not any(
+        v in answer for v in _value_variants(value, unit, ek_f=settings.ek_f_enabled)
+    ):
         log.warning("excel answer dropped engine value, using template", extra={"answer": answer})
         answer = f"Sonuç: {formatted} ({detail})."
     if value is None and not answer:

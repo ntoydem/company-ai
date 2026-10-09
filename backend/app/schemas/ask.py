@@ -110,6 +110,17 @@ class AssistAvailableDocument(BaseModel):
     page_number: int | None = None
 
 
+class AssistAvailableGroup(BaseModel):
+    """F-3 (Ek-F, ADR-030): the `available` list grouped by project — projects are never
+    mixed in one list (Ü-3). `project_code=None` → company-level documents."""
+
+    model_config = ConfigDict(frozen=True)
+
+    project_code: str | None = None
+    project_name: str
+    documents: list[AssistAvailableDocument] = Field(default_factory=list)
+
+
 class AssistBlock(BaseModel):
     """ADR-027 (Tansu Not 2): help shown *next to* the fixed no-answer sentence, which stays
     the verdict (ADR-014). Everything here is code-generated except `question`, which may be
@@ -123,6 +134,8 @@ class AssistBlock(BaseModel):
     question: str | None = None
     unmatched_terms: list[str] = Field(default_factory=list)
     candidate_terms: list[str] = Field(default_factory=list)
+    # ADR-030 (EK_F_MODE): `available` grouped by project; `[]` with the flag off.
+    groups: list[AssistAvailableGroup] = Field(default_factory=list)
     available: list[AssistAvailableDocument] = Field(default_factory=list)
 
 
@@ -136,6 +149,10 @@ class AskRequest(BaseModel):
 
     question: str = Field(min_length=3, max_length=1000)
     department: str | None = None
+    # Ç-2 (Tansu A, 09.10.2026; ADR-030, EK_F_MODE): the client may send the previous
+    # question of the same conversation as *context only*. No server-side memory: the prompt
+    # gets it as an "ÖNCEKİ SORU" line, the audit row records it, retrieval is unchanged.
+    previous_question: str | None = Field(default=None, max_length=1000)
 
 
 class SourceCard(BaseModel):

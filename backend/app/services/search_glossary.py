@@ -150,3 +150,77 @@ def metadata_terms(lowered: list[str]) -> list[str]:
             if term not in out:
                 out.append(term)
     return out
+
+
+# ---------------------------------------------------------------- Ek-F (ADR-030) labels
+
+# Ç-3 (Tansu A, 09.10.2026): when a question uses a term the glossary knows, the F-5 pattern
+# opens with "«amendment» ifadesini tadil olarak anladım." — the Turkish label is code, the
+# glossary is ours, so this is not "general knowledge" (Ç-6). Keys are glossary stems.
+TR_LABEL: dict[str, str] = {
+    "amendment": "tadil (değişiklik sözleşmesi)",
+    "tadil": "tadil (amendment)",
+    "covenant": "finansal taahhüt (covenant)",
+    "dscr": "borç servisi karşılama oranı (DSCR)",
+    "tenor": "vade",
+    "eca": "ihracat kredi kurumu (ECA)",
+    "cod": "ticari işletme tarihi (COD)",
+    "epc": "anahtar teslim yüklenici sözleşmesi (EPC)",
+    "licence": "lisans",
+    "license": "lisans",
+    "eia": "ÇED",
+    "finansal model": "finansal model (Financial Model workbook'u)",
+    "ödeme planı": "kredi geri ödeme planı (Financial Model, Debt sayfası)",
+    "nakit akış": "nakit akış tablosu (Cashflow)",
+    "bütçe": "bütçe / gerçekleşen (Budget)",
+}
+
+# F-5 "Aradığınız bilgi genellikle … belgesinde olur": the document type a concept usually
+# lives in. Only known concepts; no match → the sentence is not written.
+TYPICAL_DOCUMENT_TYPE: dict[str, str] = {
+    "ödeme planı": "kredi sözleşmesinin geri ödeme maddesi ya da finansal model (Debt sayfası)",
+    "geri ödeme": "kredi sözleşmesinin geri ödeme maddesi ya da finansal model (Debt sayfası)",
+    "finansal model": "finansal model workbook'u",
+    "nakit akış": "finansal model (Cashflow sayfası)",
+    "bütçe": "bütçe / gerçekleşen raporu",
+    "sigorta": "sigorta poliçesi ya da yenileme bildirimi",
+    "poliçe": "sigorta poliçesi",
+    "teminat": "teminat sözleşmesi (rehin, hisse rehni)",
+    "lisans": "üretim lisansı ya da önlisans belgesi",
+    "çed": "ÇED kararı ya da ÇED süreci yazısı",
+    "tadil": "kredi sözleşmesi tadili (amendment)",
+    "kredi": "kredi sözleşmesi (facility agreement)",
+}
+
+
+def understood_terms(lowered: list[str]) -> list[tuple[str, str]]:
+    """`turkish_lower`ed question tokens → `(term as asked, Turkish label)` for every glossary
+    stem the question uses, in question order, deduplicated by label. Multi-word stems match
+    the joined token sequence; one-word stems prefix-match a token."""
+    joined = " ".join(lowered)
+    out: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for stem, label in TR_LABEL.items():
+        if " " in stem:
+            if stem in joined and label not in seen:
+                out.append((stem, label))
+                seen.add(label)
+            continue
+        for token in lowered:
+            if token.startswith(stem) and len(token) <= len(stem) + 4 and label not in seen:
+                out.append((token, label))
+                seen.add(label)
+                break
+    return out
+
+
+def typical_document_type(lowered: list[str]) -> str | None:
+    """The first TYPICAL_DOCUMENT_TYPE concept the question names, or None."""
+    joined = " ".join(lowered)
+    for concept, document_type in TYPICAL_DOCUMENT_TYPE.items():
+        if " " in concept:
+            if concept in joined:
+                return document_type
+        elif any(token.startswith(concept) for token in lowered):
+            return document_type
+    return None

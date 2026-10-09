@@ -62,10 +62,19 @@ def write_audit_row(
     warnings: list[AskWarning] | None = None,
     assist: Assist | None = None,
     pending: pending_documents.PendingOutcome | None = None,
+    previous_question: str | None = None,
 ) -> UUID | None:
     """SPEC_06 §1. `cost_estimate` stays `NULL` in V0 — no invented per-model pricing
     (Phase 3.2 SORU 2). Returns the new row's id (`AskResponse.audit_log_id`), or `None`
     when the write failed — the answer is still returned."""
+    assist_payload = pending_documents.audit_json(assist_json(assist), pending)
+    if previous_question:
+        # Ç-2 (ADR-030, Naci SORU 5: no new column): the client-supplied context the prompt
+        # saw, next to what the user was shown.
+        assist_payload = {
+            **(assist_payload or {}),
+            "context": {"previous_question": previous_question},
+        }
     try:
         row = audit_log_repo.create(
             session,
@@ -88,7 +97,7 @@ def write_audit_row(
             excel_files_used=sorted({card.file for card in excel_sources}),
             product_level=product_level,
             warnings=[w.model_dump(mode="json") for w in warnings or []],
-            assist=pending_documents.audit_json(assist_json(assist), pending),
+            assist=assist_payload,
         )
     except Exception:
         log.exception("audit log write failed")

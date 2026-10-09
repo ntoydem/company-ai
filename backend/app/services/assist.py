@@ -34,8 +34,17 @@ from app.models.document import Document
 from app.models.project import Project
 from app.repositories import document_repo
 from app.repositories.document_chunk_repo import RetrievedChunk, search_fts
-from app.schemas.ask import AssistAvailableDocument, AssistBlock
-from app.services.search_glossary import GLOSSARY, concept_matches, expand_terms, metadata_terms
+from app.schemas.ask import AssistAvailableDocument, AssistAvailableGroup, AssistBlock
+from app.services import tr_format
+from app.services.answer_prompt import NO_DATA_VERDICT
+from app.services.search_glossary import (
+    GLOSSARY,
+    concept_matches,
+    expand_terms,
+    metadata_terms,
+    typical_document_type,
+    understood_terms,
+)
 from app.services.search_query import question_terms, turkish_lower
 
 log = logging.getLogger(__name__)
@@ -43,6 +52,13 @@ log = logging.getLogger(__name__)
 AssistKind = Literal["none", "clarify", "term_mismatch"]
 
 MAX_AVAILABLE = 5
+# ADR-030 (Ek-F F-3, EK_F_MODE): the list grows to 7 and keeps ≥ 3 places for documents that
+# only *metadata* (title/type/concept) vouches for — chunk-vouched pages filled all 5 places
+# before and pushed "Ankara RES ÇED Olumlu Kararı" out (ADIM1 DSC-007).
+MAX_AVAILABLE_EKF = 7
+CHUNK_QUOTA_EKF = 4
+COMPANY_GROUP_NAME = "Şirket geneli"
+MAX_UNDERSTOOD_TERMS = 2
 MAX_CANDIDATE_TERMS = 5
 MAX_QUESTION_CHARS = 200
 # Shorter tokens ("RES", "kaç") are too common to say anything about a mismatch.
@@ -169,12 +185,25 @@ class AvailableDocument:
 
 
 @dataclass(frozen=True)
+class AvailableGroup:
+    """F-3: one project's slice of `available` (Ü-3: projects are never mixed in one list)."""
+
+    project_code: str | None
+    project_name: str
+    documents: tuple[AvailableDocument, ...]
+
+
+@dataclass(frozen=True)
 class Assist:
     kind: AssistKind = "none"
     question: str | None = None
     unmatched_terms: tuple[str, ...] = ()
     candidate_terms: tuple[str, ...] = ()
     available: tuple[AvailableDocument, ...] = ()
+    # ADR-030: `available` grouped by project (EK_F_MODE only, else empty) and how many
+    # further candidates were not listed — counted by code, never by the model (SORU 4).
+    groups: tuple[AvailableGroup, ...] = ()
+    more_count: int = 0
     # Why a model-written question was dropped (logged, never shown) — None when kept.
     dropped_reason: str | None = field(default=None, compare=False)
 
@@ -330,10 +359,17 @@ def candidate_terms(session: Session, allowed: set[UUID], unmatched: list[str]) 
 
 
 def available_from_metadata(
-    session: Session, allowed: set[UUID], terms: list[str]
+    session: Session,
+    allowed: set[UUID],
+    terms: list[str],
+    *,
+    limit: int = MAX_AVAILABLE,
+    common_threshold: int = MAX_AVAILABLE,
 ) -> list[AvailableDocument]:
     """Allowed documents whose title/type/counterparty/tags/extra fields contain a question
-    term (B-14's `search_metadata`, same gate). Deduplicated, title order, ≤ MAX_AVAILABLE."""
+    term (B-14's `search_metadata`, same gate). Deduplicated, ≤ `limit`; a term found in more
+    than `common_threshold` documents points nowhere and is skipped. Order: documents whose
+    *title* carries a question term first (ADR-030), then title."""
     if not allowed:
         return []
     by_id: dict[UUID, Document] = {}
@@ -343,12 +379,18 @@ def available_from_metadata(
     probes = [t for t in terms if _metadata_probe_ok(t)]
     probes += [t for t in metadata_terms([turkish_lower(t) for t in terms]) if t not in probes]
     for term in probes:
-        hits = document_repo.search_metadata(session, allowed, term, limit=MAX_AVAILABLE + 1)
-        if len(hits) > MAX_AVAILABLE:
+        hits = document_repo.search_metadata(session, allowed, term, limit=common_threshold + 1)
+        if len(hits) > common_threshold:
             continue  # too common to point anywhere (e.g. a project code carried by every tag)
         for document in hits:
             by_id.setdefault(document.id, document)
-    ordered = sorted(by_id.values(), key=lambda d: (d.title, d.id))[:MAX_AVAILABLE]
+    lowered_probes = [turkish_lower(t) for t in probes]
+
+    def title_hit(document: Document) -> int:
+        title = turkish_lower(document.title)
+        return 0 if any(p in title for p in lowered_probes) else 1
+
+    ordered = sorted(by_id.values(), key=lambda d: (title_hit(d), d.title, d.id))[:limit]
     return [_available_card(document, None) for document in ordered]
 
 
@@ -365,7 +407,7 @@ def is_existence_question(text: str) -> bool:
 
 
 def available_from_chunks(
-    documents: dict[UUID, Document], chunks: list[RetrievedChunk]
+    documents: dict[UUID, Document], chunks: list[RetrievedChunk], *, limit: int = MAX_AVAILABLE
 ) -> list[AvailableDocument]:
     """ "Elimde şunlar var": the retrieved (hence allowed) documents, best page each, by
     retrieval rank, ≤ MAX_AVAILABLE — Ç-7.1 step 3, built from `retrieved_document_ids`
@@ -377,7 +419,7 @@ def available_from_chunks(
             best[chunk.document_id] = chunk
     ranked = sorted(best.values(), key=lambda c: (-c.rank, c.document_id))
     out: list[AvailableDocument] = []
-    for chunk in ranked[:MAX_AVAILABLE]:
+    for chunk in ranked[:limit]:
         document = documents.get(chunk.document_id)
         if document is not None:
             out.append(_available_card(document, chunk.page_number))
@@ -440,13 +482,23 @@ def _kind_for(mismatched: list[str]) -> AssistKind:
     return "term_mismatch" if mismatched else "clarify"
 
 
-def build_zero_chunk_assist(session: Session, allowed: set[UUID], question: str) -> Assist:
+def build_zero_chunk_assist(
+    session: Session, allowed: set[UUID], question: str, *, ek_f: bool = False
+) -> Assist:
     """Nothing retrieved: no LLM (ADR-021). Everything here is a lookup inside `allowed`."""
     terms = question_terms(question)
     unmatched = unmatched_terms(session, allowed, terms)
     mismatched = mismatch_terms(unmatched, terms, excluded=project_words(session))
     candidates = candidate_terms(session, allowed, unmatched)
-    available = available_from_metadata(session, allowed, terms)
+    more = 0
+    if ek_f:
+        candidates_all = available_from_metadata(
+            session, allowed, terms, limit=50, common_threshold=MAX_AVAILABLE_EKF
+        )
+        available = candidates_all[:MAX_AVAILABLE_EKF]
+        more = len(candidates_all) - len(available)
+    else:
+        available = available_from_metadata(session, allowed, terms)
     kind = _kind_for(mismatched)
     text = term_mismatch_template(mismatched) if kind == "term_mismatch" else CLARIFY_TEMPLATE
     return Assist(
@@ -455,6 +507,8 @@ def build_zero_chunk_assist(session: Session, allowed: set[UUID], question: str)
         unmatched_terms=tuple(mismatched),
         candidate_terms=tuple(candidates),
         available=tuple(available),
+        groups=tuple(group_available(session, available, question)) if ek_f else (),
+        more_count=more,
     )
 
 
@@ -466,10 +520,13 @@ def build_insufficient_assist(
     documents: dict[UUID, Document],
     chunks: list[RetrievedChunk],
     model_question: str | None,
+    ek_f: bool = False,
 ) -> Assist:
     """Chunks reached the prompt, the model still declined: list what was retrieved (code),
     detect unmatched terms (code), keep the model's one question only if it passes
-    `validate_question`; otherwise fall back to the fixed template."""
+    `validate_question`; otherwise fall back to the fixed template. With `ek_f` (ADR-030)
+    the list is ≤ 7 with a quota: chunk-vouched documents take at most 4 places, metadata /
+    concept matches get the rest (and spill back when there are fewer than 3)."""
     terms = question_terms(question)
     unmatched = unmatched_terms(session, allowed, terms)
     mismatched = mismatch_terms(unmatched, terms, excluded=project_words(session))
@@ -479,17 +536,22 @@ def build_insufficient_assist(
     # that would suggest the corpus knows the subject when it does not.
     specific = specific_matched_terms(session, allowed, terms, unmatched)
     vouched: set[UUID] = set().union(*specific.values()) if specific else set()
-    available = available_from_chunks(documents, [c for c in chunks if c.document_id in vouched])
-    # Adım 2 D1/D5: documents that have no chunks (workbooks) or that only a *concept* of the
-    # question names never reach the prompt, so the chunk list misses them; add the metadata
-    # matches (same gate) — always for an existence question, otherwise only when the chunk
-    # list is empty. Chunk-vouched documents stay first.
-    if is_existence_question(question) or not available:
-        seen = {card.document_id for card in available}
-        for card in available_from_metadata(session, allowed, terms):
-            if card.document_id not in seen and len(available) < MAX_AVAILABLE:
-                available.append(card)
-                seen.add(card.document_id)
+    vouched_chunks = [c for c in chunks if c.document_id in vouched]
+    more = 0
+    if ek_f:
+        available, more = _quota_list(session, allowed, terms, documents, vouched_chunks)
+    else:
+        available = available_from_chunks(documents, vouched_chunks)
+        # Adım 2 D1/D5: documents that have no chunks (workbooks) or that only a *concept* of
+        # the question names never reach the prompt, so the chunk list misses them; add the
+        # metadata matches (same gate) — always for an existence question, otherwise only
+        # when the chunk list is empty. Chunk-vouched documents stay first.
+        if is_existence_question(question) or not available:
+            seen = {card.document_id for card in available}
+            for card in available_from_metadata(session, allowed, terms):
+                if card.document_id not in seen and len(available) < MAX_AVAILABLE:
+                    available.append(card)
+                    seen.add(card.document_id)
     kind = _kind_for(mismatched)
     kept: str | None = None
     reason: str | None = None
@@ -510,8 +572,124 @@ def build_insufficient_assist(
         unmatched_terms=tuple(mismatched),
         candidate_terms=tuple(candidates),
         available=tuple(available),
+        groups=tuple(group_available(session, available, question)) if ek_f else (),
+        more_count=more,
         dropped_reason=reason,
     )
+
+
+def _quota_list(
+    session: Session,
+    allowed: set[UUID],
+    terms: list[str],
+    documents: dict[UUID, Document],
+    vouched_chunks: list[RetrievedChunk],
+) -> tuple[list[AvailableDocument], int]:
+    """ADR-030 F-3 quota. Returns (listed, how many more candidates exist)."""
+    chunk_cards = available_from_chunks(documents, vouched_chunks, limit=50)
+    chunk_ids = {c.document_id for c in chunk_cards}
+    meta_cards = [
+        c
+        for c in available_from_metadata(
+            session, allowed, terms, limit=50, common_threshold=MAX_AVAILABLE_EKF
+        )
+        if c.document_id not in chunk_ids
+    ]
+    meta_places = MAX_AVAILABLE_EKF - min(len(chunk_cards), CHUNK_QUOTA_EKF)
+    shown_meta = meta_cards[:meta_places]
+    shown_chunks = chunk_cards[: MAX_AVAILABLE_EKF - len(shown_meta)]
+    listed = shown_chunks + shown_meta
+    return listed, len(chunk_cards) + len(meta_cards) - len(listed)
+
+
+# ---------------------------------------------------------------- Ek-F (ADR-030) rendering
+
+
+def group_available(
+    session: Session, available: list[AvailableDocument], question: str
+) -> list[AvailableGroup]:
+    """F-3: `available` by project. A project named in the question comes first, then by
+    document count; company-level documents (no project) form the last group. Projects are
+    read from the `projects` table; a code without a row keeps its code as name."""
+    if not available:
+        return []
+    names = {p.code: p.name for p in session.scalars(select(Project)).all()}
+    lowered_question = turkish_lower(question)
+    by_code: dict[str | None, list[AvailableDocument]] = {}
+    for card in available:
+        by_code.setdefault(card.project_code, []).append(card)
+
+    def named(code: str | None) -> int:
+        if code is None:
+            return 1
+        words = [
+            w for w in re.split(r"[^\w]+", turkish_lower(names.get(code, code))) if len(w) >= 3
+        ]
+        return 0 if any(w in lowered_question for w in words) else 1
+
+    ordered = sorted(
+        by_code.items(),
+        key=lambda item: (named(item[0]), item[0] is None, -len(item[1]), str(item[0])),
+    )
+    return [
+        AvailableGroup(
+            project_code=code,
+            project_name=names.get(code, code) if code is not None else COMPANY_GROUP_NAME,
+            documents=tuple(sorted(cards, key=lambda c: (c.document_date, c.title), reverse=True)),
+        )
+        for code, cards in ordered
+    ]
+
+
+def render_no_data(assist: Assist, question: str) -> str:
+    """F-5 (Ek-F): the text the user reads instead of NO_ANSWER_TEXT + assist block. Every
+    line is code: the Ç-3 "anladım" sentence (glossary label), the fixed verdict, the F-3
+    grouped list with document dates, "… ve N belge daha" (N counted here, SORU 4), the
+    upload sentence only when nothing is listed and the typical document type is known, and
+    the clarifying question as the last line (F-5: the answer always ends with a question or
+    a choice)."""
+    lowered = [turkish_lower(t) for t in question_terms(question)]
+    lines: list[str] = []
+    understood = understood_terms(lowered)[:MAX_UNDERSTOOD_TERMS]
+    if understood:
+        lines.append(
+            " ".join(f"«{term}» ifadesini {label} olarak anladım." for term, label in understood)
+        )
+    lines.append(NO_DATA_VERDICT)
+    if assist.available:
+        lines.append("Elimde konuyla ilgili şunlar var:")
+        for group in assist.groups or group_available_fallback(assist.available):
+            items = "; ".join(
+                f"{d.title} ({tr_format.format_date(d.document_date)})" for d in group.documents
+            )
+            lines.append(f"{group.project_name}: {items}")
+        if assist.more_count > 0:
+            lines.append(f"… ve {assist.more_count} belge daha.")
+        lines.append("İsterseniz açayım.")
+    else:
+        lines.append("Elimde konuyla ilgili bir kayıt bulunmuyor.")
+        typical = typical_document_type(lowered)
+        if typical:
+            lines.append(
+                f"Aradığınız bilgi genellikle {typical} içinde olur; yüklenirse cevaplayabilirim."
+            )
+    lines.append(assist.question or CLARIFY_TEMPLATE)
+    return "\n".join(lines)
+
+
+def group_available_fallback(available: tuple[AvailableDocument, ...]) -> list[AvailableGroup]:
+    """Grouping without a session (codes as names) — only when `groups` was not built."""
+    by_code: dict[str | None, list[AvailableDocument]] = {}
+    for card in available:
+        by_code.setdefault(card.project_code, []).append(card)
+    return [
+        AvailableGroup(
+            project_code=code,
+            project_name=code if code is not None else COMPANY_GROUP_NAME,
+            documents=tuple(cards),
+        )
+        for code, cards in sorted(by_code.items(), key=lambda i: (i[0] is None, str(i[0])))
+    ]
 
 
 # ---------------------------------------------------------------- wire / audit shapes
@@ -536,6 +714,24 @@ def assist_block(assist: Assist | None) -> AssistBlock | None:
                 page_number=a.page_number,
             )
             for a in assist.available
+        ],
+        groups=[
+            AssistAvailableGroup(
+                project_code=g.project_code,
+                project_name=g.project_name,
+                documents=[
+                    AssistAvailableDocument(
+                        document_id=a.document_id,
+                        title=a.title,
+                        document_type=a.document_type,
+                        document_date=a.document_date,
+                        project_code=a.project_code,
+                        page_number=a.page_number,
+                    )
+                    for a in g.documents
+                ],
+            )
+            for g in assist.groups
         ],
     )
 

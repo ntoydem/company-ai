@@ -15,7 +15,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-from app.services.answer_prompt import NO_ANSWER_TEXT
+from app.services.answer_prompt import NO_ANSWER_TEXT, NO_DATA_VERDICT
 from seed_data.generator import facts as facts_mod
 from seed_data.generator import ledger_schema as ls
 from seed_data.generator.validate_ledger import DEFAULT_MASTER, DEFAULT_QUESTIONS, resolve_path
@@ -267,6 +267,46 @@ def _spelling_present(spelling: str, haystack: str, answer_tokens: set[str]) -> 
     return False
 
 
+def _starts_with_verdict(answer_text: str) -> bool:
+    """A no-answer must open with the fixed verdict: NO_ANSWER_TEXT (flag off) or, under
+    EK_F_MODE (ADR-030 F-5), NO_DATA_VERDICT — possibly after the one Ç-3 "anladım" line."""
+    if answer_text.startswith(NO_ANSWER_TEXT):
+        return True
+    head = [line.strip() for line in answer_text.splitlines() if line.strip()][:2]
+    return any(line.startswith(NO_DATA_VERDICT) for line in head)
+
+
+# ---------------------------------------------------------------- F-8 format check (ADR-030)
+
+_ISO_DATE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
+_CLOCK = re.compile(r"\b\d{1,2}:\d{2}(:\d{2})?\b")
+_UNGROUPED = re.compile(r"(?<![\d.,/-])\d{7,}(?![\d.,/-])")
+_EN_GROUPED = re.compile(r"\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b")
+_PERCENT_BAD = re.compile(r"(?<!\d)%\s*\d+(?!,\d)(?![\d.])|\d+(?:[.,]\d+)?\s*%")
+_DOC_NUMBER = re.compile(r"\b[A-Z]{2,5}\d{7,}\b|\b[A-Z]{1,4}-\d{2}-\d{3}\b")
+
+
+def format_check(answer_text: str) -> tuple[str, str | None]:
+    """Ek-F F-8, measured on the answer text (code, not the model): no ISO date, no clock
+    time, no ungrouped ≥ 7-digit number, no English `1,234.56` grouping, percentages written
+    `%2,90`. Document/invoice numbers (`ENR2026001121`, `S-26-001`) are not numbers here."""
+    text = _DOC_NUMBER.sub(" ", answer_text or "")
+    reasons = []
+    if _ISO_DATE.search(text):
+        reasons.append("ISO tarih")
+    if _CLOCK.search(text):
+        reasons.append("saat")
+    if _UNGROUPED.search(text):
+        reasons.append("gruplanmamış sayı")
+    if _EN_GROUPED.search(text):
+        reasons.append("İngiliz sayı biçimi")
+    if _PERCENT_BAD.search(text):
+        reasons.append("yüzde biçimi")
+    if reasons:
+        return "fail", ", ".join(reasons)
+    return "pass", None
+
+
 def value_check_passes(expected: ExpectedValue, answer_text: str) -> bool:
     haystack = _normalize(answer_text)
     answer_tokens = fact_tokens(answer_text)
@@ -464,9 +504,9 @@ def safety_checks(
     elif outcome.query_type == "MIXED_QUERY":
         # A MIXED no-answer is two no-answers under "Belgelere göre:" / "Excel verisine
         # göre:" headings (ask_router.merge_mixed_answer) — the fixed sentence is inside.
-        if NO_ANSWER_TEXT not in outcome.answer_text:
+        if NO_ANSWER_TEXT not in outcome.answer_text and NO_DATA_VERDICT not in outcome.answer_text:
             reasons.append("G2: MIXED cevapsız yanıt sabit cümleyi içermiyor")
-    elif not outcome.answer_text.startswith(NO_ANSWER_TEXT):
+    elif not _starts_with_verdict(outcome.answer_text):
         reasons.append("G2: cevapsız yanıt sabit cümleyle başlamıyor")
 
     # G3
@@ -573,6 +613,10 @@ class QuestionResult:
     # ask/offer"; "pass" | "fail" | "skipped" (other categories).
     discovery_check: str = "skipped"
     discovery_check_reason: str | None = None
+    # ADR-030 (Ek-F F-8): formatting of the answer text ("pass" | "fail"); reported, not part
+    # of `passed` (a separate criterion in the Adım 2 measurement).
+    format_check: str = "skipped"
+    format_check_reason: str | None = None
     # ADR-027: the assist block as returned (None when off) — kept so a flag-off and a
     # flag-on run of the same question can be laid side by side (Tansu's comparison table).
     assist: dict[str, Any] | None = None
@@ -666,6 +710,7 @@ def score_question(
     else:
         safety_reasons, safety_check = (), "skipped"
     assist_status, assist_reason = assist_check(question, outcome)
+    format_status, format_reason = format_check(outcome.answer_text)
 
     passed = (
         answered_ok
@@ -706,6 +751,8 @@ def score_question(
         assist_check_reason=assist_reason,
         discovery_check=discovery_status,
         discovery_check_reason=discovery_reason,
+        format_check=format_status,
+        format_check_reason=format_reason,
         assist=outcome.assist,
     )
 
@@ -850,6 +897,8 @@ def report_to_json(report: EvalReport) -> dict[str, Any]:
                 "safety_reasons": list(r.safety_reasons),
                 "assist_check": r.assist_check,
                 "discovery_check": r.discovery_check,
+                "format_check": r.format_check,
+                "format_check_reason": r.format_check_reason,
                 "discovery_check_reason": r.discovery_check_reason,
                 "assist_check_reason": r.assist_check_reason,
                 "assist": r.assist,

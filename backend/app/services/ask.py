@@ -24,6 +24,7 @@ from app.services.assist import (
     Assist,
     build_insufficient_assist,
     build_zero_chunk_assist,
+    render_no_data,
     split_question_line,
 )
 from app.services.audit_writer import write_audit_row
@@ -32,6 +33,7 @@ from app.services.llm import LLMClient, LLMError, LLMRequest
 from app.services.retrieval import retrieve
 from app.services.search_query import build_search_query
 from app.services.temporal import today as temporal_today
+from app.services.tr_format import polish_answer
 from app.services.version_chain import evaluate_version_chains
 
 log = logging.getLogger(__name__)
@@ -114,6 +116,7 @@ def _write_audit_log(
     execution_ms: int,
     error: str | None,
     assist: Assist | None = None,
+    previous_question: str | None = None,
 ) -> None:
     """SPEC_06 §1: one row per `/api/ask` call, success or failure."""
     write_audit_row(
@@ -134,6 +137,7 @@ def _write_audit_log(
         execution_ms=execution_ms,
         error=error,
         assist=assist,
+        previous_question=previous_question,
     )
 
 
@@ -156,13 +160,17 @@ def answer_question(
 
     if not chunks:
         result = _no_answer()
-        if settings.assist_mode_enabled:
+        if settings.assist_computations:
             # ADR-027/ADR-021: still no LLM here — every lookup stays inside `allowed`.
             scope = AuthorizationScope(department=request.department)
             allowed = allowed_document_ids(user, scope, SqlDocumentIdsProvider(session))
-            result = replace(
-                result, assist=build_zero_chunk_assist(session, allowed, request.question)
+            zero_assist = build_zero_chunk_assist(
+                session, allowed, request.question, ek_f=settings.ek_f_enabled
             )
+            result = replace(result, assist=zero_assist)
+            if settings.ek_f_enabled:
+                # ADR-030 F-5: the pattern replaces the fixed sentence for the user.
+                result = replace(result, answer=render_no_data(zero_assist, request.question))
     else:
         scope = AuthorizationScope(department=request.department)
         allowed = allowed_document_ids(user, scope, SqlDocumentIdsProvider(session))
@@ -172,11 +180,16 @@ def answer_question(
         chain = evaluate_version_chains(documents, now)
         sources = answer_prompt.order_sources(chunks, by_id, chain)
 
-        user_prompt = answer_prompt.build_user_prompt(request.question, sources, now)
+        user_prompt = answer_prompt.build_user_prompt(
+            request.question,
+            sources,
+            now,
+            previous_question=request.previous_question if settings.ek_f_enabled else None,
+        )
         try:
             response = llm.complete(
                 LLMRequest(
-                    system=answer_prompt.system_prompt(settings.assist_mode_enabled),
+                    system=answer_prompt.system_prompt(settings.assist_computations),
                     user=user_prompt,
                     model=settings.llm_model_answer,
                     max_output_tokens=settings.llm_max_output_tokens,
@@ -204,7 +217,7 @@ def answer_question(
         # is still canonicalised exactly as before (ADR-014).
         answer_text, model_question = (
             split_question_line(response.text)
-            if settings.assist_mode_enabled
+            if settings.assist_computations
             else (response.text, None)
         )
         if answer_prompt.is_no_answer(answer_text):
@@ -216,12 +229,18 @@ def answer_question(
                     documents=by_id,
                     chunks=chunks,
                     model_question=model_question,
+                    ek_f=settings.ek_f_enabled,
                 )
-                if settings.assist_mode_enabled
+                if settings.assist_computations
                 else None
             )
+            shown = (
+                render_no_data(assist, request.question)
+                if settings.ek_f_enabled and assist is not None
+                else answer_prompt.NO_ANSWER_TEXT
+            )
             result = AskResult(
-                answer=answer_prompt.NO_ANSWER_TEXT,
+                answer=shown,
                 answered=False,
                 retrieved_document_ids=retrieved_ids,
                 model=response.model,
@@ -241,6 +260,10 @@ def answer_question(
                 log.warning("unknown citation labels", extra={"labels": unknown})
             if not cards:
                 log.warning("answer without citations")
+            if settings.ek_f_enabled:
+                # ADR-030 F-8 gate: dates and English number spellings only (SORU 8);
+                # citation labels were already read from the model's text above.
+                answer_text = polish_answer(answer_text)
             result = AskResult(
                 answer=answer_text.strip(),
                 answered=True,
@@ -281,5 +304,6 @@ def answer_question(
             execution_ms=round((time.perf_counter() - started) * 1000),
             error=None,
             assist=result.assist,
+            previous_question=request.previous_question if settings.ek_f_enabled else None,
         )
     return result

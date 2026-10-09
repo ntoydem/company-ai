@@ -23,6 +23,9 @@ NO_ANSWER_TEXT = (
     "yeterli bilgi bulamadım."
 )
 NO_REASON_TEXT = "belgelerde sebep belirtilmemiş"
+# ADR-030 (Ek-F F-5, EK_F_MODE): the verdict sentence the user sees in place of
+# NO_ANSWER_TEXT; the model still writes NO_ANSWER_TEXT (rule 2) — code replaces it.
+NO_DATA_VERDICT = "Bu konuda kesin bilgi bulamadım."
 # Ü-3 (Balbal Anayasası v2.0, 01.10.2026): cross-project comparison is never produced; the
 # values are still given, each with its own source, after this fixed sentence.
 COMPARISON_NOTICE = (
@@ -101,7 +104,13 @@ _RULE_11_ASSIST = (
     "isim kullanma. Bu bir öneri ya da tahmin değildir; yalnızca kullanıcının neyi "
     "sorduğunu anlamaya yarar."
 )
-_RULES_ASSIST = [*_RULES[:7], _RULE_8_ASSIST, *_RULES[8:], _RULE_11_ASSIST]
+# ADR-030 (Ek-F F-2, 09.10.2026): no filler — one sentence appended to rule 7 in the assist
+# prompt only (`SYSTEM_PROMPT` stays byte-identical; ANSWER_SYSTEM_PROMPT.md keeps that one).
+_RULE_7_EKF = (
+    _RULES[6] + ' Selamlama, "memnuniyetle", "harika soru" gibi dolgu ifadeleri, ünlem '
+    "ve emoji kullanma; doğrudan konuya gir."
+)
+_RULES_ASSIST = [*_RULES[:6], _RULE_7_EKF, _RULE_8_ASSIST, *_RULES[8:], _RULE_11_ASSIST]
 SYSTEM_PROMPT_ASSIST = _PREAMBLE + "\n".join(_RULES_ASSIST)
 
 
@@ -206,9 +215,19 @@ def format_source(source: PromptSource, today: date) -> str:
     return "\n".join(lines)
 
 
-def build_user_prompt(question: str, sources: list[PromptSource], today: date) -> str:
+def build_user_prompt(
+    question: str,
+    sources: list[PromptSource],
+    today: date,
+    *,
+    previous_question: str | None = None,
+) -> str:
     blocks = "\n\n".join(format_source(source, today) for source in sources)
-    return f"BUGÜN: {_fmt(today)}\n\nSORU: {question.strip()}\n\nKAYNAKLAR:\n{blocks}"
+    context = ""
+    if previous_question and previous_question.strip():
+        # Ç-2 (ADR-030): context only — the question being answered is still SORU.
+        context = f"ÖNCEKİ SORU (yalnızca bağlam, cevaplanmaz): {previous_question.strip()}\n\n"
+    return f"BUGÜN: {_fmt(today)}\n\n{context}SORU: {question.strip()}\n\nKAYNAKLAR:\n{blocks}"
 
 
 _BRACKET = re.compile(r"\[([^\]]*)\]")

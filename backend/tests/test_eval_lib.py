@@ -829,3 +829,31 @@ def test_discovery_check_requires_a_shown_document_and_an_answer_or_question() -
     assert discovery_check(question, answered, catalog) == ("pass", None)
     other = _question(category="document", expect_no_answer=False)
     assert discovery_check(other, answered, catalog) == ("skipped", None)
+
+
+# --- ADR-030 (Ek-F): the new verdict sentence and the F-8 format check ---
+
+
+def test_g2_accepts_the_ek_f_verdict_after_the_understood_line() -> None:
+    from app.services.answer_prompt import NO_ANSWER_TEXT, NO_DATA_VERDICT
+    from scripts.eval_lib import _starts_with_verdict
+
+    assert _starts_with_verdict(NO_ANSWER_TEXT)
+    assert _starts_with_verdict(NO_DATA_VERDICT + "\nElimde konuyla ilgili şunlar var:\nA")
+    assert _starts_with_verdict("«amendment» ifadesini tadil olarak anladım.\n" + NO_DATA_VERDICT)
+    assert not _starts_with_verdict("Elimde şunlar var:\nA\n" + NO_DATA_VERDICT)
+    assert not _starts_with_verdict("Belgelerde bir şey yok.")
+
+
+def test_format_check_flags_raw_spellings_and_passes_turkish_ones() -> None:
+    from scripts.eval_lib import format_check
+
+    assert format_check("Capex 72000000 EUR, kapanış 2021-11-15 00:00:00") == (
+        "fail",
+        "ISO tarih, saat, gruplanmamış sayı",
+    )
+    assert format_check("oran 38.2% ve 1,000,000 USD")[0] == "fail"
+    assert format_check("72.000.000 EUR, 15.11.2021, %2,90, 1,20x, %38,2 [K1]") == ("pass", None)
+    # document and invoice numbers are identifiers, not numbers
+    assert format_check("Fatura ENR2026001121, sözleşme S-26-001, 44.100.000 EUR") == ("pass", None)
+    assert format_check("") == ("pass", None)

@@ -47,7 +47,7 @@ from app.schemas.ask import (
 )
 from app.schemas.excel import NO_INTERPRETATION_NOTICE as EXCEL_NOTICE
 from app.schemas.excel import ExcelAskRequest, ExcelSourceCard
-from app.services import pending_documents
+from app.services import pending_documents, tr_format
 from app.services.ask import answer_question
 from app.services.assist import Assist
 from app.services.audit_writer import write_audit_row
@@ -98,7 +98,19 @@ class RoutedAnswer:
     pending: pending_documents.PendingOutcome = pending_documents.NO_PENDING
 
 
-def merge_mixed_answer(document_answer: str, data_answer: str) -> str:
+def merge_mixed_answer(
+    document_answer: str,
+    data_answer: str,
+    *,
+    document_answered: bool = True,
+    data_answered: bool = True,
+    ek_f: bool = False,
+) -> str:
+    """Two parts under their headings — except under EK_F_MODE (ADR-030, Naci SORU 3) when
+    only the Excel part answered: the document part's "Veri Yok" is then noise and is not
+    shown (ADIM1 DSC-011: a double heading around one real answer)."""
+    if ek_f and data_answered and not document_answered:
+        return data_answer.strip()
     return (
         f"{DOCUMENT_PART_HEADING}\n{document_answer.strip()}\n\n"
         f"{DATA_PART_HEADING}\n{data_answer.strip()}"
@@ -143,7 +155,11 @@ def _run(
         doc = answer_question(
             session,
             user,
-            AskRequest(question=routed.document_question, department=request.department),
+            AskRequest(
+                question=routed.document_question,
+                department=request.department,
+                previous_question=request.previous_question,
+            ),
             llm,
             settings,
             write_audit=False,
@@ -172,7 +188,13 @@ def _run(
         data = None
 
     if doc is not None and data is not None:
-        answer = merge_mixed_answer(doc.answer, data.answer)
+        answer = merge_mixed_answer(
+            doc.answer,
+            data.answer,
+            document_answered=doc.answered,
+            data_answered=data.answered,
+            ek_f=settings.ek_f_enabled,
+        )
         answered = doc.answered or data.answered
     elif doc is not None:
         answer, answered = doc.answer, doc.answered
@@ -185,7 +207,7 @@ def _run(
     retrieved = list(doc.retrieved_document_ids) if doc else []
     retrieved += [i for i in excel_document_ids(excel_sources) if i not in retrieved]
     pending = pending_documents.NO_PENDING
-    if settings.assist_mode_enabled and doc is not None:
+    if settings.assist_computations and doc is not None:
         # Not 7 §3, after the answer and without the LLM: did a document the user can
         # already see in their list, but Balbal cannot read yet, match the question?
         pending = pending_documents.evaluate(
@@ -214,6 +236,9 @@ def _run(
             ]
     else:
         no_answer = []
+    if settings.ek_f_enabled:
+        # F-8 gate (ADR-030): dates and English number spellings only — both parts.
+        answer = tr_format.polish_answer(answer)
     return RoutedAnswer(
         query_type=query_type,
         answer=answer,
@@ -317,6 +342,7 @@ def answer_routed_question(
         warnings=result.warnings,
         assist=result.assist,
         pending=result.pending,
+        previous_question=request.previous_question if settings.ek_f_enabled else None,
     )
     return RoutedAnswer(
         query_type=result.query_type,

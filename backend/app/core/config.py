@@ -63,6 +63,21 @@ class Settings(BaseSettings):
     assist_mode_enabled: bool = Field(
         default=False, validation_alias=AliasChoices("ASSIST_MODE", "ASSIST_MODE_ENABLED")
     )
+    # ADR-030 (Ek-F, Adım 2, 09.10.2026): the Ek-F rendering layer — F-5 "Veri Yok" pattern
+    # built by code in place of the fixed sentence + assist block, F-3 project-grouped list
+    # (≤ 7, metadata quota), F-8 formatting by code (Excel cells, dates), F-2 rule, Ç-2
+    # `previous_question`. Off = today's behaviour, byte-identical. Turning it on also turns
+    # on the ADR-027 assist *computations* (`assist_computations`), the list F-5 needs.
+    # Rollback: EK_F_MODE=false + `make restart-backend`.
+    ek_f_enabled: bool = Field(
+        default=False, validation_alias=AliasChoices("EK_F_MODE", "EK_F_ENABLED")
+    )
+
+    @property
+    def assist_computations(self) -> bool:
+        """ADR-027 lookups (available documents, unmatched terms, the model's one question)
+        run when either presentation needs them: the assist block or the Ek-F pattern."""
+        return self.assist_mode_enabled or self.ek_f_enabled
 
     # Phase 3.4
     embeddings_enabled: bool = False
