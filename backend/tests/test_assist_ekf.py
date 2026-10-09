@@ -183,13 +183,17 @@ def test_zero_chunks_render_the_pattern_without_any_llm_call(
     assert groups[0]["documents"][0]["document_id"] == str(wb.id)
 
 
-def test_insufficient_lists_project_groups_named_project_first(
+def test_insufficient_named_project_question_excludes_the_other_project_entirely(
     client: TestClient,
     db_session: Session,
     admin_user: User,
     fake_llm: FakeLLMClient,
     ek_f_on: None,
 ) -> None:
+    """Was `..._named_project_first` (both projects shown, named one first) until the
+    09.10.2026 fix: this is the exact GEN-HAL-001 shape (a project-named question whose
+    retrieval also touches the other project's documents) — now the other project's match
+    is not a candidate at all, never merely ordered second (Ü-3)."""
     projects = _projects(db_session)
     ankara = _document(
         db_session, title="Ankara ÇED Kararı", department=None, text="ÇED olumlu kararı"
@@ -205,9 +209,11 @@ def test_insufficient_lists_project_groups_named_project_first(
 
     assert body["answered"] is False
     groups = body["assist"]["groups"]
-    assert [g["project_name"] for g in groups] == ["İzmir RES", "Ankara RES"]  # named first
+    assert [g["project_name"] for g in groups] == ["İzmir RES"]
     text = body["answer"]
-    assert text.index("İzmir RES:") < text.index("Ankara RES:")
+    assert "İzmir RES:" in text and "Ankara RES:" not in text and ankara.title not in text
+    assert str(ankara.id) not in {a["document_id"] for a in body["assist"]["available"]}
+    assert str(izmir.id) in {a["document_id"] for a in body["assist"]["available"]}
     assert NO_DATA_VERDICT in text and NO_ANSWER_TEXT not in text
 
 
@@ -330,3 +336,108 @@ def test_mixed_merge_hides_the_empty_document_part_only_under_the_flag() -> None
     assert both.startswith("Belgelere göre:") and "Excel verisine göre:" in both
     # both answered → two parts even under the flag
     assert "Belgelere göre:" in merge_mixed_answer("A [K1].", data, ek_f=True)
+
+
+# --- ADR-030 fix (09.10.2026, GEN-HAL-001): a project-named question narrows the list ---
+
+
+def test_named_project_codes_matches_only_the_project_the_question_names(
+    db_session: Session,
+) -> None:
+    from app.services.assist import named_project_codes
+
+    projects = _projects(db_session)
+    assert named_project_codes(db_session, "İzmir RES'in COD tarihi nedir?") == {"IZM_RES"}
+    assert named_project_codes(db_session, "Ankara RES'in kapasitesi nedir?") == {"ANK_RES"}
+    assert named_project_codes(db_session, "ÇED raporu nerede?") == set()
+    both = named_project_codes(db_session, "Ankara RES ile İzmir RES'in kapasitesi?")
+    assert both == {"ANK_RES", "IZM_RES"}
+    del projects  # only used to seed the two rows
+
+
+def test_zero_chunks_named_project_excludes_the_other_projects_matches(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    ek_f_on: None,
+) -> None:
+    """GEN-HAL-001 shape: the question names İzmir RES only; an Ankara RES metadata match
+    ("COD" acronym probe) must not appear in the list, the groups, or the "more" count."""
+    projects = _projects(db_session)
+    izmir_doc = _metadata_only(
+        db_session, title="İzmir RES Önlisans Belgesi", project=projects["IZM_RES"]
+    )
+    ankara_doc = _metadata_only(
+        db_session,
+        title="Provisional Acceptance & COD Certificate",
+        project=projects["ANK_RES"],
+        day=2,
+    )
+
+    body = _ask(client, "İzmir RES'in COD tarihi nedir?")
+
+    listed = {a["document_id"] for a in body["assist"]["available"]}
+    assert str(izmir_doc.id) in listed
+    assert str(ankara_doc.id) not in listed
+    names = [g["project_name"] for g in body["assist"]["groups"]]
+    assert names == ["İzmir RES"]
+    assert "Ankara RES" not in body["answer"] and ankara_doc.title not in body["answer"]
+    assert "belge daha" not in body["answer"]  # the excluded document isn't counted either
+
+
+def test_insufficient_named_project_excludes_the_other_projects_chunk_and_metadata_matches(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    ek_f_on: None,
+) -> None:
+    """Same shape through the chunk-retrieved path (`build_insufficient_assist`): an Ankara
+    RES page the question's terms vouch for must not sit next to the named İzmir RES one."""
+    projects = _projects(db_session)
+    izmir_decision = _metadata_only(
+        db_session, title="İzmir RES Bağlantı Görüşü Başvurusu", project=projects["IZM_RES"]
+    )
+    ankara_chunk = _document(
+        db_session,
+        title="EPC Change Order 01 (COD Deferral)",
+        department=None,
+        text="COD ticari işletme tarihi",
+    )
+    ankara_chunk.project_id = projects["ANK_RES"].id
+    db_session.commit()
+    fake_llm.replies = [NO_ANSWER_TEXT]
+
+    body = _ask(client, "İzmir RES'in COD tarihi nedir?")
+
+    listed = {a["document_id"] for a in body["assist"]["available"]}
+    assert str(izmir_decision.id) in listed
+    assert str(ankara_chunk.id) not in listed
+    names = [g["project_name"] for g in body["assist"]["groups"]]
+    assert "Ankara RES" not in names
+
+
+def test_unnamed_project_question_still_shows_every_matching_project(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    ek_f_on: None,
+) -> None:
+    """No project named in the question (DSC-007 shape, "ÇED raporu nerede?") → unchanged:
+    both projects' matches are candidates, as before this fix."""
+    projects = _projects(db_session)
+    ankara_doc = _metadata_only(
+        db_session, title="Ankara RES ÇED Olumlu Kararı", project=projects["ANK_RES"]
+    )
+    izmir_doc = _metadata_only(
+        db_session, title="ÇED Süreci Durum Yazısı", project=projects["IZM_RES"], day=2
+    )
+
+    body = _ask(client, "ÇED raporu nerede?")
+
+    listed = {a["document_id"] for a in body["assist"]["available"]}
+    assert {str(ankara_doc.id), str(izmir_doc.id)} <= listed
+    names = {g["project_name"] for g in body["assist"]["groups"]}
+    assert names == {"Ankara RES", "İzmir RES"}

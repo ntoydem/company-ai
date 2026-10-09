@@ -291,6 +291,39 @@ def project_words(session: Session) -> set[str]:
     return words
 
 
+def named_project_codes(session: Session, question: str) -> set[str]:
+    """Project codes whose name is actually used in the question ("İzmir RES'in COD tarihi
+    nedir?" → `{IZM_RES}`), word-level (≥ 3 chars) — but only on words that are *specific*
+    to one project: a suffix every project's name shares ("RES", "GES") names nothing on
+    its own and is dropped first (bug found while fixing ADR-030/GEN-HAL-001: "İzmir RES'in
+    …" matched Ankara RES too, through "res" alone). ADR-030 fix (09.10.2026, GEN-HAL-001):
+    when exactly one project is named, callers narrow the F-3 list to it — otherwise a
+    kısaltma sondası (e.g. "COD") pulls in the *other* project's documents next to the one
+    the question actually names (Ü-3)."""
+    lowered_question = turkish_lower(question)
+    words_by_code: dict[str, list[str]] = {
+        project.code: [w for w in re.split(r"[^\w]+", turkish_lower(project.name)) if len(w) >= 3]
+        for project in session.scalars(select(Project)).all()
+    }
+    counts: dict[str, int] = {}
+    for words in words_by_code.values():
+        for word in set(words):
+            counts[word] = counts.get(word, 0) + 1
+    codes: set[str] = set()
+    for code, words in words_by_code.items():
+        specific = [w for w in words if counts[w] == 1]
+        if any(w in lowered_question for w in specific):
+            codes.add(code)
+    return codes
+
+
+def _single_named_project(session: Session, question: str, *, ek_f: bool) -> str | None:
+    if not ek_f:
+        return None
+    named = named_project_codes(session, question)
+    return next(iter(named)) if len(named) == 1 else None
+
+
 def mismatch_terms(
     unmatched: list[str], all_terms: list[str] | None = None, *, excluded: set[str] | None = None
 ) -> list[str]:
@@ -495,6 +528,11 @@ def build_zero_chunk_assist(
         candidates_all = available_from_metadata(
             session, allowed, terms, limit=50, common_threshold=MAX_AVAILABLE
         )
+        named_project = _single_named_project(session, question, ek_f=ek_f)
+        if named_project is not None:
+            # Ü-3 (09.10.2026 fix): the question names one project — the other project's
+            # metadata matches are not candidates at all, not merely hidden.
+            candidates_all = [c for c in candidates_all if c.project_code in (named_project, None)]
         available = candidates_all[:MAX_AVAILABLE_EKF]
         more = len(candidates_all) - len(available)
     else:
@@ -539,7 +577,10 @@ def build_insufficient_assist(
     vouched_chunks = [c for c in chunks if c.document_id in vouched]
     more = 0
     if ek_f:
-        available, more = _quota_list(session, allowed, terms, documents, vouched_chunks)
+        named_project = _single_named_project(session, question, ek_f=ek_f)
+        available, more = _quota_list(
+            session, allowed, terms, documents, vouched_chunks, named_project=named_project
+        )
     else:
         available = available_from_chunks(documents, vouched_chunks)
         # Adım 2 D1/D5: documents that have no chunks (workbooks) or that only a *concept* of
@@ -584,23 +625,29 @@ def _quota_list(
     terms: list[str],
     documents: dict[UUID, Document],
     vouched_chunks: list[RetrievedChunk],
+    *,
+    named_project: str | None = None,
 ) -> tuple[list[AvailableDocument], int]:
     """ADR-030 F-3 quota. Returns (listed, how many more candidates exist). The "too common"
     probe threshold stays MAX_AVAILABLE (5): it is about a term's specificity, not the list
     size — at 7 the dry run let "Ankara"/"Report" (7 hits each) flood the metadata places
-    and push "Financial Model 2026" / "Ankara RES ÇED Olumlu Kararı" into the surplus."""
+    and push "Financial Model 2026" / "Ankara RES ÇED Olumlu Kararı" into the surplus.
+    `named_project` (09.10.2026 fix, GEN-HAL-001): when the question names exactly one
+    project, the *other* project's candidates are dropped before the quota runs — not
+    merely pushed into "… ve N belge daha" — so they never appear in a project-named
+    question's list or groups (Ü-3)."""
     # A document the metadata vouches for takes a *metadata* place even when it also has
     # chunks — otherwise a low retrieval rank hides it behind generic report pages (dry run,
     # 09.10.2026: "Ankara RES ÇED Olumlu Kararı" ranked 10th of 12 chunk cards).
     meta_cards = available_from_metadata(
         session, allowed, terms, limit=50, common_threshold=MAX_AVAILABLE
     )
+    chunk_cards_all = available_from_chunks(documents, vouched_chunks, limit=50)
+    if named_project is not None:
+        meta_cards = [c for c in meta_cards if c.project_code in (named_project, None)]
+        chunk_cards_all = [c for c in chunk_cards_all if c.project_code in (named_project, None)]
     meta_ids = {c.document_id for c in meta_cards}
-    chunk_cards = [
-        c
-        for c in available_from_chunks(documents, vouched_chunks, limit=50)
-        if c.document_id not in meta_ids
-    ]
+    chunk_cards = [c for c in chunk_cards_all if c.document_id not in meta_ids]
     meta_places = MAX_AVAILABLE_EKF - min(len(chunk_cards), CHUNK_QUOTA_EKF)
     shown_meta = meta_cards[:meta_places]
     shown_chunks = chunk_cards[: MAX_AVAILABLE_EKF - len(shown_meta)]
