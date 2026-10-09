@@ -1,6 +1,6 @@
 # Ürün 1 — Kararlar ve revize iş sırası (Tansu cevapları, Anayasa v2.1, Ek-F)
 
-**Tarih:** 09.10.2026 · **Durum:** plan, Naci onayı bekliyor; **kod değişikliği ve canlı çağrı yok** · **Dayanak:** Tansu `docs/NACI_CEVAP_2026-10-08.md` (AI-BalBal PR #13, commit 7615b85), Anayasa v2.1 taslağı (PR #15, ADT-1), Ek-F Karakter Tanımı (PR #16, ADT-2), `NACI_NOTU_URUN1.md` §G (yeniden test), `NACI_NOTU_URUN2.md` §F (yükümlülük bağı) · **Önceki planlar:** `URUN1_NOT_PLAN.md` (§1 boşluklar A–F, §3 sıra, §4 kütüphane maliyeti), `ADIM2_PLAN.md`, `BELIRSIZLIK_PLAN.md` · **Ölçümler:** `B_OLCUM_REPORT.md` (resmi 8/13), `ADIM2_REPORT.md` (8/13, R1 12/14, held-out 4/6), `DRY_RUN_HELD_OUT_2026-10-08.md` (V3 2/5, 1 yanlış alarm).
+**Tarih:** 09.10.2026 · **Durum:** plan **onaylı** (Naci 09.10.2026, §2 ve §7.1); uygulama adım adım ayrı onayla başlar (ilk: adım 1, Soru 15); **kod değişikliği ve canlı çağrı yok** · **Dayanak:** Tansu `docs/NACI_CEVAP_2026-10-08.md` (AI-BalBal PR #13, commit 7615b85), Anayasa v2.1 taslağı (PR #15, ADT-1), Ek-F Karakter Tanımı (PR #16, ADT-2), `NACI_NOTU_URUN1.md` §G (yeniden test), `NACI_NOTU_URUN2.md` §F (yükümlülük bağı) · **Önceki planlar:** `URUN1_NOT_PLAN.md` (§1 boşluklar A–F, §3 sıra, §4 kütüphane maliyeti), `ADIM2_PLAN.md`, `BELIRSIZLIK_PLAN.md` · **Ölçümler:** `B_OLCUM_REPORT.md` (resmi 8/13), `ADIM2_REPORT.md` (8/13, R1 12/14, held-out 4/6), `DRY_RUN_HELD_OUT_2026-10-08.md` (V3 2/5, 1 yanlış alarm).
 
 Kısaltmalar: ADT = Anayasa Değişiklik Talebi; K1–K6 = Tansu'nun yeniden test kategorileri (§G.3); R1 = eval'in 14 soruluk %100 kategorisi (regresyon seti); G1–G3 = güvenlik kontrolleri (uydurma yok, kaynaksız yok, yetkisiz ad yok).
 
@@ -38,6 +38,20 @@ Ek cevaplar: SORU 8 → §3.1'in 10 sorusu `discovery` olarak eval'e (dev seti, 
 | Ç-8 | **B** | Mevzuat öneri notu, onaydan sonra ledger |
 | İ-7 | **A** sözlük admin tablosu, **sıraya koy** | §3 adım (e); Adım 2 kod sözlüğü seed verisi olur |
 | Ç-9 | **B**, ama ledger değerleri `NACI_CEVAP §3`'e göre | Yeniden adlandırma + değer güncellemesi tek iş; eval beklentileri değerle birlikte yenilenir |
+
+**§7.1 cevapları (Naci, 09.10.2026):**
+
+| SORU | Karar | Sonuç |
+|---|---|---|
+| 1 Sıra | **A** | §3.2 revize sıra geçerli |
+| 2 Ölçüm seti | **A** | Adım 1–4 eski Ankara/İzmir setinde "geçiş değeri"; tam ölçüm kütüphane sonrası |
+| 3 ASSIST_MODE | **A** (adım 2 yeşilse) | Canlıda varsayılan açık, bayrak bir tur daha kalır, kör test turu 1 sonrası kaldırılır |
+| 4 Belirsizlik | **A** | Yalnız proje ekseni, kodla; LLM sınıflandırması şimdi yok |
+| 5 Held-out | **A** | Held-out sorularını Naci/danışman yazar; geliştirici AI ölçüm gününe kadar görmez; kullanılan set yanar |
+| 6 K3 Çelişkili Veri | **A** | Adım 7 kör testten önce zorunlu |
+| 7 (f)/(g) | **A** | Ekip sohbeti ve süreç modeli kör test turu 1 sonrası |
+| 8 Ölçüm kaydı | **A** | İki yeni tablo + reask sezgisi; **yalnız toplu admin görünümü, kişi bazında rapor yok** |
+| 9 ADT-1/ADT-2 | **A** | Naci PR #15 ve #16'yı GitHub'da onayladı (09.10.2026); Anayasa v2.1 ve Ek-F yürürlük Tansu'nun birleştirmesiyle |
 
 ## 3. Revize sıra
 
@@ -130,7 +144,7 @@ Naci: (a) Ek-F davranışı → (b) Soru 15 → (c) kütüphane D/E → (d) C.4/
 
 ## 7. Sorular
 
-### 7.1 Naci'ye SORU (A/B)
+### 7.1 Naci'ye SORU (A/B) — **cevaplandı 09.10.2026: 1 A, 2 A, 3 A (adım 2 yeşilse), 4 A, 5 A, 6 A, 7 A, 8 A, 9 A** (ayrıntı §2)
 
 1. **Sıra:** §3.2 revize sıra (A) mı, kendi sıran a→g (B) mi?
 2. **Ölçüm seti:** adım 1–4 eski Ankara/İzmir setinde "geçiş değeri" olarak ölçülsün (A) mı, kütüphane bitince tek ölçüm (B) mi?
@@ -142,7 +156,7 @@ Naci: (a) Ek-F davranışı → (b) Soru 15 → (c) kütüphane D/E → (d) C.4/
 8. **Ölçüm kaydı:** iki yeni tablo + reask sezgisi (A) mı, yalnız audit JSON genişletme, istemci olayı yok (B) mi?
 9. **ADT-1/ADT-2:** olduğu gibi onay (A) mı, madde itirazı var (B — madde no) mı?
 
-### 7.2 Tansu'ya sorulacaklar
+### 7.2 Tansu'ya sorulacaklar — AI-BalBal `docs/SORULAR_NACIDEN_2-2026-10-09.md` olarak gönderildi (dal `docs/naci-sorular-2-2026-10-09`, 09.10.2026)
 
 - **T-1 (#4):** Proje adı geçmeyen soruda F-3 gereği projeler ayrı başlıkta gruplu liste + "hangi proje?" — doğru anladık mı? Bu, İ-8 (1) "liste yok" kuralının istisnası mı (seçenekler proje adı olduğu için)?
 - **T-2 (SORU 8 ↔ §G.2):** §3.1'in 10 sorusu `questions.json`'a girerse herkese açık olur; bunlar geliştirici seti sayılıp kör testte **kullanılmayacak** varsayıyoruz — uygun mu?
