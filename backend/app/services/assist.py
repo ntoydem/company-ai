@@ -493,7 +493,7 @@ def build_zero_chunk_assist(
     more = 0
     if ek_f:
         candidates_all = available_from_metadata(
-            session, allowed, terms, limit=50, common_threshold=MAX_AVAILABLE_EKF
+            session, allowed, terms, limit=50, common_threshold=MAX_AVAILABLE
         )
         available = candidates_all[:MAX_AVAILABLE_EKF]
         more = len(candidates_all) - len(available)
@@ -585,20 +585,26 @@ def _quota_list(
     documents: dict[UUID, Document],
     vouched_chunks: list[RetrievedChunk],
 ) -> tuple[list[AvailableDocument], int]:
-    """ADR-030 F-3 quota. Returns (listed, how many more candidates exist)."""
-    chunk_cards = available_from_chunks(documents, vouched_chunks, limit=50)
-    chunk_ids = {c.document_id for c in chunk_cards}
-    meta_cards = [
+    """ADR-030 F-3 quota. Returns (listed, how many more candidates exist). The "too common"
+    probe threshold stays MAX_AVAILABLE (5): it is about a term's specificity, not the list
+    size — at 7 the dry run let "Ankara"/"Report" (7 hits each) flood the metadata places
+    and push "Financial Model 2026" / "Ankara RES ÇED Olumlu Kararı" into the surplus."""
+    # A document the metadata vouches for takes a *metadata* place even when it also has
+    # chunks — otherwise a low retrieval rank hides it behind generic report pages (dry run,
+    # 09.10.2026: "Ankara RES ÇED Olumlu Kararı" ranked 10th of 12 chunk cards).
+    meta_cards = available_from_metadata(
+        session, allowed, terms, limit=50, common_threshold=MAX_AVAILABLE
+    )
+    meta_ids = {c.document_id for c in meta_cards}
+    chunk_cards = [
         c
-        for c in available_from_metadata(
-            session, allowed, terms, limit=50, common_threshold=MAX_AVAILABLE_EKF
-        )
-        if c.document_id not in chunk_ids
+        for c in available_from_chunks(documents, vouched_chunks, limit=50)
+        if c.document_id not in meta_ids
     ]
     meta_places = MAX_AVAILABLE_EKF - min(len(chunk_cards), CHUNK_QUOTA_EKF)
     shown_meta = meta_cards[:meta_places]
     shown_chunks = chunk_cards[: MAX_AVAILABLE_EKF - len(shown_meta)]
-    listed = shown_chunks + shown_meta
+    listed = shown_meta + shown_chunks
     return listed, len(chunk_cards) + len(meta_cards) - len(listed)
 
 
