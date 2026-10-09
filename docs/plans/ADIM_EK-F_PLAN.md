@@ -1,6 +1,6 @@
 # Adım 2 — Ek-F metin ve biçim (F-2, F-3, F-5, F-8) + Ç-2, Ç-3, Ç-10 — uygulama planı
 
-**Tarih:** 09.10.2026 · **Durum:** plan, Naci onayı bekliyor; **kod değişikliği ve canlı çağrı yok** · **Dayanak:** `URUN1_KARARLAR_VE_SIRA.md` §3.2 adım 2 (Naci onayı 09.10), Ek-F Karakter Tanımı (AI-BalBal PR #16, ADT-2, iki Proje Yetkilisi onayı 09.10), `NACI_CEVAP_2026-10-08.md` §4 (Ç-2 A, Ç-3 A, Ç-10 A), `ADIM1_SORU15_REPORT.md` §4 (007 liste kotası, 001/011 biçim gözlemi) · **Dal:** `feat/adim2-ekf` (`feat/adim1-soru15` üzerinden; `main`'e birleştirme yok) · **Kapsam dışı:** F-4 gerçek belirsizlik tespiti (plan adım 4), cevap eşiği/kural 2 metni (Ç-1 A), sözlük tablosu (adım 8), kütüphane.
+**Tarih:** 09.10.2026 · **Durum:** plan **onaylı** (Naci 09.10.2026, SORU 1–8 cevaplandı, aşağıda); uygulama bu dalda; ölçüm ayrı onayla · **Dayanak:** `URUN1_KARARLAR_VE_SIRA.md` §3.2 adım 2 (Naci onayı 09.10), Ek-F Karakter Tanımı (AI-BalBal PR #16, ADT-2, iki Proje Yetkilisi onayı 09.10), `NACI_CEVAP_2026-10-08.md` §4 (Ç-2 A, Ç-3 A, Ç-10 A), `ADIM1_SORU15_REPORT.md` §4 (007 liste kotası, 001/011 biçim gözlemi) · **Dal:** `feat/adim2-ekf` (`feat/adim1-soru15` üzerinden; `main`'e birleştirme yok) · **Kapsam dışı:** F-4 gerçek belirsizlik tespiti (plan adım 4), cevap eşiği/kural 2 metni (Ç-1 A), sözlük tablosu (adım 8), kütüphane.
 
 ## 0. Bayrak
 
@@ -90,7 +90,22 @@ ADR-030; ADR-014 notu; `.env.example` `EK_F_MODE=false`; `docs/prompts/ANSWER_SY
 
 Büyüklük: M (≈ 2 gün kod + test, 1 ölçüm saati).
 
-## SORU (Naci)
+## SORU (Naci) — cevaplar 09.10.2026
+
+| # | Karar | Uygulama |
+|---|---|---|
+| 1 | **A** | `EK_F_MODE` assist hesaplarını kendisi açar (`Settings.assist_computations`); kapalıyken bayt-aynı |
+| 2 | **Özel** | Yüzde en az 2 ondalık (`%2,90`, `%12,50`); kaynakta 2'den fazla anlamlı ondalık varsa korunur (en çok 4); **hiçbir değer yuvarlanarak değişmez** — raporda belirtilecek |
+| 3 | **A** | MIXED'te belge hattı cevapsızsa "Belgelere göre" bölümü gizlenir |
+| 4 | **A** | "… ve N belge daha" G1 istisnası; N'yi kod sayar |
+| 5 | **A** | `previous_question` → `audit_log.assist.context`, migration yok |
+| 6 | **B** | Ç-10 bu adımda yalnız `static/ask.html`; AI-BalBal PR'ı sonra ayrı onayla |
+| 7 | **B** | `ANSWER_SYSTEM_PROMPT.md` kapalı varyant; Ek-F cümlesi not |
+| 8 | **A** | Belge hattı biçim geçidi yalnız tarih + İngiliz sayı biçimi |
+
+Sıra (Naci): kod + birim testleri + `make test` + `make lint` → **DUR** → ölçüm öncesi raporu (kaç çağrı, hangi sorular) → ölçüm ayrı onayla.
+
+### Orijinal sorular
 
 1. **Bayrak ilişkisi:** `EK_F_MODE=true` assist hesaplarını kendisi açsın (A, tek bayrakla ölçüm; ASSIST_MODE kapalı kalır) mı, ikisi birden açılması gereksin (B) mi? Önerim A.
 2. **Yüzde ondalığı:** Excel'den gelen `%38,2` 2 ondalığa (`%38,20`) zorlansın (A) mı, değerin kendi ondalığı korunup en çok 2 (B) mi? Önerim B (yuvarlama/sıfır ekleme yok, Ç-6).
