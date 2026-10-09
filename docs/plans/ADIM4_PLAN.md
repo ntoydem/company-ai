@@ -1,0 +1,75 @@
+# Adım 4 — Proje ekseni belirsizlik tespiti + projesiz soruda proje çıkarımı (uygulama planı)
+
+**Tarih:** 09.10.2026 · **Durum:** plan, Naci onayı bekliyor; **kod değişikliği yok, canlı çağrı yok** · **Dayanak:** `URUN1_KARARLAR_VE_SIRA.md` §3.2 Adım 4, §4 ("gerçek belirsizlik tespiti — dürüst yaklaşım"); `PROJESIZ_SORU_PLAN.md` §3 Seçenek B + §4 SORU 1–2 cevapları (09.10.2026) · **Dal:** `feat/adim2-ekf` üzerinden yeni dal (ör. `feat/adim4-proje-ekseni`), Adım 2'ye bağımlı · **Bağımlılık:** Adım 2 (Ek-F, kod zaten `feat/adim2-ekf`'te) · **Kapsam dışı:** sürüm ekseni (ikinci tur), belge ekseni ("hangi belge?" — F-4 (2) linkli liste yolu zaten var), Seçenek A (G3 tanımı — Tansu T-1 bekliyor), Seçenek C (model karar eşiği — ayrı round, Adım 3'ün önkoşulu).
+
+## 1. Mekanizma — tek sinyal (proje dağılımı), iki eşik, üç çıkış
+
+Hem V3'ün orijinal tasarımı (disambiguate) hem Seçenek B'nin genişlemesi (dominant) **aynı girdiden** çalışır: adayların (zero-chunk → metadata eşleşmeleri; parça varsa → `specific_matched_terms` ile vouch edilen parçalar) proje koduna göre dağılımı.
+
+```
+project_distribution(adaylar) → {ANK_RES: 6, IZM_RES: 1, None: 0}  (örnek: ANK-NEG-004 şekli)
+```
+
+| Durum | Koşul | Çıkış | Örnek |
+|---|---|---|---|
+| **Adlandırılmış** | soru metni **bir** projeyi adlandırıyor (`named_project_codes`, zaten kod — ADR-030) | mevcut davranış: o projeye daralt, "varsayıldı" cümlesi **yok** (kullanıcı zaten söyledi) | GEN-HAL-001 |
+| **Disambiguate** | adlandırılmamış ∧ dağılım **yakın eşit** (ikinci grubun payı ≥ `DISAMBIG_SPREAD` × birincinin) ∧ sohbet bağlamında (`previous_question`) proje kelimesi yok | **LLM çağrılmadan** (ADR-021 tarzı, chunks olsa da): `assist.kind="disambiguate"`, `assist.axis="project"`, soru = "Hangi projeyi kastediyorsunuz: {A} mi, {B} mi?" (proje adları kapıdan, `allowed` içinden), **liste yok** | DSC-007 şekli — ama DSC-007 bugün Ü-3'ün "listele" yolunda kalıyor; disambiguate yalnız **dağılım gerçekten yakınsa** tetiklenir (bkz. §1.2) |
+| **Dominant** | adlandırılmamış ∧ dağılım **net** bir projede toplanmış (o projenin payı ≥ `DOMINANT_SHARE`) | O projeye daralt (Ek-F F-3/F-5 listesi); **sessiz tahmin yasak** (Naci 09.10, SORU 1) — cevapsız kalırsa F-5 metnine "**{Proje}** projesine ait olduğu varsayıldı." cümlesi eklenir (rakam/tarih yok → G1'i bozmaz) | ANK-NEG-004 (6 Ankara / 1 İzmir) |
+| **Yok** | ne adlandırılmış ne disambiguate ne dominant | **bugünkü Adım 2 davranışı** — iki proje de gösterilir, proje başlıklı | GEN-DSC-007 (İzmir 4 + Ankara 3, hiçbiri net çoğunluk değil) |
+
+İki eşik de `Settings` üzerinden env ile ayarlanır, **ölçümde sabit tutulur**, değerleri rapora yazılır (Naci SORU 2):
+
+| Parametre | Env | Başlangıç önerisi | Anlamı |
+|---|---|---|---|
+| `DISAMBIG_SPREAD` | `PROJECT_AXIS_DISAMBIG_SPREAD` | `0.5` (V3'ün eski değeri, §4'te zaten kullanılmıştı) | ikinci grubun payı ≥ bu × birincinin payı → yakın eşit |
+| `DOMINANT_SHARE` | `PROJECT_AXIS_DOMINANT_SHARE` | `0.75` | bir projenin payı ≥ bu → net çoğunluk (ANK-NEG-004: 6/7 ≈ 0,857 ≥ 0,75 ✓) |
+
+**Disambiguate ile Dominant arasındaki boşluk** (ör. ikinci grup payı %30–%50 arası) bilerek **"Yok"** sonucuna düşer — ne tahmin ne soru; bugünkü davranış. Bu, §2.3'teki aralık boşluğunu açıkça kapatıyor (ikisi arasında sessizce bir karar verilmiyor).
+
+### 1.1 Disambiguate'in LLM'den önce çalışması
+
+Adlandırılmış/dominant durumlar LLM çağrısına **dokunmaz** (model normal çalışır; yalnız cevapsız kalırsa listeleme değişir). **Disambiguate** farklı: tetiklenirse **LLM hiç çağrılmaz** — `ask.py::answer_question`, parçalar çekildikten **hemen sonra, prompt kurulmadan önce** kontrol edilir (zero-chunk yolunda zaten LLM çağrılmıyordu — ADR-021; bu, chunks varken de aynı garantiyi getiriyor, V3'ün orijinal tasarımıyla aynı).
+
+### 1.2 Yanlış alarm riski — §2.3'teki boşluktan ayrı bir risk
+
+V3'ün eski ölçümünde (`BELIRSIZLIK_REPORT.md`) disambiguate'in kaçırdığı sorular (AMB-02/03/05) **düşük skorlu ama** dağılımca iki projeye yakın yayılmıştı; eski eşik "ikinci ≥ 0,5×birinci **skor**" idi (skor, pay değil) — bu yüzden kaçırıyordu. Bu planda ölçüt **sayı/pay**, skor değil (zaten §4'te kararlaştırıldı) — bu riski kapatması beklenir ama ölçümle doğrulanacak (§3).
+
+## 2. Dosya / fonksiyon değişiklikleri
+
+| # | Değişiklik | Dosya |
+|---|---|---|
+| 2.1 | `project_distribution(session, allowed, terms, chunks) -> dict[str \| None, int]` — zero-chunk'ta `available_from_metadata`'nın tüm adayları (limit yüksek), parça varsa `specific_matched_terms` ile vouch edilen belgelerin projeleri. Aynı veri, Ek-F'nin zaten hesapladığı kümeler — yeniden retrieval yok. | `services/assist.py` |
+| 2.2 | `ProjectAxisDecision` (dataclass: `kind: Literal["named","disambiguate","dominant","none"]`, `project_code: str \| None`); `classify_project_axis(distribution, named, *, disambig_spread, dominant_share) -> ProjectAxisDecision` — saf fonksiyon, DB'siz, birim test edilebilir. | `services/assist.py` |
+| 2.3 | `Settings.project_axis_disambig_spread`, `Settings.project_axis_dominant_share` (env, varsayılan §1'deki değerler) | `core/config.py`, `infra/.env.example` |
+| 2.4 | `ask.py::answer_question`: parçalar çekildikten sonra (chunks boş ya da dolu, ikisinde de) `classify_project_axis` çağrılır; `disambiguate` ise LLM atlanır, sabit `Assist(kind="disambiguate", axis="project", question=template, available=())` döner. `dominant` ise sonucu `build_zero_chunk_assist`/`build_insufficient_assist`'e `inferred_project=` olarak geçer (adlandırılmış projeyle **aynı** daraltma mekanizmasını kullanır — `named_project` parametresi genişler: `named_project: str \| None` artık "adlandırılmış **veya** çıkarılmış" anlamına gelir, ama **hangisi olduğu** `Assist`'te ayrı tutulur ki F-5 doğru cümleyi yazsın) | `services/ask.py`, `services/assist.py` |
+| 2.5 | `render_no_data`: `assist.inferred` (bool) alanı `True` ise listeden önce "**{Proje}** projesine ait olduğu varsayıldı." satırı eklenir; adlandırılmışsa (zaten kullanıcı söylediği için) eklenmez. `disambiguate` kalıbı ayrı, sabit: yalnız soru satırı, liste yok, "İsterseniz açayım" yok. | `services/assist.py` |
+| 2.6 | `AssistBlock.kind` Literal'i `"disambiguate"` değeriyle genişler; yeni `AssistBlock.axis: Literal["project"] \| None` alanı (bayrak kapalıyken `None`) | `schemas/ask.py` |
+| 2.7 | Eval: `ledger_schema.Question.expect_assist` Literal'i `"disambiguate"` değerini kabul eder; `assist_check` bu türü tanır; G1 kontrolü disambiguate sorusunda da rakam/tarih/para yok şartını aynen uygular (zaten genel kural) | `seed_data/generator/ledger_schema.py`, `scripts/eval_lib.py` |
+
+## 3. Ölçüm — **retrieval-only, 0 LLM çağrısı**
+
+Adım 4'ün ölçütü, modelin ne yapacağını değil, **tespit + daraltma kodunun** doğru çalıştığını ölçer — "model cevaplar mı" sorusu bilerek Seçenek C'ye bırakılmıştır (Naci SORU 4, 09.10.2026). Bu yüzden ölçüm canlı `/api/ask` çağırmaz: `scripts/dry_run_project_axis.py` (yeni, Ek-F'nin kuru koşu script'iyle aynı desen) her soru için gerçek retrieval'ı in-process çalıştırır (0 LLM), `classify_project_axis`'i çağırır ve `dominant`/`none` durumunda **model cevapsız kaldığını varsayarak** (`build_insufficient_assist`'i zorla çağırır) F-5 metnini üretir — canlı modelin o soruyu gerçekten cevaplayıp cevaplamayacağına bakılmaz.
+
+| Küme | Sorular | Beklenen | Hedef |
+|---|---|---|---|
+| **Dev AMB (5)** | GEN-AMB-001…005 (hepsi projesiz, belge-sınıfı kelimesi, proje kelimesi yok) | `disambiguate` | **≥ 4/5** |
+| **Dev NEG (9)** | ANK-NEG-001/002 (proje **adlandırılmış** → `named`, tetiklenmemeli), ANK-NEG-003/004, CO-NEG-005 (projesiz, tek-proje-beklenen → `dominant`, doğru proje), GEN-AMB-003-F (projesiz, tek zincir → `none`, hiç tetiklenmemeli), GEN-CMP-001/002/003 (iki proje **adlandırılmış** → `named`/Ü-3 çoklu-proje yolu, `disambiguate` **olmamalı**) | yanlış alarm (gereksiz `disambiguate`) **0/9** | **0/9** |
+| **Held-out (10, yeni)** | Naci/danışman yazar; 5 AMB + 5 NEG; geliştirici AI ölçüm gününe kadar görmez (05.10 kuralı, `URUN1_KARARLAR_VE_SIRA.md` §2) | AMB ≥ 3/5, NEG yanlış alarm ≤ 1/5 | §4.5 eski hedefle aynı |
+
+**ANK-NEG-004 özel kontrolü:** dry run'da `dominant` + `project_code="ANK_RES"` çıkmalı, liste yalnız Ankara belgeleri + "varsayıldı" cümlesi, İzmir'in belgesi hiç görünmemeli (G3). Bu, bu planın **somut kapanış kriteri**dir (`PROJESIZ_SORU_PLAN.md`'nin bıraktığı açık nokta).
+
+**Durma kuralı (değişmez, eski kural):** NEG yanlış alarmı > 0 (dev) ya da held-out'ta > 1 → eşik **oynatılmaz**, tanım/sınıf-listesi gözden geçirilir, rapor yazılır, durulur.
+
+## 4. Testler (deterministik, `make test`)
+
+- `test_project_axis.py` (yeni): `classify_project_axis` dört çıkış (named önceliği, disambiguate — eşit/yakın dağılım, dominant — net çoğunluk, none — aradaki boşluk); eşik env'den okunuyor (settings monkeypatch); `project_distribution` zero-chunk ve chunk'lı yoldan aynı sözlüğü üretiyor.
+- `test_assist_ekf.py` ek: ANK-NEG-004 şekli (6 Ankara + 1 İzmir aday, zorla cevapsız) → `dominant`, liste yalnız Ankara, "varsayıldı" cümlesi var, İzmir hiç yok (G3); GEN-AMB-00x şekli (yakın dağılım) → `disambiguate`, `fake_llm.requests == []` (LLM hiç çağrılmadı), liste boş; GEN-CMP şekli (iki proje adlandırılmış) → `disambiguate` **değil**, mevcut çoklu-proje yolu çalışıyor; aradaki boşluk (%30–50) → `none`, bugünkü iki-projeli liste.
+- `test_eval_lib.py` ek: `expect_assist="disambiguate"` eşleşmesi; G1 disambiguate sorusunda rakam yok.
+
+## 5. SORU (Naci)
+
+1. **Bayrak:** disambiguate/dominant mekanizması **`EK_F_MODE`'un içinde** mi (tek bayrak, Adım 2'yle aynı açılır/kapanır) mı, yoksa kendi ayrı bayrağı mı (ör. `PROJECT_AXIS_MODE`)? Önerim: **aynı bayrak** — ayrı bayrak hem gereksiz karmaşıklık hem de Adım 3'ün (canlı varsayılan açma) bağımlılık zincirini ikiye böler.
+2. **Eşik başlangıç değerleri:** `DISAMBIG_SPREAD=0.5`, `DOMINANT_SHARE=0.75` önerildi (§1). Onay, yoksa farklı değer?
+3. **Held-out soruları ne zaman istensin:** bu plan onaylandıktan sonra hemen (kod yazılmadan, paralel) mi, yoksa kod bitip dev AMB/NEG dry run'ı geçtikten sonra mı? Önerim: **kod bitince** — Naci/danışmanın emeği, dev set'te zaten başarısız çıkacak bir tasarıma harcanmasın.
+4. **Dry run'ın "model cevapsız kaldığını varsayma" yaklaşımı** (§3) onaylanıyor mu — yoksa Adım 4'ün kapanışı için de en az birkaç canlı çağrı (ör. ANK-NEG-004 + 1-2 AMB sorusu) istiyor musun? Önerim: hayır, canlı çağrı yok — "model cevaplar mı" sorusu kasıtlı olarak Seçenek C'nin kapsamında, burada karışmasın.
+5. **Dal:** `feat/adim2-ekf`'ten yeni bir dal (`feat/adim4-proje-ekseni`) mi açılsın, yoksa Adım 2'nin dalında mı sürsün? Önerim: **yeni dal** — Adım 2 raporu kapandı sayıldı (önceki onay), karışık commit geçmişi olmasın; `feat/adim1-soru15 → feat/adim2-ekf → feat/adim4-proje-ekseni` zinciri izlenebilir kalır.

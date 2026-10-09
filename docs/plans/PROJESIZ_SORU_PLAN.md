@@ -1,6 +1,6 @@
 # Projesiz soru + proje izolasyonu — teşhis ve seçenekler
 
-**Tarih:** 09.10.2026 · **Durum:** plan, Naci onayı bekliyor; **kod değişikliği yok, kriter/G3 tanımı değiştirilmedi** · **Dayanak:** `docs/reports/ADIM2_EKF_REPORT.md` §8 (Adım 2 bu haliyle kapatıldı; `EK_F_MODE` canlıda kapalı, negatif kontrolde ANK-NEG-004 başarısız kayıtta kalır) · **Dal:** `feat/adim2-ekf` (`main`'e birleştirme yok) · **Tanı çağrıları:** 3/3 kullanıldı, bilgi amaçlı, resmi ölçümün yerine geçmez, kriterler değişmedi.
+**Tarih:** 09.10.2026 · **Durum:** plan **cevaplandı** (Naci 09.10.2026, §4); Adım 2 bu haliyle **kapalı** sayılır, kod değişikliği yok, kriter/G3 tanımı değişmedi · **Dayanak:** `docs/reports/ADIM2_EKF_REPORT.md` §8 (`EK_F_MODE` canlıda kapalı, negatif kontrolde ANK-NEG-004 başarısız kayıtta kalır); izleyen iş: `docs/plans/ADIM4_PLAN.md` · **Dal:** `feat/adim2-ekf` (`main`'e birleştirme yok) · **Tanı çağrıları:** 3/3 kullanıldı, bilgi amaçlı, resmi ölçümün yerine geçmez, kriterler değişmedi.
 
 ## 1. ANK-NEG-004 teşhisi — "Üretim lisansı ne zaman alındı?" (enerji)
 
@@ -108,7 +108,19 @@ Soru metni proje adlandırmasa da, aday kümenin **büyük çoğunluğu** (ör. 
 | B | bu sınıf + benzer "çoğunluk belirgin" durumlar (ürün) | hayır | **evet, aynı mekanizma** | Adım 4'ün parçası olarak M |
 | C | kök neden (model), geniş etki | hayır | hayır, ayrı round | L |
 
-## 4. SORU (Naci)
+## 4. SORU (Naci) — cevaplar 09.10.2026
+
+| # | Karar | Ayrıntı |
+|---|---|---|
+| 1 | **B, Adım 4'ün içinde**, ayrı yama yok | **Koşul (yeni):** proje tahmini **sessiz olamaz** — cevap/liste varsayılan projeyi **açıkça yazar** (ör. "Ankara RES projesine ait olduğu varsayıldı"; sayı/tarih içermediği için G1 uydurma sayılmaz). Çoğunluk payı net değilse tahmin **yapılmaz**, F-4'teki tek netleştirme sorusu sorulur. |
+| 2 | Eşik **tek parametre** | `.env` ile ayarlanabilir; ölçümde **sabit** tutulur, değeri rapora yazılır. |
+| 3 | Seçenek A (G3 tanımı) **değişmez** | Tansu'nun T-1 cevabı gelene kadar (AI-BalBal PR #17). |
+| 4 | Seçenek C **zorunlu** | `ASSIST_MODE` ve `EK_F_MODE` canlıda **varsayılan açılmadan önce**, assist promptunda modelin cevap verebilecekken cevapsız kalma davranışının nedeni ayrı bir round'da araştırılır. `URUN1_KARARLAR_VE_SIRA.md` §3.2 Adım 3'e **bağımlılık** olarak işlendi. |
+| 5 | ANK-NEG-004 **resmi sette başarısız kalır** | Kriter ve test değişmez. |
+
+Uygulama planı: `docs/plans/ADIM4_PLAN.md`.
+
+### Orijinal sorular (öneriyle)
 
 1. **Öncelik:** A, B, C'den biri şimdi mi başlasın, yoksa Adım 4'e kadar **hiçbiri** beklesin mi (ANK-NEG-004 "bilinen kısıtlama" olarak kayıtlı kalır)? Önerim: **B, Adım 4'ün içine** — ayrı yama açmayalım, tek mekanizma iki sorunu (proje ekseni gerçek belirsizlik + bu sınıf) birden çözsün.
 2. **B seçilirse:** çoğunluk eşiği Adım 4'ün kendi "ikinci grubun payı" ölçütüyle **birebir aynı parametre** mi olsun (tek eşik, tek yer), yoksa F-3 listesi için ayrı bir eşik mi? Önerim: aynı parametre — iki yerde farklı eşik tutmak kafa karıştırır ve iki kez ayarlanması gerekir.
