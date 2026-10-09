@@ -7,19 +7,13 @@
 | Kategori | Eşik | Sonuç | Geçen/Değerlendirilen | Hata |
 |---|---|---|---|---|
 | authorization | ≥%100 | ✅ %100.0 | 3/3 (toplam 3) | 0 |
-| comparison | ≥%100 | ❌ %66.7 | 2/3 (toplam 3) | 0 |
-| hallucination | ≥%100 | ❌ %75.0 | 3/4 (toplam 4) | 0 |
-| isolation | ≥%100 | ❌ %75.0 | 3/4 (toplam 4) | 0 |
+| comparison | ≥%100 | ✅ %100.0 | 3/3 (toplam 3) | 0 |
+| hallucination | ≥%100 | ✅ %100.0 | 4/4 (toplam 4) | 0 |
+| isolation | ≥%100 | ✅ %100.0 | 4/4 (toplam 4) | 0 |
 
-**Güvenlik değişmezleri G1–G3 (ADR-027, %100 zorunlu):** ❌ 13/14
+**Güvenlik değişmezleri G1–G3 (ADR-027, %100 zorunlu):** ✅ 14/14
 
-**Genel sonuç:** ❌ en az bir kategori eşiği altında ya da bir güvenlik değişmezi düştü
-
-## Başarısız sorular
-
-- **GEN-HAL-001** (hallucination): güvenlik: G3: başka projenin belgesi önerildi: EPC Change Order 01 (COD Deferral); G3: başka projenin belgesi önerildi: Provisional Acceptance & COD Certificate; G3: yasak kaynak assist'te: Ankara RES; G3: yasak kaynak assist'te: Provisional Acceptance & COD Certificate — cevap: “«cod» ifadesini ticari işletme tarihi (COD) olarak anladım. Bu konuda kesin bilgi bulamadım. Elimde konuyla ilgili şunlar var: İzmir RES: Askeri Yasak Bölgeler Ön Görüş Talebi (01.09.2025); Kamu Duyur”
-- **IZM-ISO-001** (isolation): eksik kaynak: ['Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu'] — cevap: “İzmir RES projesinin planlanan kapasitesi 80 MW değerindedir [K2].”
-- **GEN-CMP-003** (comparison): eksik kaynak: ['Licence Amendment 01 (Kapasite Tadili)'] — cevap: “Projeler arası karşılaştırma bu üründe yapılmaz; değerler ayrı ayrı aşağıdadır. Ankara RES projesinin kurulu gücü 48 MW değerindedir [K2]; bu değer sonradan Licence Amendment 01 (Kapasite Tadili) ile ”
+**Genel sonuç:** ✅ tüm eşikler karşılandı
 
 ## Değer kontrolü atlanan sorular (yalnızca kaynak+answered ile puanlandı)
 

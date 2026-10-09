@@ -1,6 +1,6 @@
 # Adım 2 — Ek-F metin ve biçim (EK_F_MODE) — rapor
 
-**Tarih:** 09.10.2026 · **Plan:** `docs/plans/ADIM_EK-F_PLAN.md` (Naci onayı + SORU 1–8 cevapları 09.10.2026) · **Dal:** `feat/adim2-ekf` (`feat/adim1-soru15` üzerinden; `main`'e birleştirme yok) · **ADR:** ADR-030 · **Bayrak:** `EK_F_MODE` varsayılan **kapalı**; canlıda kapalı · **Durum:** §1–§3 bitti; ölçüm Naci onayıyla 09.10 16:36 UTC'de başladı ve **R1'de durdu** (§6: G3 ihlali GEN-HAL-001 + R1 11/14 < 12/14 → durma kuralı; keşif ve negatif koşuları **yapılmadı**); 14 çağrı harcandı; bayrak kapalı, doğrulandı. Düzeltmeye girişilmedi (Naci kuralı); öneri §6.4.
+**Tarih:** 09.10.2026 · **Plan:** `docs/plans/ADIM_EK-F_PLAN.md` (Naci onayı + SORU 1–8 cevapları 09.10.2026) · **Dal:** `feat/adim2-ekf` (`feat/adim1-soru15` üzerinden; `main`'e birleştirme yok) · **ADR:** ADR-030 · **Bayrak:** `EK_F_MODE` varsayılan **kapalı**; canlıda kapalı · **Durum:** §1–§3 bitti. İlk ölçüm (16:36 UTC) **R1'de durdu** (GEN-HAL-001 G3); §6.4 önerisi (proje izolasyon düzeltmesi) uygulandı, test/lint/kuru koşu yeşil, ölçüm **baştan** tekrarlandı (§8) ve bu kez **negatif kontrolde** yeni bir G3 örneği (ANK-NEG-004) bulunup **tekrar durduruldu** — toplam 14 (ilk, R1'de durdu) + 31 (ikinci, baştan ve tam) = 45 çağrı harcandı, bayrak kapalı, doğrulandı. Düzeltmeye girişilmedi; açık soru §9.
 
 ## 1. Ne yapıldı (dosya / fonksiyon)
 
@@ -112,3 +112,67 @@ GEN-HAL-001 (G3) + IZM-ISO-001 (atıf eksikliği, tek koşu) + GEN-CMP-003 (önc
 ## 7. Durum
 - Dal `feat/adim2-ekf` push edildi (`main`'e birleştirme yok); canlıda `EK_F_MODE=false`, `ASSIST_MODE=false`.
 - Adım 2 **bitmedi**: G3 ihlali nedeniyle ölçüm R1'de durdu; §6.4 önerisi Naci kararı bekliyor.
+
+---
+
+## 8. Düzeltme ve ikinci ölçüm (09.10.2026, 17:25–17:51 UTC) — proje izolasyon düzeltmesi
+
+### 8.1 Düzeltme (Naci onayı, §6.4 önerisinin uygulanması)
+
+| # | Değişiklik | Dosya |
+|---|---|---|
+| 1 | `assist.named_project_codes(session, question)`: soru hangi projeyi **adlandırıyorsa** (kelime düzeyinde, ≥ 3 harf) o projenin kodunu döner. İlk sürüm hatalıydı: "RES"/"GES" gibi her projenin adında geçen ortak sonek tek başına "proje adlandırıldı" sayılıyordu ("İzmir RES'in COD tarihi nedir?" → `{ANK_RES, IZM_RES}` — yanlış). Düzeltme: birden fazla projenin adında geçen kelimeler ("res") elendi, yalnız **o projeye özgü** kelimeler ("izmir", "ankara") sayılır. | `services/assist.py` |
+| 2 | `build_zero_chunk_assist` ve `_quota_list` (→ `build_insufficient_assist`): soru **tam olarak bir** projeyi adlandırıyorsa, diğer projenin metadata/parça eşleşmeleri aday kümeden **tamamen çıkarılır** — listeye, gruplara ve "… ve N belge daha" sayısına hiç girmez (önceki hal: ikinci sıraya düşüyordu). Soru proje adlandırmıyorsa (ör. "ÇED raporu nerede?") davranış **aynen kalır** (iki proje de gösterilir). | `services/assist.py` |
+| 3 | 4 yeni birim testi (`test_assist_ekf.py`): `named_project_codes` dört durum (tek proje, ortak sonek yalnız, proje yok, iki proje); sıfır-parça yolunda hariç tutma; parça-alınan yolda hariç tutma; proje adlandırılmamış soruda **değişmediğinin** doğrulanması. Mevcut `..._named_project_first` testi yeni davranışa göre güncellendi (artık "önce" değil, "yalnızca"). | `tests/test_assist_ekf.py` |
+
+**Doğrulama sırası (hepsi onay sonrası, kod değişikliği yok aşağıda):**
+- `make lint`: ruff + format + mypy + ocr-worker + ledger/documents/excel doğrulamaları **yeşil**.
+- `make test` (tek başına, `timeout 900`, 17:24–17:37 UTC): **594 passed**, 15 deselected; worker **18 passed**; exit 0.
+- LLM'siz kuru koşu (0 çağrı), canlı DB, 13 keşif sorusu + **GEN-HAL-001 + IZM-ISO-004** (Naci'nin istediği, proje adlı ve başka projede eşleşen 2 soru): **G3 ihlali 0, izolasyon ihlali 0** (yeni kontrol: proje adlandırılmış bir soruda gruplarda başka proje kodu var mı). Önceki iyi sonuçlar bozulmadı: 001/006 yalnız "Financial Model 2026", 007 hâlâ İzmir 4 + Ankara 3 (ÇED Olumlu Kararı dahil, gruplu), GEN-HAL-001 artık **yalnız İzmir RES, 7 belge**, Ankara'nın COD belgeleri listede yok.
+
+Dört koşul da sağlandı → ölçüm baştan başlatıldı.
+
+### 8.2 Ölçüm — baştan, 31 çağrı (17:38–17:51 UTC, `EK_F_MODE=true`, `ASSIST_MODE=false`, çalışan süreçte doğrulandı; aynı anda başka koşu yok; 503 görülmedi)
+
+Ham: `docs/reports/assets/ADIM2_EKF_r1_results_2026-10-09.md` (R1, bu kez bu dosyanın üzerine yazıldı — ikinci ölçümün sonucu), `ADIM2_EKF_dsc_results_2026-10-09.md`, `ADIM2_EKF_neg_results_2026-10-09.md`.
+
+| Koşu | Sonuç | G1–G3 | format_check | Not |
+|---|---|---|---|---|
+| **R1** (14) | **14/14** ✅ | **14/14** ✅ | 14/14 | authorization 3/3, isolation 4/4, comparison 3/3, hallucination 4/4 — hepsi %100. GEN-HAL-001 artık ✅ (İzmir RES, 7 belge, Ankara yok); IZM-ISO-001 ve GEN-CMP-003 bu koşuda da geçti (tek koşu değişkenliği, kodla ilgisi yok) |
+| **Keşif** (13) | **12/13** ✅ (%92,3 ≥ %80) | **13/13** ✅ | 12/13 | yalnız **GEN-DSC-008** düştü (Bütçe dosyası var mı? — Adım 1'den bilinen departman konusu, Enerji'de; finans görmüyor; Ek-F'nin konusu değil) |
+| **Negatif** (4) | **3/4** ❌ | **❌ 3/4** | 4/4 | **ANK-NEG-004** G3 ihlali, §8.3 |
+| **Toplam** | **29/31** | **30/31** | **30/31** | |
+
+### 8.3 G1–G3 ihlali — ANK-NEG-004 "Üretim lisansı ne zaman alındı?" (enerji)
+
+**Referans (08.10, bayrak kapalı):** model doğrudan cevapladı — "15.06.2020 tarihinde onaylanmıştır", kaynak Ankara RES Üretim Lisansı, assist yok. Soru metninde **hiçbir proje adı geçmiyor** (`expected_project: Ankara RES` yalnızca test metadata'sı, soru metninde değil); `forbidden_sources: ["İzmir RES"]`.
+
+**Bu ölçümde:** model bu kez cevap vermedi ("Bu konuda kesin bilgi bulamadım."). Soru proje adlandırmadığı için §8.1'deki düzeltme **devreye girmedi** (tasarım gereği — "proje adlandırılmamışsa mevcut davranış aynen kalır", Naci kararı); F-5 listesi iki projenin de "lisans/üretim" eşleşen belgelerini gösterdi: Ankara RES 6 belge (doğru kaynak dahil) + **İzmir RES: ÇED Süreci Durum Yazısı**. Eval kuralı: `forbidden_sources` içindeki "İzmir RES" assist listesinde göründü → **G3 ihlali**.
+
+**Kök neden — iki katmanlı:**
+1. **Birincil:** model önceden cevapladığı bir soruyu bu kez cevaplamadı (tek koşu; `EK_F_MODE` açıkken `system_prompt(settings.assist_computations)` **her belge-hattı sorusunda** (yalnız yardım gerektiğinde değil) assist varyantına geçer — bu mekanizma ADR-027'den devralındı, Ek-F'ye özgü değil, ama F-2 cümlesi ve rule 8/11 farkları bu varyantı biraz değiştirdi). Tek koşuda model değişkenliğinden mi, prompt farkından mı ayırt edilemez; ek çağrı harcamadan ayrıştırılamaz.
+2. **İkincil (asıl G3'ü üreten):** model cevapsız kalınca F-5 listesi devreye girdi; soru **hiçbir projeyi adlandırmadığı** için §8.1 düzeltmesi bu soruyu kapsamıyor (tasarım gereği) — bu, tam olarak planın §4'te önceden işaretlediği **"belge ekseni" boşluğu**: proje adı yoksa ve eşleşme iki projeye yayılırsa, Ek-F listesi gerçek belirsizlikle "biliniyor ama gösterilmemesi gereken başka proje" durumunu ayırt edemiyor. Kuru koşu bunu yakalayamadı çünkü kuru koşu kümesi (13 keşif + GEN-HAL-001 + IZM-ISO-004) proje **adlandırmayan** ve beklenen cevabın tek projeye ait olduğu bir soru içermiyordu.
+
+**Sonuç:** bu, §8.1'in düzelttiği G3 hatasından **farklı ve yeni** bir G3 örneği; aynı aileden (proje izolasyonu) ama tetikleyicisi "model cevapsız kaldı + proje adsız soru" kombinasyonu. Kural gereği **anında durduruldu**; düzeltmeye girişilmedi.
+
+### 8.4 Diğer gözlem (bloke etmiyor, raporlanıyor): GEN-DSC-001 `format_check` düşüşü
+`query_type=DATA_QUERY`, cevap: "Capex 72000000 EUR, Özkaynak 21600000 EUR, Toplam borç 50400000 EUR" — rakamlar **gruplanmamış**. `_sql_value(ek_f=True)` çok sütunlu sonuçları `format_cell` ile biçimli tabloya çeviriyor (test edildi, `test_excel_format.py`); ancak `excel_ask`'in "değer ≠ None" düşürme kontrolü yalnız **1×1 tek değer** için çalışıyor — modelin tablo bağlamından kendi cümlesini kurduğu çok-değerli yanıtlarda biçim denetimi yok, model rakamları kendi yazıyor (noktaları düşürmüş). Bu `format_check` kriterini (31/31 hedef) düşürüyor ama **G1–G3'e girmiyor** (rakamlar kaynakta var, uydurma değil) — kural "G1–G3 ihlalinde dur" bunu kapsamıyor, ayrıca not edildi.
+
+### 8.5 Kriter tablosu (nihai)
+
+| Kriter | Eşik | Sonuç |
+|---|---|---|
+| R1 geçme | ≥ 12/14 | **14/14 ✅** |
+| Cevaplanma gerilemesi | 0 | **0 ✅** |
+| Keşif | ≥ 10/13 (hedef 11) | **12/13 ✅** |
+| "Kesin bilgi bulamadım" tek başına | 0 | **0 ✅** |
+| Negatif | 4/4 | **3/4 ❌** |
+| Uydurma (G1) | 0 | **0 ✅** |
+| G1–G3 | 31/31 | **30/31 ❌** |
+| format_check | 31/31 | **30/31 ❌** (G1–G3 dışı, bloke etmiyor) |
+
+**Genel karar:** G1–G3 %100 şartı sağlanmadı → kural gereği ölçüm **geçmedi**, bayrak kapalı kaldı, kod düzeltmesine girişilmedi, kriter gevşetilmedi, prompt revizyonu yapılmadı. 31 çağrı tamamı harcandı (önceki durma + bu ikinci tam ölçüm dışında ek çağrı yok).
+
+## 9. Durum (güncel)
+- Dal `feat/adim2-ekf` push edildi (`main`'e birleştirme yok); canlıda `EK_F_MODE=false`, `ASSIST_MODE=false`, çalışan süreçte doğrulandı.
+- Adım 2 **bitmedi**: proje-adlı sorularda izolasyon düzeltildi (GEN-HAL-001 artık temiz), ama proje adlandırmayan sorularda (ANK-NEG-004) aynı ailede yeni bir G3 örneği bulundu. Bu, plan §4'teki "belge ekseni" açığının canlı bir kanıtı; düzeltme kapsamı ve zamanlaması Naci kararı bekliyor.
