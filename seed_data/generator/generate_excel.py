@@ -58,7 +58,6 @@ class WorkbookSpec:
     document_type: str
     department: str
     subdepartment: str | None
-    confidentiality: str
     language: str
     document_date: str
     version_label: str
@@ -425,7 +424,6 @@ SPECS: tuple[WorkbookSpec, ...] = (
         "Financial Model",
         "finans",
         None,
-        "restricted",
         "en",
         "2026-09-01",
         "V2026",
@@ -438,7 +436,6 @@ SPECS: tuple[WorkbookSpec, ...] = (
         "Covenant Report",
         "finans",
         None,
-        "normal",
         "en",
         "2026-08-15",
         "Q2_2026",
@@ -451,7 +448,6 @@ SPECS: tuple[WorkbookSpec, ...] = (
         "Budget vs Actual",
         "enerji_grubu",
         "enerji_bakim",
-        "normal",
         "tr",
         "2026-07-31",
         "Q2_2026",
@@ -464,7 +460,6 @@ SPECS: tuple[WorkbookSpec, ...] = (
         "Monthly Production",
         "enerji_grubu",
         "enerji_bakim",
-        "normal",
         "tr",
         "2026-09-05",
         "2026-08",
@@ -486,6 +481,20 @@ def _ledger_parties(raws: dict[str, Any], doc_id: str) -> list[str]:
             if doc.get("id") == doc_id:
                 return [str(p) for p in (doc.get("parties") or [])]
     return []
+
+
+def _ledger_document(raws: dict[str, Any], doc_id: str) -> dict[str, Any]:
+    for ledger in raws.values():
+        for doc in (ledger.get("documents") or []) if isinstance(ledger, dict) else []:
+            if doc.get("id") == doc_id:
+                return dict(doc)
+    raise KeyError(f"{doc_id} is not in the ledger")
+
+
+def _ledger_confidentiality(raws: dict[str, Any], doc_id: str) -> str:
+    """Single source of truth for the gate fields (ADR-004): the ledger's `confidentiality`
+    — Soru 15 (09.10.2026) flipped the financial model to `normal` there, not in a spec."""
+    return str(_ledger_document(raws, doc_id)["confidentiality"])
 
 
 def generate(out_dir: Path = EXCEL_DIR) -> list[dict[str, Any]]:
@@ -517,7 +526,7 @@ def generate(out_dir: Path = EXCEL_DIR) -> list[dict[str, Any]]:
                 # B-28b: parties from the ledger document entry (SPV + bank where recorded).
                 "parties": _ledger_parties(raws, spec.doc_id),
                 "language": spec.language,
-                "confidentiality": spec.confidentiality,
+                "confidentiality": _ledger_confidentiality(raws, spec.doc_id),
                 "source_type": "xlsx",
                 "sheets": list(spec.sheets),
                 "named_ranges": sorted(wb.defined_names.keys()),

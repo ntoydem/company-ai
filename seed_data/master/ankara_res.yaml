@@ -1224,7 +1224,9 @@ documents:
     related: [DOC-ANK-FIN-006, DOC-ANK-FIN-007]
     source_type: xlsx
     language: en
-    confidentiality: restricted
+    # Soru 15 (Tansu A, 09.10.2026): the finance specialist sees the financial model —
+    # was `restricted` until Adım 1 (docs/plans/URUN1_KARARLAR_VE_SIRA.md §3.2 step 1).
+    confidentiality: normal
     generate_in_phase: "4.2"
     tag: AI_ASSUMPTION
   - id: DOC-ANK-FIN-009

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-05T19:07:43+00:00",
+  "generated_at": "2026-10-09T12:55:29+00:00",
   "ledger_demo_today": "2026-09-15",
   "workbooks": [
     {
@@ -23,7 +23,7 @@
         "DEF Enerji Üretim A.Ş."
       ],
       "language": "en",
-      "confidentiality": "restricted",
+      "confidentiality": "normal",
       "source_type": "xlsx",
       "sheets": [
         "Inputs",

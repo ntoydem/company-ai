@@ -19,7 +19,10 @@ from app.services.demo_departments_seed import (
     ensure_demo_department_memberships,
     ensure_demo_departments,
 )
-from app.services.demo_documents_seed import ensure_demo_documents
+from app.services.demo_documents_seed import (
+    ensure_demo_documents,
+    refresh_demo_document_metadata,
+)
 from app.services.demo_folders_seed import ensure_demo_root_folders
 from app.services.demo_projects_seed import ensure_demo_projects
 from app.services.demo_users_seed import ensure_demo_users
@@ -106,7 +109,20 @@ def cmd_seed_demo_projects() -> int:
     return 0
 
 
-def cmd_seed_demo_documents(manifest: Path) -> int:
+def cmd_seed_demo_documents(manifest: Path, refresh: str | None) -> int:
+    if refresh:
+        refs = [ref.strip() for ref in refresh.split(",") if ref.strip()]
+        with get_session_factory()() as session:
+            refreshed = refresh_demo_document_metadata(session, manifest, refs)
+        log.info(
+            "seed-demo-documents refresh done",
+            extra={
+                "refs": [r.external_ref for r in refreshed],
+                "found": [r.found for r in refreshed],
+                "changed": [r.changed for r in refreshed],
+            },
+        )
+        return 0 if all(r.found for r in refreshed) else 1
     with get_session_factory()() as session:
         results = ensure_demo_documents(session, get_settings(), manifest)
     log.info(
@@ -275,6 +291,13 @@ def main(argv: list[str] | None = None) -> int:
         help="create the demo documents from seed_data/documents/manifest.json",
     )
     seed_docs.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
+    seed_docs.add_argument(
+        "--refresh",
+        default=None,
+        metavar="REF[,REF]",
+        help="re-seed only the gate metadata (department, subdepartment, confidentiality, "
+        "project) of these already-seeded external_refs from the manifest; creates nothing",
+    )
     wait_docs = sub.add_parser(
         "wait-for-documents", help="block until every seeded document is ready or one fails"
     )
@@ -318,7 +341,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "seed-demo-folders":
         return cmd_seed_demo_folders()
     if args.command == "seed-demo-documents":
-        return cmd_seed_demo_documents(args.manifest)
+        return cmd_seed_demo_documents(args.manifest, args.refresh)
     if args.command == "wait-for-documents":
         return cmd_wait_for_documents(args.timeout)
     if args.command == "assert-pipeline-schema":

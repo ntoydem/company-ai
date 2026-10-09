@@ -137,3 +137,59 @@ def test_seed_records_ledger_parties_as_extra_field(
     workbook = docs["DOC-ANK-FIN-009"]
     assert "PQR Bank" in workbook.extra_fields["parties"]["value"]
     assert set(facility.extra_fields) == {"parties"}
+
+
+# --- Adım 1 / Soru 15 (Tansu A, 09.10.2026): the financial model is `normal` ---
+
+
+def test_financial_model_is_seeded_normal_after_question_15(
+    db_session: Session, settings: Settings
+) -> None:
+    """`DOC-ANK-FIN-008` was the only `restricted` demo document; Soru 15 flips it so the
+    Proje Finans *specialist* can see it (docs/plans/URUN1_KARARLAR_VE_SIRA.md §3.2 step 1).
+    The ledger is the single source: generator spec, Excel manifest and seed all agree."""
+    _prepare(db_session, settings)
+    ensure_demo_documents(db_session, settings, MANIFEST_PATH)
+    documents = _seeded_documents(db_session)
+
+    model = documents["DOC-ANK-FIN-008"]
+    assert model.title == "Financial Model 2026"
+    assert model.department == "finans"
+    assert model.confidentiality.value == "normal"
+    assert all(d.confidentiality.value != "restricted" for d in documents.values())
+
+
+def test_refresh_resyncs_only_named_gate_fields_from_the_manifest(
+    db_session: Session, settings: Settings
+) -> None:
+    """An existing install still has the pre-Soru-15 row; `--refresh DOC-ANK-FIN-008` brings
+    only that row's gate fields back to the manifest, reports before/after, creates nothing,
+    and leaves every other row (and staff-edited fields) untouched."""
+    from app.models.document import Confidentiality
+    from app.services.demo_documents_seed import refresh_demo_document_metadata
+
+    _prepare(db_session, settings)
+    ensure_demo_documents(db_session, settings, MANIFEST_PATH)
+    documents = _seeded_documents(db_session)
+    model, covenant = documents["DOC-ANK-FIN-008"], documents["DOC-ANK-FIN-009"]
+    model.confidentiality = Confidentiality.restricted  # the old state
+    model.title = "Finansal Model (düzenlendi)"  # a staff edit that must survive
+    covenant.confidentiality = Confidentiality.restricted  # not named → stays as is
+    db_session.commit()
+
+    results = refresh_demo_document_metadata(
+        db_session, MANIFEST_PATH, ["DOC-ANK-FIN-008", "DOC-XXX-NOPE-999"]
+    )
+
+    assert [r.external_ref for r in results] == ["DOC-ANK-FIN-008", "DOC-XXX-NOPE-999"]
+    assert results[0].found and results[0].changed == {"confidentiality": ("restricted", "normal")}
+    assert results[1].found is False and results[1].changed == {}
+    db_session.expire_all()
+    documents = _seeded_documents(db_session)
+    assert len(documents) == 74
+    assert documents["DOC-ANK-FIN-008"].confidentiality.value == "normal"
+    assert documents["DOC-ANK-FIN-008"].title == "Finansal Model (düzenlendi)"
+    assert documents["DOC-ANK-FIN-009"].confidentiality.value == "restricted"
+    # second run: nothing left to change
+    again = refresh_demo_document_metadata(db_session, MANIFEST_PATH, ["DOC-ANK-FIN-008"])
+    assert again[0].changed == {}

@@ -209,3 +209,59 @@ def test_employee_levels_are_unchanged_by_the_manager_rule() -> None:
     )
     assert provider.seen_department_calls[0][1] == (Confidentiality.normal,)
     assert provider.seen_folder_calls[0][1] == (Confidentiality.normal,)
+
+
+# --- Adım 1 / Soru 15 (Tansu A, 09.10.2026): the gate on the real seeded demo set ---
+
+
+def test_finans_employee_sees_the_financial_model_but_still_no_restricted_document(
+    db_session, settings
+) -> None:
+    """End-to-end through the SQL provider: the Proje Finans *specialist* (`finans`, role
+    employee) now gets `DOC-ANK-FIN-008` (Financial Model 2026, `normal` since Soru 15),
+    while a `restricted` document of the same department stays outside the gate and `board`
+    stays outside too (rules unchanged, only the data changed)."""
+    from pathlib import Path
+
+    from app.models.document import Document
+    from app.repositories import user_repo
+    from app.repositories.document_repo import SqlDocumentIdsProvider, get_by_external_ref
+    from app.services.admin_seed import ensure_admin_user
+    from app.services.demo_departments_seed import (
+        ensure_demo_department_memberships,
+        ensure_demo_departments,
+    )
+    from app.services.demo_documents_seed import ensure_demo_documents
+    from app.services.demo_projects_seed import ensure_demo_projects
+    from app.services.demo_users_seed import ensure_demo_users
+
+    manifest = Path(__file__).resolve().parent.parent / "seed_data" / "documents" / "manifest.json"
+    ensure_admin_user(db_session, settings)
+    ensure_demo_users(db_session, settings)
+    ensure_demo_departments(db_session, settings)
+    ensure_demo_department_memberships(db_session, settings)
+    ensure_demo_projects(db_session, settings)
+    ensure_demo_documents(db_session, settings, manifest)
+    model = get_by_external_ref(db_session, "DOC-ANK-FIN-008")
+    covenant = get_by_external_ref(db_session, "DOC-ANK-FIN-009")
+    assert model is not None and covenant is not None
+    covenant.confidentiality = Confidentiality.restricted  # a restricted finans document
+    board = Document(
+        title="Board only",
+        document_type="minutes",
+        counterparty="x",
+        document_date=model.document_date,
+        department="finans",
+        confidentiality=Confidentiality.board,
+        storage_path=f"{uuid.uuid4()}/original.pdf",
+    )
+    db_session.add(board)
+    db_session.commit()
+    finans = user_repo.get_by_username(db_session, "finans")
+    assert finans is not None and finans.role == UserRole.employee
+
+    allowed = allowed_document_ids(finans, AuthorizationScope(), SqlDocumentIdsProvider(db_session))
+
+    assert model.id in allowed
+    assert covenant.id not in allowed
+    assert board.id not in allowed

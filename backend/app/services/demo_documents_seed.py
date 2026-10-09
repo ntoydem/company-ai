@@ -185,6 +185,77 @@ def _relink_chain(session: Session, manifest_dir: Path, entries: list[dict[str, 
         session.commit()
 
 
+@dataclass(frozen=True)
+class DemoRefreshResult:
+    external_ref: str
+    changed: dict[str, tuple[str | None, str | None]]  # field -> (before, after)
+    found: bool = True
+
+
+_GATE_FIELDS = ("department", "subdepartment", "confidentiality")
+
+
+def _manifest_entries(manifest_path: Path) -> dict[str, dict[str, Any]]:
+    entries = {
+        e["external_ref"]: e
+        for e in json.loads(manifest_path.read_text(encoding="utf-8"))["documents"]
+    }
+    excel_manifest = manifest_path.parent.parent / "excel" / "manifest.json"
+    if excel_manifest.exists():
+        for e in json.loads(excel_manifest.read_text(encoding="utf-8"))["workbooks"]:
+            entries[e["external_ref"]] = e
+    return entries
+
+
+def refresh_demo_document_metadata(
+    session: Session, manifest_path: Path, external_refs: list[str]
+) -> list[DemoRefreshResult]:
+    """Re-seed the *gate* metadata (department, subdepartment, confidentiality, project) of
+    named, already-seeded demo documents from the manifest — opt-in, per external_ref.
+
+    The create-if-missing seed never touches an existing row, so a ledger decision such as
+    Soru 15 (Financial Model `restricted` → `normal`, 09.10.2026) needs this explicit path
+    instead of a full reseed or a hand-written SQL update. Titles, tags, parties and staff
+    edits are left alone; only ADR-004 inputs are synced. Before/after values are returned
+    (and logged) so the change is auditable."""
+    entries = _manifest_entries(manifest_path)
+    results: list[DemoRefreshResult] = []
+    for external_ref in external_refs:
+        entry = entries.get(external_ref)
+        document = document_repo.get_by_external_ref(session, external_ref)
+        if entry is None or document is None:
+            log.warning("demo document refresh: unknown ref", extra={"external_ref": external_ref})
+            results.append(DemoRefreshResult(external_ref=external_ref, changed={}, found=False))
+            continue
+        changed: dict[str, tuple[str | None, str | None]] = {}
+        for field in _GATE_FIELDS:
+            before = getattr(document, field)
+            before_value = before.value if isinstance(before, Confidentiality) else before
+            after_value = entry[field]
+            if before_value != after_value:
+                changed[field] = (before_value, after_value)
+                setattr(
+                    document,
+                    field,
+                    Confidentiality(after_value) if field == "confidentiality" else after_value,
+                )
+        project_id = _project_id(session, entry["project_code"])
+        if document.project_id != project_id:
+            changed["project_id"] = (
+                str(document.project_id) if document.project_id else None,
+                str(project_id) if project_id else None,
+            )
+            document.project_id = project_id
+        if changed:
+            session.commit()
+        log.info(
+            "demo document metadata refreshed",
+            extra={"external_ref": external_ref, "changed": changed},
+        )
+        results.append(DemoRefreshResult(external_ref=external_ref, changed=changed))
+    return results
+
+
 def ensure_demo_documents(
     session: Session, settings: Settings, manifest_path: Path
 ) -> list[DemoSeedResult]:
