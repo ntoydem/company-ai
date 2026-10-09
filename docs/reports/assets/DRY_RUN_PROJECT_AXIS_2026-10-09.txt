@@ -1,0 +1,44 @@
+PROJECT_AXIS_DISAMBIG_SPREAD=0.5 PROJECT_AXIS_DOMINANT_SHARE=0.75
+
+## Dev AMB (5) — beklenen: disambiguate, hedef ≥ 4/5
+
+GEN-AMB-001 (yonetim, chunks=68) — 'Sözleşmenin vadesi ne zaman doluyor?'
+  → dominant codes=() ❌
+GEN-AMB-002 (finans, chunks=11) — 'Raporda belirtilen DSCR değeri kaç?'
+  → none codes=() ❌
+GEN-AMB-003 (yonetim, chunks=25) — 'Son tadil neyi değiştirdi?'
+  → disambiguate codes=('ANK_RES', 'IZM_RES') ✅
+GEN-AMB-004 (enerji, chunks=18) — 'Lisans ne zaman alındı?'
+  → disambiguate codes=('ANK_RES', 'IZM_RES') ✅
+GEN-AMB-005 (yonetim, chunks=46) — 'Toplantıda ne karar alındı?'
+  → disambiguate codes=('ANK_RES', 'IZM_RES') ✅
+
+AMB isabet: 3/5
+
+## Dev NEG (9) — beklenen: disambiguate DEĞİL, hedef yanlış alarm 0/9
+
+ANK-NEG-001 (finans, chunks=49) — 'Ankara RES kredisinin vadesi kaç yıl?'
+  → named project_code=ANK_RES codes=() 
+ANK-NEG-002 (finans, chunks=52) — 'Ankara RES finansmanında ihracat kredi kurumu kredisi ne kadar?'
+  → named project_code=ANK_RES codes=() 
+ANK-NEG-003 (finans, chunks=42) — 'Kredi sözleşmesinin vadesi kaç yıl?'
+  → none project_code=None codes=() 
+ANK-NEG-004 (enerji, chunks=80) — 'Üretim lisansı ne zaman alındı?'
+  → dominant project_code=ANK_RES codes=() 
+CO-NEG-005 (yonetim, chunks=80) — 'Denetim komitesi üyeleri hangi kararla atandı?'
+  → dominant project_code=ANK_RES codes=() 
+GEN-AMB-003-F (finans, chunks=9) — 'Son tadil neyi değiştirdi?'
+  → none project_code=None codes=() 
+GEN-CMP-001 (enerji, chunks=80) — 'Ankara RES üretim lisansı ne zaman alındı, İzmir RES önlisansı ne zaman alındı?'
+  → none project_code=None codes=() 
+GEN-CMP-002 (enerji, chunks=80) — 'Ankara RES üretim lisansı ile İzmir RES önlisansı — hangisi daha önce alındı?'
+  → none project_code=None codes=() 
+GEN-CMP-003 (enerji, chunks=80) — "Ankara RES ile İzmir RES'in kurulu gücü hangisi daha büyük?"
+  → none project_code=None codes=() 
+
+NEG yanlış alarm: 0/9 []
+
+ANK-NEG-004 == dominant/ANK_RES: ✅
+
+Sonuç: ❌ kaldı
+
