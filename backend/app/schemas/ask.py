@@ -130,13 +130,17 @@ class AssistBlock(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-    kind: Literal["none", "clarify", "term_mismatch"]
+    kind: Literal["none", "clarify", "term_mismatch", "disambiguate"]
     question: str | None = None
     unmatched_terms: list[str] = Field(default_factory=list)
     candidate_terms: list[str] = Field(default_factory=list)
     # ADR-030 (EK_F_MODE): `available` grouped by project; `[]` with the flag off.
     groups: list[AssistAvailableGroup] = Field(default_factory=list)
     available: list[AssistAvailableDocument] = Field(default_factory=list)
+    # Adım 4 (09.10.2026): "project" when `kind="disambiguate"` or the list above was
+    # narrowed along the project axis; `None` with the flag off or when this axis is not
+    # involved.
+    axis: Literal["project"] | None = None
 
 
 class AskRequest(BaseModel):

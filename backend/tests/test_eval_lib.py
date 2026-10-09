@@ -857,3 +857,24 @@ def test_format_check_flags_raw_spellings_and_passes_turkish_ones() -> None:
     # document and invoice numbers are identifiers, not numbers
     assert format_check("Fatura ENR2026001121, sözleşme S-26-001, 44.100.000 EUR") == ("pass", None)
     assert format_check("") == ("pass", None)
+
+
+# --- Adım 4 (ADR-030, 09.10.2026): expect_assist="disambiguate" ---
+
+
+def test_assist_check_matches_the_disambiguate_kind() -> None:
+    question = _question(category="ambiguous", expect_no_answer=True, expect_assist="disambiguate")
+    fixed_question = "Hangi projeyi kastediyorsunuz: Ankara RES mi, İzmir RES mi?"
+    assert assist_check(
+        question,
+        AskOutcome(answered=False, answer_text=fixed_question, assist={"kind": "disambiguate"}),
+    ) == ("pass", None)
+    status, reason = assist_check(
+        question,
+        AskOutcome(answered=False, answer_text=fixed_question, assist={"kind": "clarify"}),
+    )
+    assert status == "fail" and reason is not None
+    # G1: the disambiguate question itself carries no digit/date/currency fact
+    from scripts.eval_lib import format_check
+
+    assert format_check(fixed_question) == ("pass", None)

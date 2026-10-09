@@ -41,7 +41,7 @@ QuestionCategory = Literal[
 # `finans_mudur`: the finance department_manager (sees `restricted`, B-08) — B ölçümü teşhis
 # tekrarı (08.10.2026) asks the restricted-workbook questions with the right role.
 DemoUser = Literal["admin", "yonetim", "finans", "hukuk", "enerji", "finans_mudur"]
-AssistKind = Literal["clarify", "term_mismatch"]
+AssistKind = Literal["clarify", "term_mismatch", "disambiguate"]
 
 DEPARTMENT_SLUGS = (
     "enerji_grubu",

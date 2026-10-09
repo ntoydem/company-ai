@@ -441,3 +441,151 @@ def test_unnamed_project_question_still_shows_every_matching_project(
     assert {str(ankara_doc.id), str(izmir_doc.id)} <= listed
     names = {g["project_name"] for g in body["assist"]["groups"]}
     assert names == {"Ankara RES", "İzmir RES"}
+
+
+# --- Adım 4 (ADR-030, 09.10.2026): project axis — disambiguate / dominant / named(≥2) ---
+
+
+def test_disambiguate_fires_before_any_llm_call_on_a_close_split(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    ek_f_on: None,
+) -> None:
+    """GEN-AMB-00x shape: no project named, retrieval splits close to evenly between the two
+    projects → the LLM is never called (same ADR-021 guarantee as the zero-chunk path), the
+    answer is the fixed question alone — no verdict, no list (F-4: "içerik sıralamaz")."""
+    projects = _projects(db_session)
+    ankara_docs = [
+        _document(
+            db_session, title=f"Ankara Sözleşme {i}", department=None, text="sözleşme vade maddesi"
+        )
+        for i in range(4)
+    ]
+    izmir_docs = [
+        _document(
+            db_session, title=f"İzmir Sözleşme {i}", department=None, text="sözleşme vade maddesi"
+        )
+        for i in range(3)
+    ]
+    for doc in ankara_docs:
+        doc.project_id = projects["ANK_RES"].id
+    for doc in izmir_docs:
+        doc.project_id = projects["IZM_RES"].id
+    db_session.commit()
+
+    body = _ask(client, "Sözleşmenin vadesi ne zaman doluyor?")
+
+    assert fake_llm.requests == []  # no LLM call at all
+    assert body["answered"] is False
+    assert body["assist"]["kind"] == "disambiguate"
+    assert body["assist"]["axis"] == "project"
+    assert body["assist"]["available"] == []
+    assert body["answer"] == "Hangi projeyi kastediyorsunuz: Ankara RES mi, İzmir RES mi?"
+
+
+def test_two_named_projects_never_trigger_disambiguate(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    ek_f_on: None,
+) -> None:
+    """Ü-3's own multi-project path (GEN-CMP shape): both projects named explicitly, even
+    with the same close chunk split as above → never `disambiguate`, LLM is called."""
+    projects = _projects(db_session)
+    ankara_docs = [
+        _document(
+            db_session, title=f"Ankara Sözleşme {i}", department=None, text="sözleşme vade maddesi"
+        )
+        for i in range(4)
+    ]
+    izmir_docs = [
+        _document(
+            db_session, title=f"İzmir Sözleşme {i}", department=None, text="sözleşme vade maddesi"
+        )
+        for i in range(3)
+    ]
+    for doc in ankara_docs:
+        doc.project_id = projects["ANK_RES"].id
+    for doc in izmir_docs:
+        doc.project_id = projects["IZM_RES"].id
+    db_session.commit()
+    fake_llm.replies = [NO_ANSWER_TEXT]
+
+    body = _ask(client, "Ankara RES ile İzmir RES'in sözleşme vadesi ne zaman doluyor?")
+
+    assert len(fake_llm.requests) == 1  # the LLM was called, not short-circuited
+    assert (body["assist"] or {}).get("kind") != "disambiguate"
+
+
+def test_zero_chunk_dominant_project_is_stated_explicitly_and_the_minority_is_excluded(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    ek_f_on: None,
+) -> None:
+    """ANK-NEG-004 shape (zero-chunk variant): no project named, 4 Ankara / 1 İzmir metadata
+    matches (5 total, under the "too common" probe threshold of 5) → narrows to Ankara,
+    states the assumption out loud, İzmir never appears."""
+    projects = _projects(db_session)
+    ankara_docs = [
+        _metadata_only(
+            db_session, title=f"Ankara Üretim Raporu {i}", project=projects["ANK_RES"], day=i + 1
+        )
+        for i in range(4)
+    ]
+    izmir_doc = _metadata_only(
+        db_session, title="İzmir Üretim Raporu", project=projects["IZM_RES"], day=5
+    )
+
+    body = _ask(client, "Üretim raporu var mı?")
+
+    assert fake_llm.requests == []
+    listed = {a["document_id"] for a in body["assist"]["available"]}
+    assert all(str(d.id) in listed for d in ankara_docs)
+    assert str(izmir_doc.id) not in listed
+    assert "İzmir RES" not in body["answer"] and izmir_doc.title not in body["answer"]
+    assert body["assist"]["axis"] == "project"
+    assert "Ankara RES projesine ait olduğu varsayıldı." in body["answer"]
+    names = {g["project_name"] for g in body["assist"]["groups"]}
+    assert names == {"Ankara RES"}
+
+
+def test_insufficient_dominant_project_is_stated_explicitly_and_the_minority_is_excluded(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    ek_f_on: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """ANK-NEG-004 shape end to end: chunks exist (so the LLM is called normally, the axis
+    is `dominant` not `disambiguate`), the model declines, and *then* the list narrows to
+    the majority project with the assumption stated — İzmir never appears."""
+    projects = _projects(db_session)
+    ankara_docs = [
+        _document(db_session, title=f"Belge {i}", department=None, text="üretim lisansı bilgisi")
+        for i in range(6)
+    ]
+    izmir_doc = _document(
+        db_session, title="İzmir Belgesi", department=None, text="üretim lisansı bilgisi"
+    )
+    for doc in ankara_docs:
+        doc.project_id = projects["ANK_RES"].id
+    izmir_doc.project_id = projects["IZM_RES"].id
+    db_session.commit()
+    ids = {d.id for d in ankara_docs} | {izmir_doc.id}
+    monkeypatch.setattr(assist_module, "specific_matched_terms", lambda *a, **k: {"lisansı": ids})
+    fake_llm.replies = [NO_ANSWER_TEXT]
+
+    body = _ask(client, "Üretim lisansı ne zaman alındı?")
+
+    assert len(fake_llm.requests) == 1  # LLM was called — axis was dominant, not disambiguate
+    assert body["answered"] is False
+    listed = {a["document_id"] for a in body["assist"]["available"]}
+    assert str(izmir_doc.id) not in listed
+    assert "İzmir Belgesi" not in body["answer"]
+    assert "Ankara RES projesine ait olduğu varsayıldı." in body["answer"]

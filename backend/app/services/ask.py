@@ -22,8 +22,15 @@ from app.schemas.retrieval import RetrievalFilters
 from app.services import answer_prompt
 from app.services.assist import (
     Assist,
+    ProjectAxisDecision,
+    available_from_chunks,
+    build_disambiguate_assist,
     build_insufficient_assist,
     build_zero_chunk_assist,
+    classify_project_axis,
+    downgrade_existence_disambiguate,
+    named_project_codes,
+    project_distribution,
     render_no_data,
     split_question_line,
 )
@@ -165,7 +172,12 @@ def answer_question(
             scope = AuthorizationScope(department=request.department)
             allowed = allowed_document_ids(user, scope, SqlDocumentIdsProvider(session))
             zero_assist = build_zero_chunk_assist(
-                session, allowed, request.question, ek_f=settings.ek_f_enabled
+                session,
+                allowed,
+                request.question,
+                ek_f=settings.ek_f_enabled,
+                disambig_spread=settings.project_axis_disambig_spread,
+                dominant_share=settings.project_axis_dominant_share,
             )
             result = replace(result, assist=zero_assist)
             if settings.ek_f_enabled:
@@ -176,104 +188,134 @@ def answer_question(
         allowed = allowed_document_ids(user, scope, SqlDocumentIdsProvider(session))
         documents = document_repo.load_with_chains(session, retrieved_ids, allowed_ids=allowed)
         by_id = {document.id: document for document in documents}
-        now = temporal_today(settings)
-        chain = evaluate_version_chains(documents, now)
-        sources = answer_prompt.order_sources(chunks, by_id, chain)
-
-        user_prompt = answer_prompt.build_user_prompt(
-            request.question,
-            sources,
-            now,
-            previous_question=request.previous_question if settings.ek_f_enabled else None,
-        )
-        try:
-            response = llm.complete(
-                LLMRequest(
-                    system=answer_prompt.system_prompt(settings.assist_computations),
-                    user=user_prompt,
-                    model=settings.llm_model_answer,
-                    max_output_tokens=settings.llm_max_output_tokens,
-                    reasoning_effort=settings.llm_reasoning_effort,
-                )
+        # Adım 4 (ADR-030, 09.10.2026): the project axis is classified from these same
+        # retrieved documents *before* the prompt is built — a genuinely ambiguous question
+        # (no project named, candidates split close to evenly between ≥ 2 projects) must
+        # never reach the LLM at all (Ü-3/F-4), the same ADR-021 guarantee the zero-chunk
+        # path already has. `named`/`dominant`/`none` do not short-circuit; the decision is
+        # carried forward and reused if the model ends up declining anyway.
+        axis_decision: ProjectAxisDecision | None = None
+        if settings.ek_f_enabled:
+            named = named_project_codes(session, request.question)
+            chunk_cards = available_from_chunks(by_id, chunks, limit=50)
+            axis_decision = classify_project_axis(
+                project_distribution(chunk_cards),
+                named,
+                disambig_spread=settings.project_axis_disambig_spread,
+                dominant_share=settings.project_axis_dominant_share,
             )
-        except LLMError as exc:
-            if write_audit:
-                _write_audit_log(
-                    session,
-                    user,
-                    request,
-                    retrieved_ids=retrieved_ids,
-                    chunks=chunks,
-                    answer="",
-                    sources=[],
-                    model=None,
-                    tokens_in=0,
-                    tokens_out=0,
-                    execution_ms=round((time.perf_counter() - started) * 1000),
-                    error=str(exc),
-                )
-            raise
-        # ADR-027: the model's optional `SORU:` line is separated first; the fixed sentence
-        # is still canonicalised exactly as before (ADR-014).
-        answer_text, model_question = (
-            split_question_line(response.text)
-            if settings.assist_computations
-            else (response.text, None)
-        )
-        if answer_prompt.is_no_answer(answer_text):
-            assist = (
-                build_insufficient_assist(
-                    session,
-                    allowed,
-                    request.question,
-                    documents=by_id,
-                    chunks=chunks,
-                    model_question=model_question,
-                    ek_f=settings.ek_f_enabled,
-                )
-                if settings.assist_computations
-                else None
-            )
-            shown = (
-                render_no_data(assist, request.question)
-                if settings.ek_f_enabled and assist is not None
-                else answer_prompt.NO_ANSWER_TEXT
-            )
+            axis_decision = downgrade_existence_disambiguate(axis_decision, request.question)
+        if axis_decision is not None and axis_decision.kind == "disambiguate":
+            disambiguate_assist = build_disambiguate_assist(session, axis_decision)
             result = AskResult(
-                answer=shown,
+                answer=render_no_data(disambiguate_assist, request.question),
                 answered=False,
                 retrieved_document_ids=retrieved_ids,
-                model=response.model,
-                tokens_in=response.tokens_in,
-                tokens_out=response.tokens_out,
                 chunks=chunks,
-                assist=assist,
+                assist=disambiguate_assist,
             )
         else:
-            if model_question is not None:
-                # Rule 11 allows the line only on a no-answer; on an answered reply it is
-                # not shown (the answer carries its own citations).
-                log.info("assist question ignored on an answered reply")
-            refs = answer_prompt.parse_citations(answer_text)
-            cards, unknown = _source_cards(refs, sources)
-            if unknown:
-                log.warning("unknown citation labels", extra={"labels": unknown})
-            if not cards:
-                log.warning("answer without citations")
-            if settings.ek_f_enabled:
-                # ADR-030 F-8 gate: dates and English number spellings only (SORU 8);
-                # citation labels were already read from the model's text above.
-                answer_text = polish_answer(answer_text)
-            result = AskResult(
-                answer=answer_text.strip(),
-                answered=True,
-                sources=cards,
-                retrieved_document_ids=retrieved_ids,
-                model=response.model,
-                tokens_in=response.tokens_in,
-                tokens_out=response.tokens_out,
-                chunks=chunks,
+            now = temporal_today(settings)
+            chain = evaluate_version_chains(documents, now)
+            sources = answer_prompt.order_sources(chunks, by_id, chain)
+
+            user_prompt = answer_prompt.build_user_prompt(
+                request.question,
+                sources,
+                now,
+                previous_question=request.previous_question if settings.ek_f_enabled else None,
             )
+            try:
+                response = llm.complete(
+                    LLMRequest(
+                        system=answer_prompt.system_prompt(settings.assist_computations),
+                        user=user_prompt,
+                        model=settings.llm_model_answer,
+                        max_output_tokens=settings.llm_max_output_tokens,
+                        reasoning_effort=settings.llm_reasoning_effort,
+                    )
+                )
+            except LLMError as exc:
+                if write_audit:
+                    _write_audit_log(
+                        session,
+                        user,
+                        request,
+                        retrieved_ids=retrieved_ids,
+                        chunks=chunks,
+                        answer="",
+                        sources=[],
+                        model=None,
+                        tokens_in=0,
+                        tokens_out=0,
+                        execution_ms=round((time.perf_counter() - started) * 1000),
+                        error=str(exc),
+                    )
+                raise
+            # ADR-027: the model's optional `SORU:` line is separated first; the fixed
+            # sentence is still canonicalised exactly as before (ADR-014).
+            answer_text, model_question = (
+                split_question_line(response.text)
+                if settings.assist_computations
+                else (response.text, None)
+            )
+            if answer_prompt.is_no_answer(answer_text):
+                assist = (
+                    build_insufficient_assist(
+                        session,
+                        allowed,
+                        request.question,
+                        documents=by_id,
+                        chunks=chunks,
+                        model_question=model_question,
+                        ek_f=settings.ek_f_enabled,
+                        axis_decision=axis_decision,
+                        disambig_spread=settings.project_axis_disambig_spread,
+                        dominant_share=settings.project_axis_dominant_share,
+                    )
+                    if settings.assist_computations
+                    else None
+                )
+                shown = (
+                    render_no_data(assist, request.question)
+                    if settings.ek_f_enabled and assist is not None
+                    else answer_prompt.NO_ANSWER_TEXT
+                )
+                result = AskResult(
+                    answer=shown,
+                    answered=False,
+                    retrieved_document_ids=retrieved_ids,
+                    model=response.model,
+                    tokens_in=response.tokens_in,
+                    tokens_out=response.tokens_out,
+                    chunks=chunks,
+                    assist=assist,
+                )
+            else:
+                if model_question is not None:
+                    # Rule 11 allows the line only on a no-answer; on an answered reply it
+                    # is not shown (the answer carries its own citations).
+                    log.info("assist question ignored on an answered reply")
+                refs = answer_prompt.parse_citations(answer_text)
+                cards, unknown = _source_cards(refs, sources)
+                if unknown:
+                    log.warning("unknown citation labels", extra={"labels": unknown})
+                if not cards:
+                    log.warning("answer without citations")
+                if settings.ek_f_enabled:
+                    # ADR-030 F-8 gate: dates and English number spellings only (SORU 8);
+                    # citation labels were already read from the model's text above.
+                    answer_text = polish_answer(answer_text)
+                result = AskResult(
+                    answer=answer_text.strip(),
+                    answered=True,
+                    sources=cards,
+                    retrieved_document_ids=retrieved_ids,
+                    model=response.model,
+                    tokens_in=response.tokens_in,
+                    tokens_out=response.tokens_out,
+                    chunks=chunks,
+                )
 
     log.info(
         "ask completed",

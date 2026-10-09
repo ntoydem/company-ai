@@ -49,7 +49,7 @@ from app.services.search_query import question_terms, turkish_lower
 
 log = logging.getLogger(__name__)
 
-AssistKind = Literal["none", "clarify", "term_mismatch"]
+AssistKind = Literal["none", "clarify", "term_mismatch", "disambiguate"]
 
 MAX_AVAILABLE = 5
 # ADR-030 (Ek-F F-3, EK_F_MODE): the list grows to 7 and keeps ≥ 3 places for documents that
@@ -60,6 +60,13 @@ CHUNK_QUOTA_EKF = 4
 COMPANY_GROUP_NAME = "Şirket geneli"
 MAX_UNDERSTOOD_TERMS = 2
 MAX_CANDIDATE_TERMS = 5
+# ADR-030 Adım 4 (09.10.2026, project axis — PROJESIZ_SORU_PLAN.md, ADIM4_PLAN.md): tuned on
+# the dev set then locked (Naci 09.10.2026); a held-out run never moves these two numbers.
+# `Settings` carries the live values — these are the fallback for direct/unit-test calls.
+DEFAULT_DISAMBIG_SPREAD = 0.5
+DEFAULT_DOMINANT_SHARE = 0.75
+
+ProjectAxisKind = Literal["named", "disambiguate", "dominant", "none"]
 MAX_QUESTION_CHARS = 200
 # Shorter tokens ("RES", "kaç") are too common to say anything about a mismatch.
 MIN_PROBE_TERM_CHARS = 3
@@ -194,6 +201,23 @@ class AvailableGroup:
 
 
 @dataclass(frozen=True)
+class ProjectAxisDecision:
+    """Adım 4 (09.10.2026): what the project distribution of candidate documents says,
+    before any list is built. `named` — the question itself names exactly one project
+    (ADR-030/GEN-HAL-001, unchanged) and wins outright. `disambiguate` — no project named,
+    the distribution is close between ≥ 2 projects: the caller skips the LLM and asks one
+    fixed question (Ü-3/F-4); `codes` carries which projects are close enough to name in
+    it. `dominant` — no project named, one project clearly has the majority: callers narrow
+    to it and must say so out loud (no silent guess, Naci 09.10.2026). `none` — neither:
+    today's Adım 2 behaviour, unchanged (including a question naming ≥ 2 projects — Ü-3's
+    own multi-project path, not this axis's concern)."""
+
+    kind: ProjectAxisKind
+    project_code: str | None = None
+    codes: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class Assist:
     kind: AssistKind = "none"
     question: str | None = None
@@ -204,6 +228,13 @@ class Assist:
     # further candidates were not listed — counted by code, never by the model (SORU 4).
     groups: tuple[AvailableGroup, ...] = ()
     more_count: int = 0
+    # Adım 4: "project" when the list was narrowed, or a disambiguate question was asked,
+    # along this axis; None otherwise (bayrak kapalı ya da bu eksenin konusu değil).
+    axis: Literal["project"] | None = None
+    # The project the list was narrowed to *by inference* (dominant share, not a name the
+    # question used) — set only then, so `render_no_data` states the assumption out loud.
+    # None when the project was named by the user, or there was no narrowing at all.
+    inferred_project: str | None = None
     # Why a model-written question was dropped (logged, never shown) — None when kept.
     dropped_reason: str | None = field(default=None, compare=False)
 
@@ -317,11 +348,87 @@ def named_project_codes(session: Session, question: str) -> set[str]:
     return codes
 
 
-def _single_named_project(session: Session, question: str, *, ek_f: bool) -> str | None:
-    if not ek_f:
-        return None
-    named = named_project_codes(session, question)
-    return next(iter(named)) if len(named) == 1 else None
+def project_distribution(cards: Iterable[AvailableDocument]) -> dict[str | None, int]:
+    """Adım 4: one count per `project_code` among `cards` — the single signal both
+    thresholds in `classify_project_axis` read. `cards` is whatever a caller already built
+    (zero-chunk's metadata matches, or the chunk-vouched documents) — no new query."""
+    counts: dict[str | None, int] = {}
+    for card in cards:
+        counts[card.project_code] = counts.get(card.project_code, 0) + 1
+    return counts
+
+
+def classify_project_axis(
+    distribution: dict[str | None, int],
+    named: set[str],
+    *,
+    disambig_spread: float = DEFAULT_DISAMBIG_SPREAD,
+    dominant_share: float = DEFAULT_DOMINANT_SHARE,
+) -> ProjectAxisDecision:
+    """Adım 4, pure (no DB, no session) — see `ProjectAxisDecision` for what each outcome
+    means. Company-level candidates (`project_code is None`) never count toward either
+    threshold: they are not a *project*, so they can neither be the ambiguity nor the
+    majority. `disambig_spread` is checked before `dominant_share`; with the default
+    values the two can never both hold for the same distribution (a share ≥ 0.75 bounds the
+    second group's share of the top below 0.5 when there are only two projects — the usual
+    case here), so the order is a tie-breaker in the rare case of ≥ 3 projects, not a
+    meaningful choice."""
+    if len(named) == 1:
+        return ProjectAxisDecision("named", next(iter(named)))
+    if len(named) >= 2:
+        return ProjectAxisDecision("none")
+    by_project = {code: n for code, n in distribution.items() if code is not None and n > 0}
+    if len(by_project) < 2:
+        return ProjectAxisDecision("none")
+    ranked = sorted(by_project.items(), key=lambda kv: (-kv[1], kv[0]))
+    top_code, top_n = ranked[0]
+    second_n = ranked[1][1]
+    if second_n >= disambig_spread * top_n:
+        close = tuple(sorted(code for code, n in ranked if n >= disambig_spread * top_n))
+        return ProjectAxisDecision("disambiguate", codes=close)
+    total = sum(by_project.values())
+    if top_n / total >= dominant_share:
+        return ProjectAxisDecision("dominant", top_code)
+    return ProjectAxisDecision("none")
+
+
+def _project_names(session: Session, codes: Iterable[str]) -> list[str]:
+    names = {p.code: p.name for p in session.scalars(select(Project)).all()}
+    return [names.get(code, code) for code in codes]
+
+
+def disambiguate_question(session: Session, codes: tuple[str, ...]) -> str:
+    """Ü-3/F-4 (Adım 4): one short question, project names only — no digits/dates (G1), no
+    list, no "elimde şunlar var" framing (F-4: "içerik sıralamaz")."""
+    labels = _project_names(session, codes)
+    if len(labels) <= 1:
+        return CLARIFY_TEMPLATE
+    if len(labels) == 2:
+        return f"Hangi projeyi kastediyorsunuz: {labels[0]} mi, {labels[1]} mi?"
+    return "Hangi projeyi kastediyorsunuz: " + ", ".join(labels[:-1]) + f" yoksa {labels[-1]} mi?"
+
+
+def build_disambiguate_assist(session: Session, decision: ProjectAxisDecision) -> Assist:
+    """Adım 4: the LLM was never called (the caller's job, `ask.py` — before the prompt is
+    even built) — this *is* the whole answer: one fixed question, no list."""
+    return Assist(
+        kind="disambiguate",
+        question=disambiguate_question(session, decision.codes),
+        axis="project",
+    )
+
+
+def downgrade_existence_disambiguate(
+    decision: ProjectAxisDecision, question: str
+) -> ProjectAxisDecision:
+    """F-4 (2): a weak-match *existence* question ("… nerede?", "… var mı?") is answered
+    with a grouped list and one confirming question — never Adım 4's stricter, list-free
+    `disambiguate` (that path is for fact questions: "ne zaman", "kaç", "neyi"). Found while
+    fixing the regression this would otherwise cause on DSC-007 ("ÇED raporu nerede?", a
+    close İzmir/Ankara split that must still list both, as before Adım 4)."""
+    if decision.kind == "disambiguate" and is_existence_question(question):
+        return ProjectAxisDecision("none")
+    return decision
 
 
 def mismatch_terms(
@@ -516,23 +623,52 @@ def _kind_for(mismatched: list[str]) -> AssistKind:
 
 
 def build_zero_chunk_assist(
-    session: Session, allowed: set[UUID], question: str, *, ek_f: bool = False
+    session: Session,
+    allowed: set[UUID],
+    question: str,
+    *,
+    ek_f: bool = False,
+    disambig_spread: float = DEFAULT_DISAMBIG_SPREAD,
+    dominant_share: float = DEFAULT_DOMINANT_SHARE,
 ) -> Assist:
-    """Nothing retrieved: no LLM (ADR-021). Everything here is a lookup inside `allowed`."""
+    """Nothing retrieved: no LLM (ADR-021). Everything here is a lookup inside `allowed`.
+    Adım 4: `ek_f` also classifies the project axis of the metadata candidates — a `named`
+    or `dominant` project narrows the list (the latter also sets `inferred_project` so the
+    caller states the assumption); `disambiguate` returns the fixed clarifying question
+    directly (still 0 LLM calls, same as every other zero-chunk reply, ADR-021)."""
     terms = question_terms(question)
     unmatched = unmatched_terms(session, allowed, terms)
     mismatched = mismatch_terms(unmatched, terms, excluded=project_words(session))
     candidates = candidate_terms(session, allowed, unmatched)
     more = 0
+    axis: Literal["project"] | None = None
+    inferred_project: str | None = None
     if ek_f:
         candidates_all = available_from_metadata(
             session, allowed, terms, limit=50, common_threshold=MAX_AVAILABLE
         )
-        named_project = _single_named_project(session, question, ek_f=ek_f)
-        if named_project is not None:
-            # Ü-3 (09.10.2026 fix): the question names one project — the other project's
-            # metadata matches are not candidates at all, not merely hidden.
-            candidates_all = [c for c in candidates_all if c.project_code in (named_project, None)]
+        named = named_project_codes(session, question)
+        decision = classify_project_axis(
+            project_distribution(candidates_all),
+            named,
+            disambig_spread=disambig_spread,
+            dominant_share=dominant_share,
+        )
+        decision = downgrade_existence_disambiguate(decision, question)
+        if decision.kind == "disambiguate":
+            return build_disambiguate_assist(session, decision)
+        effective_project = (
+            decision.project_code if decision.kind in ("named", "dominant") else None
+        )
+        if effective_project is not None:
+            # Ü-3 (09.10.2026 fix): the other project's metadata matches are not candidates
+            # at all, not merely hidden.
+            candidates_all = [
+                c for c in candidates_all if c.project_code in (effective_project, None)
+            ]
+            axis = "project"
+            if decision.kind == "dominant":
+                inferred_project = effective_project
         available = candidates_all[:MAX_AVAILABLE_EKF]
         more = len(candidates_all) - len(available)
     else:
@@ -547,6 +683,8 @@ def build_zero_chunk_assist(
         available=tuple(available),
         groups=tuple(group_available(session, available, question)) if ek_f else (),
         more_count=more,
+        axis=axis,
+        inferred_project=inferred_project,
     )
 
 
@@ -559,12 +697,23 @@ def build_insufficient_assist(
     chunks: list[RetrievedChunk],
     model_question: str | None,
     ek_f: bool = False,
+    axis_decision: ProjectAxisDecision | None = None,
+    disambig_spread: float = DEFAULT_DISAMBIG_SPREAD,
+    dominant_share: float = DEFAULT_DOMINANT_SHARE,
 ) -> Assist:
     """Chunks reached the prompt, the model still declined: list what was retrieved (code),
     detect unmatched terms (code), keep the model's one question only if it passes
     `validate_question`; otherwise fall back to the fixed template. With `ek_f` (ADR-030)
     the list is ≤ 7 with a quota: chunk-vouched documents take at most 4 places, metadata /
-    concept matches get the rest (and spill back when there are fewer than 3)."""
+    concept matches get the rest (and spill back when there are fewer than 3).
+
+    `axis_decision` (Adım 4): the caller (`ask.py`) already classifies the project axis
+    *before* calling the LLM, since a `disambiguate` verdict must skip the call entirely —
+    by the time this function runs that case is already ruled out, so the decision passed
+    in here is only ever `named`/`dominant`/`none`. When not given (standalone/unit-test
+    use), it is computed here from the same chunk-vouched candidates the list uses; a
+    `disambiguate` result in that path is treated as `none` — this function never asks a
+    question of its own, it only narrows a list."""
     terms = question_terms(question)
     unmatched = unmatched_terms(session, allowed, terms)
     mismatched = mismatch_terms(unmatched, terms, excluded=project_words(session))
@@ -576,10 +725,28 @@ def build_insufficient_assist(
     vouched: set[UUID] = set().union(*specific.values()) if specific else set()
     vouched_chunks = [c for c in chunks if c.document_id in vouched]
     more = 0
+    axis: Literal["project"] | None = None
+    inferred_project: str | None = None
     if ek_f:
-        named_project = _single_named_project(session, question, ek_f=ek_f)
+        decision = axis_decision
+        if decision is None:
+            named = named_project_codes(session, question)
+            chunk_cards = available_from_chunks(documents, vouched_chunks, limit=50)
+            decision = classify_project_axis(
+                project_distribution(chunk_cards),
+                named,
+                disambig_spread=disambig_spread,
+                dominant_share=dominant_share,
+            )
+        effective_project = (
+            decision.project_code if decision.kind in ("named", "dominant") else None
+        )
+        if effective_project is not None:
+            axis = "project"
+            if decision.kind == "dominant":
+                inferred_project = effective_project
         available, more = _quota_list(
-            session, allowed, terms, documents, vouched_chunks, named_project=named_project
+            session, allowed, terms, documents, vouched_chunks, named_project=effective_project
         )
     else:
         available = available_from_chunks(documents, vouched_chunks)
@@ -616,6 +783,8 @@ def build_insufficient_assist(
         groups=tuple(group_available(session, available, question)) if ek_f else (),
         more_count=more,
         dropped_reason=reason,
+        axis=axis,
+        inferred_project=inferred_project,
     )
 
 
@@ -700,7 +869,15 @@ def render_no_data(assist: Assist, question: str) -> str:
     grouped list with document dates, "… ve N belge daha" (N counted here, SORU 4), the
     upload sentence only when nothing is listed and the typical document type is known, and
     the clarifying question as the last line (F-5: the answer always ends with a question or
-    a choice)."""
+    a choice).
+
+    Adım 4: `kind == "disambiguate"` is a different communicative act entirely — the system
+    understood the words, it just needs to know which project; no verdict, no list, no
+    framing, one question (F-4: "içerik sıralamaz"). When the list was narrowed *by
+    inference* (`inferred_project` set, not a name the user used), the assumption is stated
+    out loud right after the verdict — never silently (Naci 09.10.2026)."""
+    if assist.kind == "disambiguate":
+        return assist.question or CLARIFY_TEMPLATE
     lowered = [turkish_lower(t) for t in question_terms(question)]
     lines: list[str] = []
     understood = understood_terms(lowered)[:MAX_UNDERSTOOD_TERMS]
@@ -709,6 +886,12 @@ def render_no_data(assist: Assist, question: str) -> str:
             " ".join(f"«{term}» ifadesini {label} olarak anladım." for term, label in understood)
         )
     lines.append(NO_DATA_VERDICT)
+    if assist.inferred_project is not None:
+        project_name = next(
+            (g.project_name for g in assist.groups if g.project_code == assist.inferred_project),
+            assist.inferred_project,
+        )
+        lines.append(f"{project_name} projesine ait olduğu varsayıldı.")
     if assist.available:
         lines.append("Elimde konuyla ilgili şunlar var:")
         for group in assist.groups or group_available_fallback(assist.available):
@@ -757,6 +940,7 @@ def assist_block(assist: Assist | None) -> AssistBlock | None:
         question=assist.question,
         unmatched_terms=list(assist.unmatched_terms),
         candidate_terms=list(assist.candidate_terms),
+        axis=assist.axis,
         available=[
             AssistAvailableDocument(
                 document_id=a.document_id,

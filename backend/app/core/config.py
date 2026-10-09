@@ -79,6 +79,15 @@ class Settings(BaseSettings):
         run when either presentation needs them: the assist block or the Ek-F pattern."""
         return self.assist_mode_enabled or self.ek_f_enabled
 
+    # Adım 4 (09.10.2026, project axis — ADIM4_PLAN.md): on `EK_F_MODE` only. Tuned on the
+    # dev set then locked (Naci 09.10.2026) — a held-out run never moves these two values.
+    project_axis_disambig_spread: float = Field(
+        default=0.5, validation_alias=AliasChoices("PROJECT_AXIS_DISAMBIG_SPREAD")
+    )
+    project_axis_dominant_share: float = Field(
+        default=0.75, validation_alias=AliasChoices("PROJECT_AXIS_DOMINANT_SHARE")
+    )
+
     # Phase 3.4
     embeddings_enabled: bool = False
     embed_model_id: str = "BAAI/bge-m3"
