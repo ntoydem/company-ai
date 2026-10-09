@@ -1,4 +1,4 @@
-"""Ankara RES — Finans belge spec'leri (Phase 3.1 + 5.1)."""
+"""Karatepe RES — Finans belge spec'leri (Phase 3.1 + 5.1)."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-FIN-001",
         family="agreement",
         subtitle_tr="",
-        subtitle_en="Ankara RES Wind Power Project — Term Loan Facility (Draft)",
+        subtitle_en="Karatepe RES Wind Power Project — Term Loan Facility (Draft)",
         section_headings_tr=[],
         section_headings_en=[
             "1. Definitions and Interpretation",
@@ -27,7 +27,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-FIN-002",
         family="agreement",
         subtitle_tr="",
-        subtitle_en="Ankara RES Wind Power Project — Term Loan Facility (V01)",
+        subtitle_en="Karatepe RES Wind Power Project — Term Loan Facility (V01)",
         section_headings_tr=[],
         section_headings_en=[
             "1. Definitions and Interpretation",
@@ -44,7 +44,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-FIN-003",
         family="agreement",
         subtitle_tr="",
-        subtitle_en="Ankara RES Wind Power Project — Term Loan Facility (V02)",
+        subtitle_en="Karatepe RES Wind Power Project — Term Loan Facility (V02)",
         section_headings_tr=[],
         section_headings_en=[
             "1. Definitions and Interpretation",
@@ -61,7 +61,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-FIN-004",
         family="agreement",
         subtitle_tr="",
-        subtitle_en="Ankara RES Wind Power Project — Term Loan Facility",
+        subtitle_en="Karatepe RES Wind Power Project — Term Loan Facility",
         section_headings_tr=[],
         section_headings_en=[
             "1. Definitions and Interpretation",
@@ -82,8 +82,28 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-FIN-005",
         family="agreement",
         subtitle_tr="",
-        subtitle_en="Amendment No. 1 to the Ankara RES Facility Agreement",
+        subtitle_en="Amendment No. 1 to the Karatepe RES Facility Agreement",
         section_headings_tr=[],
+        # Adım 5: bu belgenin prose içeriği DOC-ANK-FIN-006 ile değiştirildi (bkz. o dosyadaki not).
+        section_headings_en=[
+            "1. Background",
+            "2. Amendments to the Original Agreement",
+            "3. Continuing Effect",
+            "4. Governing Law",
+        ],
+        has_revision_history=True,
+        signature_roles_en=[
+            "For and on behalf of [[spv_name]] (Borrower) — Authorized Signatory",
+            "For and on behalf of [[counterparty]] (Lender) — Authorized Signatory",
+        ],
+    ),
+    "DOC-ANK-FIN-006": DocumentSpec(
+        doc_id="DOC-ANK-FIN-006",
+        family="agreement",
+        subtitle_tr="",
+        subtitle_en="Amendment No. 2 to the Karatepe RES Facility Agreement",
+        section_headings_tr=[],
+        # Adım 5: bu belgenin prose içeriği DOC-ANK-FIN-005 ile değiştirildi (bkz. o dosyadaki not).
         section_headings_en=[
             "1. Background",
             "2. Amendments to the Original Agreement",
@@ -97,29 +117,11 @@ SPECS: dict[str, DocumentSpec] = {
             "For and on behalf of [[counterparty]] (Lender) — Authorized Signatory",
         ],
     ),
-    "DOC-ANK-FIN-006": DocumentSpec(
-        doc_id="DOC-ANK-FIN-006",
-        family="agreement",
-        subtitle_tr="",
-        subtitle_en="Amendment No. 2 to the Ankara RES Facility Agreement",
-        section_headings_tr=[],
-        section_headings_en=[
-            "1. Background",
-            "2. Amendments to the Original Agreement",
-            "3. Continuing Effect",
-            "4. Governing Law",
-        ],
-        has_revision_history=True,
-        signature_roles_en=[
-            "For and on behalf of [[spv_name]] (Borrower) — Authorized Signatory",
-            "For and on behalf of [[counterparty]] (Lender) — Authorized Signatory",
-        ],
-    ),
     "DOC-ANK-FIN-007": DocumentSpec(
         doc_id="DOC-ANK-FIN-007",
         family="report",
         subtitle_tr="",
-        subtitle_en="Ankara RES — Quarterly Covenant Compliance Report",
+        subtitle_en="Karatepe RES — Quarterly Covenant Compliance Report",
         section_headings_tr=[],
         section_headings_en=[
             "1. Purpose and Scope",
@@ -135,7 +137,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-FIN-010",
         family="agreement",
         subtitle_tr="",
-        subtitle_en="Ankara RES Wind Power Project — Common Terms Agreement",
+        subtitle_en="Karatepe RES Wind Power Project — Common Terms Agreement",
         section_headings_tr=[],
         section_headings_en=["1. Common Definitions", "2. Relationship Between Finance Documents"],
         signature_roles_en=[
@@ -147,7 +149,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-FIN-011",
         family="agreement",
         subtitle_tr="",
-        subtitle_en="Ankara RES Wind Power Project — Security Agreement (Share Pledge)",
+        subtitle_en="Karatepe RES Wind Power Project — Security Agreement (Share Pledge)",
         section_headings_tr=[],
         section_headings_en=["1. Pledge of Shares", "2. Governing Law"],
         signature_roles_en=[
@@ -159,7 +161,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-FIN-012",
         family="agreement",
         subtitle_tr="",
-        subtitle_en="Ankara RES Wind Power Project — Account Pledge Agreement",
+        subtitle_en="Karatepe RES Wind Power Project — Account Pledge Agreement",
         section_headings_tr=[],
         section_headings_en=["1. Pledge of Project Accounts", "2. Governing Law"],
         signature_roles_en=[
@@ -171,7 +173,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-FIN-013",
         family="agreement",
         subtitle_tr="",
-        subtitle_en="Ankara RES Wind Power Project — Insurance Assignment Agreement",
+        subtitle_en="Karatepe RES Wind Power Project — Insurance Assignment Agreement",
         section_headings_tr=[],
         section_headings_en=["1. Assignment of Insurance Proceeds", "2. Governing Law"],
         signature_roles_en=[
@@ -183,7 +185,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-FIN-014",
         family="letter",
         subtitle_tr="",
-        subtitle_en="Ankara RES Wind Power Project — Facility Drawdown",
+        subtitle_en="Karatepe RES Wind Power Project — Facility Drawdown",
         section_headings_tr=[],
         section_headings_en=["Drawdown Request", "Payment Instructions"],
         signature_roles_en=[
@@ -197,7 +199,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-FIN-015",
         family="letter",
         subtitle_tr="",
-        subtitle_en="Ankara RES Wind Power Project — Covenant Waiver",
+        subtitle_en="Karatepe RES Wind Power Project — Covenant Waiver",
         section_headings_tr=[],
         section_headings_en=["Background", "Waiver"],
         signature_roles_en=[
@@ -211,7 +213,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-FIN-016",
         family="report",
         subtitle_tr="",
-        subtitle_en="Ankara RES — Quarterly Covenant Compliance Report (Q4 2024)",
+        subtitle_en="Karatepe RES — Quarterly Covenant Compliance Report (Q4 2024)",
         section_headings_tr=[],
         section_headings_en=["1. Purpose and Scope", "2. Compliance Summary"],
         signature_roles_en=[

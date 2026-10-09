@@ -13,7 +13,7 @@ SPECS: dict[str, DocumentSpec] = {
         section_headings_tr=["Karar Gerekçesi", "Alınan Karar"],
         section_headings_en=[],
         signature_roles_tr=["Yönetim Kurulu Başkanı", "Yönetim Kurulu Üyesi"],
-        subject_label_tr="Ankara RES Finansman Onayı",
+        subject_label_tr="Karatepe RES Finansman Onayı",
     ),
     "DOC-CO-ADM-002": DocumentSpec(
         doc_id="DOC-CO-ADM-002",
@@ -23,7 +23,7 @@ SPECS: dict[str, DocumentSpec] = {
         section_headings_tr=["Karar Gerekçesi", "Alınan Karar"],
         section_headings_en=[],
         signature_roles_tr=["Hazırlayan: İlgili Birim", "Onaylayan: Yetkili Makam"],
-        subject_label_tr="İzmir RES Geliştirme Bütçesi Onayı",
+        subject_label_tr="Kızılova RES Geliştirme Bütçesi Onayı",
     ),
     "DOC-CO-ADM-003": DocumentSpec(
         doc_id="DOC-CO-ADM-003",

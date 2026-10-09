@@ -221,7 +221,7 @@ def _ledger_key_for_doc_id(doc_id: str) -> str:
 
 def _project_name(doc_id: str) -> str | None:
     prefix = doc_id.split("-")[1]
-    return {"ANK": "Ankara RES", "IZM": "İzmir RES", "CO": None}[prefix]
+    return {"ANK": "Karatepe RES", "IZM": "Kızılova RES", "CO": None}[prefix]
 
 
 def _spv_name(doc_id: str, raws: dict[str, Any]) -> str:

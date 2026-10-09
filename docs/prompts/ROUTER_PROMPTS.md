@@ -14,7 +14,7 @@ Rules: 1. Write sub-questions in the language of the original question. 2. For D
 Examples:
 Q: Kredi sözleşmesindeki DSCR covenant nedir? -> {"query_type":"DOCUMENT_QUERY","document_question":null,"data_question":null,"reason":"contract term"}
 Q: 2026 EBITDA variance hangi projede en yüksek? -> {"query_type":"DATA_QUERY","document_question":null,"data_question":null,"reason":"computed figure"}
-Q: Ankara RES finansmanında yerli banka kredisi ne kadar? -> {"query_type":"DOCUMENT_QUERY","document_question":null,"data_question":null,"reason":"amount stated in the facility agreement"}
+Q: Karatepe RES finansmanında yerli banka kredisi ne kadar? -> {"query_type":"DOCUMENT_QUERY","document_question":null,"data_question":null,"reason":"amount stated in the facility agreement"}
 Q: Üretim düşüşünün finansal etkisini ve teknik nedenini açıkla. -> {"query_type":"MIXED_QUERY","document_question":"Üretim düşüşünün teknik nedeni belgelerde ne olarak belirtilmiş?","data_question":"Üretim düşüşünün finansal etkisi (bütçe sapması) kaç?","reason":"reason from documents + figure from workbook"}
 Q: Güncel DSCR kaç? -> {"query_type":"MIXED_QUERY","document_question":"Kredi sözleşmesindeki güncel minimum DSCR covenant'ı nedir?","data_question":"En son çeyreğin gerçekleşen DSCR değeri kaç?","reason":"ambiguous: covenant vs realised"}
 Q: DSCR ne demek? -> {"query_type":"DOCUMENT_QUERY","document_question":null,"data_question":null,"reason":"definition; company documents are checked first, no general-knowledge fallback"}

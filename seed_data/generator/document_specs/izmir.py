@@ -1,4 +1,4 @@
-"""İzmir RES — belge spec'leri (Phase 3.1 + 5.1)."""
+"""Kızılova RES — belge spec'leri (Phase 3.1 + 5.1)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-IZM-DEV-001": DocumentSpec(
         doc_id="DOC-IZM-DEV-001",
         family="letter",
-        subtitle_tr="İzmir RES Rüzgar Enerjisi Projesi",
+        subtitle_tr="Kızılova RES Rüzgar Enerjisi Projesi",
         subtitle_en="",
         section_headings_tr=["Önlisans Kapsamı", "Süreç ve Yükümlülükler"],
         section_headings_en=[],
@@ -18,7 +18,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-IZM-DEV-002": DocumentSpec(
         doc_id="DOC-IZM-DEV-002",
         family="report",
-        subtitle_tr="İzmir RES — Arazi Edinim Durum Raporu",
+        subtitle_tr="Kızılova RES — Arazi Edinim Durum Raporu",
         subtitle_en="",
         section_headings_tr=["Arazi Edinim Süreci", "Güncel Durum"],
         section_headings_en=[],
@@ -27,7 +27,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-IZM-DEV-003": DocumentSpec(
         doc_id="DOC-IZM-DEV-003",
         family="letter",
-        subtitle_tr="İzmir RES ÇED Süreci",
+        subtitle_tr="Kızılova RES ÇED Süreci",
         subtitle_en="",
         section_headings_tr=["Süreç Durumu", "Bekleyen Adımlar"],
         section_headings_en=[],
@@ -40,7 +40,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-IZM-DEV-004": DocumentSpec(
         doc_id="DOC-IZM-DEV-004",
         family="report",
-        subtitle_tr="İzmir RES — Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu",
+        subtitle_tr="Kızılova RES — Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu",
         subtitle_en="",
         section_headings_tr=[
             "Rüzgar Kaynağı Değerlendirmesi",
@@ -53,7 +53,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-IZM-DEV-005": DocumentSpec(
         doc_id="DOC-IZM-DEV-005",
         family="letter",
-        subtitle_tr="İzmir RES Şebeke Bağlantısı",
+        subtitle_tr="Kızılova RES Şebeke Bağlantısı",
         subtitle_en="",
         section_headings_tr=["Başvuru Kapsamı", "Süreç"],
         section_headings_en=[],
@@ -63,7 +63,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-IZM-DEV-006": DocumentSpec(
         doc_id="DOC-IZM-DEV-006",
         family="report",
-        subtitle_tr="İzmir RES — Halkın Katılımı Toplantısı",
+        subtitle_tr="Kızılova RES — Halkın Katılımı Toplantısı",
         subtitle_en="",
         section_headings_tr=["Toplantı Özeti", "Alınan Görüşler"],
         section_headings_en=[],
@@ -72,7 +72,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-IZM-DEV-007": DocumentSpec(
         doc_id="DOC-IZM-DEV-007",
         family="report",
-        subtitle_tr="İzmir RES — Rüzgar Ölçüm Kampanyası Raporu",
+        subtitle_tr="Kızılova RES — Rüzgar Ölçüm Kampanyası Raporu",
         subtitle_en="",
         section_headings_tr=["Ölçüm Kapsamı", "Sonuçlar"],
         section_headings_en=[],
@@ -81,7 +81,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-IZM-DEV-008": DocumentSpec(
         doc_id="DOC-IZM-DEV-008",
         family="letter",
-        subtitle_tr="İzmir RES Askeri Yasak Bölge Görüşü",
+        subtitle_tr="Kızılova RES Askeri Yasak Bölge Görüşü",
         subtitle_en="",
         section_headings_tr=["Talep Kapsamı", "Süreç"],
         section_headings_en=[],
@@ -91,7 +91,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-IZM-LEG-001": DocumentSpec(
         doc_id="DOC-IZM-LEG-001",
         family="report",
-        subtitle_tr="İzmir RES — Arazi Mülkiyeti Hukuki İnceleme Notu",
+        subtitle_tr="Kızılova RES — Arazi Mülkiyeti Hukuki İnceleme Notu",
         subtitle_en="",
         section_headings_tr=["İnceleme Kapsamı", "Değerlendirme"],
         section_headings_en=[],
@@ -100,7 +100,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-IZM-LEG-002": DocumentSpec(
         doc_id="DOC-IZM-LEG-002",
         family="agreement",
-        subtitle_tr="İzmir RES Kira/İrtifak Hakkı Sözleşmesi (Taslak)",
+        subtitle_tr="Kızılova RES Kira/İrtifak Hakkı Sözleşmesi (Taslak)",
         subtitle_en="",
         section_headings_tr=["1. Hakkın Kapsamı", "2. Yürürlük ve Genel Hükümler"],
         section_headings_en=[],
@@ -109,7 +109,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-IZM-LEG-003": DocumentSpec(
         doc_id="DOC-IZM-LEG-003",
         family="report",
-        subtitle_tr="İzmir RES — Şirket Yapısı Hukuki Görüşü",
+        subtitle_tr="Kızılova RES — Şirket Yapısı Hukuki Görüşü",
         subtitle_en="",
         section_headings_tr=["İnceleme Kapsamı", "Değerlendirme"],
         section_headings_en=[],
@@ -118,7 +118,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-IZM-LEG-004": DocumentSpec(
         doc_id="DOC-IZM-LEG-004",
         family="report",
-        subtitle_tr="İzmir RES — Önlisans Süre Uzatımı Değerlendirmesi",
+        subtitle_tr="Kızılova RES — Önlisans Süre Uzatımı Değerlendirmesi",
         subtitle_en="",
         section_headings_tr=["Değerlendirme Kapsamı", "Sonuç"],
         section_headings_en=[],
@@ -127,7 +127,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-IZM-ADM-001": DocumentSpec(
         doc_id="DOC-IZM-ADM-001",
         family="letter",
-        subtitle_tr="İzmir RES Geliştirme Bütçesi",
+        subtitle_tr="Kızılova RES Geliştirme Bütçesi",
         subtitle_en="",
         section_headings_tr=["Bütçe Kapsamı", "Onay"],
         section_headings_en=[],
@@ -137,7 +137,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-IZM-ADM-002": DocumentSpec(
         doc_id="DOC-IZM-ADM-002",
         family="report",
-        subtitle_tr="İzmir RES — Saha Güvenliği ve İdari Düzenlemeler Notu",
+        subtitle_tr="Kızılova RES — Saha Güvenliği ve İdari Düzenlemeler Notu",
         subtitle_en="",
         section_headings_tr=["Düzenleme Kapsamı", "Değerlendirme"],
         section_headings_en=[],
@@ -146,7 +146,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-IZM-ADM-003": DocumentSpec(
         doc_id="DOC-IZM-ADM-003",
         family="report",
-        subtitle_tr="İzmir RES — Proje Maliyet Takip Notu",
+        subtitle_tr="Kızılova RES — Proje Maliyet Takip Notu",
         subtitle_en="",
         section_headings_tr=["Maliyet Kapsamı", "Değerlendirme"],
         section_headings_en=[],

@@ -1,4 +1,4 @@
-"""Ankara RES — Mali/İdari belge spec'leri (Phase 5.1)."""
+"""Karatepe RES — Mali/İdari belge spec'leri (Phase 5.1)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-ANK-ADM-001": DocumentSpec(
         doc_id="DOC-ANK-ADM-001",
         family="letter",
-        subtitle_tr="Ankara RES İşletme Bütçesi",
+        subtitle_tr="Karatepe RES İşletme Bütçesi",
         subtitle_en="",
         section_headings_tr=["Bütçe Kapsamı", "Onay"],
         section_headings_en=[],
@@ -18,7 +18,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-ANK-ADM-002": DocumentSpec(
         doc_id="DOC-ANK-ADM-002",
         family="report",
-        subtitle_tr="Ankara RES — Sigorta Programı Gözden Geçirme Notu",
+        subtitle_tr="Karatepe RES — Sigorta Programı Gözden Geçirme Notu",
         subtitle_en="",
         section_headings_tr=["Gözden Geçirme Kapsamı", "Değerlendirme"],
         section_headings_en=[],

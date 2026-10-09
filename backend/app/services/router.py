@@ -62,7 +62,7 @@ ROUTER_SYSTEM_PROMPT = (
     '"document_question":null,"data_question":null,"reason":"contract term"}\n'
     'Q: 2026 EBITDA variance hangi projede en yüksek? -> {"query_type":"DATA_QUERY",'
     '"document_question":null,"data_question":null,"reason":"computed figure"}\n'
-    "Q: Ankara RES finansmanında yerli banka kredisi ne kadar? -> "
+    "Q: Karatepe RES finansmanında yerli banka kredisi ne kadar? -> "
     '{"query_type":"DOCUMENT_QUERY","document_question":null,"data_question":null,'
     '"reason":"amount stated in the facility agreement"}\n'
     "Q: Üretim düşüşünün finansal etkisini ve teknik nedenini açıkla. -> "

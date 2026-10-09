@@ -52,7 +52,7 @@ IZMIR_POST_LICENCE_KEYS = (
     "cod_actual",
     "operation_start",
 )
-QUOTAS = {"İzmir RES": 12, "Ankara RES": 35}
+QUOTAS = {"Kızılova RES": 12, "Karatepe RES": 35}
 CATEGORY_QUOTAS = {
     "hallucination": 3,
     "isolation": 3,
@@ -153,6 +153,58 @@ def count_tags(node: Any) -> dict[str, int]:
             for key, n in count_tags(value).items():
                 counts[key] += n
     return counts
+
+
+def find_conflict_groups(
+    node: Any, file: str, path: str = ""
+) -> dict[str, list[tuple[str, str, bool]]]:
+    """Adım 5 (09.10.2026): every `conflict_group` tag found anywhere in a raw ledger dict,
+    with where it was found and whether `deliberate_conflict` was set alongside it. Walks
+    the *raw* YAML (same style as `count_tags`), so it works uniformly across every ledger
+    file without per-schema special-casing."""
+    groups: dict[str, list[tuple[str, str, bool]]] = {}
+    if isinstance(node, dict):
+        group = node.get("conflict_group")
+        if isinstance(group, str):
+            groups.setdefault(group, []).append(
+                (file, path or "<root>", bool(node.get("deliberate_conflict")))
+            )
+        for key, value in node.items():
+            for g, entries in find_conflict_groups(
+                value, file, f"{path}.{key}" if path else key
+            ).items():
+                groups.setdefault(g, []).extend(entries)
+    elif isinstance(node, list):
+        for i, value in enumerate(node):
+            for g, entries in find_conflict_groups(value, file, f"{path}[{i}]").items():
+                groups.setdefault(g, []).extend(entries)
+    return groups
+
+
+def check_conflict_groups(raws: dict[str, dict[str, Any]], report: Report) -> None:
+    """C1 (Adım 5): a `conflict_group` name must be used on at least two values (a group of
+    one marks nothing) and every member of a group must carry `deliberate_conflict: true` —
+    a value in a group without the flag is either a typo'd group name or a forgotten flag,
+    both worth a hard error rather than silently passing."""
+    all_groups: dict[str, list[tuple[str, str, bool]]] = {}
+    for name, raw in raws.items():
+        filename = LEDGER_FILES.get(name, name)
+        for group, entries in find_conflict_groups(raw, filename).items():
+            all_groups.setdefault(group, []).extend(entries)
+    for group, entries in all_groups.items():
+        if len(entries) < 2:
+            file, path, _ = entries[0]
+            report.error(
+                file, path, f"C1: conflict_group {group!r} has only one member — tag or group name?"
+            )
+            continue
+        for file, path, flagged in entries:
+            if not flagged:
+                report.error(
+                    file,
+                    path,
+                    f"C1: conflict_group {group!r} member missing deliberate_conflict: true",
+                )
 
 
 def quarter_end(period: str) -> date:
@@ -362,7 +414,7 @@ def check_debt_schedule(ankara: ls.AnkaraLedger, report: Report) -> None:
         drawdowns=[(d.date, float(d.amount.value)) for d in fin.drawdowns],
         instalments=[(i.date, float(i.principal.value)) for i in fin.repayment_schedule],
         base_rate_pct_by_year={b.year: b.rate_pct for b in fin.base_rate_pct_by_year},
-        margin_pct=float(fin.interest.margin_pct.value),  # type: ignore[arg-type]
+        margin_pct=float(fin.interest.margin_pct.current.value),  # type: ignore[arg-type]
     )
     outstanding = debt_math.outstanding_on(rows, ankara.meta.demo_today)
     if abs(outstanding - float(fin.outstanding_debt_as_of_demo_today.value)) > 0.5:
@@ -961,6 +1013,7 @@ def validate(master: Path, questions: Path | None) -> tuple[Report, dict[str, in
     if "ankara_res" in raws and "izmir_res" in raws:
         check_cross_project_refs(raws, report)
     check_names(raws, company if isinstance(company, ls.CompanyLedger) else None, report)
+    check_conflict_groups(raws, report)
     ledgers = {
         name: model
         for name, model in models.items()

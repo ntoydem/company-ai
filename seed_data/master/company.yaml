@@ -6,48 +6,78 @@ meta:
   currency_note: "Şirket seviyesi; tutar yok."
 
 holding:
-  name: {value: "ABC Enerji A.Ş.", tag: USER_FACT}
+  # Adım 5 (Ç-9 B, Tansu §3.1): holding renamed; it is now the SPVs' sole (100%) shareholder
+  # (ADIM5_ASAMA_A_REPORT.md §2 — the old 80/20 ABC/GHI sponsor split is retired).
+  name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}
   role: sponsor/parent
 
 parties:
-  - {name: {value: "ABC Enerji A.Ş.", tag: USER_FACT},             role: sponsor,           kind: company}
-  - {name: {value: "DEF Enerji Üretim A.Ş.", tag: USER_FACT},      role: spv,               kind: company}
-  - {name: {value: "DEF İzmir Rüzgar Enerji A.Ş.", tag: USER_FACT}, role: spv,              kind: company}
-  - {name: {value: "GHI Yatırım A.Ş.", tag: USER_FACT},            role: sponsor,           kind: company}
+  - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT},              role: sponsor,           kind: company}
+  - {name: {value: "Karatepe RES Enerji Üretim A.Ş.", tag: USER_FACT}, role: spv,            kind: company}
+  - {name: {value: "Kızılova RES Enerji Üretim A.Ş.", tag: USER_FACT}, role: spv,            kind: company}
   - {name: {value: "PQR Bank", tag: USER_FACT},                    role: local_bank,        kind: bank}
   - {name: {value: "VWX Export Credit Agency", tag: USER_FACT},    role: eca,               kind: agency}
   - {name: {value: "JKL İnşaat A.Ş.", tag: USER_FACT},             role: epc_contractor,    kind: company}
-  - {name: {value: "XYZ Wind Turbines GmbH", tag: USER_FACT},      role: turbine_supplier,  kind: company}
+  # Adım 5: renamed only to avoid reading as the same company as the new holding ("XYZ
+  # Enerji A.Ş.") — still fictional (Ç-12/Ek-E-8 undecided; Naci SORU 3, 09.10.2026).
+  - {name: {value: "RST Turbines GmbH", tag: USER_FACT},           role: turbine_supplier,  kind: company}
   - {name: {value: "MNO Teknik Danışmanlık Ltd.", tag: USER_FACT}, role: technical_advisor, kind: company}
   - {name: {value: "STU Sigorta", tag: USER_FACT},                 role: insurer,           kind: company}
   - {name: {value: "KLM Hukuk Bürosu", tag: USER_FACT},            role: legal_counsel,     kind: company}
 
 spvs:
   - project_code: ANK_RES
-    name: {value: "DEF Enerji Üretim A.Ş.", tag: USER_FACT}
+    name: {value: "Karatepe RES Enerji Üretim A.Ş.", tag: USER_FACT}
     shareholders:
-      - {name: {value: "ABC Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 80, tag: USER_FACT}}
-      - {name: {value: "GHI Yatırım A.Ş.", tag: USER_FACT}, share_pct: {value: 20, tag: USER_FACT}}
+      - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
   - project_code: IZM_RES
-    name: {value: "DEF İzmir Rüzgar Enerji A.Ş.", tag: USER_FACT}
+    name: {value: "Kızılova RES Enerji Üretim A.Ş.", tag: USER_FACT}
     shareholders:
-      - {name: {value: "ABC Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
+      - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
+  # Adım 5 (09.10.2026): registered here only — no documents, no deep per-project ledger yet
+  # (ADIM5_ASAMA_A_REPORT.md §2; needed before the Hukuk/Enerji/Mali parties can draft their
+  # documents). Names/shareholding per Tansu §3.1 ("tüm SPV'lerin %100 hissedarı").
+  - project_code: YSV_RES
+    name: {value: "Yeşilova RES Enerji Üretim A.Ş.", tag: USER_FACT}
+    shareholders:
+      - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
+  - project_code: BOZ_RES
+    name: {value: "Boztepe RES Enerji Üretim A.Ş.", tag: USER_FACT}
+    shareholders:
+      - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
+  - project_code: GNS_GES
+    name: {value: "Güneşalan GES Enerji Üretim A.Ş.", tag: USER_FACT}
+    shareholders:
+      - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
+  - project_code: AKY_GES
+    name: {value: "Akyar GES Enerji Üretim A.Ş.", tag: USER_FACT}
+    shareholders:
+      - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
+  - project_code: DMR_RES
+    name: {value: "Demirci RES Enerji Üretim A.Ş.", tag: USER_FACT}
+    shareholders:
+      - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
 
 # Real public institutions may appear in process context (SPEC_03 §9); never impersonated.
 public_institutions: [EPDK, TEİAŞ, "Çevre, Şehircilik ve İklim Değişikliği Bakanlığı", ÇŞB, TEDAŞ, "Enerji ve Tabii Kaynaklar Bakanlığı"]
 
 # Validator: every "<Name> A.Ş./Ltd./Bank/Sigorta/GmbH" match anywhere in the ledger must be here.
 name_whitelist:
-  - "ABC Enerji A.Ş."
-  - "DEF Enerji Üretim A.Ş."
-  - "DEF İzmir Rüzgar Enerji A.Ş."
-  - "GHI Yatırım A.Ş."
+  - "XYZ Enerji A.Ş."
+  - "Karatepe RES Enerji Üretim A.Ş."
+  - "Kızılova RES Enerji Üretim A.Ş."
+  - "Yeşilova RES Enerji Üretim A.Ş."
+  - "Boztepe RES Enerji Üretim A.Ş."
+  - "Güneşalan GES Enerji Üretim A.Ş."
+  - "Akyar GES Enerji Üretim A.Ş."
+  - "Demirci RES Enerji Üretim A.Ş."
+  - "RST Turbines GmbH"
   - "JKL İnşaat A.Ş."
   - "MNO Teknik Danışmanlık Ltd."
   - "PQR Bank"
   - "STU Sigorta"
   - "VWX Export Credit Agency"
-  - "XYZ Wind Turbines GmbH"
+  - "GHI Yatırım A.Ş."  # historical only (DOC-CO-ADM-003/010, bought out — Adım 5)
   - "KLM Hukuk Bürosu"
 
 demo_banners:
@@ -60,13 +90,13 @@ documents:
     subdepartment: null
     folder: corporate
     type: Board Resolution
-    name: {value: "Yönetim Kurulu Kararı — Ankara RES Finansman Onayı", tag: USER_FACT}
+    name: {value: "Yönetim Kurulu Kararı — Karatepe RES Finansman Onayı", tag: USER_FACT}
     document_date: {value: 2021-09-15, tag: USER_FACT}
     effective_date: {value: 2021-09-15, tag: USER_FACT}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "ABC Enerji A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "XYZ Enerji A.Ş."]
     key_facts: {approved_spv: "spvs[0].name.value"}
     supersedes: null
     superseded_by: null
@@ -83,13 +113,13 @@ documents:
     subdepartment: null
     folder: corporate
     type: Board Resolution
-    name: {value: "Yönetim Kurulu Kararı — İzmir RES Geliştirme Bütçesi Onayı", tag: AI_ASSUMPTION}
+    name: {value: "Yönetim Kurulu Kararı — Kızılova RES Geliştirme Bütçesi Onayı", tag: AI_ASSUMPTION}
     document_date: {value: 2023-03-25, tag: AI_ASSUMPTION}
     effective_date: {value: 2023-03-25, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["ABC Enerji A.Ş.", "DEF İzmir Rüzgar Enerji A.Ş."]
+    parties: ["XYZ Enerji A.Ş.", "Kızılova RES Enerji Üretim A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -111,8 +141,8 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["ABC Enerji A.Ş.", "GHI Yatırım A.Ş.", "DEF Enerji Üretim A.Ş."]
-    key_facts: {ghi_share_pct: "spvs[0].shareholders[1].share_pct.value"}
+    parties: ["XYZ Enerji A.Ş.", "GHI Yatırım A.Ş.", "Karatepe RES Enerji Üretim A.Ş."]
+    key_facts: {}  # Adım 5: GHI's historical 20% is no longer a resolvable ledger path (XYZ is 100% now)
     supersedes: null
     superseded_by: null
     related: []
@@ -133,7 +163,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["ABC Enerji A.Ş.", "STU Sigorta"]
+    parties: ["XYZ Enerji A.Ş.", "STU Sigorta"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -155,7 +185,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["ABC Enerji A.Ş."]
+    parties: ["XYZ Enerji A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -177,7 +207,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["ABC Enerji A.Ş.", "DEF Enerji Üretim A.Ş.", "DEF İzmir Rüzgar Enerji A.Ş."]
+    parties: ["XYZ Enerji A.Ş.", "Karatepe RES Enerji Üretim A.Ş.", "Kızılova RES Enerji Üretim A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -199,7 +229,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["ABC Enerji A.Ş."]
+    parties: ["XYZ Enerji A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -221,7 +251,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["ABC Enerji A.Ş."]
+    parties: ["XYZ Enerji A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -243,7 +273,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["ABC Enerji A.Ş."]
+    parties: ["XYZ Enerji A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -265,7 +295,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["ABC Enerji A.Ş.", "GHI Yatırım A.Ş."]
+    parties: ["XYZ Enerji A.Ş."]  # Adım 5: GHI bought out well before this 2026 resolution
     key_facts: {}
     supersedes: null
     superseded_by: null

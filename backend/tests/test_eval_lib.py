@@ -36,7 +36,7 @@ def _question(**overrides: object) -> ls.Question:
         "question": "test?",
         "expected_answer": None,
         "expected_answer_aliases": [],
-        "expected_project": "Ankara RES",
+        "expected_project": "Karatepe RES",
         "expected_department": "finans",
         "required_sources": [],
         "forbidden_sources": [],
@@ -68,13 +68,13 @@ def test_build_document_catalog_maps_title_type_and_project() -> None:
     # "Facility Agreement" is a type shared by three distinct documents (base + 2 amendments).
     facility_titles = {t for t, k in catalog.title_to_type.items() if k == "Facility Agreement"}
     assert len(facility_titles) >= 3
-    assert catalog.title_to_project["Ankara RES Üretim Lisansı"] == "Ankara RES"
+    assert catalog.title_to_project["Karatepe RES Üretim Lisansı"] == "Karatepe RES"
     # Phase 4.3: workbooks join the catalog; `excel_sources` cite them by file name.
     assert catalog.file_to_title["Covenant_Report.xlsx"] == "Covenant Report (workbook)"
     assert catalog.title_to_type["Budget vs Actual 2026"] == "Budget vs Actual"
-    assert catalog.title_to_project["Monthly Production 2026"] == "Ankara RES"
-    assert catalog.title_to_project["İzmir RES Önlisans Belgesi"] == "İzmir RES"
-    assert catalog.project_names == {"Ankara RES", "İzmir RES"}
+    assert catalog.title_to_project["Monthly Production 2026"] == "Karatepe RES"
+    assert catalog.title_to_project["Kızılova RES Önlisans Belgesi"] == "Kızılova RES"
+    assert catalog.project_names == {"Karatepe RES", "Kızılova RES"}
 
 
 def test_cited_workbook_file_satisfies_a_required_workbook_title() -> None:
@@ -153,7 +153,7 @@ def test_resolve_expected_formats_money_with_the_ledgers_own_currency() -> None:
         id="ANK-FIN-002", expected_answer="ledger:ankara_res.project.finance.total_debt.value"
     )
     expected = resolve_expected(question, raws)
-    assert expected.required == (("50.400.000 EUR", "50,400,000 EUR"),)
+    assert expected.required == (("13.600.000 USD", "13,600,000 USD"),)
 
 
 def test_value_check_passes_accepts_the_english_thousands_grouping_of_a_money_figure() -> None:
@@ -166,21 +166,22 @@ def test_value_check_passes_accepts_the_english_thousands_grouping_of_a_money_fi
         expected_answer="ledger:ankara_res.project.finance.outstanding_debt_as_of_demo_today.value",
     )
     expected = resolve_expected(question, raws)
-    assert value_check_passes(expected, "Güncel kalan borç 44,100,000 EUR'dur.")
-    assert value_check_passes(expected, "Güncel kalan borç 44.100.000 EUR'dur.")
+    assert value_check_passes(expected, "Güncel kalan borç 11,671,800 USD'dur.")
+    assert value_check_passes(expected, "Güncel kalan borç 11.671.800 USD'dur.")
 
 
 def test_resolve_expected_handles_the_initial_current_compound_value() -> None:
-    """ANK-FIN-013 asks for two values in one question ("ilk ne kadardı, şimdi ne
-    kadar?") — the ledger path deliberately resolves to a dict, not a scalar (see the
-    question's own `notes` field). Both formatted values must be required, independently."""
+    """A question asking for two values in one go ("ilk ne kadardı, şimdi ne kadar?") —
+    the ledger path deliberately resolves to a dict, not a scalar. Both formatted values
+    must be required, independently. Adım 5: tenor_years no longer changes for Karatepe
+    (13 -> 13), so this now exercises dscr_covenant (1.25 -> 1.20), which still does."""
     raws = load_ledger_raws()
     question = _question(
-        id="ANK-FIN-013", expected_answer="ledger:ankara_res.project.finance.tenor_years"
+        id="ANK-FIN-013", expected_answer="ledger:ankara_res.project.finance.dscr_covenant"
     )
     expected = resolve_expected(question, raws)
     assert not expected.skip
-    assert expected.required == (("12 yıl",), ("14 yıl",))
+    assert expected.required == (("1,25x", "1.25x"), ("1,20x", "1.20x"))
 
 
 def test_resolve_expected_skips_a_list_value() -> None:
@@ -253,7 +254,7 @@ def test_normalize_collapses_whitespace() -> None:
 def test_source_satisfied_matches_exact_title() -> None:
     catalog = DocumentCatalog(
         title_to_type={"Facility Agreement Amendment 01": "Facility Agreement"},
-        title_to_project={"Facility Agreement Amendment 01": "Ankara RES"},
+        title_to_project={"Facility Agreement Amendment 01": "Karatepe RES"},
     )
     cited = frozenset({"Facility Agreement Amendment 01"})
     assert _source_satisfied("Facility Agreement Amendment 01", cited, catalog)
@@ -263,7 +264,7 @@ def test_source_satisfied_matches_exact_title() -> None:
 def test_source_satisfied_matches_by_document_type() -> None:
     catalog = DocumentCatalog(
         title_to_type={"Facility Agreement": "Facility Agreement", "EPC Contract": "EPC Contract"},
-        title_to_project={"Facility Agreement": "Ankara RES", "EPC Contract": "Ankara RES"},
+        title_to_project={"Facility Agreement": "Karatepe RES", "EPC Contract": "Karatepe RES"},
     )
     cited = frozenset({"EPC Contract"})
     assert not _source_satisfied("Facility Agreement", cited, catalog)
@@ -287,11 +288,11 @@ def test_source_name_that_is_both_a_title_and_a_type_accepts_either_reading() ->
 
 def test_source_satisfied_matches_by_project_name() -> None:
     catalog = DocumentCatalog(
-        title_to_type={"İzmir RES Önlisans Belgesi": "Önlisans"},
-        title_to_project={"İzmir RES Önlisans Belgesi": "İzmir RES"},
+        title_to_type={"Kızılova RES Önlisans Belgesi": "Önlisans"},
+        title_to_project={"Kızılova RES Önlisans Belgesi": "Kızılova RES"},
     )
-    assert _source_satisfied("İzmir RES", frozenset({"İzmir RES Önlisans Belgesi"}), catalog)
-    assert not _source_satisfied("İzmir RES", frozenset(), catalog)
+    assert _source_satisfied("Kızılova RES", frozenset({"Kızılova RES Önlisans Belgesi"}), catalog)
+    assert not _source_satisfied("Kızılova RES", frozenset(), catalog)
 
 
 def test_source_satisfied_unknown_name_never_matches() -> None:
@@ -306,11 +307,11 @@ def _catalog() -> DocumentCatalog:
     return DocumentCatalog(
         title_to_type={
             "Facility Agreement Amendment 01": "Facility Agreement",
-            "İzmir RES Önlisans Belgesi": "Önlisans",
+            "Kızılova RES Önlisans Belgesi": "Önlisans",
         },
         title_to_project={
-            "Facility Agreement Amendment 01": "Ankara RES",
-            "İzmir RES Önlisans Belgesi": "İzmir RES",
+            "Facility Agreement Amendment 01": "Karatepe RES",
+            "Kızılova RES Önlisans Belgesi": "Kızılova RES",
         },
     )
 
@@ -349,14 +350,14 @@ def test_score_question_fails_when_required_source_missing() -> None:
 def test_score_question_fails_when_forbidden_source_cited() -> None:
     from scripts.eval_lib import ExpectedValue
 
-    question = _question(forbidden_sources=["İzmir RES"])
+    question = _question(forbidden_sources=["Kızılova RES"])
     expected = ExpectedValue(skip=True, skip_reason="test")
     outcome = AskOutcome(
-        answered=True, answer_text="cevap", cited_titles=("İzmir RES Önlisans Belgesi",)
+        answered=True, answer_text="cevap", cited_titles=("Kızılova RES Önlisans Belgesi",)
     )
     result = score_question(question, expected, _catalog(), outcome)
     assert not result.passed
-    assert result.forbidden_sources_hit == ("İzmir RES",)
+    assert result.forbidden_sources_hit == ("Kızılova RES",)
 
 
 def test_score_question_fails_when_answered_does_not_match_expectation() -> None:
@@ -522,7 +523,7 @@ def test_name_path_resolves_to_a_literal_spelling() -> None:
     raws = load_ledger_raws()
     question = _question(id="ANK-ISO-002", expected_answer="ledger:ankara_res.project.name")
     expected = resolve_expected(question, raws)
-    assert expected.required == (("Ankara RES",),)
+    assert expected.required == (("Karatepe RES",),)
 
 
 def test_summarize_consistency_separates_retrieval_from_model() -> None:
@@ -595,7 +596,7 @@ def test_phrase_check_requires_the_notice_and_rejects_comparatives() -> None:
 def _mini_catalog() -> DocumentCatalog:
     return DocumentCatalog(
         title_to_type={"Facility Agreement": "Facility Agreement", "Önlisans": "Önlisans"},
-        title_to_project={"Facility Agreement": "Ankara RES", "Önlisans": "İzmir RES"},
+        title_to_project={"Facility Agreement": "Karatepe RES", "Önlisans": "Kızılova RES"},
     )
 
 
@@ -684,7 +685,7 @@ def test_safety_g2_requires_citations_or_the_fixed_sentence() -> None:
 def test_safety_g3_rejects_hidden_wrong_project_and_forbidden_suggestions() -> None:
     question = _question(
         expect_no_answer=True,
-        expected_project="İzmir RES",
+        expected_project="Kızılova RES",
         forbidden_sources=["Facility Agreement"],
     )
     ctx = SafetyContext(grounding_text="", visible_document_ids=frozenset({"vis"}))
@@ -865,7 +866,7 @@ def test_format_check_flags_raw_spellings_and_passes_turkish_ones() -> None:
 
 def test_assist_check_matches_the_disambiguate_kind() -> None:
     question = _question(category="ambiguous", expect_no_answer=True, expect_assist="disambiguate")
-    fixed_question = "Hangi projeyi kastediyorsunuz: Ankara RES mi, İzmir RES mi?"
+    fixed_question = "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Kızılova RES mi?"
     assert assist_check(
         question,
         AskOutcome(answered=False, answer_text=fixed_question, assist={"kind": "disambiguate"}),

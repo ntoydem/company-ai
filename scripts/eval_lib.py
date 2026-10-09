@@ -30,7 +30,7 @@ HUNDRED_PERCENT_CATEGORIES = frozenset(
 )
 DEFAULT_THRESHOLD_PCT = 80.0
 
-_PROJECT_NAME_BY_CODE = {"ANK_RES": "Ankara RES", "IZM_RES": "İzmir RES"}
+_PROJECT_NAME_BY_CODE = {"ANK_RES": "Karatepe RES", "IZM_RES": "Kızılova RES"}
 
 # Enum-like strings that never get formatted into a document as a `[[token]]` (unlike
 # `ced_status`, which is a real `_FIELD_KIND` entry) — hand-verified against the actual
@@ -195,6 +195,12 @@ def resolve_expected(question: ls.Question, raws: dict[str, Any]) -> ExpectedVal
 
 
 def _resolve_one(ea: str, raws: dict[str, Any]) -> ExpectedValue:
+    if not ea.startswith("ledger:"):
+        # A literal spelling, not a ledger path — e.g. a fact the ledger no longer models
+        # a path for (ANK-COR-001: GHI's historical 20% share, bought out — see Adım 5
+        # report). validate_ledger.py's Q4 check already treats a non-`ledger:` string
+        # this way (no path to validate); this mirrors that for scoring.
+        return ExpectedValue(required=((ea,),))
     ref = ea.removeprefix("ledger:")
     file_key, _, path = ref.partition(".")
     value = resolve_path(raws[file_key], path)

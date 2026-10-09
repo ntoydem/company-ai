@@ -78,7 +78,7 @@ def _schedule(raws: dict[str, Any]) -> list[debt_math.ScheduleRow]:
         base_rate_pct_by_year={
             b["year"]: float(b["rate_pct"]) for b in fin["base_rate_pct_by_year"]
         },
-        margin_pct=float(fin["interest"]["margin_pct"]["value"]),
+        margin_pct=float(fin["interest"]["margin_pct"]["current"]["value"]),
     )
 
 
@@ -129,12 +129,13 @@ def build_financial_model(raws: dict[str, Any]) -> Workbook:
     ws = wb.active
     ws.title = "Inputs"
     ws["A1"], ws["B1"] = "Project", project["name"]
-    ws["A2"], ws["B2"] = "Capex (EUR)", fin["capex"]["value"]
-    ws["A3"], ws["B3"] = "Equity (EUR)", fin["equity"]["value"]
-    ws["A4"], ws["B4"] = "Total debt (EUR)", fin["total_debt"]["value"]
-    ws["A5"], ws["B5"] = "Local bank debt (EUR)", fin["local_debt"]["value"]
-    ws["A6"], ws["B6"] = "ECA debt (EUR)", fin["eca_debt"]["value"]
-    ws["A7"], ws["B7"] = "Margin over base (%)", fin["interest"]["margin_pct"]["value"]
+    ws["A2"], ws["B2"] = "Capex (USD)", fin["capex"]["value"]
+    ws["A3"], ws["B3"] = "Equity (USD)", fin["equity"]["value"]
+    ws["A4"], ws["B4"] = "Total debt (USD)", fin["total_debt"]["value"]
+    ws["A5"], ws["B5"] = "Local bank debt (USD)", fin["local_debt"]["value"]
+    ws["A6"], ws["B6"] = "ECA debt (USD)", fin["eca_debt"]["value"]
+    margin_current = fin["interest"]["margin_pct"]["current"]["value"]
+    ws["A7"], ws["B7"] = "Margin over base, current (%)", margin_current
     ws["A8"], ws["B8"] = "Grace (months)", fin["grace_months"]["value"]
     ws["A9"], ws["B9"] = "Tenor initial (years)", fin["tenor_years"]["initial"]["value"]
     ws["A10"], ws["B10"] = "Tenor current (years)", fin["tenor_years"]["current"]["value"]
@@ -145,7 +146,7 @@ def build_financial_model(raws: dict[str, Any]) -> Workbook:
     ws["A15"], ws["B15"] = "Covenant change effective", date(2025, 3, 15)
     for c in ("B11", "B12", "B15"):
         ws[c].number_format = "DD.MM.YYYY"
-    _header(ws, 17, ["Year", "Base rate % (EURIBOR 6M, fictional)"])
+    _header(ws, 17, ["Year", "Base rate % (Term SOFR 6M, fictional)"])
     base_first = 18
     rates = sorted(fin["base_rate_pct_by_year"], key=lambda b: b["year"])
     for i, b in enumerate(rates):
@@ -153,7 +154,7 @@ def build_financial_model(raws: dict[str, Any]) -> Workbook:
         ws.cell(row=base_first + i, column=2, value=float(b["rate_pct"]))
     base_last = base_first + len(rates) - 1
     draw_first = base_last + 3
-    _header(ws, draw_first - 1, ["Drawdown date", "Amount (EUR)"])
+    _header(ws, draw_first - 1, ["Drawdown date", "Amount (USD)"])
     for i, d in enumerate(fin["drawdowns"]):
         ws.cell(row=draw_first + i, column=1, value=d["date"]).number_format = "DD.MM.YYYY"
         ws.cell(row=draw_first + i, column=2, value=d["amount"]["value"])
@@ -172,12 +173,12 @@ def build_financial_model(raws: dict[str, Any]) -> Workbook:
         [
             "Period",
             "End date",
-            "Opening (EUR)",
-            "Drawdown (EUR)",
-            "Principal (EUR)",
+            "Opening (USD)",
+            "Drawdown (USD)",
+            "Principal (USD)",
             "All-in rate %",
-            "Interest (EUR)",
-            "Closing (EUR)",
+            "Interest (USD)",
+            "Closing (USD)",
         ],
     )
     demo_today = meta["demo_today"]
@@ -213,8 +214,8 @@ def build_financial_model(raws: dict[str, Any]) -> Workbook:
             "Quarter",
             "Quarter end",
             "Half",
-            "CFADS (EUR)",
-            "Debt service (EUR)",
+            "CFADS (USD)",
+            "Debt service (USD)",
             "DSCR",
             "Covenant",
             "Result",
@@ -251,10 +252,10 @@ def build_financial_model(raws: dict[str, Any]) -> Workbook:
         1,
         [
             "Quarter",
-            "CFADS (EUR)",
-            "Debt service (EUR)",
-            "Cash to equity (EUR)",
-            "Cumulative (EUR)",
+            "CFADS (USD)",
+            "Debt service (USD)",
+            "Cash to equity (USD)",
+            "Cumulative (USD)",
         ],
     )
     for i, test in enumerate(fin["covenant_tests"]):
@@ -282,7 +283,7 @@ def build_covenant_report(raws: dict[str, Any]) -> Workbook:
     wb = Workbook()
     summary = wb.active
     summary.title = "Summary"
-    _header(summary, 1, ["Quarter", "DSCR", "Covenant", "Result", "Outstanding after half (EUR)"])
+    _header(summary, 1, ["Quarter", "DSCR", "Covenant", "Result", "Outstanding after half (USD)"])
 
     for i, test in enumerate(fin["covenant_tests"]):
         period = test["period"]
@@ -297,15 +298,15 @@ def build_covenant_report(raws: dict[str, Any]) -> Workbook:
         ws["A1"].font = _BOLD
         labels = {
             "period": ("Period", period),
-            "cfads": ("CFADS (EUR)", cfads[period]),
-            "principal_half": ("Principal, half-year (EUR)", half.principal),
-            "interest_half": ("Interest, half-year (EUR)", half.interest),
+            "cfads": ("CFADS (USD)", cfads[period]),
+            "principal_half": ("Principal, half-year (USD)", half.principal),
+            "interest_half": ("Interest, half-year (USD)", half.interest),
             "debt_service_quarter": (
-                "Debt service, quarter (EUR) = (principal + interest) / 2",
+                "Debt service, quarter (USD) = (principal + interest) / 2",
                 "=(D6+D7)/2",
             ),
             "covenant": ("Covenant threshold (min DSCR)", covenant),
-            "outstanding": ("Outstanding after half (EUR)", half.closing),
+            "outstanding": ("Outstanding after half (USD)", half.closing),
             "dscr": ("DSCR = CFADS / debt service", "=ROUND(D5/D8,2)"),
             "result": ("Result", '=IF(D14>=D10,"pass","fail")'),
         }

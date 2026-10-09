@@ -1,6 +1,10 @@
 doc_id: DOC-CO-ADM-003
 model: gemini-3.5-flash-lite
 tag: AI_ASSUMPTION
+hand_edited: Adım 5 (09.10.2026) — [[ghi_share_pct]] token kaldırıldı; GHI'nin tarihsel %20'si artık
+  ledger'da bir yola karşılık gelmiyor (ortaklık yapısı XYZ Enerji A.Ş. %100'e sadeleştirildi),
+  bu yüzden değer düz metin olarak sabitlendi; generate_prose bu dosyayı --force ile bile
+  yeniden üretmez.
 sections:
 - heading: Karar Gerekçesi
   paragraphs:
@@ -12,7 +16,7 @@ sections:
     gerekli yasal süreçlerin başlatılması zorunludur.
 - heading: Alınan Karar
   paragraphs:
-  - Yönetim kurulu tarafından yapılan değerlendirmeler neticesinde [[ghi_share_pct]]
+  - Yönetim kurulu tarafından yapılan değerlendirmeler neticesinde %20
     oranındaki hisse devri oy birliğiyle kabul edilmiştir.
   - İşbu [[document_no]] numaralı karar belgesinde belirtilen tüm şartların yerine
     getirilmesi hususunda genel müdürlük yetkilendirilmiştir.

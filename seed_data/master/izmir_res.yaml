@@ -1,4 +1,4 @@
-# İzmir RES — truth ledger (SPEC_05 §3, docs/plans/PHASE_2_1_PLAN.md §1.2)
+# Kızılova RES — truth ledger (SPEC_05 §3, docs/plans/PHASE_2_1_PLAN.md §1.2)
 # ONAYLI (23.09.2026): tüm değerler USER_FACT. Lisans sonrası alanlar tasarım gereği null (SPEC_03 §1).
 # Tamamlanan/bekleyen adımlar ortak tarafından onaylandı (SORU 6).
 meta:
@@ -8,20 +8,23 @@ meta:
 
 project:
   code: IZM_RES
-  name: İzmir RES
+  name: Kızılova RES
   stage: development
   spv:
-    name: {value: "DEF İzmir Rüzgar Enerji A.Ş.", tag: USER_FACT}
+    name: {value: "Kızılova RES Enerji Üretim A.Ş.", tag: USER_FACT}
     shareholders:
-      - {name: {value: "ABC Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
+      # Adım 5 (Tansu §3.1): holding adı XYZ Enerji A.Ş. oldu; ortaklık yapısı değişmedi (100%).
+      - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
   capacity_mw:
-    target: {value: 80, tag: USER_FACT, source_doc: DOC-IZM-DEV-001}
+    target: {value: 42, tag: USER_FACT, source_doc: DOC-IZM-DEV-001}
   turbines: null
 
   timeline:
     development_start:       {date: 2023-02-01, doc: null,            tag: USER_FACT}
     pre_licence_application: {date: 2023-05-10, doc: DOC-IZM-DEV-001, tag: USER_FACT}
     pre_licence:             {date: 2024-01-18, doc: DOC-IZM-DEV-001, tag: USER_FACT}
+    # Adım 5 (Tansu §3.1): önlisans bitiş tarihi.
+    pre_licence_expiry:      {date: 2027-01-15, doc: DOC-IZM-DEV-001, tag: USER_FACT}
     land_acquisition_start:  {date: 2024-04-02, doc: DOC-IZM-DEV-002, tag: USER_FACT}
     ced_application:         {date: 2025-03-05, doc: DOC-IZM-DEV-003, tag: USER_FACT}
     # --- post-licence: null by design ---
@@ -63,13 +66,13 @@ documents:
     subdepartment: enerji_gelistirme
     folder: development
     type: Önlisans
-    name: {value: "İzmir RES Önlisans Belgesi", tag: USER_FACT}
+    name: {value: "Kızılova RES Önlisans Belgesi", tag: USER_FACT}
     document_date: {value: 2024-01-18, tag: USER_FACT}
     effective_date: {value: 2024-01-18, tag: USER_FACT}
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
+    parties: ["Kızılova RES Enerji Üretim A.Ş."]
     key_facts: {target_capacity_mw: project.capacity_mw.target.value, pre_licence_date: project.timeline.pre_licence.date}
     supersedes: null
     superseded_by: null
@@ -91,7 +94,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "KLM Hukuk Bürosu"]
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "KLM Hukuk Bürosu"]
     key_facts: {land_acquisition_start: project.timeline.land_acquisition_start.date}
     supersedes: null
     superseded_by: null
@@ -113,7 +116,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "MNO Teknik Danışmanlık Ltd."]
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "MNO Teknik Danışmanlık Ltd."]
     key_facts: {ced_status: project.development.ced_status.value, latest_event: project.development.latest_event.date, pre_licence_date: project.timeline.pre_licence.date, land_acquisition_start: project.timeline.land_acquisition_start.date}
     supersedes: null
     superseded_by: null
@@ -135,7 +138,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "MNO Teknik Danışmanlık Ltd."]
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "MNO Teknik Danışmanlık Ltd."]
     key_facts: {target_capacity_mw: project.capacity_mw.target.value}
     supersedes: null
     superseded_by: null
@@ -152,13 +155,13 @@ documents:
     subdepartment: enerji_gelistirme
     folder: development
     type: Bağlantı Görüşü Başvurusu
-    name: {value: "İzmir RES Bağlantı Görüşü Başvurusu", tag: AI_ASSUMPTION}
+    name: {value: "Kızılova RES Bağlantı Görüşü Başvurusu", tag: AI_ASSUMPTION}
     document_date: {value: 2025-06-10, tag: AI_ASSUMPTION}
     effective_date: null
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "TEİAŞ"]
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "TEİAŞ"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -180,7 +183,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
+    parties: ["Kızılova RES Enerji Üretim A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -202,7 +205,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "MNO Teknik Danışmanlık Ltd."]
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "MNO Teknik Danışmanlık Ltd."]
     key_facts: {target_capacity_mw: project.capacity_mw.target.value}
     supersedes: null
     superseded_by: null
@@ -224,7 +227,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
+    parties: ["Kızılova RES Enerji Üretim A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -246,7 +249,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "KLM Hukuk Bürosu"]
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "KLM Hukuk Bürosu"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -268,7 +271,7 @@ documents:
     expiration_date: null
     version: DRAFT
     status: draft
-    parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
+    parties: ["Kızılova RES Enerji Üretim A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -284,13 +287,13 @@ documents:
     subdepartment: null
     folder: legal
     type: Legal Opinion
-    name: {value: "Şirket Yapısı Hukuki Görüşü — İzmir SPV", tag: AI_ASSUMPTION}
+    name: {value: "Şirket Yapısı Hukuki Görüşü — Kızılova SPV", tag: AI_ASSUMPTION}
     document_date: {value: 2023-03-01, tag: AI_ASSUMPTION}
     effective_date: null
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "ABC Enerji A.Ş.", "KLM Hukuk Bürosu"]
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "XYZ Enerji A.Ş.", "KLM Hukuk Bürosu"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -312,7 +315,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF İzmir Rüzgar Enerji A.Ş.", "KLM Hukuk Bürosu"]
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "KLM Hukuk Bürosu"]
     key_facts: {pre_licence_date: project.timeline.pre_licence.date}
     supersedes: null
     superseded_by: null
@@ -328,13 +331,13 @@ documents:
     subdepartment: null
     folder: admin
     type: Budget Approval
-    name: {value: "İzmir RES Geliştirme Bütçesi Onayı", tag: AI_ASSUMPTION}
+    name: {value: "Kızılova RES Geliştirme Bütçesi Onayı", tag: AI_ASSUMPTION}
     document_date: {value: 2023-04-01, tag: AI_ASSUMPTION}
     effective_date: {value: 2023-04-01, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
+    parties: ["Kızılova RES Enerji Üretim A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -356,7 +359,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
+    parties: ["Kızılova RES Enerji Üretim A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -378,7 +381,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF İzmir Rüzgar Enerji A.Ş."]
+    parties: ["Kızılova RES Enerji Üretim A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null

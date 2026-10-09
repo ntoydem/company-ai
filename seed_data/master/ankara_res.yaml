@@ -1,4 +1,4 @@
-# Ankara RES — truth ledger (SPEC_05 §3, docs/plans/PHASE_2_1_PLAN.md §1.1)
+# Karatepe RES — truth ledger (SPEC_05 §3, docs/plans/PHASE_2_1_PLAN.md §1.1)
 # ONAYLI (23.09.2026, ledger onayı commit'i): tüm değerler USER_FACT. Yeni eklenen değerler taslakken
 # AI_ASSUMPTION ile girilir. Kurallar: python -m seed_data.generator.validate_ledger
 meta:
@@ -8,27 +8,34 @@ meta:
 
 project:
   code: ANK_RES
-  name: Ankara RES
+  name: Karatepe RES
   stage: operation
   spv:
-    name: {value: "DEF Enerji Üretim A.Ş.", tag: USER_FACT}
+    name: {value: "Karatepe RES Enerji Üretim A.Ş.", tag: USER_FACT}
     shareholders:
-      - {name: {value: "ABC Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 80, tag: USER_FACT}}
-      - {name: {value: "GHI Yatırım A.Ş.", tag: USER_FACT}, share_pct: {value: 20, tag: USER_FACT}}
+      # Adım 5 (Tansu §3.1): holding (XYZ Enerji A.Ş.) is now sole 100% shareholder;
+      # GHI Yatırım A.Ş.'s historical 20% was bought out before the demo's present day.
+      - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
   capacity_mw:
-    initial: {value: 48, tag: USER_FACT, source_doc: DOC-ANK-DEV-001}
-    current: {value: 60, tag: USER_FACT, source_doc: DOC-ANK-DEV-002}
+    # Adım 5 (Tansu §3.1): current capacity 24 MW. Tansu's note doesn't mention a Karatepe
+    # capacity amendment; `initial` (22) is an AI_ASSUMPTION small delta kept only so the
+    # existing DOC-ANK-DEV-002 licence-amendment document still narrates a real change.
+    initial: {value: 22, tag: AI_ASSUMPTION, source_doc: DOC-ANK-DEV-001}
+    current: {value: 24, tag: USER_FACT, source_doc: DOC-ANK-DEV-002}
   turbines:
-    count: {value: 12, tag: USER_FACT}
-    model_generic: {value: "5 MW sınıfı kara tipi türbin", tag: USER_FACT}
+    count: {value: 8, tag: USER_FACT}
+    model_generic: {value: "3,0 MW sınıfı kara tipi türbin", tag: USER_FACT}
 
   timeline:
     development_start:   {date: 2018-03-01, doc: null,            tag: USER_FACT}
     pre_licence:         {date: 2018-11-20, doc: null,            tag: USER_FACT}
     licence:             {date: 2020-06-15, doc: DOC-ANK-DEV-001, tag: USER_FACT}
-    licence_amendment:   {date: 2021-02-10, doc: DOC-ANK-DEV-002, tag: USER_FACT, note: "Kapasite 48 -> 60 MW"}
-    financing_signed:    {date: 2021-09-30, doc: DOC-ANK-FIN-004, tag: USER_FACT}
-    financial_close:     {date: 2021-11-15, doc: null,            tag: USER_FACT}
+    licence_amendment:   {date: 2021-02-10, doc: DOC-ANK-DEV-002, tag: USER_FACT, note: "Kapasite 22 -> 24 MW"}
+    # AI_ASSUMPTION: construction_start (2022-01-10, değişmedi) ile tutarlı olması için signed/close
+    # tarihleri construction_start'tan ÖNCEye alındı (C1 kuralı); Tansu §3.2 yalnız taksit/DSCR/marj
+    # verdi, bir imza/close tarihi vermedi.
+    financing_signed:    {date: 2021-11-20, doc: DOC-ANK-FIN-004, tag: AI_ASSUMPTION}
+    financial_close:     {date: 2021-11-25, doc: null,            tag: AI_ASSUMPTION}
     epc_signed:          {date: 2021-10-20, doc: DOC-ANK-EPC-001, tag: USER_FACT}
     construction_start:  {date: 2022-01-10, doc: null,            tag: USER_FACT}
     construction_end:    {date: 2023-08-31, doc: null,            tag: USER_FACT}
@@ -38,34 +45,46 @@ project:
     operation_start:     {date: 2023-10-15, doc: DOC-ANK-EPC-002, tag: USER_FACT}
 
   finance:
-    capex:      {value: 72000000, currency: EUR, tag: USER_FACT}
-    equity:     {value: 21600000, currency: EUR, tag: USER_FACT}
-    total_debt: {value: 50400000, currency: EUR, tag: USER_FACT, source_doc: DOC-ANK-FIN-004}
-    local_debt: {value: 20400000, currency: EUR, tag: USER_FACT, source_doc: DOC-ANK-FIN-004}
-    eca_debt:   {value: 30000000, currency: EUR, tag: USER_FACT, source_doc: DOC-ANK-FIN-004}
+    # Adım 5 (Tansu §3.1-3.2): new USD figures replace the old EUR figures below. capex/equity
+    # are AI_ASSUMPTION (Tansu gave neither) derived from a standard 70/30 debt/equity split
+    # against the new 14.0M USD contract_amount.
+    capex:      {value: 20000000, currency: USD, tag: AI_ASSUMPTION}
+    equity:     {value: 6400000,  currency: USD, tag: AI_ASSUMPTION}
+    # Kasıtlı tuzak (Tansu §3.2, conflict_group "karatepe-kredi-tutari"): kredi sözleşmesinde
+    # yazan tutar 14.000.000 USD (contract_amount) iken fiilen kullandırılan/ödeme planındaki
+    # toplam 13.600.000 USD'dir (total_debt = sum(drawdowns) = sum(repayment_schedule.principal),
+    # validator F11). total_debt artık "kullandırılan/ödenecek" tutarı ifade eder.
+    contract_amount: {value: 14000000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-004, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", note: "Sözleşmede yazan tesis tutarı; fiilen kullandırılan 13.600.000 USD'dir."}
+    total_debt: {value: 13600000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", note: "Fiilen kullandırılan/ödeme planındaki tutar; sözleşme tutarı (contract_amount) 14.000.000 USD'dir."}
+    local_debt: {value: 13600000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007}
+    eca_debt:   {value: 0, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-004, note: "ECA tarafı kullandırılmadı (Tansu §3.2); taraf listesinde biçimsel olarak kalıyor."}
     lenders:
       local_bank: {value: "PQR Bank", tag: USER_FACT}
       eca:        {value: "VWX Export Credit Agency", tag: USER_FACT}
     interest:
-      base:       {value: "EURIBOR 6M", tag: USER_FACT}
-      margin_pct: {value: 3.25, tag: USER_FACT, source_doc: DOC-ANK-FIN-004}
+      base:       {value: "Term SOFR 6M", tag: USER_FACT}
+      margin_pct:
+        initial: {value: 3.25, tag: USER_FACT, source_doc: DOC-ANK-FIN-004}
+        current: {value: 2.90, tag: USER_FACT, source_doc: DOC-ANK-FIN-006}
+        changed_by: DOC-ANK-FIN-006
     tenor_years:
-      initial: {value: 12, tag: USER_FACT, source_doc: DOC-ANK-FIN-004}
-      current: {value: 14, tag: USER_FACT, source_doc: DOC-ANK-FIN-005}
+      initial: {value: 13, tag: USER_FACT, source_doc: DOC-ANK-FIN-004}
+      current: {value: 13, tag: USER_FACT, source_doc: DOC-ANK-FIN-004}
+      # Tenor fiilen değişmedi; F4 kuralı changed_by'ın bir AMD* belgesi olmasını zorunlu
+      # kılıyor — konsolide metin (AMD01) işaret ediliyor.
       changed_by: DOC-ANK-FIN-005
-    grace_months: {value: 24, tag: USER_FACT, source_doc: DOC-ANK-FIN-004}
-    repayment_profile: {value: "Sculpted, semi-annual instalments after grace", tag: USER_FACT}
+    grace_months: {value: 10, tag: AI_ASSUMPTION, source_doc: DOC-ANK-FIN-004, note: "Tansu açık bir grace süresi vermedi; imza (2022-06-20) ve ilk taksit (2023-04-07) arasındaki boşluktan türetildi."}
+    repayment_profile: {value: "Sculpted (variable), semi-annual instalments after grace", tag: USER_FACT}
     dscr_covenant:
       initial: {value: 1.25, tag: USER_FACT, source_doc: DOC-ANK-FIN-004}
-      current: {value: 1.20, tag: USER_FACT, source_doc: DOC-ANK-FIN-005}
-      changed_by: DOC-ANK-FIN-005
+      current: {value: 1.20, tag: USER_FACT, source_doc: DOC-ANK-FIN-006}
+      changed_by: DOC-ANK-FIN-006
     drawdowns:
-      - {date: 2021-12-15, amount: {value: 15000000, currency: EUR, tag: USER_FACT}, doc: null, tag: USER_FACT}
-      - {date: 2022-06-30, amount: {value: 15000000, currency: EUR, tag: USER_FACT}, doc: null, tag: USER_FACT}
-      - {date: 2022-12-15, amount: {value: 12000000, currency: EUR, tag: USER_FACT}, doc: null, tag: USER_FACT}
-      - {date: 2023-06-30, amount: {value: 8400000,  currency: EUR, tag: USER_FACT}, doc: null, tag: USER_FACT}
-    outstanding_debt_as_of_demo_today: {value: 44100000, currency: EUR, tag: USER_FACT, source_doc: DOC-ANK-FIN-007}
-    # Covenant threshold: 1.25 until AMD01 (effective 2025-03-15), 1.20 after. Q4_2024 breach motivates AMD01.
+      - {date: 2022-07-15, amount: {value: 8000000, currency: USD, tag: USER_FACT}, doc: DOC-ANK-FIN-014, tag: USER_FACT}
+      - {date: 2023-01-15, amount: {value: 5600000, currency: USD, tag: USER_FACT}, doc: null, tag: USER_FACT}
+    outstanding_debt_as_of_demo_today: {value: 11671800, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007}
+    dsra_balance: {value: 1240000, currency: USD, tag: USER_FACT}
+    # Covenant threshold: 1.25 until AMD02 (effective 2025-03-15), 1.20 after. Q4_2024 breach motivates AMD02.
     covenant_tests:
       - {period: Q4_2023, dscr: 1.42, result: pass, doc: null,            tag: USER_FACT}
       - {period: Q1_2024, dscr: 1.38, result: pass, doc: null,            tag: USER_FACT}
@@ -79,68 +98,71 @@ project:
       - {period: Q1_2026, dscr: 1.34, result: pass, doc: null,            tag: USER_FACT}
       - {period: Q2_2026, dscr: 1.37, result: pass, doc: DOC-ANK-FIN-007, tag: USER_FACT}
     facility_chain: [DOC-ANK-FIN-001, DOC-ANK-FIN-002, DOC-ANK-FIN-003, DOC-ANK-FIN-004, DOC-ANK-FIN-005, DOC-ANK-FIN-006]
-    # --- Phase 4.2 (Financial Model inputs; docs/plans/PHASE_4_2_PLAN.md SORU 1, AI_ASSUMPTION until reviewed) ---
-    # Fictional EURIBOR 6M yearly averages; all-in rate = base + margin_pct. Interest for a half-year =
-    # opening balance x all-in / 2 (seed_data/generator/debt_math.py).
+    # --- Phase 4.2 (Financial Model inputs; docs/plans/PHASE_4_2_PLAN.md SORU 1) ---
+    # Adım 5 (Tansu §3.2): Term SOFR 6M yearly averages (fictional; all-in rate = base + margin_pct.current,
+    # per validate_ledger.py::check_debt_schedule — the validator always uses the CURRENT margin, flat
+    # across the schedule). Interest for a half-year = opening balance x all-in / 2 (debt_math.py).
     base_rate_pct_by_year:
-      - {year: 2021, rate_pct: -0.50, tag: AI_ASSUMPTION}
-      - {year: 2022, rate_pct: 0.75, tag: AI_ASSUMPTION}
-      - {year: 2023, rate_pct: 3.60, tag: AI_ASSUMPTION}
-      - {year: 2024, rate_pct: 3.50, tag: AI_ASSUMPTION}
-      - {year: 2025, rate_pct: 2.40, tag: AI_ASSUMPTION}
-      - {year: 2026, rate_pct: 2.10, tag: AI_ASSUMPTION}
-      - {year: 2027, rate_pct: 2.00, tag: AI_ASSUMPTION}
-      - {year: 2028, rate_pct: 2.00, tag: AI_ASSUMPTION}
-      - {year: 2029, rate_pct: 2.00, tag: AI_ASSUMPTION}
-      - {year: 2030, rate_pct: 2.00, tag: AI_ASSUMPTION}
-      - {year: 2031, rate_pct: 2.00, tag: AI_ASSUMPTION}
-      - {year: 2032, rate_pct: 2.00, tag: AI_ASSUMPTION}
-      - {year: 2033, rate_pct: 2.00, tag: AI_ASSUMPTION}
-      - {year: 2034, rate_pct: 2.00, tag: AI_ASSUMPTION}
-      - {year: 2035, rate_pct: 2.00, tag: AI_ASSUMPTION}
-    # Semi-annual sculpted instalments after the 24-month grace (financial close 2021-11-15); sum = drawn 50.4M,
-    # balance after H1_2026 = outstanding_debt_as_of_demo_today (validator F9), last instalment within tenor (F11).
+      - {year: 2022, rate_pct: 2.00, tag: AI_ASSUMPTION}
+      - {year: 2023, rate_pct: 4.80, tag: AI_ASSUMPTION}
+      - {year: 2024, rate_pct: 5.00, tag: AI_ASSUMPTION}
+      - {year: 2025, rate_pct: 4.30, tag: AI_ASSUMPTION}
+      - {year: 2026, rate_pct: 3.60, tag: AI_ASSUMPTION}
+      - {year: 2027, rate_pct: 3.20, tag: AI_ASSUMPTION}
+      - {year: 2028, rate_pct: 3.00, tag: AI_ASSUMPTION}
+      - {year: 2029, rate_pct: 3.00, tag: AI_ASSUMPTION}
+      - {year: 2030, rate_pct: 3.00, tag: AI_ASSUMPTION}
+      - {year: 2031, rate_pct: 3.00, tag: AI_ASSUMPTION}
+      - {year: 2032, rate_pct: 3.00, tag: AI_ASSUMPTION}
+      - {year: 2033, rate_pct: 3.00, tag: AI_ASSUMPTION}
+      - {year: 2034, rate_pct: 3.00, tag: AI_ASSUMPTION}
+      - {year: 2035, rate_pct: 3.00, tag: AI_ASSUMPTION}
+    # Adım 5 (Tansu §3.2, kasıtlı tuzak anchors): #8 = 412.500 USD (2026-10-07), #9 due 2027-04-07.
+    # Sum = drawn/total_debt 13.600.000 USD (validator F11); verified against debt_math.py
+    # (sum, outstanding_on, quarterly_debt_service all reproduce the targets below exactly).
     repayment_schedule:
-      - {date: 2024-06-30, principal: {value: 1000000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2024-12-31, principal: {value: 1100000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2025-06-30, principal: {value: 1300000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2025-12-31, principal: {value: 1400000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2026-06-30, principal: {value: 1500000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2026-12-31, principal: {value: 1600000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2027-06-30, principal: {value: 1700000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2027-12-31, principal: {value: 1800000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2028-06-30, principal: {value: 1900000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2028-12-31, principal: {value: 2000000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2029-06-30, principal: {value: 2100000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2029-12-31, principal: {value: 2200000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2030-06-30, principal: {value: 2300000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2030-12-31, principal: {value: 2400000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2031-06-30, principal: {value: 2500000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2031-12-31, principal: {value: 2600000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2032-06-30, principal: {value: 2700000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2032-12-31, principal: {value: 2800000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2033-06-30, principal: {value: 2900000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2033-12-31, principal: {value: 3000000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2034-06-30, principal: {value: 3100000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2034-12-31, principal: {value: 3200000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {date: 2035-06-30, principal: {value: 3300000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-    # CFADS per quarter, derived so that CFADS / quarterly debt service reproduces covenant_tests.dscr (F10).
+      - {date: 2023-04-07, principal: {value: 172700, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2023-10-07, principal: {value: 206900, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2024-04-07, principal: {value: 241200, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2024-10-07, principal: {value: 275500, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2025-04-07, principal: {value: 309700, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2025-10-07, principal: {value: 344000, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2026-04-07, principal: {value: 378200, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2026-10-07, principal: {value: 412500, currency: USD, tag: USER_FACT, note: "Tansu §3.2: 8. taksit, 412.500 USD."}, tag: USER_FACT}
+      - {date: 2027-04-07, principal: {value: 446800, currency: USD, tag: AI_ASSUMPTION, note: "Tansu §3.2: 9. taksit tarihi verildi (2027-04-07), tutarı verilmedi."}, tag: AI_ASSUMPTION}
+      - {date: 2027-10-07, principal: {value: 481000, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2028-04-07, principal: {value: 515300, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2028-10-07, principal: {value: 549500, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2029-04-07, principal: {value: 583800, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2029-10-07, principal: {value: 618100, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2030-04-07, principal: {value: 652300, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2030-10-07, principal: {value: 686600, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2031-04-07, principal: {value: 720800, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2031-10-07, principal: {value: 755100, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2032-04-07, principal: {value: 789400, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2032-10-07, principal: {value: 823600, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2033-04-07, principal: {value: 857900, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2033-10-07, principal: {value: 892100, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2034-04-07, principal: {value: 926400, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {date: 2034-10-07, principal: {value: 960600, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+    # CFADS per quarter, derived so that CFADS / quarterly debt service reproduces covenant_tests.dscr (F10);
+    # verified via debt_math.py against the repayment_schedule/drawdowns/base_rate_pct_by_year above.
     cfads_by_quarter:
-      - {period: Q4_2023, cfads: {value: 1225600, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {period: Q1_2024, cfads: {value: 1863700, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {period: Q2_2024, cfads: {value: 1769200, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {period: Q3_2024, cfads: {value: 1757200, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {period: Q4_2024, cfads: {value: 1715700, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {period: Q1_2025, cfads: {value: 1638700, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {period: Q2_2025, cfads: {value: 1718600, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {period: Q3_2025, cfads: {value: 1814000, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {period: Q4_2025, cfads: {value: 1854900, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {period: Q1_2026, cfads: {value: 1822300, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-      - {period: Q2_2026, cfads: {value: 1863100, currency: EUR, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q4_2023, cfads: {value: 513900, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q1_2024, cfads: {value: 526800, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q2_2024, cfads: {value: 500000, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q3_2024, cfads: {value: 500500, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q4_2024, cfads: {value: 488700, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q1_2025, cfads: {value: 471700, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q2_2025, cfads: {value: 494700, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q3_2025, cfads: {value: 525500, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q4_2025, cfads: {value: 537300, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q1_2026, cfads: {value: 515800, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+      - {period: Q2_2026, cfads: {value: 527300, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
 
   construction:
     epc_contractor:   {value: "JKL İnşaat A.Ş.", tag: USER_FACT}
-    turbine_supplier: {value: "XYZ Wind Turbines GmbH", tag: USER_FACT}
+    turbine_supplier: {value: "RST Turbines GmbH", tag: USER_FACT}
     epc_contract_price: {value: 41500000, currency: EUR, tag: USER_FACT, source_doc: DOC-ANK-EPC-001}
     epc_contract_current_doc: DOC-ANK-EPC-001
     change_orders:
@@ -206,13 +228,13 @@ documents:
     subdepartment: enerji_gelistirme
     folder: development
     type: Üretim Lisansı
-    name: {value: "Ankara RES Üretim Lisansı", tag: USER_FACT}
+    name: {value: "Karatepe RES Üretim Lisansı", tag: USER_FACT}
     document_date: {value: 2020-06-15, tag: USER_FACT}
     effective_date: {value: 2020-06-15, tag: USER_FACT}
     expiration_date: null
     version: EXECUTED
     status: amended
-    parties: ["DEF Enerji Üretim A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş."]
     key_facts: {capacity_mw: project.capacity_mw.initial.value, licence_date: project.timeline.licence.date, development_start: project.timeline.development_start.date}
     supersedes: null
     superseded_by: null
@@ -234,7 +256,7 @@ documents:
     expiration_date: null
     version: AMD01
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş."]
     key_facts: {capacity_mw: project.capacity_mw.current.value, amendment_date: project.timeline.licence_amendment.date}
     supersedes: null
     superseded_by: null
@@ -256,7 +278,7 @@ documents:
     expiration_date: null
     version: DRAFT
     status: draft
-    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
     key_facts: {dscr_covenant: project.finance.dscr_covenant.initial.value, tenor_years: project.finance.tenor_years.initial.value}
     supersedes: null
     superseded_by: DOC-ANK-FIN-002
@@ -278,7 +300,7 @@ documents:
     expiration_date: null
     version: V01
     status: superseded
-    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
     key_facts: {dscr_covenant: project.finance.dscr_covenant.initial.value, tenor_years: project.finance.tenor_years.initial.value}
     supersedes: DOC-ANK-FIN-001
     superseded_by: DOC-ANK-FIN-003
@@ -300,7 +322,7 @@ documents:
     expiration_date: null
     version: V02
     status: superseded
-    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
     key_facts: {dscr_covenant: project.finance.dscr_covenant.initial.value, tenor_years: project.finance.tenor_years.initial.value}
     supersedes: DOC-ANK-FIN-002
     superseded_by: DOC-ANK-FIN-004
@@ -317,17 +339,17 @@ documents:
     folder: finance
     type: Facility Agreement
     name: {value: "Facility Agreement", tag: USER_FACT}
-    document_date: {value: 2021-09-30, tag: USER_FACT}
-    effective_date: {value: 2021-09-30, tag: USER_FACT}
+    document_date: {value: 2021-11-20, tag: USER_FACT}
+    effective_date: {value: 2021-11-20, tag: USER_FACT}
     expiration_date: null
     version: EXECUTED
     status: superseded
-    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
     key_facts:
-      total_debt: project.finance.total_debt.value
+      total_debt: project.finance.contract_amount.value
       local_debt: project.finance.local_debt.value
       eca_debt: project.finance.eca_debt.value
-      margin_pct: project.finance.interest.margin_pct.value
+      margin_pct: project.finance.interest.margin_pct.initial.value
       tenor_years: project.finance.tenor_years.initial.value
       grace_months: project.finance.grace_months.value
       dscr_covenant: project.finance.dscr_covenant.initial.value
@@ -346,14 +368,17 @@ documents:
     subdepartment: null
     folder: finance
     type: Facility Agreement
+    # Adım 5 (Tansu §3.2): 1. tadil — konsolide metin, sayısal değişiklik yok. (Belge ID
+    # sırası = kronolojik sıra korunur; dondurulmuş prose'un metni bu role uyacak şekilde
+    # elle güncellendi — bkz. seed_data/generator/prose/DOC-ANK-FIN-005.yaml.)
     name: {value: "Facility Agreement Amendment 01", tag: USER_FACT}
-    document_date: {value: 2025-03-15, tag: USER_FACT}
-    effective_date: {value: 2025-03-15, tag: USER_FACT}
+    document_date: {value: 2024-01-12, tag: USER_FACT}
+    effective_date: {value: 2024-01-12, tag: USER_FACT}
     expiration_date: null
     version: AMD01
     status: superseded
-    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
-    key_facts: {dscr_covenant: project.finance.dscr_covenant.current.value, tenor_years: project.finance.tenor_years.current.value, financial_close_date: project.timeline.financial_close.date}
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    key_facts: {repayment_profile: project.finance.repayment_profile.value}
     supersedes: DOC-ANK-FIN-004
     superseded_by: DOC-ANK-FIN-006
     related: []
@@ -368,17 +393,23 @@ documents:
     subdepartment: null
     folder: finance
     type: Facility Agreement
-    name: {value: "Facility Agreement Amendment 02", tag: USER_FACT, note: "Finansal olmayan: geri ödeme takvimi eki ve covenant test dönemi tanımı yeniden düzenlendi (SORU 1)"}
-    document_date: {value: 2026-02-20, tag: USER_FACT}
-    effective_date: {value: 2026-02-20, tag: USER_FACT}
+    # Adım 5 (Tansu §3.2): 2. tadil — DSCR 1,25x -> 1,20x, faiz marjı 3,25% -> 2,90%; Q4_2024
+    # breach'e yanıt. Dondurulmuş prose'un metni bu role uyacak şekilde elle güncellendi —
+    # bkz. seed_data/generator/prose/DOC-ANK-FIN-006.yaml.
+    name: {value: "Facility Agreement Amendment 02", tag: USER_FACT}
+    document_date: {value: 2025-03-15, tag: USER_FACT}
+    effective_date: {value: 2025-03-15, tag: USER_FACT}
     expiration_date: null
     version: AMD02
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
-    key_facts: {repayment_profile: project.finance.repayment_profile.value}
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    key_facts:
+      dscr_covenant: project.finance.dscr_covenant.current.value
+      tenor_years: project.finance.tenor_years.current.value
+      financial_close_date: project.timeline.financial_close.date
     supersedes: DOC-ANK-FIN-005
     superseded_by: null
-    related: []
+    related: [DOC-ANK-FIN-015]
     source_type: digital_pdf
     language: en
     confidentiality: normal
@@ -396,7 +427,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
     key_facts:
       dscr: "project.finance.covenant_tests[10].dscr"
       outstanding_debt: project.finance.outstanding_debt_as_of_demo_today.value
@@ -420,7 +451,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: amended
-    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
     key_facts: {epc_contract_price: project.construction.epc_contract_price.value, cod_expected: project.timeline.cod_expected_initial.date}
     supersedes: null
     superseded_by: null
@@ -442,7 +473,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş.", "MNO Teknik Danışmanlık Ltd."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "JKL İnşaat A.Ş.", "MNO Teknik Danışmanlık Ltd."]
     key_facts: {cod_actual: project.timeline.cod_actual.date, capacity_mw: project.capacity_mw.current.value, cod_expected: project.timeline.cod_expected_initial.date, cod_deferral_reason: "project.construction.change_orders[0].subject.value"}
     supersedes: null
     superseded_by: null
@@ -464,7 +495,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
     key_facts: {cod_expected_initial: project.timeline.cod_expected_initial.date, cod_actual: project.timeline.cod_actual.date}
     supersedes: null
     superseded_by: null
@@ -486,7 +517,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş."]
     key_facts: {mwh: "project.operations.monthly_production[33].mwh", operating_year: project.operations.operating_year_on_demo_today.value}
     supersedes: null
     superseded_by: null
@@ -504,13 +535,13 @@ documents:
     subdepartment: enerji_gelistirme
     folder: development
     type: Bağlantı Anlaşması
-    name: {value: "Ankara RES Bağlantı Anlaşması", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Bağlantı Anlaşması", tag: AI_ASSUMPTION}
     document_date: {value: 2021-05-10, tag: AI_ASSUMPTION}
     effective_date: {value: 2021-05-10, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "TEİAŞ"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "TEİAŞ"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -526,13 +557,13 @@ documents:
     subdepartment: enerji_gelistirme
     folder: development
     type: Yapı Ruhsatı
-    name: {value: "Ankara RES Yapı Ruhsatı", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Yapı Ruhsatı", tag: AI_ASSUMPTION}
     document_date: {value: 2021-12-05, tag: AI_ASSUMPTION}
     effective_date: {value: 2021-12-05, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -548,13 +579,13 @@ documents:
     subdepartment: enerji_gelistirme
     folder: development
     type: ÇED Olumlu Kararı
-    name: {value: "Ankara RES ÇED Olumlu Kararı", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES ÇED Olumlu Kararı", tag: AI_ASSUMPTION}
     document_date: {value: 2019-11-05, tag: AI_ASSUMPTION}
     effective_date: {value: 2019-11-05, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş."]
     key_facts: {capacity_mw: project.capacity_mw.initial.value}
     supersedes: null
     superseded_by: null
@@ -570,13 +601,13 @@ documents:
     subdepartment: enerji_gelistirme
     folder: development
     type: Saha Kullanım Hakkı Sözleşmesi
-    name: {value: "Ankara RES Saha Kullanım Hakkı Sözleşmesi", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Saha Kullanım Hakkı Sözleşmesi", tag: AI_ASSUMPTION}
     document_date: {value: 2019-03-01, tag: AI_ASSUMPTION}
     effective_date: {value: 2019-03-01, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -592,14 +623,14 @@ documents:
     subdepartment: null
     folder: finance
     type: Common Terms Agreement
-    name: {value: "Ankara RES Common Terms Agreement", tag: AI_ASSUMPTION}
-    document_date: {value: 2021-09-30, tag: AI_ASSUMPTION}
-    effective_date: {value: 2021-09-30, tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Common Terms Agreement", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-11-20, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-11-20, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
-    key_facts: {total_debt: project.finance.total_debt.value}
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    key_facts: {total_debt: project.finance.contract_amount.value}
     supersedes: null
     superseded_by: null
     related: [DOC-ANK-FIN-004]
@@ -614,13 +645,13 @@ documents:
     subdepartment: null
     folder: finance
     type: Share Pledge
-    name: {value: "Ankara RES Security Agreement (Share Pledge)", tag: AI_ASSUMPTION}
-    document_date: {value: 2021-11-10, tag: AI_ASSUMPTION}
-    effective_date: {value: 2021-11-10, tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Security Agreement (Share Pledge)", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-12-01, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-12-01, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "ABC Enerji A.Ş.", "GHI Yatırım A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "XYZ Enerji A.Ş.", "PQR Bank"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -636,13 +667,13 @@ documents:
     subdepartment: null
     folder: finance
     type: Account Pledge
-    name: {value: "Ankara RES Account Pledge Agreement", tag: AI_ASSUMPTION}
-    document_date: {value: 2021-11-10, tag: AI_ASSUMPTION}
-    effective_date: {value: 2021-11-10, tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Account Pledge Agreement", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-12-01, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-12-01, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -658,13 +689,13 @@ documents:
     subdepartment: null
     folder: finance
     type: Assignment Agreement
-    name: {value: "Ankara RES Insurance Assignment Agreement", tag: AI_ASSUMPTION}
-    document_date: {value: 2021-11-12, tag: AI_ASSUMPTION}
-    effective_date: {value: 2021-11-12, tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Insurance Assignment Agreement", tag: AI_ASSUMPTION}
+    document_date: {value: 2021-12-03, tag: AI_ASSUMPTION}
+    effective_date: {value: 2021-12-03, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "STU Sigorta", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "STU Sigorta", "PQR Bank"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -680,13 +711,13 @@ documents:
     subdepartment: null
     folder: finance
     type: Drawdown Notice
-    name: {value: "Ankara RES Drawdown Notice — Tranche 1", tag: AI_ASSUMPTION}
-    document_date: {value: 2021-12-15, tag: AI_ASSUMPTION}
-    effective_date: {value: 2021-12-15, tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Drawdown Notice — Tranche 1", tag: AI_ASSUMPTION}
+    document_date: {value: 2022-07-15, tag: AI_ASSUMPTION}
+    effective_date: {value: 2022-07-15, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
     key_facts: {drawdown_amount: "project.finance.drawdowns[0].amount.value", drawdown_date: "project.finance.drawdowns[0].date"}
     supersedes: null
     superseded_by: null
@@ -702,17 +733,17 @@ documents:
     subdepartment: null
     folder: finance
     type: Waiver Letter
-    name: {value: "Ankara RES Waiver Letter — Q4 2024 Covenant Test", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Waiver Letter — Q4 2024 Covenant Test", tag: AI_ASSUMPTION}
     document_date: {value: 2025-01-20, tag: AI_ASSUMPTION}
     effective_date: {value: 2025-01-20, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
     key_facts: {dscr: "project.finance.covenant_tests[4].dscr"}
     supersedes: null
     superseded_by: null
-    related: [DOC-ANK-FIN-005]
+    related: [DOC-ANK-FIN-006]
     source_type: digital_pdf
     language: en
     confidentiality: normal
@@ -724,13 +755,13 @@ documents:
     subdepartment: null
     folder: finance
     type: Covenant Report
-    name: {value: "Ankara RES Covenant Compliance Report — Q4 2024", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Covenant Compliance Report — Q4 2024", tag: AI_ASSUMPTION}
     document_date: {value: 2025-01-10, tag: AI_ASSUMPTION}
     effective_date: null
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
     key_facts: {dscr: "project.finance.covenant_tests[4].dscr", covenant_result: "project.finance.covenant_tests[4].result"}
     supersedes: null
     superseded_by: null
@@ -746,13 +777,13 @@ documents:
     subdepartment: enerji_epc_insaat
     folder: epc
     type: Completion Certificate
-    name: {value: "Ankara RES Mechanical Completion Certificate", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Mechanical Completion Certificate", tag: AI_ASSUMPTION}
     document_date: {value: 2023-07-20, tag: AI_ASSUMPTION}
     effective_date: {value: 2023-07-20, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -768,13 +799,13 @@ documents:
     subdepartment: enerji_epc_insaat
     folder: epc
     type: Completion Report
-    name: {value: "Ankara RES Independent Engineer's Completion Report", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Independent Engineer's Completion Report", tag: AI_ASSUMPTION}
     document_date: {value: 2023-09-25, tag: AI_ASSUMPTION}
     effective_date: null
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş.", "MNO Teknik Danışmanlık Ltd."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "MNO Teknik Danışmanlık Ltd."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -790,13 +821,13 @@ documents:
     subdepartment: enerji_epc_insaat
     folder: epc
     type: Punch List Closure
-    name: {value: "Ankara RES Punch List Closure Confirmation", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Punch List Closure Confirmation", tag: AI_ASSUMPTION}
     document_date: {value: 2023-10-05, tag: AI_ASSUMPTION}
     effective_date: {value: 2023-10-05, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -812,13 +843,13 @@ documents:
     subdepartment: enerji_epc_insaat
     folder: epc
     type: Insurance Policy
-    name: {value: "Ankara RES Construction All Risks Insurance Policy Summary", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Construction All Risks Insurance Policy Summary", tag: AI_ASSUMPTION}
     document_date: {value: 2022-01-05, tag: AI_ASSUMPTION}
     effective_date: {value: 2022-01-05, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş.", "STU Sigorta"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "STU Sigorta"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -834,13 +865,13 @@ documents:
     subdepartment: enerji_epc_insaat
     folder: epc
     type: Performance Test Report
-    name: {value: "Ankara RES Performance Test Results Report", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Performance Test Results Report", tag: AI_ASSUMPTION}
     document_date: {value: 2023-10-10, tag: AI_ASSUMPTION}
     effective_date: null
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş.", "MNO Teknik Danışmanlık Ltd."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "MNO Teknik Danışmanlık Ltd."]
     key_facts: {capacity_mw: project.capacity_mw.current.value}
     supersedes: null
     superseded_by: null
@@ -856,13 +887,13 @@ documents:
     subdepartment: enerji_epc_insaat
     folder: epc
     type: Warranty Certificate
-    name: {value: "Ankara RES Warranty & Defects Liability Certificate", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Warranty & Defects Liability Certificate", tag: AI_ASSUMPTION}
     document_date: {value: 2024-10-15, tag: AI_ASSUMPTION}
     effective_date: {value: 2024-10-15, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -878,13 +909,13 @@ documents:
     subdepartment: enerji_epc_insaat
     folder: epc
     type: Grid Connection Certificate
-    name: {value: "Ankara RES Şebeke Bağlantı Tamamlama Belgesi", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Şebeke Bağlantı Tamamlama Belgesi", tag: AI_ASSUMPTION}
     document_date: {value: 2023-09-01, tag: AI_ASSUMPTION}
     effective_date: {value: 2023-09-01, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş.", "TEİAŞ"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "TEİAŞ"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -900,13 +931,13 @@ documents:
     subdepartment: enerji_bakim
     folder: operations
     type: O&M Agreement
-    name: {value: "Ankara RES O&M Agreement", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES O&M Agreement", tag: AI_ASSUMPTION}
     document_date: {value: 2023-10-15, tag: AI_ASSUMPTION}
     effective_date: {value: 2023-10-15, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -928,7 +959,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş."]
     key_facts: {incident_type: "project.operations.incidents[0].type.value", mwh: "project.operations.monthly_production[8].mwh", availability_pct: "project.operations.monthly_production[8].availability_pct"}
     supersedes: null
     superseded_by: null
@@ -950,7 +981,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş."]
     key_facts: {mwh: "project.operations.monthly_production[1].mwh"}
     supersedes: null
     superseded_by: null
@@ -972,7 +1003,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş."]
     key_facts: {mwh: "project.operations.monthly_production[19].mwh"}
     supersedes: null
     superseded_by: null
@@ -994,7 +1025,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -1018,7 +1049,7 @@ documents:
     expiration_date: {value: 2025-01-09, tag: AI_ASSUMPTION, note: "Naci onayı 05.10.2026 — bir yıllık poliçe döneminin sonu; yenileme belgesi ledger'da yok (kasıtlı, 'süresi dolmuş' demo senaryosu)"}
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "STU Sigorta"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "STU Sigorta"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -1034,13 +1065,13 @@ documents:
     subdepartment: enerji_bakim
     folder: operations
     type: Availability Report
-    name: {value: "Ankara RES Kullanılabilirlik Garantisi Uyum Raporu", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Kullanılabilirlik Garantisi Uyum Raporu", tag: AI_ASSUMPTION}
     document_date: {value: 2026-09-05, tag: AI_ASSUMPTION}
     effective_date: null
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş.", "XYZ Wind Turbines GmbH"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "RST Turbines GmbH"]
     key_facts: {availability_pct: "project.operations.monthly_production[33].availability_pct"}
     supersedes: null
     superseded_by: null
@@ -1056,13 +1087,13 @@ documents:
     subdepartment: enerji_bakim
     folder: operations
     type: Spare Parts Agreement
-    name: {value: "Ankara RES Yedek Parça Tedarik Sözleşmesi", tag: AI_ASSUMPTION}
+    name: {value: "Karatepe RES Yedek Parça Tedarik Sözleşmesi", tag: AI_ASSUMPTION}
     document_date: {value: 2023-11-01, tag: AI_ASSUMPTION}
     effective_date: {value: 2023-11-01, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş.", "XYZ Wind Turbines GmbH"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "RST Turbines GmbH"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -1084,7 +1115,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "JKL İnşaat A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -1106,7 +1137,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş.", "KLM Hukuk Bürosu"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "KLM Hukuk Bürosu"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -1128,7 +1159,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş.", "KLM Hukuk Bürosu"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "KLM Hukuk Bürosu"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -1150,7 +1181,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş.", "KLM Hukuk Bürosu"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "KLM Hukuk Bürosu"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -1172,7 +1203,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["DEF Enerji Üretim A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -1194,7 +1225,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["DEF Enerji Üretim A.Ş.", "STU Sigorta"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "STU Sigorta"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -1217,7 +1248,7 @@ documents:
     expiration_date: null
     version: V2026
     status: active
-    parties: ["DEF Enerji Üretim A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -1240,7 +1271,7 @@ documents:
     expiration_date: null
     version: Q2_2026
     status: active
-    parties: ["DEF Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -1261,7 +1292,7 @@ documents:
     expiration_date: null
     version: Q2_2026
     status: active
-    parties: ["DEF Enerji Üretim A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -1282,7 +1313,7 @@ documents:
     expiration_date: null
     version: "2026-08"
     status: active
-    parties: ["DEF Enerji Üretim A.Ş."]
+    parties: ["Karatepe RES Enerji Üretim A.Ş."]
     key_facts: {}
     supersedes: null
     superseded_by: null

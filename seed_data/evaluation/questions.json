@@ -5,16 +5,16 @@
     {
       "id": "ANK-DEV-001",
       "category": "document",
-      "question": "Ankara RES'in development süreci ne zaman başladı?",
+      "question": "Karatepe RES'in development süreci ne zaman başladı?",
       "expected_answer": "ledger:ankara_res.project.timeline.development_start.date",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "Ankara RES Üretim Lisansı"
+        "Karatepe RES Üretim Lisansı"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -23,16 +23,16 @@
     {
       "id": "ANK-DEV-002",
       "category": "document",
-      "question": "Ankara RES üretim lisansı ne zaman alındı?",
+      "question": "Karatepe RES üretim lisansı ne zaman alındı?",
       "expected_answer": "ledger:ankara_res.project.timeline.licence.date",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "Ankara RES Üretim Lisansı"
+        "Karatepe RES Üretim Lisansı"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -41,16 +41,16 @@
     {
       "id": "ANK-DEV-003",
       "category": "document",
-      "question": "Ankara RES'in güncel kurulu gücü (kapasitesi) nedir?",
+      "question": "Karatepe RES'in güncel kurulu gücü (kapasitesi) nedir?",
       "expected_answer": "ledger:ankara_res.project.capacity_mw.current.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Licence Amendment 01 (Kapasite Tadili)"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -59,16 +59,16 @@
     {
       "id": "ANK-DEV-004",
       "category": "temporal",
-      "question": "Ankara RES'in ilk lisans kapasitesi neydi?",
+      "question": "Karatepe RES'in ilk lisans kapasitesi neydi?",
       "expected_answer": "ledger:ankara_res.project.capacity_mw.initial.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "Ankara RES Üretim Lisansı"
+        "Karatepe RES Üretim Lisansı"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -77,16 +77,16 @@
     {
       "id": "ANK-DEV-005",
       "category": "temporal",
-      "question": "Ankara RES'in kapasite tadili (licence amendment) ne zaman yapıldı?",
+      "question": "Karatepe RES'in kapasite tadili (licence amendment) ne zaman yapıldı?",
       "expected_answer": "ledger:ankara_res.project.timeline.licence_amendment.date",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Licence Amendment 01 (Kapasite Tadili)"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -95,16 +95,16 @@
     {
       "id": "ANK-FIN-001",
       "category": "document",
-      "question": "Ankara RES'in financial close tarihi nedir?",
+      "question": "Karatepe RES'in financial close tarihi nedir?",
       "expected_answer": "ledger:ankara_res.project.timeline.financial_close.date",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -113,16 +113,16 @@
     {
       "id": "ANK-FIN-002",
       "category": "document",
-      "question": "Ankara RES'in toplam finansman (kredi) tutarı nedir?",
+      "question": "Karatepe RES'in toplam finansman (kredi) tutarı nedir?",
       "expected_answer": "ledger:ankara_res.project.finance.total_debt.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -131,16 +131,16 @@
     {
       "id": "ANK-FIN-003",
       "category": "document",
-      "question": "Ankara RES finansmanında yerli banka kredisi ne kadar?",
+      "question": "Karatepe RES finansmanında yerli banka kredisi ne kadar?",
       "expected_answer": "ledger:ankara_res.project.finance.local_debt.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -149,16 +149,16 @@
     {
       "id": "ANK-FIN-004",
       "category": "document",
-      "question": "Ankara RES finansmanında ECA kredisi ne kadar?",
+      "question": "Karatepe RES finansmanında ECA kredisi ne kadar?",
       "expected_answer": "ledger:ankara_res.project.finance.eca_debt.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -167,16 +167,16 @@
     {
       "id": "ANK-FIN-005",
       "category": "document",
-      "question": "Ankara RES kredisinin güncel faiz bazı ve marjı nedir?",
-      "expected_answer": "ledger:ankara_res.project.finance.interest.margin_pct.value",
+      "question": "Karatepe RES kredisinin güncel faiz bazı ve marjı nedir?",
+      "expected_answer": "ledger:ankara_res.project.finance.interest.margin_pct.current.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -185,16 +185,16 @@
     {
       "id": "ANK-FIN-006",
       "category": "temporal",
-      "question": "Ankara RES'in güncel minimum DSCR covenant'ı nedir?",
+      "question": "Karatepe RES'in güncel minimum DSCR covenant'ı nedir?",
       "expected_answer": "ledger:ankara_res.project.finance.dscr_covenant.current.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement Amendment 01"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -203,16 +203,16 @@
     {
       "id": "ANK-FIN-007",
       "category": "temporal",
-      "question": "Ankara RES'in ilk (orijinal) DSCR covenant'ı neydi?",
+      "question": "Karatepe RES'in ilk (orijinal) DSCR covenant'ı neydi?",
       "expected_answer": "ledger:ankara_res.project.finance.dscr_covenant.initial.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -221,16 +221,16 @@
     {
       "id": "ANK-FIN-008",
       "category": "temporal",
-      "question": "Ankara RES'in güncel (yürürlükteki) Facility Agreement'ı hangisi?",
+      "question": "Karatepe RES'in güncel (yürürlükteki) Facility Agreement'ı hangisi?",
       "expected_answer": "ledger:ankara_res.project.finance.facility_chain[-1]",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement Amendment 02"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -239,17 +239,17 @@
     {
       "id": "ANK-FIN-009",
       "category": "document",
-      "question": "Ankara RES Facility Agreement'ında kaç amendment var?",
+      "question": "Karatepe RES Facility Agreement'ında kaç amendment var?",
       "expected_answer": "ledger:ankara_res.project.finance.facility_chain",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement Amendment 01",
         "Facility Agreement Amendment 02"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -258,16 +258,16 @@
     {
       "id": "ANK-EPC-001",
       "category": "document",
-      "question": "Ankara RES EPC sözleşme bedeli nedir?",
+      "question": "Karatepe RES EPC sözleşme bedeli nedir?",
       "expected_answer": "ledger:ankara_res.project.construction.epc_contract_price.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "EPC Contract"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -276,16 +276,16 @@
     {
       "id": "ANK-EPC-002",
       "category": "document",
-      "question": "Ankara RES'in güncel EPC sözleşmesi hangisi?",
+      "question": "Karatepe RES'in güncel EPC sözleşmesi hangisi?",
       "expected_answer": "ledger:ankara_res.project.construction.epc_contract_current_doc",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "EPC Contract"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -294,16 +294,16 @@
     {
       "id": "ANK-EPC-003",
       "category": "document",
-      "question": "Ankara RES'in COD (ticari işletme) tarihi nedir?",
+      "question": "Karatepe RES'in COD (ticari işletme) tarihi nedir?",
       "expected_answer": "ledger:ankara_res.project.timeline.cod_actual.date",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Provisional Acceptance & COD Certificate"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -312,16 +312,16 @@
     {
       "id": "ANK-OPS-001",
       "category": "temporal",
-      "question": "Ankara RES şu anda kaçıncı işletme yılında?",
+      "question": "Karatepe RES şu anda kaçıncı işletme yılında?",
       "expected_answer": "ledger:ankara_res.project.operations.operating_year_on_demo_today.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Aylık Üretim Raporu — Ağustos 2026"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -330,16 +330,16 @@
     {
       "id": "ANK-FIN-010",
       "category": "data",
-      "question": "Ankara RES'in son covenant testi sonucu nedir?",
+      "question": "Karatepe RES'in son covenant testi sonucu nedir?",
       "expected_answer": "ledger:ankara_res.project.finance.covenant_tests[-1].result",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Covenant Report (workbook)"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -348,16 +348,16 @@
     {
       "id": "ANK-FIN-011",
       "category": "document",
-      "question": "Ankara RES'in güncel outstanding (kalan) borcu nedir?",
+      "question": "Karatepe RES'in güncel outstanding (kalan) borcu nedir?",
       "expected_answer": "ledger:ankara_res.project.finance.outstanding_debt_as_of_demo_today.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Covenant Compliance Report Q2 2026"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -366,16 +366,16 @@
     {
       "id": "ANK-FIN-012",
       "category": "temporal",
-      "question": "Ankara RES'in DSCR covenant'ı ne zaman ve hangi belgeyle değişti?",
+      "question": "Karatepe RES'in DSCR covenant'ı ne zaman ve hangi belgeyle değişti?",
       "expected_answer": "ledger:ankara_res.project.finance.dscr_covenant.changed_by",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement Amendment 01"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -384,17 +384,17 @@
     {
       "id": "ANK-FIN-013",
       "category": "temporal",
-      "question": "Ankara RES kredisinin tenor'u ilk ne kadardı, şimdi ne kadar?",
+      "question": "Karatepe RES kredisinin tenor'u ilk ne kadardı, şimdi ne kadar?",
       "expected_answer": "ledger:ankara_res.project.finance.tenor_years",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement",
         "Facility Agreement Amendment 01"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -403,17 +403,17 @@
     {
       "id": "ANK-EPC-004",
       "category": "temporal",
-      "question": "Ankara RES'in COD'u ilk beklenen tarihe göre sapmış mı? Belgelerde sebep yazıyor mu?",
+      "question": "Karatepe RES'in COD'u ilk beklenen tarihe göre sapmış mı? Belgelerde sebep yazıyor mu?",
       "expected_answer": "ledger:ankara_res.project.construction.change_orders[0].subject.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "EPC Contract",
         "Provisional Acceptance & COD Certificate"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -422,16 +422,16 @@
     {
       "id": "IZM-DEV-001",
       "category": "document",
-      "question": "İzmir RES projesi hangi aşamada?",
+      "question": "Kızılova RES projesi hangi aşamada?",
       "expected_answer": "ledger:izmir_res.project.stage",
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "ÇED Süreci Durum Yazısı"
       ],
       "forbidden_sources": [
-        "Ankara RES"
+        "Karatepe RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -440,16 +440,16 @@
     {
       "id": "IZM-DEV-002",
       "category": "document",
-      "question": "İzmir RES'in ÇED süreci ne durumda?",
+      "question": "Kızılova RES'in ÇED süreci ne durumda?",
       "expected_answer": "ledger:izmir_res.project.development.ced_status.value",
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "ÇED Süreci Durum Yazısı"
       ],
       "forbidden_sources": [
-        "Ankara RES"
+        "Karatepe RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -458,16 +458,16 @@
     {
       "id": "IZM-DEV-003",
       "category": "document",
-      "question": "İzmir RES için ÇED süreci tamamlandı mı?",
+      "question": "Kızılova RES için ÇED süreci tamamlandı mı?",
       "expected_answer": "ledger:izmir_res.project.development.ced_status.value",
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "ÇED Süreci Durum Yazısı"
       ],
       "forbidden_sources": [
-        "Ankara RES"
+        "Karatepe RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -476,16 +476,16 @@
     {
       "id": "IZM-DEV-004",
       "category": "document",
-      "question": "İzmir RES'in yapı ruhsatı var mı?",
+      "question": "Kızılova RES'in yapı ruhsatı var mı?",
       "expected_answer": "ledger:izmir_res.project.development.pending_steps",
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "ÇED Süreci Durum Yazısı"
       ],
       "forbidden_sources": [
-        "Ankara RES"
+        "Karatepe RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -494,17 +494,17 @@
     {
       "id": "IZM-DEV-005",
       "category": "document",
-      "question": "İzmir RES için üretim lisansı alındı mı?",
+      "question": "Kızılova RES için üretim lisansı alındı mı?",
       "expected_answer": "ledger:izmir_res.project.timeline.licence",
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "İzmir RES Önlisans Belgesi",
+        "Kızılova RES Önlisans Belgesi",
         "ÇED Süreci Durum Yazısı"
       ],
       "forbidden_sources": [
-        "Ankara RES"
+        "Karatepe RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -513,16 +513,16 @@
     {
       "id": "IZM-DEV-006",
       "category": "document",
-      "question": "İzmir RES'te inşaata başlandı mı?",
+      "question": "Kızılova RES'te inşaata başlandı mı?",
       "expected_answer": "ledger:izmir_res.project.timeline.construction_start",
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "ÇED Süreci Durum Yazısı"
       ],
       "forbidden_sources": [
-        "Ankara RES"
+        "Karatepe RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -531,17 +531,17 @@
     {
       "id": "IZM-DEV-007",
       "category": "document",
-      "question": "İzmir RES'te hangi süreç adımları tamamlandı?",
+      "question": "Kızılova RES'te hangi süreç adımları tamamlandı?",
       "expected_answer": "ledger:izmir_res.project.development.permits_completed",
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "İzmir RES Önlisans Belgesi",
+        "Kızılova RES Önlisans Belgesi",
         "Arazi Edinim Durum Raporu"
       ],
       "forbidden_sources": [
-        "Ankara RES"
+        "Karatepe RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -550,16 +550,16 @@
     {
       "id": "IZM-DEV-008",
       "category": "document",
-      "question": "İzmir RES'te hangi kritik adımlar bekliyor?",
+      "question": "Kızılova RES'te hangi kritik adımlar bekliyor?",
       "expected_answer": "ledger:izmir_res.project.development.pending_steps",
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "ÇED Süreci Durum Yazısı"
       ],
       "forbidden_sources": [
-        "Ankara RES"
+        "Karatepe RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -568,16 +568,16 @@
     {
       "id": "IZM-DEV-009",
       "category": "document",
-      "question": "İzmir RES ile ilgili en son gelişme nedir?",
+      "question": "Kızılova RES ile ilgili en son gelişme nedir?",
       "expected_answer": "ledger:izmir_res.project.development.latest_event.date",
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "ÇED Süreci Durum Yazısı"
       ],
       "forbidden_sources": [
-        "Ankara RES"
+        "Karatepe RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -586,27 +586,27 @@
     {
       "id": "GEN-HAL-001",
       "category": "hallucination",
-      "question": "İzmir RES'in COD tarihi nedir?",
+      "question": "Kızılova RES'in COD tarihi nedir?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "enerji_grubu",
       "required_sources": [],
       "forbidden_sources": [
-        "Ankara RES",
+        "Karatepe RES",
         "Provisional Acceptance & COD Certificate"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": true,
-      "notes": "İzmir'in COD'u yok; Ankara COD'u aktarılmamalı"
+      "notes": "Kızılova'nın COD'u yok; Karatepe COD'u aktarılmamalı"
     },
     {
       "id": "GEN-HAL-002",
       "category": "hallucination",
-      "question": "Ankara RES'in ikinci EPC yüklenicisi kim?",
+      "question": "Karatepe RES'in ikinci EPC yüklenicisi kim?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [],
       "forbidden_sources": [],
@@ -624,8 +624,8 @@
       "expected_department": null,
       "required_sources": [],
       "forbidden_sources": [
-        "Ankara RES",
-        "İzmir RES"
+        "Karatepe RES",
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": true,
@@ -634,40 +634,40 @@
     {
       "id": "GEN-HAL-004",
       "category": "hallucination",
-      "question": "İzmir RES'in kredi faiz oranı nedir?",
+      "question": "Kızılova RES'in kredi faiz oranı nedir?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "finans",
       "required_sources": [],
       "forbidden_sources": [
         "Facility Agreement",
-        "Ankara RES"
+        "Karatepe RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": true,
-      "notes": "İzmir'de finansman yok; Ankara Facility Agreement'ı kullanılmamalı"
+      "notes": "Kızılova'da finansman yok; Karatepe Facility Agreement'ı kullanılmamalı"
     },
     {
       "id": "IZM-ISO-001",
       "category": "isolation",
-      "question": "İzmir RES'in kapasitesi nedir?",
+      "question": "Kızılova RES'in kapasitesi nedir?",
       "expected_answer": "ledger:izmir_res.project.capacity_mw.target.value",
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "İzmir RES Önlisans Belgesi",
+        "Kızılova RES Önlisans Belgesi",
         "Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu"
       ],
       "forbidden_sources": [
-        "Ankara RES",
-        "Ankara RES Üretim Lisansı",
+        "Karatepe RES",
+        "Karatepe RES Üretim Lisansı",
         "Licence Amendment 01 (Kapasite Tadili)"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
-      "notes": "Hedef kapasite; Ankara kapasitesi karışmamalı"
+      "notes": "Hedef kapasite; Karatepe kapasitesi karışmamalı"
     },
     {
       "id": "ANK-ISO-002",
@@ -675,17 +675,17 @@
       "question": "Hangi projenin üretim lisansı var?",
       "expected_answer": "ledger:ankara_res.project.name",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "Ankara RES Üretim Lisansı"
+        "Karatepe RES Üretim Lisansı"
       ],
       "forbidden_sources": [
         "ÇED Süreci Durum Yazısı"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
-      "notes": "Yalnızca Ankara; İzmir'in yalnızca önlisansı var"
+      "notes": "Yalnızca Karatepe; Kızılova'nın yalnızca önlisansı var"
     },
     {
       "id": "ANK-ISO-003",
@@ -693,13 +693,13 @@
       "question": "Hangi projenin finansmanı kapanmış (financial close) durumda?",
       "expected_answer": "ledger:ankara_res.project.timeline.financial_close.date",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -708,10 +708,10 @@
     {
       "id": "IZM-ISO-004",
       "category": "isolation",
-      "question": "İzmir RES için finansman sözleşmesi imzalandı mı?",
+      "question": "Kızılova RES için finansman sözleşmesi imzalandı mı?",
       "expected_answer": "ledger:izmir_res.project.timeline.financing_signed",
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "finans",
       "required_sources": [],
       "forbidden_sources": [
@@ -721,15 +721,15 @@
       ],
       "ask_as_user": "finans",
       "expect_no_answer": true,
-      "notes": "finans kullanıcısı Ankara Facility Agreement'ını görebilir; İzmir'e atfetmemeli"
+      "notes": "finans kullanıcısı Karatepe Facility Agreement'ını görebilir; Kızılova'ya atfetmemeli"
     },
     {
       "id": "ANK-AUT-001",
       "category": "authorization",
-      "question": "Ankara RES'in güncel minimum DSCR covenant'ı nedir?",
+      "question": "Karatepe RES'in güncel minimum DSCR covenant'ı nedir?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [],
       "forbidden_sources": [
@@ -742,10 +742,10 @@
     {
       "id": "ANK-AUT-002",
       "category": "authorization",
-      "question": "Ankara RES'in toplam kredi tutarı nedir?",
+      "question": "Karatepe RES'in toplam kredi tutarı nedir?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [],
       "forbidden_sources": [
@@ -758,10 +758,10 @@
     {
       "id": "ANK-AUT-003",
       "category": "authorization",
-      "question": "Ankara RES'in son covenant testi sonucu nedir?",
+      "question": "Karatepe RES'in son covenant testi sonucu nedir?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [],
       "forbidden_sources": [
@@ -774,16 +774,16 @@
     {
       "id": "ANK-DAT-001",
       "category": "data",
-      "question": "Ankara RES 2026 Q2 DSCR kaç?",
+      "question": "Karatepe RES 2026 Q2 DSCR kaç?",
       "expected_answer": "ledger:ankara_res.project.finance.covenant_tests[10].dscr",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Covenant Report (workbook)"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -792,16 +792,16 @@
     {
       "id": "ANK-DAT-002",
       "category": "data",
-      "question": "Ankara RES Ağustos 2026 üretimi kaç MWh?",
+      "question": "Karatepe RES Ağustos 2026 üretimi kaç MWh?",
       "expected_answer": "ledger:ankara_res.project.operations.monthly_production[33].mwh",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Monthly Production 2026"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -810,16 +810,16 @@
     {
       "id": "ANK-DAT-003",
       "category": "data",
-      "question": "Ankara RES'in bugün itibarıyla kalan kredi borcu kaç?",
+      "question": "Karatepe RES'in bugün itibarıyla kalan kredi borcu kaç?",
       "expected_answer": "ledger:ankara_res.project.finance.outstanding_debt_as_of_demo_today.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Financial Model 2026"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "yonetim",
       "expect_no_answer": false,
@@ -831,14 +831,14 @@
       "question": "Güncel DSCR kaç?",
       "expected_answer": "ledger:ankara_res.project.finance.dscr_covenant.current.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement Amendment 01",
         "Covenant Report (workbook)"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -847,17 +847,17 @@
     {
       "id": "ANK-MIX-002",
       "category": "mixed",
-      "question": "Ankara RES'te Temmuz 2024'te üretim kaybına yol açan olay neydi ve bu dönemin (Q3 2024) bütçe sapması ne kadardı?",
+      "question": "Karatepe RES'te Temmuz 2024'te üretim kaybına yol açan olay neydi ve bu dönemin (Q3 2024) bütçe sapması ne kadardı?",
       "expected_answer": "ledger:ankara_res.project.operations.budget_vs_actual[3]",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Bakım Raporu — Temmuz 2024 (Türbin T-07 Arızası)",
         "Budget vs Actual 2026"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -889,7 +889,7 @@
       "forbidden_sources": [],
       "ask_as_user": "yonetim",
       "expect_no_answer": true,
-      "notes": "30.09.2026 (GENERAL_QUERY kaldırıldı): artık DOCUMENT_QUERY'e yönlendiriliyor. Korpus ÇED sürecini genel biçimde tanımlamıyor (yalnızca İzmir RES'in kendi ÇED durumunu anlatıyor), bu yüzden dürüst sonuç sabit 'bilgi bulamadım' metnidir; İzmir RES'in kendi durumuna atıf yaparak cevap vermek de yanlış olur (soru genel süreci soruyor)."
+      "notes": "30.09.2026 (GENERAL_QUERY kaldırıldı): artık DOCUMENT_QUERY'e yönlendiriliyor. Korpus ÇED sürecini genel biçimde tanımlamıyor (yalnızca Kızılova RES'in kendi ÇED durumunu anlatıyor), bu yüzden dürüst sonuç sabit 'bilgi bulamadım' metnidir; Kızılova RES'in kendi durumuna atıf yaparak cevap vermek de yanlış olur (soru genel süreci soruyor)."
     },
     {
       "id": "GEN-GEN-003",
@@ -903,21 +903,21 @@
       "forbidden_sources": [],
       "ask_as_user": "yonetim",
       "expect_no_answer": true,
-      "notes": "30.09.2026 (GENERAL_QUERY kaldırıldı): artık DOCUMENT_QUERY'e yönlendiriliyor. Korpus covenant testinin genel amacını tanımlamıyor (yalnızca Ankara RES'in kendi covenant değerlerini belirtiyor), bu yüzden dürüst sonuç sabit 'bilgi bulamadım' metnidir."
+      "notes": "30.09.2026 (GENERAL_QUERY kaldırıldı): artık DOCUMENT_QUERY'e yönlendiriliyor. Korpus covenant testinin genel amacını tanımlamıyor (yalnızca Karatepe RES'in kendi covenant değerlerini belirtiyor), bu yüzden dürüst sonuç sabit 'bilgi bulamadım' metnidir."
     },
     {
       "id": "ANK-MIX-003",
       "category": "mixed",
-      "question": "Ankara RES Q1 2025 bütçe sapması neydi ve sebebi belgelerde yazıyor mu?",
+      "question": "Karatepe RES Q1 2025 bütçe sapması neydi ve sebebi belgelerde yazıyor mu?",
       "expected_answer": "ledger:ankara_res.project.operations.budget_vs_actual[5]",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Budget vs Actual 2026"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -926,16 +926,16 @@
     {
       "id": "ANK-FIN-014",
       "category": "document",
-      "question": "Ankara RES'in Q4 2024 covenant compliance raporunda DSCR değeri kaç olarak belirtilmiştir?",
+      "question": "Karatepe RES'in Q4 2024 covenant compliance raporunda DSCR değeri kaç olarak belirtilmiştir?",
       "expected_answer": "ledger:ankara_res.project.finance.covenant_tests[4].dscr",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
-        "Ankara RES Covenant Compliance Report — Q4 2024"
+        "Karatepe RES Covenant Compliance Report — Q4 2024"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -944,16 +944,16 @@
     {
       "id": "ANK-FIN-015",
       "category": "document",
-      "question": "Ankara RES'in ilk kredi çekim bildiriminde (drawdown notice) belirtilen tutar nedir?",
+      "question": "Karatepe RES'in ilk kredi çekim bildiriminde (drawdown notice) belirtilen tutar nedir?",
       "expected_answer": "ledger:ankara_res.project.finance.drawdowns[0].amount.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
-        "Ankara RES Drawdown Notice — Tranche 1"
+        "Karatepe RES Drawdown Notice — Tranche 1"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -962,16 +962,16 @@
     {
       "id": "ANK-DEV-006",
       "category": "document",
-      "question": "Ankara RES'in ÇED olumlu kararında belirtilen kapasite kaç MW'tır?",
+      "question": "Karatepe RES'in ÇED olumlu kararında belirtilen kapasite kaç MW'tır?",
       "expected_answer": "ledger:ankara_res.project.capacity_mw.initial.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "Ankara RES ÇED Olumlu Kararı"
+        "Karatepe RES ÇED Olumlu Kararı"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -980,16 +980,16 @@
     {
       "id": "ANK-OPS-002",
       "category": "document",
-      "question": "Ankara RES'te Temmuz 2024'te üretimi etkileyen olay bakım raporuna göre neydi?",
+      "question": "Karatepe RES'te Temmuz 2024'te üretimi etkileyen olay bakım raporuna göre neydi?",
       "expected_answer": "ledger:ankara_res.project.operations.incidents[0].type.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Bakım Raporu — Temmuz 2024 (Türbin T-07 Arızası)"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -998,16 +998,16 @@
     {
       "id": "ANK-EPC-005",
       "category": "document",
-      "question": "Ankara RES performans testi raporuna göre teyit edilen kapasite kaç MW'tır?",
+      "question": "Karatepe RES performans testi raporuna göre teyit edilen kapasite kaç MW'tır?",
       "expected_answer": "ledger:ankara_res.project.capacity_mw.current.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "Ankara RES Performance Test Results Report"
+        "Karatepe RES Performance Test Results Report"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -1016,16 +1016,16 @@
     {
       "id": "ANK-OPS-003",
       "category": "document",
-      "question": "Ankara RES'in Aralık 2023 aylık üretim raporuna göre üretim kaç MWh'tır?",
+      "question": "Karatepe RES'in Aralık 2023 aylık üretim raporuna göre üretim kaç MWh'tır?",
       "expected_answer": "ledger:ankara_res.project.operations.monthly_production[1].mwh",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Aylık Üretim Raporu — Aralık 2023"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -1034,16 +1034,16 @@
     {
       "id": "ANK-COR-001",
       "category": "document",
-      "question": "GHI Yatırım A.Ş.'nin Ankara RES'teki hisse oranı, pay sahipleri kararında kaç olarak onaylanmıştır?",
-      "expected_answer": "ledger:company.spvs[0].shareholders[1].share_pct.value",
+      "question": "GHI Yatırım A.Ş.'nin Karatepe RES'teki hisse oranı, pay sahipleri kararında kaç olarak onaylanmıştır?",
+      "expected_answer": "20",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "idari_isler",
       "required_sources": [
         "Pay Sahipleri Kararı — GHI Yatırım A.Ş. Ortaklık Onayı"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "yonetim",
       "expect_no_answer": false,
@@ -1052,16 +1052,16 @@
     {
       "id": "IZM-DEV-010",
       "category": "document",
-      "question": "İzmir RES için hedeflenen kapasite, rüzgar ölçüm kampanyası raporunda kaç MW olarak belirtilmiştir?",
+      "question": "Kızılova RES için hedeflenen kapasite, rüzgar ölçüm kampanyası raporunda kaç MW olarak belirtilmiştir?",
       "expected_answer": "ledger:izmir_res.project.capacity_mw.target.value",
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Rüzgar Ölçüm Kampanyası Raporu"
       ],
       "forbidden_sources": [
-        "Ankara RES"
+        "Karatepe RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -1070,16 +1070,16 @@
     {
       "id": "IZM-DEV-011",
       "category": "temporal",
-      "question": "İzmir RES'in önlisans süre uzatımı hukuki değerlendirmesinde referans alınan önlisans tarihi nedir?",
+      "question": "Kızılova RES'in önlisans süre uzatımı hukuki değerlendirmesinde referans alınan önlisans tarihi nedir?",
       "expected_answer": "ledger:izmir_res.project.timeline.pre_licence.date",
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "hukuk",
       "required_sources": [
         "Önlisans Süre Uzatımı Hukuki Değerlendirmesi"
       ],
       "forbidden_sources": [
-        "Ankara RES"
+        "Karatepe RES"
       ],
       "ask_as_user": "hukuk",
       "expect_no_answer": false,
@@ -1088,7 +1088,7 @@
     {
       "id": "GEN-CMP-001",
       "category": "comparison",
-      "question": "Ankara RES üretim lisansı ne zaman alındı, İzmir RES önlisansı ne zaman alındı?",
+      "question": "Karatepe RES üretim lisansı ne zaman alındı, Kızılova RES önlisansı ne zaman alındı?",
       "expected_answer": [
         "ledger:ankara_res.project.timeline.licence.date",
         "ledger:izmir_res.project.timeline.pre_licence.date"
@@ -1097,8 +1097,8 @@
       "expected_project": null,
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "Ankara RES Üretim Lisansı",
-        "İzmir RES Önlisans Belgesi"
+        "Karatepe RES Üretim Lisansı",
+        "Kızılova RES Önlisans Belgesi"
       ],
       "forbidden_sources": [],
       "ask_as_user": "enerji",
@@ -1123,7 +1123,7 @@
     {
       "id": "GEN-CMP-002",
       "category": "comparison",
-      "question": "Ankara RES üretim lisansı ile İzmir RES önlisansı — hangisi daha önce alındı?",
+      "question": "Karatepe RES üretim lisansı ile Kızılova RES önlisansı — hangisi daha önce alındı?",
       "expected_answer": [
         "ledger:ankara_res.project.timeline.licence.date",
         "ledger:izmir_res.project.timeline.pre_licence.date"
@@ -1132,8 +1132,8 @@
       "expected_project": null,
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "Ankara RES Üretim Lisansı",
-        "İzmir RES Önlisans Belgesi"
+        "Karatepe RES Üretim Lisansı",
+        "Kızılova RES Önlisans Belgesi"
       ],
       "forbidden_sources": [],
       "ask_as_user": "enerji",
@@ -1160,7 +1160,7 @@
     {
       "id": "GEN-CMP-003",
       "category": "comparison",
-      "question": "Ankara RES ile İzmir RES'in kurulu gücü hangisi daha büyük?",
+      "question": "Karatepe RES ile Kızılova RES'in kurulu gücü hangisi daha büyük?",
       "expected_answer": [
         "ledger:ankara_res.project.capacity_mw.current.value",
         "ledger:izmir_res.project.capacity_mw.target.value"
@@ -1170,12 +1170,12 @@
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Licence Amendment 01 (Kapasite Tadili)",
-        "İzmir RES Önlisans Belgesi"
+        "Kızılova RES Önlisans Belgesi"
       ],
       "forbidden_sources": [],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
-      "notes": "Ü-3 yasak davranış (kapasite). Değer beklentisi GÜNCEL Ankara kapasitesi (60 MW, lisans tadili): value_check düşerse temporal sorundur, phrase_check ayrı okunur (plan SORU 2).",
+      "notes": "Ü-3 yasak davranış (kapasite). Değer beklentisi GÜNCEL Karatepe kapasitesi (60 MW, lisans tadili): value_check düşerse temporal sorundur, phrase_check ayrı okunur (plan SORU 2).",
       "required_phrases": [
         "Projeler arası karşılaştırma bu üründe yapılmaz"
       ],
@@ -1251,7 +1251,7 @@
       "forbidden_sources": [],
       "ask_as_user": "enerji",
       "expect_no_answer": true,
-      "notes": "TASLAK. Ankara üretim lisansı mı, İzmir önlisansı mı belirsiz; proje adı yok.",
+      "notes": "TASLAK. Karatepe üretim lisansı mı, Kızılova önlisansı mı belirsiz; proje adı yok.",
       "expect_assist": "clarify"
     },
     {
@@ -1281,20 +1281,20 @@
       "forbidden_sources": [],
       "ask_as_user": "hukuk",
       "expect_no_answer": true,
-      "notes": "Adım 4 (09.10.2026): belge-varlığı kriteriyle seçildi — 'Legal Review Memo' türünden Ankara'da 2, İzmir'de 2 belge var (tek tür, her iki projede ≥ 2); proje adı sorulmuyor. Dedektör çıktısına bakılmadan önce yazıldı (docs/reports/ADIM4_REPORT.md §4.2).",
+      "notes": "Adım 4 (09.10.2026): belge-varlığı kriteriyle seçildi — 'Legal Review Memo' türünden Karatepe'de 2, Kızılova'da 2 belge var (tek tür, her iki projede ≥ 2); proje adı sorulmuyor. Dedektör çıktısına bakılmadan önce yazıldı (docs/reports/ADIM4_REPORT.md §4.2).",
       "expect_assist": "disambiguate"
     },
     {
       "id": "GEN-TRM-001",
       "category": "term_mismatch",
-      "question": "Ankara RES sigorta primi ne kadar?",
+      "question": "Karatepe RES sigorta primi ne kadar?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": true,
@@ -1304,31 +1304,31 @@
     {
       "id": "GEN-TRM-002",
       "category": "term_mismatch",
-      "question": "İzmir RES türbin tedarikçisi kim?",
+      "question": "Kızılova RES türbin tedarikçisi kim?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "enerji_grubu",
       "required_sources": [],
       "forbidden_sources": [
-        "Ankara RES"
+        "Karatepe RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": true,
-      "notes": "TASLAK. İzmir'de türbin tedarikçisi yok (development); Ankara'nın tedarikçisi aktarılmamalı (izolasyon G3).",
+      "notes": "TASLAK. Kızılova'da türbin tedarikçisi yok (development); Karatepe'nin tedarikçisi aktarılmamalı (izolasyon G3).",
       "expect_assist": "term_mismatch"
     },
     {
       "id": "GEN-TRM-004",
       "category": "term_mismatch",
-      "question": "Ankara RES EPC sözleşmesinde cezai şart tutarı nedir?",
+      "question": "Karatepe RES EPC sözleşmesinde cezai şart tutarı nedir?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": true,
@@ -1338,14 +1338,14 @@
     {
       "id": "GEN-TRM-005",
       "category": "term_mismatch",
-      "question": "Ankara RES santralinin emre amadelik bedeli nedir?",
+      "question": "Karatepe RES santralinin emre amadelik bedeli nedir?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": true,
@@ -1355,16 +1355,16 @@
     {
       "id": "ANK-OPS-004",
       "category": "temporal",
-      "question": "Ankara RES sigorta poliçesi bitmiş mi?",
+      "question": "Karatepe RES sigorta poliçesi bitmiş mi?",
       "expected_answer": "ledger:ankara_res.documents[36].expiration_date.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Sigorta Yenileme Bildirimi — İşletme Dönemi"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -1376,16 +1376,16 @@
     {
       "id": "ANK-NEG-001",
       "category": "document",
-      "question": "Ankara RES kredisinin vadesi kaç yıl?",
+      "question": "Karatepe RES kredisinin vadesi kaç yıl?",
       "expected_answer": "ledger:ankara_res.project.finance.tenor_years.current.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -1394,16 +1394,16 @@
     {
       "id": "ANK-NEG-002",
       "category": "document",
-      "question": "Ankara RES finansmanında ihracat kredi kurumu kredisi ne kadar?",
+      "question": "Karatepe RES finansmanında ihracat kredi kurumu kredisi ne kadar?",
       "expected_answer": "ledger:ankara_res.project.finance.eca_debt.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -1415,13 +1415,13 @@
       "question": "Kredi sözleşmesinin vadesi kaç yıl?",
       "expected_answer": "ledger:ankara_res.project.finance.tenor_years.current.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -1433,17 +1433,17 @@
       "question": "Üretim lisansı ne zaman alındı?",
       "expected_answer": "ledger:ankara_res.project.timeline.licence.date",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "Ankara RES Üretim Lisansı"
+        "Karatepe RES Üretim Lisansı"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
-      "notes": "NEGATİF KONTROL (BELIRSIZLIK_PLAN §3): GEN-AMB-004'ün karşıtı — 'üretim lisansı' yalnızca Ankara'da var (İzmir'de önlisans), proje adı olmadan da tek aday. Beklenen: 15.06.2020, netleştirme yok."
+      "notes": "NEGATİF KONTROL (BELIRSIZLIK_PLAN §3): GEN-AMB-004'ün karşıtı — 'üretim lisansı' yalnızca Karatepe'de var (Kızılova'da önlisans), proje adı olmadan da tek aday. Beklenen: 15.06.2020, netleştirme yok."
     },
     {
       "id": "CO-NEG-005",
@@ -1467,13 +1467,13 @@
       "question": "Son tadil neyi değiştirdi?",
       "expected_answer": "ledger:ankara_res.project.finance.facility_chain",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement Amendment 02"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -1482,16 +1482,16 @@
     {
       "id": "GEN-DSC-001",
       "category": "discovery",
-      "question": "Ankara'nın finansal modeli var mı?",
+      "question": "Karatepe'nin finansal modeli var mı?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Financial Model 2026"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -1503,13 +1503,13 @@
       "question": "Sözleşme var mı?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -1521,13 +1521,13 @@
       "question": "Sigorta ne zaman bitiyor?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Sigorta Yenileme Bildirimi — İşletme Dönemi"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
@@ -1542,12 +1542,12 @@
       "expected_project": null,
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "Ankara RES Üretim Lisansı"
+        "Karatepe RES Üretim Lisansı"
       ],
       "forbidden_sources": [],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
-      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. §3.1; enerji İzmir önlisansını da görür — belirsizlik kabul (liste + soru)."
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. §3.1; enerji Kızılova önlisansını da görür — belirsizlik kabul (liste + soru)."
     },
     {
       "id": "GEN-DSC-005",
@@ -1555,13 +1555,13 @@
       "question": "Amendment var mı?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement Amendment 01"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "yonetim",
       "expect_no_answer": false,
@@ -1573,13 +1573,13 @@
       "question": "Ödeme planı yüklü mü?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Financial Model 2026"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -1594,12 +1594,12 @@
       "expected_project": null,
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "Ankara RES ÇED Olumlu Kararı"
+        "Karatepe RES ÇED Olumlu Kararı"
       ],
       "forbidden_sources": [],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
-      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. §3.1; İzmir ÇED Durum Yazısı da görünür."
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. §3.1; Kızılova ÇED Durum Yazısı da görünür."
     },
     {
       "id": "GEN-DSC-008",
@@ -1607,13 +1607,13 @@
       "question": "Bütçe dosyası var mı?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Budget vs Actual 2026"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -1625,13 +1625,13 @@
       "question": "Kredi sözleşmesinin son hali hangisi?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement Amendment 02"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -1643,13 +1643,13 @@
       "question": "Teminat belgeleri neler?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
-        "Ankara RES Security Agreement (Share Pledge)"
+        "Karatepe RES Security Agreement (Share Pledge)"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
@@ -1661,13 +1661,13 @@
       "question": "ankaranın ilk kredi ödemesi ne zaman ne kadar?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "yonetim",
       "expect_no_answer": false,
@@ -1679,13 +1679,13 @@
       "question": "peki amendment var mı hiç?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement Amendment 01"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "yonetim",
       "expect_no_answer": false,
@@ -1697,13 +1697,13 @@
       "question": "amendment ne demek biliyor musun?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement Amendment 01"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "yonetim",
       "expect_no_answer": false,
@@ -1712,16 +1712,16 @@
     {
       "id": "GEN-DSC-001-M",
       "category": "discovery",
-      "question": "Ankara'nın finansal modeli var mı?",
+      "question": "Karatepe'nin finansal modeli var mı?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Financial Model 2026"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans_mudur",
       "expect_no_answer": false,
@@ -1733,13 +1733,13 @@
       "question": "Ödeme planı yüklü mü?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Financial Model 2026"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans_mudur",
       "expect_no_answer": false,
@@ -1751,13 +1751,13 @@
       "question": "Bütçe dosyası var mı?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Budget vs Actual 2026"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "finans_mudur",
       "expect_no_answer": false,
@@ -1772,7 +1772,7 @@
       "expected_project": null,
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "Ankara RES ÇED Olumlu Kararı",
+        "Karatepe RES ÇED Olumlu Kararı",
         "ÇED Süreci Durum Yazısı"
       ],
       "forbidden_sources": [],
@@ -1786,13 +1786,13 @@
       "question": "ankaranın ilk kredi ödemesi ne zaman ne kadar?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Financial Model 2026"
       ],
       "forbidden_sources": [
-        "İzmir RES"
+        "Kızılova RES"
       ],
       "ask_as_user": "yonetim",
       "expect_no_answer": false,
@@ -1881,13 +1881,13 @@
       "question": "Önlisans ne zaman alındı?",
       "expected_answer": "ledger:izmir_res.project.timeline.pre_licence.date",
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "enerji_grubu",
       "required_sources": [],
       "forbidden_sources": [],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
-      "notes": "HELD-OUT (Tansu taslağı, Naci onayı 08.10.2026): yalnızca LLM'siz kuru koşu; run_eval okumaz. Niyet: net. Ankara'nın önlisansı ledger'da tarih olarak var (2018-11-20) ama belgesi yok (doc: null) → korpusta tek önlisans belgesi İzmir."
+      "notes": "HELD-OUT (Tansu taslağı, Naci onayı 08.10.2026): yalnızca LLM'siz kuru koşu; run_eval okumaz. Niyet: net. Karatepe'nin önlisansı ledger'da tarih olarak var (2018-11-20) ama belgesi yok (doc: null) → korpusta tek önlisans belgesi Kızılova."
     },
     {
       "id": "HO-NEG-02",
@@ -1895,7 +1895,7 @@
       "question": "Banka hangi DSCR seviyesini şart koşuyor?",
       "expected_answer": "ledger:ankara_res.project.finance.dscr_covenant",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [],
       "forbidden_sources": [],
@@ -1909,7 +1909,7 @@
       "question": "Anahtar teslim müteahhit kim?",
       "expected_answer": "ledger:ankara_res.project.construction.epc_contractor.value",
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [],
       "forbidden_sources": [],
@@ -1921,7 +1921,7 @@
       "id": "HO-NEG-04",
       "category": "document",
       "question": "Hisse devri hangi oranda?",
-      "expected_answer": "ledger:company.spvs[0].shareholders[1].share_pct.value",
+      "expected_answer": "20",
       "expected_answer_aliases": [],
       "expected_project": null,
       "expected_department": "idari_isler",
@@ -1937,7 +1937,7 @@
       "question": "ÇED süreci hangi aşamada?",
       "expected_answer": "ledger:izmir_res.project.development.ced_status.value",
       "expected_answer_aliases": [],
-      "expected_project": "İzmir RES",
+      "expected_project": "Kızılova RES",
       "expected_department": "enerji_grubu",
       "required_sources": [],
       "forbidden_sources": [],
@@ -1951,7 +1951,7 @@
       "question": "Sigorta poliçemiz hangi tarihe kadar geçerli?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "Sigorta Yenileme Bildirimi — İşletme Dönemi"
@@ -1967,10 +1967,10 @@
       "question": "Üretim lisansı belgesi nerede?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "Ankara RES Üretim Lisansı"
+        "Karatepe RES Üretim Lisansı"
       ],
       "forbidden_sources": [],
       "ask_as_user": "enerji",
@@ -1986,7 +1986,7 @@
       "expected_project": null,
       "expected_department": "enerji_grubu",
       "required_sources": [
-        "Ankara RES ÇED Olumlu Kararı",
+        "Karatepe RES ÇED Olumlu Kararı",
         "ÇED Süreci Durum Yazısı"
       ],
       "forbidden_sources": [],
@@ -2000,10 +2000,10 @@
       "question": "Hisse rehni sözleşmesi var mı?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
-        "Ankara RES Security Agreement (Share Pledge)"
+        "Karatepe RES Security Agreement (Share Pledge)"
       ],
       "forbidden_sources": [],
       "ask_as_user": "finans",
@@ -2016,7 +2016,7 @@
       "question": "EPC sözleşmesi hangi dosyada?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "enerji_grubu",
       "required_sources": [
         "EPC Contract"
@@ -2032,7 +2032,7 @@
       "question": "Kredi geri ödeme takvimi hangi belgede?",
       "expected_answer": null,
       "expected_answer_aliases": [],
-      "expected_project": "Ankara RES",
+      "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Financial Model 2026"

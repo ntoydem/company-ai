@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-09T12:55:29+00:00",
+  "generated_at": "2026-10-09T22:07:38+00:00",
   "ledger_demo_today": "2026-09-15",
   "workbooks": [
     {
@@ -10,7 +10,7 @@
       "department": "finans",
       "subdepartment": null,
       "project_code": "ANK_RES",
-      "counterparty": "DEF Enerji Üretim A.Ş.",
+      "counterparty": "Karatepe RES Enerji Üretim A.Ş.",
       "document_date": "2026-09-01",
       "effective_date": null,
       "status": "active",
@@ -20,7 +20,7 @@
       "related_refs": [],
       "tags": [],
       "parties": [
-        "DEF Enerji Üretim A.Ş."
+        "Karatepe RES Enerji Üretim A.Ş."
       ],
       "language": "en",
       "confidentiality": "normal",
@@ -59,7 +59,7 @@
       "department": "finans",
       "subdepartment": null,
       "project_code": "ANK_RES",
-      "counterparty": "DEF Enerji Üretim A.Ş.",
+      "counterparty": "Karatepe RES Enerji Üretim A.Ş.",
       "document_date": "2026-08-15",
       "effective_date": null,
       "status": "active",
@@ -69,7 +69,7 @@
       "related_refs": [],
       "tags": [],
       "parties": [
-        "DEF Enerji Üretim A.Ş.",
+        "Karatepe RES Enerji Üretim A.Ş.",
         "PQR Bank"
       ],
       "language": "en",
@@ -113,7 +113,7 @@
       "department": "enerji_grubu",
       "subdepartment": "enerji_bakim",
       "project_code": "ANK_RES",
-      "counterparty": "DEF Enerji Üretim A.Ş.",
+      "counterparty": "Karatepe RES Enerji Üretim A.Ş.",
       "document_date": "2026-07-31",
       "effective_date": null,
       "status": "active",
@@ -123,7 +123,7 @@
       "related_refs": [],
       "tags": [],
       "parties": [
-        "DEF Enerji Üretim A.Ş."
+        "Karatepe RES Enerji Üretim A.Ş."
       ],
       "language": "tr",
       "confidentiality": "normal",
@@ -177,7 +177,7 @@
       "department": "enerji_grubu",
       "subdepartment": "enerji_bakim",
       "project_code": "ANK_RES",
-      "counterparty": "DEF Enerji Üretim A.Ş.",
+      "counterparty": "Karatepe RES Enerji Üretim A.Ş.",
       "document_date": "2026-09-05",
       "effective_date": null,
       "status": "active",
@@ -187,7 +187,7 @@
       "related_refs": [],
       "tags": [],
       "parties": [
-        "DEF Enerji Üretim A.Ş."
+        "Karatepe RES Enerji Üretim A.Ş."
       ],
       "language": "tr",
       "confidentiality": "normal",

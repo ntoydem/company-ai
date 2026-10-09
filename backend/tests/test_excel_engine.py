@@ -64,12 +64,12 @@ def test_outstanding_debt_today_and_after_a_quarter(
     today = run_function(
         engine, workbooks, "outstanding_debt", {"as_of": "today"}, today=date(2026, 9, 15)
     )
-    assert today.value == pytest.approx(44_100_000)
+    assert today.value == pytest.approx(11_671_800)
     assert today.source.file == "Financial_Model_2026.xlsx" and today.source.sheet == "Debt"
     q = run_function(
         engine, workbooks, "outstanding_debt", {"as_of": "Q4_2024"}, today=date(2026, 9, 15)
     )
-    assert q.value == pytest.approx(48_300_000)
+    assert q.value == pytest.approx(12_703_700)
     assert q.source.label == "Covenant_Report.xlsx Q4_2024!D12"
 
 

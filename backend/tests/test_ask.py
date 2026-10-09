@@ -119,7 +119,7 @@ def test_empty_gate_means_no_llm_call(
 def test_no_chunks_means_no_llm_call_and_zero_tokens(
     client: TestClient, admin_user: User, fake_llm: FakeLLMClient
 ) -> None:
-    body = _ask(client, "İzmir RES'in COD tarihi nedir?")
+    body = _ask(client, "Kızılova RES'in COD tarihi nedir?")
     assert fake_llm.requests == []
     assert body["answered"] is False and body["answer"] == NO_ANSWER_TEXT
     assert (body["tokens_in"], body["tokens_out"], body["model"]) == (0, 0, None)
@@ -131,17 +131,20 @@ def test_sources_come_from_citations_with_page_and_chain(
 ) -> None:
     """Kabul kriteri (Phase 3.1 taşıması): sayfa numaraları ve tarihler ledger'ın
     `manifest.json`'ından okunur, testte hiçbir rakam sabit yazılmaz (plan T9)."""
+    # Adım 5: Karatepe now has two amendments (FIN-005 = AMD01, consolidation, no numeric
+    # change; FIN-006 = AMD02, the one that actually changes DSCR) — FIN-005/FIN-006 is the
+    # directly-linked pair whose later document discusses DSCR, matching this test's intent.
     manifest = ensure_generated_documents()
     by_ref = {e["external_ref"]: e for e in manifest["documents"]}
-    facility_entry, amendment_entry = by_ref["DOC-ANK-FIN-004"], by_ref["DOC-ANK-FIN-005"]
-    documents = load_ledger_documents(db_session, ["DOC-ANK-FIN-004", "DOC-ANK-FIN-005"])
-    facility, amendment = documents["DOC-ANK-FIN-004"], documents["DOC-ANK-FIN-005"]
+    facility_entry, amendment_entry = by_ref["DOC-ANK-FIN-005"], by_ref["DOC-ANK-FIN-006"]
+    documents = load_ledger_documents(db_session, ["DOC-ANK-FIN-005", "DOC-ANK-FIN-006"])
+    facility, amendment = documents["DOC-ANK-FIN-005"], documents["DOC-ANK-FIN-006"]
 
-    facility_page = facility_entry["page_map"]["5. Financial Covenants"]
+    facility_page = facility_entry["page_map"]["1. Background"]
     amendment_page = amendment_entry["page_map"]["2. Amendments to the Original Agreement"]
     from app.models.project import Project, ProjectStage
 
-    ankara = Project(name="Ankara RES", code="ANK_RES", stage=ProjectStage.operation)
+    ankara = Project(name="Karatepe RES", code="ANK_RES", stage=ProjectStage.operation)
     db_session.add(ankara)
     db_session.flush()
     amendment.project_id = ankara.id  # the facility agreement stays project-less on purpose
@@ -161,13 +164,13 @@ def test_sources_come_from_citations_with_page_and_chain(
         )
         assert match_amendment and match_facility, request.user
         return (
-            f"Ankara RES'in güncel minimum DSCR covenant'ı [{match_amendment.group(1)}]'de "
+            f"Karatepe RES'in güncel minimum DSCR covenant'ı [{match_amendment.group(1)}]'de "
             f"belirtilmiştir. İlk covenant seviyesi [{match_facility.group(1)}]'de yer "
             "almaktadır. Uydurma [K99]."
         )
 
     fake_llm.reply_fn = reply
-    body = _ask(client, "Ankara RES'in güncel minimum DSCR covenant'ı nedir?")
+    body = _ask(client, "Karatepe RES'in güncel minimum DSCR covenant'ı nedir?")
 
     assert body["answered"] is True
     sources = body["sources"]
@@ -181,7 +184,7 @@ def test_sources_come_from_citations_with_page_and_chain(
     assert second["is_current"] is False and second["superseded_by_title"] == amendment.title
     assert second["status"] == "superseded"
     # B-20/6 (Aşama D): the card names the project; a project-less document says None.
-    assert (first["project_code"], first["project_name"]) == ("ANK_RES", "Ankara RES")
+    assert (first["project_code"], first["project_name"]) == ("ANK_RES", "Karatepe RES")
     assert second["project_code"] is None and second["project_name"] is None
     row = audit_log_repo.list_filtered(db_session)[0]
     assert row.sources[0]["project_code"] == "ANK_RES"
@@ -327,7 +330,7 @@ def test_audit_log_written_for_an_answered_question(
 def test_audit_log_written_when_no_chunks_retrieved(
     client: TestClient, admin_user: User, fake_llm: FakeLLMClient, db_session: Session
 ) -> None:
-    response = client.post("/api/ask", json={"question": "İzmir RES'in COD tarihi nedir?"})
+    response = client.post("/api/ask", json={"question": "Kızılova RES'in COD tarihi nedir?"})
     assert response.status_code == 200
 
     row = _only_row(db_session)
@@ -408,7 +411,7 @@ def test_hidden_successor_yields_no_id_and_no_title(
         return f"Minimum DSCR covenant'ı [{match.group(1)}]'de belirtilmiştir."
 
     fake_llm.reply_fn = reply
-    body = _ask(client, "Ankara RES minimum DSCR covenant'ı nedir?")
+    body = _ask(client, "Karatepe RES minimum DSCR covenant'ı nedir?")
 
     assert body["answered"] is True
     card = body["sources"][0]  # type: ignore[index]

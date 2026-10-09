@@ -1,4 +1,4 @@
-"""Ankara RES — EPC/Construction belge spec'leri (Phase 3.1 + 5.1)."""
+"""Karatepe RES — EPC/Construction belge spec'leri (Phase 3.1 + 5.1)."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-EPC-001",
         family="agreement",
         subtitle_tr="",
-        subtitle_en="Ankara RES Wind Power Project — EPC Contract",
+        subtitle_en="Karatepe RES Wind Power Project — EPC Contract",
         section_headings_tr=[],
         section_headings_en=[
             "1. Scope of Works",
@@ -27,7 +27,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-EPC-002",
         family="report",
         subtitle_tr="",
-        subtitle_en="Ankara RES — Provisional Acceptance & Commercial Operation Certificate",
+        subtitle_en="Karatepe RES — Provisional Acceptance & Commercial Operation Certificate",
         section_headings_tr=[],
         section_headings_en=[
             "1. Confirmation of Commercial Operation",
@@ -43,7 +43,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-EPC-003",
         family="report",
         subtitle_tr="",
-        subtitle_en="Ankara RES — EPC Change Order 01 (COD Deferral)",
+        subtitle_en="Karatepe RES — EPC Change Order 01 (COD Deferral)",
         section_headings_tr=[],
         section_headings_en=["1. Background", "2. Revised Schedule"],
         signature_roles_en=[
@@ -55,7 +55,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-EPC-004",
         family="report",
         subtitle_tr="",
-        subtitle_en="Ankara RES — Mechanical Completion Certificate",
+        subtitle_en="Karatepe RES — Mechanical Completion Certificate",
         section_headings_tr=[],
         section_headings_en=["1. Scope of Works Completed", "2. Confirmation"],
         signature_roles_en=[
@@ -67,7 +67,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-EPC-005",
         family="report",
         subtitle_tr="",
-        subtitle_en="Ankara RES — Independent Engineer's Completion Report",
+        subtitle_en="Karatepe RES — Independent Engineer's Completion Report",
         section_headings_tr=[],
         section_headings_en=["1. Purpose and Scope", "2. Findings"],
         signature_roles_en=[
@@ -79,7 +79,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-EPC-006",
         family="report",
         subtitle_tr="",
-        subtitle_en="Ankara RES — Punch List Closure Confirmation",
+        subtitle_en="Karatepe RES — Punch List Closure Confirmation",
         section_headings_tr=[],
         section_headings_en=["1. Outstanding Items Reviewed", "2. Confirmation"],
         signature_roles_en=[
@@ -91,7 +91,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-EPC-007",
         family="report",
         subtitle_tr="",
-        subtitle_en="Ankara RES — Construction All Risks Insurance Policy Summary",
+        subtitle_en="Karatepe RES — Construction All Risks Insurance Policy Summary",
         section_headings_tr=[],
         section_headings_en=["1. Coverage Summary", "2. Policy Period"],
         signature_roles_en=[
@@ -103,7 +103,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-EPC-008",
         family="report",
         subtitle_tr="",
-        subtitle_en="Ankara RES — Performance Test Results Report",
+        subtitle_en="Karatepe RES — Performance Test Results Report",
         section_headings_tr=[],
         section_headings_en=["1. Test Methodology", "2. Results"],
         signature_roles_en=[
@@ -115,7 +115,7 @@ SPECS: dict[str, DocumentSpec] = {
         doc_id="DOC-ANK-EPC-009",
         family="report",
         subtitle_tr="",
-        subtitle_en="Ankara RES — Warranty & Defects Liability Certificate",
+        subtitle_en="Karatepe RES — Warranty & Defects Liability Certificate",
         section_headings_tr=[],
         section_headings_en=["1. Defects Liability Period", "2. Confirmation"],
         signature_roles_en=[
@@ -126,7 +126,7 @@ SPECS: dict[str, DocumentSpec] = {
     "DOC-ANK-EPC-010": DocumentSpec(
         doc_id="DOC-ANK-EPC-010",
         family="letter",
-        subtitle_tr="Ankara RES Şebeke Bağlantısı",
+        subtitle_tr="Karatepe RES Şebeke Bağlantısı",
         subtitle_en="",
         section_headings_tr=["Bağlantı Kapsamı", "Onay"],
         section_headings_en=[],

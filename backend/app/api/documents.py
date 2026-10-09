@@ -253,7 +253,7 @@ _UNSAFE_NAME_CHARS = re.compile(r'[\x00-\x1f\x7f/\\:*?"<>|]')
 
 
 def download_file_name(title: str, extension: str) -> str:
-    """`"Ankara RES Kredi Sözleşmesi" + "pdf"` → `Ankara RES Kredi Sözleşmesi.pdf`. Path
+    """`"Karatepe RES Kredi Sözleşmesi" + "pdf"` → `Karatepe RES Kredi Sözleşmesi.pdf`. Path
     separators, control and Windows-reserved characters become spaces; leading/trailing
     dots and spaces go (Windows); Turkish letters stay — Starlette percent-encodes them
     into `filename*=utf-8''…` (RFC 5987) by itself."""

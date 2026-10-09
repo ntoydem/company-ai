@@ -1,10 +1,12 @@
 """Idempotent demo projects (SPEC_02 §6). Mirrors `admin_seed.py`/`demo_users_seed.py`.
 
-Ankara RES (operation) and İzmir RES (development) — linked to `enerji_grubu`, `finans`
+Karatepe RES (operation) and Kızılova RES (development) — linked to `enerji_grubu`, `finans`
 and `hukuk` (SORU 4 cevabı, docs/plans/PHASE_1_2_PLAN.md); `mali_isler`/`idari_isler`
 are company-wide, not project-specific. This linkage is organisational/filtering only —
 a document's permission always comes from its own `department`, never from its project
-(ADR-004).
+(ADR-004). Codes (ANK_RES/IZM_RES) never change (Adım 5, SORU 1); only the display name
+does — existing rows are never modified (see below), so a live reseed is required before
+the new names show up there (out of scope for Aşama A).
 """
 
 import logging
@@ -19,8 +21,8 @@ from app.repositories import department_repo, project_repo
 log = logging.getLogger(__name__)
 
 _DEMO_PROJECTS: tuple[tuple[str, str, ProjectStage, tuple[str, ...]], ...] = (
-    ("ANK_RES", "Ankara RES", ProjectStage.operation, ("enerji_grubu", "finans", "hukuk")),
-    ("IZM_RES", "İzmir RES", ProjectStage.development, ("enerji_grubu", "finans", "hukuk")),
+    ("ANK_RES", "Karatepe RES", ProjectStage.operation, ("enerji_grubu", "finans", "hukuk")),
+    ("IZM_RES", "Kızılova RES", ProjectStage.development, ("enerji_grubu", "finans", "hukuk")),
 )
 
 

@@ -41,8 +41,8 @@ _RULES = [
     "Sorulan değer, tarih veya olay kaynakların herhangi birinde açıkça yazıyorsa kaynaklar "
     "yeterlidir — diğer kaynakların ilgisiz olması cevabı engellemez; o değeri, geçtiği kaynağı "
     "etiketleyerek yaz.",
-    '3. Soru belirli bir projeyi (örneğin "İzmir RES") soruyorsa ve kaynaklar o projeyi '
-    'anlatmıyorsa, benzer başka bir projenin (örneğin "Ankara RES") bilgisinden çıkarım '
+    '3. Soru belirli bir projeyi (örneğin "Kızılova RES") soruyorsa ve kaynaklar o projeyi '
+    'anlatmıyorsa, benzer başka bir projenin (örneğin "Karatepe RES") bilgisinden çıkarım '
     "yapma; 2. kuraldaki cümleyi yaz.",
     "4. Bilgi içeren her cümlenin sonuna kullandığın kaynağın etiketini yaz: [K1], [K2] gibi. "
     "Etiketsiz olgu cümlesi yazma. Yalnızca verilen etiketleri kullan.",
@@ -71,7 +71,7 @@ _RULES = [
     "açıklama veriyorsa (5. kuraldaki zincir/versiyon ilişkisi geçerli değilse), hepsini "
     "kendi kaynak etiketiyle ayrı ayrı yaz; birini diğerine tercih etme, hangisinin doğru "
     "olduğuna karar verme.",
-    '10. Soru birden fazla projeyi (örneğin "Ankara RES" ve "İzmir RES") kapsıyorsa her '
+    '10. Soru birden fazla projeyi (örneğin "Karatepe RES" ve "Kızılova RES") kapsıyorsa her '
     "projenin değerini kendi kaynak etiketiyle AYRI bir cümlede yaz. Projeler arasında "
     'karşılaştırma, sıralama, "hangisi daha …" yargısı, fark veya oran hesabı yapma. Soru '
     "açıkça karşılaştırma istiyorsa önce kelimesi kelimesine şu cümleyi yaz, sonra değerleri "

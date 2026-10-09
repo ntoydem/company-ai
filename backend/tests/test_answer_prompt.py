@@ -36,7 +36,7 @@ def test_system_prompt_contains_fixed_strings_and_rules() -> None:
     assert NO_ANSWER_TEXT in SYSTEM_PROMPT
     assert "belgelerde sebep belirtilmemiş" in SYSTEM_PROMPT
     assert "Türkçe" in SYSTEM_PROMPT and "[K1]" in SYSTEM_PROMPT
-    assert "İzmir RES" in SYSTEM_PROMPT  # project isolation rule
+    assert "Kızılova RES" in SYSTEM_PROMPT  # project isolation rule
     assert date.today().isoformat() not in SYSTEM_PROMPT  # wall clock never enters the prompt
 
 

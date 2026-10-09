@@ -81,7 +81,7 @@ def check_ledger_consistency(excel_dir: Path, report: Report) -> None:
         base_rate_pct_by_year={
             b["year"]: float(b["rate_pct"]) for b in fin["base_rate_pct_by_year"]
         },
-        margin_pct=float(fin["interest"]["margin_pct"]["value"]),
+        margin_pct=float(fin["interest"]["margin_pct"]["current"]["value"]),
     )
 
     fm = load_workbook(excel_dir / FINANCIAL_MODEL, data_only=False)

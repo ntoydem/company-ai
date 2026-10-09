@@ -1,40 +1,48 @@
 doc_id: DOC-ANK-FIN-006
 model: gemini-3.5-flash-lite
 tag: AI_ASSUMPTION
+hand_edited: Phase 3.2c (25.09.2026) — icerik boslugu kapatan cumleler elle eklendi; Adım 5
+  (09.10.2026) metin DOC-ANK-FIN-005 ile değiştirildi (bu belge artık DSCR/marj/tenor
+  değişikliğini anlatıyor, 005 konsolide/genel metni anlatıyor); generate_prose bu
+  dosyayı --force ile bile yeniden üretmez
 sections:
 - heading: 1. Background
   paragraphs:
-  - This amendment agreement is executed by and between [[counterparty]] and the relevant
-    stakeholders under the supervision of [[parties_list]]. The primary objective
-    is to update the terms governing the ongoing venture known as [[project_name]].
-  - Reference is made to the primary document bearing the identifier [[document_no]],
-    dated [[document_date]], which outlines the foundational obligations. The current
-    operational status is designated as [[status_label]], reflecting recent milestones.
-  - Pursuant to the discussions held recently, the parties have agreed to modify certain
-    clauses. These adjustments ensure alignment with the overarching goals of [[spv_name]]
-    without altering the core purpose.
+  - This amendment agreement is entered into as of [[document_date]] by and between
+    [[parties_list]] regarding the financing of [[project_name]].
+  - The primary obligor, [[spv_name]], together with [[counterparty]], previously
+    executed the primary financing documents under reference [[document_no]].
+  - The current operational status is designated as [[status_label]] pursuant to the
+    latest compliance review under version [[version_label]]. Financial close under the
+    original agreement was achieved on [[financial_close_date]].
 - heading: 2. Amendments to the Original Agreement
   paragraphs:
-  - Section [[version_label]] of the primary text is hereby formally modified to reflect
-    the updated [[repayment_profile]]. All stakeholders must adhere strictly to these
-    revised structural parameters.
-  - The provisions concerning the operational timeline have been extended up to [[effective_date]].
-    This adjustment accommodates unforeseen delays while maintaining project momentum.
-  - Any prior understandings that contradict these new provisions are hereby deemed
-    null and void. The specific terminology defined in [[title]] shall govern the
-    interpretation of these changes.
+  - The parties hereby agree to modify the financial covenants, specifically updating
+    the minimum debt service coverage ratio (DSCR) to [[dscr_covenant]] with effect from
+    [[effective_date]].
+  - Furthermore, the maturity schedule is extended, such that the tenor of the facility
+    is adjusted to [[tenor_years]].
+  - All references to the designated [[title]] within the principal clauses are amended
+    accordingly to reflect these structural adjustments.
 - heading: 3. Continuing Effect
   paragraphs:
-  - Except as specifically amended herein, the original terms and conditions shall
-    remain in full force and effect. All prior rights and obligations of [[counterparty]]
-    are hereby ratified and confirmed.
-  - This document shall be read and construed as one with the principal agreement.
-    In the event of any inconsistency, the stipulations of this amendment shall prevail.
-- heading: 4. Governing Law
+  - Except as expressly modified by this document, the original terms and conditions
+    shall remain in full force and effect from [[effective_date]].
+  - Each party confirms that all prior obligations and security packages continue
+    to bind the respective entities without interruption.
+  - This instrument shall be read and construed as one with the initial facility agreement
+    executed by [[parties_list]].
+- heading: 4. Representations
   paragraphs:
-  - This amendment and any contractual obligations arising out of it shall be governed
-    by and construed in accordance with the laws of the jurisdiction specified in
-    the primary document.
-  - Any disputes relating to the interpretation or execution of these terms shall
-    be submitted to the exclusive jurisdiction of the competent courts associated
-    with [[parties_list]].
+  - '[[spv_name]] hereby reaffirms all corporate representations and warranties previously
+    provided under the financing framework.'
+  - '[[counterparty]] acknowledges that no event of default has occurred and is continuing
+    as of [[effective_date]].'
+  - The signatories warrant that they possess full legal authority to bind their respective
+    organizations to these updated terms.
+- heading: 5. Governing Law
+  paragraphs:
+  - This amendment document is governed by and shall be construed in accordance with
+    the applicable laws governing [[project_name]].
+  - Any disputes arising from the interpretation of these modifications shall be submitted
+    to the exclusive jurisdiction defined in [[document_no]].

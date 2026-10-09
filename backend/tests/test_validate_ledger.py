@@ -253,7 +253,7 @@ def test_comparison_questions_need_two_facts_no_project_and_forbidden_phrases(
 
     def with_project(data: dict[str, Any]) -> None:
         q = next(q for q in data["questions"] if q["category"] == "comparison")
-        q["expected_project"] = "Ankara RES"
+        q["expected_project"] = "Karatepe RES"
 
     def no_phrases(data: dict[str, Any]) -> None:
         q = next(q for q in data["questions"] if q["category"] == "comparison")

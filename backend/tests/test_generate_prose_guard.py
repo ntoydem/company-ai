@@ -11,8 +11,11 @@ HAND_EDITED_DOCS = (
     "DOC-ANK-EPC-002",
     "DOC-ANK-FIN-001",
     "DOC-ANK-FIN-004",
-    "DOC-ANK-FIN-005",
+    # Adım 5 (09.10.2026): the hand-edited DSCR/tenor-change content moved from
+    # DOC-ANK-FIN-005 to DOC-ANK-FIN-006 (the two documents' roles were realigned).
+    "DOC-ANK-FIN-006",
     "DOC-IZM-DEV-003",
+    "DOC-CO-ADM-003",
 )
 
 

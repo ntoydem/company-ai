@@ -121,9 +121,12 @@ FINANCE_DOCUMENT_TYPES = frozenset(
 )
 
 # SPEC_05 §4 — the fictional names every ledger must stay within (plus company.yaml's list).
+# Adım 5 (Tansu §3.1): holding renamed ABC Enerji A.Ş. -> XYZ Enerji A.Ş.; the old single
+# shared "DEF Enerji Üretim A.Ş." SPV name no longer applies (7 SPVs, each with its own
+# name, all listed in company.yaml's name_whitelist) — docs/SPEC_05_*.md §4 needs the same
+# update (flagged, not applied here; out of scope for Aşama A).
 SPEC_FICTIONAL_NAMES = (
-    "ABC Enerji A.Ş.",
-    "DEF Enerji Üretim A.Ş.",
+    "XYZ Enerji A.Ş.",
     "GHI Yatırım A.Ş.",
     "JKL İnşaat A.Ş.",
     "MNO Teknik Danışmanlık Ltd.",
@@ -147,6 +150,14 @@ class Fact(_Strict):
     tag: Tag
     source_doc: str | None = None
     note: str | None = None
+    # Adım 5 (09.10.2026, ADIM5_ASAMA_A_REPORT.md §5): a value that disagrees with another
+    # one on purpose (Tansu's "kasıtlı tuzak" demo traps — Karatepe's signed-vs-drawn credit
+    # amount, Yeşilova's two interest figures). `conflict_group` names the pair/group; the
+    # validator (`check_conflict_groups`) accepts a disagreement only inside a named group
+    # and only when every member of that group carries `deliberate_conflict: true` — an
+    # unmarked disagreement, or a group of one, is still an error.
+    deliberate_conflict: bool = False
+    conflict_group: str | None = None
 
 
 class Money(_Strict):
@@ -155,6 +166,8 @@ class Money(_Strict):
     tag: Tag
     source_doc: str | None = None
     note: str | None = None
+    deliberate_conflict: bool = False
+    conflict_group: str | None = None
 
 
 class Event(_Strict):
@@ -210,7 +223,9 @@ class Lenders(_Strict):
 
 class Interest(_Strict):
     base: Fact
-    margin_pct: Fact
+    # Adım 5: Karatepe's margin changed with the 2nd amendment (Tansu §3.2) — same
+    # initial/current/changed_by shape already used by `dscr_covenant`/`tenor_years`.
+    margin_pct: ChangedFact
 
 
 class ChangedFact(_Strict):
@@ -266,6 +281,11 @@ class Finance(_Strict):
     dscr_covenant: ChangedFact
     drawdowns: list[Drawdown]
     outstanding_debt_as_of_demo_today: Money
+    # Adım 5 (Tansu §3.2): DSRA balance — a new, optional fact (not every SPV has one yet).
+    dsra_balance: Money | None = None
+    # Adım 5 (Tansu §3.2, kasıtlı tuzak): the signed facility size, kept distinct from
+    # `total_debt` (the actually drawn/repaid amount) — not every SPV has this gap.
+    contract_amount: Money | None = None
     covenant_tests: list[CovenantTest]
     facility_chain: list[str]
     # Phase 4.2 (Financial Model inputs)
@@ -320,7 +340,9 @@ class Operations(_Strict):
 
 class AnkaraProject(_Strict):
     code: Literal["ANK_RES"]
-    name: Literal["Ankara RES"]
+    # Adım 5 (Ç-9 B, Tansu §3): display name only — the code/file/`DOC-ANK-*` prefix is
+    # unchanged (Naci SORU 1, 09.10.2026) so every cross-reference stays valid.
+    name: Literal["Karatepe RES"]
     stage: Literal["operation"]
     spv: Spv
     capacity_mw: Capacity
@@ -342,6 +364,9 @@ class IzmirTimeline(_Strict):
     development_start: Event
     pre_licence_application: Event
     pre_licence: Event
+    # Adım 5 (Tansu §3.1): the pre-licence itself has an expiry — a new fact, not present
+    # when İzmir/Kızılova was pure "nothing granted yet" development.
+    pre_licence_expiry: Event
     land_acquisition_start: Event
     ced_application: Event
     # Post-licence fields: must be null by design (SPEC_03 §1, kabul kriteri).
@@ -380,7 +405,7 @@ class Development(_Strict):
 
 class IzmirProject(_Strict):
     code: Literal["IZM_RES"]
-    name: Literal["İzmir RES"]
+    name: Literal["Kızılova RES"]
     stage: Literal["development"]
     spv: Spv
     capacity_mw: TargetCapacity
@@ -456,7 +481,13 @@ class Party(_Strict):
 
 
 class CompanySpv(_Strict):
-    project_code: Literal["ANK_RES", "IZM_RES"]
+    # Adım 5 (09.10.2026): 5 new SPVs registered as a lightweight company-level entry
+    # (name + shareholders) only — none has its own deep `*Ledger` yet (no documents exist
+    # for them in this round; ADIM5_ASAMA_A_REPORT.md §2 flags the full per-SPV ledger as a
+    # prerequisite for the Enerji/Hukuk/Mali parties, not done here).
+    project_code: Literal[
+        "ANK_RES", "IZM_RES", "YSV_RES", "BOZ_RES", "GNS_GES", "AKY_GES", "DMR_RES"
+    ]
     name: Fact
     shareholders: list[Shareholder]
 
@@ -512,7 +543,18 @@ class Question(_Strict):
     # every path becomes one value group the answer must contain.
     expected_answer: str | list[str] | None
     expected_answer_aliases: list[str]
-    expected_project: Literal["Ankara RES", "İzmir RES"] | None
+    expected_project: (
+        Literal[
+            "Karatepe RES",
+            "Kızılova RES",
+            "Yeşilova RES",
+            "Boztepe RES",
+            "Güneşalan GES",
+            "Akyar GES",
+            "Demirci RES",
+        ]
+        | None
+    )
     expected_department: DepartmentSlug | None
     required_sources: list[str]
     forbidden_sources: list[str]
