@@ -1,6 +1,6 @@
 # Adım 4 — Proje ekseni belirsizlik tespiti + projesiz soruda proje çıkarımı (uygulama planı)
 
-**Tarih:** 09.10.2026 · **Durum:** plan, Naci onayı bekliyor; **kod değişikliği yok, canlı çağrı yok** · **Dayanak:** `URUN1_KARARLAR_VE_SIRA.md` §3.2 Adım 4, §4 ("gerçek belirsizlik tespiti — dürüst yaklaşım"); `PROJESIZ_SORU_PLAN.md` §3 Seçenek B + §4 SORU 1–2 cevapları (09.10.2026) · **Dal:** `feat/adim2-ekf` üzerinden yeni dal (ör. `feat/adim4-proje-ekseni`), Adım 2'ye bağımlı · **Bağımlılık:** Adım 2 (Ek-F, kod zaten `feat/adim2-ekf`'te) · **Kapsam dışı:** sürüm ekseni (ikinci tur), belge ekseni ("hangi belge?" — F-4 (2) linkli liste yolu zaten var), Seçenek A (G3 tanımı — Tansu T-1 bekliyor), Seçenek C (model karar eşiği — ayrı round, Adım 3'ün önkoşulu).
+**Tarih:** 09.10.2026 · **Durum:** plan **onaylı** (Naci 09.10.2026, SORU 1–5 cevaplandı, §5); uygulama bu dalda · **Dayanak:** `URUN1_KARARLAR_VE_SIRA.md` §3.2 Adım 4, §4 ("gerçek belirsizlik tespiti — dürüst yaklaşım"); `PROJESIZ_SORU_PLAN.md` §3 Seçenek B + §4 SORU 1–2 cevapları (09.10.2026) · **Dal:** `feat/adim4-proje-ekseni` (`feat/adim2-ekf` üzerinden) · **Bağımlılık:** Adım 2 (Ek-F, kod `feat/adim2-ekf`'te) · **Kapsam dışı:** sürüm ekseni (ikinci tur), belge ekseni ("hangi belge?" — F-4 (2) linkli liste yolu zaten var), Seçenek A (G3 tanımı — Tansu T-1 bekliyor), Seçenek C (model karar eşiği — ayrı round, Adım 3'ün önkoşulu) · **Ölçüm:** retrieval-only, 0 LLM çağrısı; canlı Gemini çağrısı yok.
 
 ## 1. Mekanizma — tek sinyal (proje dağılımı), iki eşik, üç çıkış
 
@@ -66,10 +66,14 @@ Adım 4'ün ölçütü, modelin ne yapacağını değil, **tespit + daraltma kod
 - `test_assist_ekf.py` ek: ANK-NEG-004 şekli (6 Ankara + 1 İzmir aday, zorla cevapsız) → `dominant`, liste yalnız Ankara, "varsayıldı" cümlesi var, İzmir hiç yok (G3); GEN-AMB-00x şekli (yakın dağılım) → `disambiguate`, `fake_llm.requests == []` (LLM hiç çağrılmadı), liste boş; GEN-CMP şekli (iki proje adlandırılmış) → `disambiguate` **değil**, mevcut çoklu-proje yolu çalışıyor; aradaki boşluk (%30–50) → `none`, bugünkü iki-projeli liste.
 - `test_eval_lib.py` ek: `expect_assist="disambiguate"` eşleşmesi; G1 disambiguate sorusunda rakam yok.
 
-## 5. SORU (Naci)
+## 5. SORU (Naci) — cevaplar 09.10.2026
 
-1. **Bayrak:** disambiguate/dominant mekanizması **`EK_F_MODE`'un içinde** mi (tek bayrak, Adım 2'yle aynı açılır/kapanır) mı, yoksa kendi ayrı bayrağı mı (ör. `PROJECT_AXIS_MODE`)? Önerim: **aynı bayrak** — ayrı bayrak hem gereksiz karmaşıklık hem de Adım 3'ün (canlı varsayılan açma) bağımlılık zincirini ikiye böler.
-2. **Eşik başlangıç değerleri:** `DISAMBIG_SPREAD=0.5`, `DOMINANT_SHARE=0.75` önerildi (§1). Onay, yoksa farklı değer?
-3. **Held-out soruları ne zaman istensin:** bu plan onaylandıktan sonra hemen (kod yazılmadan, paralel) mi, yoksa kod bitip dev AMB/NEG dry run'ı geçtikten sonra mı? Önerim: **kod bitince** — Naci/danışmanın emeği, dev set'te zaten başarısız çıkacak bir tasarıma harcanmasın.
-4. **Dry run'ın "model cevapsız kaldığını varsayma" yaklaşımı** (§3) onaylanıyor mu — yoksa Adım 4'ün kapanışı için de en az birkaç canlı çağrı (ör. ANK-NEG-004 + 1-2 AMB sorusu) istiyor musun? Önerim: hayır, canlı çağrı yok — "model cevaplar mı" sorusu kasıtlı olarak Seçenek C'nin kapsamında, burada karışmasın.
-5. **Dal:** `feat/adim2-ekf`'ten yeni bir dal (`feat/adim4-proje-ekseni`) mi açılsın, yoksa Adım 2'nin dalında mı sürsün? Önerim: **yeni dal** — Adım 2 raporu kapandı sayıldı (önceki onay), karışık commit geçmişi olmasın; `feat/adim1-soru15 → feat/adim2-ekf → feat/adim4-proje-ekseni` zinciri izlenebilir kalır.
+| # | Karar | Ayrıntı |
+|---|---|---|
+| 1 | **Aynı bayrak (`EK_F_MODE`)** | Yeni bayrak yok. |
+| 2 | `DOMINANT_SHARE=0.75`, `DISAMBIG_SPREAD=0.5` | Eşikler **yalnız dev setinde** ayarlanabilir, sonra **kilitlenir**, değerler rapora yazılır; held-out sonucuna göre eşik **oynatılmaz**. |
+| 3 | Held-out **kod bittikten sonra** istenir | Naci/danışman seti ölçüm gününe kadar geliştirici AI'a vermez; geliştirici AI yazmaz. |
+| 4 | "Model cevapsız sayarak" retrieval-only kuru koşu **onaylı** | Canlı LLM çağrısı yok. |
+| 5 | Yeni dal **`feat/adim4-proje-ekseni`** (`feat/adim2-ekf` üzerinden) | — |
+
+**Ek kurallar (uygulama sırasında geçerli):** proje ekseni **yalnız kodla** tespit edilir; netleştirme sorusunda içerik sıralaması/belge listesi **yok**; sessiz tahmin yok — dominant ise cevap varsayılan projeyi açıkça yazar; aradaki boşluk bugünkü davranışa düşer. Ü-3 ve Ç-6 korunur.
