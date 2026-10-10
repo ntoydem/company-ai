@@ -269,3 +269,74 @@ def test_list_expected_answer_paths_are_each_checked(tmp_path: Path) -> None:
         q["expected_answer"][1] = "ledger:izmir_res.project.no_such_key"
 
     assert _has(_run(vl.DEFAULT_MASTER, _mutated_questions(tmp_path, bad_second)), "Q4")
+
+
+# --- kapsam: kasıtlı çelişki grupları (Adım 5, C1) -----------------------------------
+
+
+def test_find_conflict_groups_walks_nested_dicts_and_lists() -> None:
+    """Pure function, no file I/O: `conflict_group` is found at any depth, in a dict
+    nested under a list, and the path/deliberate_conflict for each hit is recorded."""
+    node = {
+        "a": {"value": 1, "conflict_group": "g1", "deliberate_conflict": True},
+        "b": [
+            {"value": 2, "conflict_group": "g1", "deliberate_conflict": True},
+            {"value": 3, "conflict_group": "g2"},  # no deliberate_conflict at all
+        ],
+        "c": {"nested": {"value": 4}},  # no conflict_group anywhere here
+    }
+    groups = vl.find_conflict_groups(node, "x.yaml")
+    assert groups["g1"] == [("x.yaml", "a", True), ("x.yaml", "b[0]", True)]
+    assert groups["g2"] == [("x.yaml", "b[1]", False)]
+    assert "g3" not in groups
+
+
+def test_find_conflict_groups_empty_for_a_tree_without_any_tag() -> None:
+    assert vl.find_conflict_groups({"a": {"value": 1}, "b": [1, 2]}, "x.yaml") == {}
+
+
+def test_conflict_group_can_span_two_different_files() -> None:
+    """`check_conflict_groups` aggregates across every raw file, not just one — a group's
+    two members don't have to live in the same ledger."""
+    raws = {
+        "ankara_res": {"fact": {"value": 1, "conflict_group": "g", "deliberate_conflict": True}},
+        "izmir_res": {"fact": {"value": 2, "conflict_group": "g", "deliberate_conflict": True}},
+    }
+    report = vl.Report()
+    vl.check_conflict_groups(raws, report)
+    assert _codes(report) == []
+
+
+def test_conflict_group_with_only_one_member_is_an_error(tmp_path: Path) -> None:
+    def untag_one_member(data: dict[str, Any]) -> None:
+        del data["project"]["finance"]["contract_amount"]["conflict_group"]
+        del data["project"]["finance"]["contract_amount"]["deliberate_conflict"]
+
+    report = _run(_mutated(tmp_path, "ankara_res.yaml", untag_one_member))
+    assert _has(report, "C1")
+    assert any("only one member" in line for line in _codes(report))
+
+
+def test_conflict_group_member_missing_deliberate_conflict_flag_is_an_error(
+    tmp_path: Path,
+) -> None:
+    def unflag_one_member(data: dict[str, Any]) -> None:
+        data["project"]["finance"]["total_debt"]["deliberate_conflict"] = False
+
+    report = _run(_mutated(tmp_path, "ankara_res.yaml", unflag_one_member))
+    assert _has(report, "C1")
+    assert any("missing deliberate_conflict" in line for line in _codes(report))
+
+
+def test_conflict_group_name_typo_still_reads_as_two_singleton_groups(
+    tmp_path: Path,
+) -> None:
+    """A typo'd `conflict_group` on one of the two real members splits the pair into two
+    groups of one each — both must fire, not just one."""
+
+    def typo_group_name(data: dict[str, Any]) -> None:
+        data["project"]["finance"]["total_debt"]["conflict_group"] = "karatepe-kredi-tutarii"
+
+    report = _run(_mutated(tmp_path, "ankara_res.yaml", typo_group_name))
+    codes = _codes(report)
+    assert sum("only one member" in line for line in codes) == 2

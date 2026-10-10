@@ -74,7 +74,7 @@ documents:            # master document inventory
 İzmir için lisans sonrası tüm alanlar `null`; `ced_status: ongoing`, `permits_completed: [...]`, `pending_steps: [...]`, `latest_event: {...}`.
 
 ## 4. Demo veri kuralları
-- Gerçek özel şirket, çalışan, banka ilişkisi, sözleşme YOK. Kurgusal jenerik isimler: ABC Enerji A.Ş., DEF Enerji Üretim A.Ş., GHI Yatırım A.Ş., JKL İnşaat A.Ş., MNO Teknik Danışmanlık Ltd., PQR Bank, STU Sigorta.
+- Gerçek özel şirket, çalışan, banka ilişkisi, sözleşme YOK. Kurgusal jenerik isimler (Adım 5, 09.10.2026 — güncel liste `company.yaml`'ın `name_whitelist`'iyle birebir eşleşir, tek kaynak odur): XYZ Enerji A.Ş. (holding, 7 SPV'nin %100 ortağı), Karatepe RES Enerji Üretim A.Ş., Kızılova RES Enerji Üretim A.Ş., Yeşilova RES Enerji Üretim A.Ş., Boztepe RES Enerji Üretim A.Ş., Güneşalan GES Enerji Üretim A.Ş., Akyar GES Enerji Üretim A.Ş., Demirci RES Enerji Üretim A.Ş. (7 SPV), RST Turbines GmbH, JKL İnşaat A.Ş., MNO Teknik Danışmanlık Ltd., PQR Bank, VWX Export Credit Agency, STU Sigorta, KLM Hukuk Bürosu. GHI Yatırım A.Ş. yalnızca tarihsel referans olarak kalır (Karatepe'nin eski %20 ortağı, bugün tamamen elden çıkarılmış).
 - Gerçek kamu kurumu adları süreç bağlamında kullanılabilir; gerçek kişi/imza/belge no/QR/barkod/kimlik verisi kullanılmaz; resmi şablon birebir kopyalanmaz.
 - Her belgede: `DEMO / FICTIONAL DOCUMENT FOR DEMONSTRATION PURPOSES ONLY`; sözleşmelerde ayrıca `NOT A REAL CONTRACT`.
 - Belge dili: finansman/ECA/EPC belgeleri İngilizce; ÇED, ruhsat, lisans, kurum yazışmaları, board resolution Türkçe.
