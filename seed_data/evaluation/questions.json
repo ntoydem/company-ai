@@ -1,5 +1,5 @@
 {
-  "version": 9,
+  "version": 10,
   "demo_today": "2026-10-06",
   "questions": [
     {
@@ -389,21 +389,21 @@
     {
       "id": "ANK-FIN-013",
       "category": "temporal",
-      "question": "Karatepe RES kredisinin tenor'u ilk ne kadardı, şimdi ne kadar?",
-      "expected_answer": "ledger:ankara_res.project.finance.tenor_years",
+      "question": "Karatepe RES kredisinin faiz marjı ilk ne kadardı, şimdi ne kadar?",
+      "expected_answer": "ledger:ankara_res.project.finance.interest.margin_pct",
       "expected_answer_aliases": [],
       "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
         "Facility Agreement",
-        "Facility Agreement Amendment 01"
+        "Facility Agreement Amendment 02"
       ],
       "forbidden_sources": [
         "Kızılova RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
-      "notes": "İki değer birlikte; kaynaklar iki farklı halka"
+      "notes": "v10 (Adım 5 İş 3): tenor_years -> margin_pct; tenor fiilen değişmedi (13->13, bkz. Aşama C.5), margin değişti (3,25% -> 2,90%, DOC-ANK-FIN-006). İki değer birlikte; kaynaklar iki farklı halka."
     },
     {
       "id": "ANK-EPC-004",

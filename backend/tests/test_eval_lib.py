@@ -58,8 +58,11 @@ def test_load_questions_returns_the_committed_questions() -> None:
     # v7 (Tansu Ürün 1 §B, B ölçümü): + 13 discovery
     # v8 (B ölçümü teşhis tekrarı): + 5 düzeltilmiş teşhis varyantı; held_out +6 discovery
     # v9 (Adım 4, ADR-030): + GEN-AMB-006 (belge-varlığı kriteriyle seçilen dev AMB sorusu)
+    # v10 (Adım 5 İş 3): ANK-FIN-013 tenor_years -> margin_pct (tenor fiilen değişmedi,
+    # F4 kuralı tarafından zaten tek değer olarak değerlendiriliyordu; margin gerçek bir
+    # initial != current çifti ve henüz test edilmemişti); soru sayısı değişmedi (99)
     assert len(question_set.questions) == 99
-    assert question_set.version == 9
+    assert question_set.version == 10
 
 
 def test_build_document_catalog_maps_title_type_and_project() -> None:
@@ -173,15 +176,32 @@ def test_value_check_passes_accepts_the_english_thousands_grouping_of_a_money_fi
 def test_resolve_expected_handles_the_initial_current_compound_value() -> None:
     """A question asking for two values in one go ("ilk ne kadardı, şimdi ne kadar?") —
     the ledger path deliberately resolves to a dict, not a scalar. Both formatted values
-    must be required, independently. Adım 5: tenor_years no longer changes for Karatepe
-    (13 -> 13), so this now exercises dscr_covenant (1.25 -> 1.20), which still does."""
+    must be required, independently. Synthetic fixture id (not the real ANK-FIN-013,
+    which now exercises margin_pct — see test below); dscr_covenant (1.25 -> 1.20) is
+    just a convenient other compound field to exercise the same generic behavior."""
     raws = load_ledger_raws()
     question = _question(
-        id="ANK-FIN-013", expected_answer="ledger:ankara_res.project.finance.dscr_covenant"
+        id="ANK-XXX-013", expected_answer="ledger:ankara_res.project.finance.dscr_covenant"
     )
     expected = resolve_expected(question, raws)
     assert not expected.skip
     assert expected.required == (("1,25x", "1.25x"), ("1,20x", "1.20x"))
+
+
+def test_resolve_expected_handles_ank_fin_013_margin_pct() -> None:
+    """v10 (Adım 5 İş 3): ANK-FIN-013 moved from tenor_years (no longer changes for
+    Karatepe, 13 -> 13) to margin_pct (3.25% -> 2.90%, DOC-ANK-FIN-006) — the one
+    remaining initial != current compound field not already covered by another
+    question (dscr_covenant: ANK-FIN-006/007; capacity_mw: ANK-DEV-003/004/006,
+    ANK-EPC-005)."""
+    raws = load_ledger_raws()
+    question = _question(
+        id="ANK-FIN-013",
+        expected_answer="ledger:ankara_res.project.finance.interest.margin_pct",
+    )
+    expected = resolve_expected(question, raws)
+    assert not expected.skip
+    assert expected.required == (("%3,25", "%3.25"), ("%2,9", "%2.9"))
 
 
 def test_resolve_expected_skips_a_list_value() -> None:
