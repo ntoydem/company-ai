@@ -1,0 +1,38 @@
+# Boztepe RES — truth ledger (Adım 5 Aşama C, 10.10.2026, NACI_CEVAP_2026-10-08.md §3)
+# Tansu çok az veri verdi (yalnız aylık faiz tutarı + iki tarih) — total_debt, DSCR, DSRA,
+# tenor hiçbiri verilmedi; hiçbiri icat edilmedi, hepsi unset/pending (bkz. §4 raporu).
+meta:
+  schema_version: 1
+  demo_today: 2026-10-06
+  currency_note: "Kredi USD (faiz tutarı); O&M EUR (NACI_CEVAP §3.7)."
+
+project:
+  code: BOZ_RES
+  name: Boztepe RES
+  stage: operation
+  spv:
+    name: {value: "Boztepe RES Enerji Üretim A.Ş.", tag: USER_FACT}
+    shareholders:
+      - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
+  capacity_mw:
+    current: {value: 30, tag: USER_FACT}
+  turbines:
+    count: {value: 10, tag: USER_FACT}
+    model_generic: {value: "RST Turbines GmbH E-82 3,0 MW", tag: USER_FACT}
+  timeline: {}
+
+  finance:
+    lender: {value: "PQR Bank", tag: USER_FACT, note: "2024-BZ, USD kredi — Garanti BBVA'nın kurgusal karşılığı (Ç-12 bekliyor)."}
+    # Tansu yalnız aylık faiz TUTARINI verdi (84.300 USD), ne toplam kredi tutarını ne de
+    # faiz oranını — ikisi de uydurulmadı, bkz. ADIM5_ASAMA_C_REPORT.md §4.
+    repayment_profile: {value: "Interest-only (monthly); principal amount not given", tag: USER_FACT}
+    repayment_schedule:
+      - {date: 2026-10-01, principal: {value: 0, currency: USD, tag: USER_FACT, note: "Son ödenen aylık faiz (NACI_CEVAP §3.2)."}, interest: {value: 84300, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2026-11-02, principal: {value: 0, currency: USD, tag: USER_FACT, note: "Sıradaki ödeme; tutar Tansu'nun verdiği sabit aylık faiz (01.11 pazar olduğu için 02.11'e kaymış)."}, interest: {value: 84300, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+
+  operations:
+    om_contractor: {value: "RST Turbines GmbH Servis Türkiye", tag: USER_FACT, note: "Sözleşme S-25-007/008; Karatepe ile aynı fiyat (38.500 EUR/ay) — Karatepe'nin kendi ledger'ına bu round'da işlenmedi, bkz. §4 raporu."}
+    om_contract_price: {value: 38500, currency: EUR, tag: USER_FACT, note: "Aylık (S-25-007/008)."}
+    insurance_expiry: 2026-11-10
+
+documents: []

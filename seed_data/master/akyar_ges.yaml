@@ -1,0 +1,36 @@
+# Akyar GES — truth ledger (Adım 5 Aşama C, 10.10.2026, NACI_CEVAP_2026-10-08.md §3)
+# Geliştirme aşaması, önlisans alındı; dava yok (NACI_CEVAP §3.7). Tansu yalnız önlisans
+# tarihi/bitişini verdi — development_start, arazi edinimi, ÇED süreci verilmedi; hiçbiri
+# icat edilmedi (`timeline`'ın diğer alanları ve `development` unset kaldı).
+meta:
+  schema_version: 1
+  demo_today: 2026-10-06
+  currency_note: "Finansman yok (geliştirme aşaması); tutar alanı yok."
+
+project:
+  code: AKY_GES
+  name: Akyar GES
+  stage: development
+  spv:
+    name: {value: "Akyar GES Enerji Üretim A.Ş.", tag: USER_FACT}
+    shareholders:
+      - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
+  capacity_mw:
+    target: {value: 60, tag: USER_FACT, note: "MWp (güneş)."}
+
+  timeline:
+    pre_licence: {date: 2026-03-03, tag: USER_FACT}
+    pre_licence_expiry: {date: 2028-03-03, tag: USER_FACT}
+    # Lisans-sonrası alanlar tasarım gereği null (henüz geliştirme aşaması).
+    licence: null
+    financing_signed: null
+    financial_close: null
+    epc_signed: null
+    construction_start: null
+    construction_end: null
+    commissioning: null
+    cod_expected_initial: null
+    cod_actual: null
+    operation_start: null
+
+documents: []

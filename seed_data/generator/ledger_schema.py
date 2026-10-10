@@ -408,14 +408,18 @@ class TargetCapacity(_Strict):
 
 
 class IzmirTimeline(_Strict):
-    development_start: Event
-    pre_licence_application: Event
+    # Adım 5 Aşama C (10.10.2026): reused for Akyar/Demirci — Tansu's NACI_CEVAP §3.1
+    # gives only each one's pre-licence date/expiry, nothing about development start,
+    # land acquisition or a ÇED application; Kızılova's own data still populates every
+    # one of these, so loosening them to Optional doesn't change Kızılova's behavior.
+    development_start: Event | None = None
+    pre_licence_application: Event | None = None
     pre_licence: Event
     # Adım 5 (Tansu §3.1): the pre-licence itself has an expiry — a new fact, not present
     # when İzmir/Kızılova was pure "nothing granted yet" development.
     pre_licence_expiry: Event
-    land_acquisition_start: Event
-    ced_application: Event
+    land_acquisition_start: Event | None = None
+    ced_application: Event | None = None
     # Post-licence fields: must be null by design (SPEC_03 §1, kabul kriteri).
     licence: None
     financing_signed: None
@@ -565,7 +569,9 @@ class GenericDevelopmentProject(_Strict):
     finance: None = None
     construction: None = None
     operations: None = None
-    development: Development
+    # Akyar/Demirci: Tansu gives only the pre-licence date/expiry (in `timeline`), no ÇED
+    # status or permit history — `development` stays unset rather than fabricated.
+    development: Development | None = None
 
 
 class OperatingLedger(_Strict):

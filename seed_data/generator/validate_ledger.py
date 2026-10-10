@@ -38,8 +38,36 @@ LEDGER_FILES = {
     "ankara_res": "ankara_res.yaml",
     "izmir_res": "izmir_res.yaml",
     "fx_rates": "fx_rates.yaml",
+    # Adım 5 Aşama C (10.10.2026): 5 new SPVs, manually added (Aşama B SORU 3 — not
+    # derived from company.yaml, kept in sync by a dedicated test instead).
+    "yesilova_res": "yesilova_res.yaml",
+    "boztepe_res": "boztepe_res.yaml",
+    "gunesalan_ges": "gunesalan_ges.yaml",
+    "akyar_ges": "akyar_ges.yaml",
+    "demirci_res": "demirci_res.yaml",
 }
-PROJECT_PREFIX = {"ankara_res": "ANK", "izmir_res": "IZM", "company": "CO"}
+PROJECT_PREFIX = {
+    "ankara_res": "ANK",
+    "izmir_res": "IZM",
+    "company": "CO",
+    "yesilova_res": "YSV",
+    "boztepe_res": "BOZ",
+    "gunesalan_ges": "GNS",
+    "akyar_ges": "AKY",
+    "demirci_res": "DMR",
+}
+# Adım 5 Aşama C: maps each `company.yaml` SPV registry code to its raw-ledger key —
+# the sync test (`test_project_prefix_matches_company_spv_registry`) checks this against
+# `company.yaml`'s own `spvs` list so the two can never silently drift apart.
+PROJECT_CODE_TO_RAW_KEY = {
+    "ANK_RES": "ankara_res",
+    "IZM_RES": "izmir_res",
+    "YSV_RES": "yesilova_res",
+    "BOZ_RES": "boztepe_res",
+    "GNS_GES": "gunesalan_ges",
+    "AKY_GES": "akyar_ges",
+    "DMR_RES": "demirci_res",
+}
 # Adım 5 Aşama C (10.10.2026): any parsed ledger model, Ankara/İzmir/company's original
 # three or one of the two new shared shapes (ADIM5_ASAMA_C_PLAN.md §2.2).
 LedgerModel = (

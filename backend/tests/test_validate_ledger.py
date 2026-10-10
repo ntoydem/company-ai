@@ -13,6 +13,7 @@ from typing import Any
 
 import yaml
 
+from seed_data.generator import ledger_schema as ls
 from seed_data.generator import validate_ledger as vl
 
 
@@ -340,3 +341,27 @@ def test_conflict_group_name_typo_still_reads_as_two_singleton_groups(
     report = _run(_mutated(tmp_path, "ankara_res.yaml", typo_group_name))
     codes = _codes(report)
     assert sum("only one member" in line for line in codes) == 2
+
+
+# --- kapsam: Adım 5 Aşama C — PROJECT_PREFIX / company.yaml spv registry sync ---------
+
+
+def test_project_prefix_matches_company_spv_registry() -> None:
+    """`PROJECT_PREFIX`/`LEDGER_FILES`/`PROJECT_CODE_TO_RAW_KEY` are maintained by hand
+    (Aşama B SORU 3 — not derived from `company.yaml`); this is the guard that keeps them
+    from silently drifting apart from the one real source of truth, `company.yaml`'s own
+    `spvs` registry."""
+    raws = {
+        name: yaml.safe_load((vl.DEFAULT_MASTER / filename).read_text(encoding="utf-8"))
+        for name, filename in vl.LEDGER_FILES.items()
+    }
+    company = ls.CompanyLedger.model_validate(raws["company"])
+    registry_codes = {spv.project_code for spv in company.spvs}
+    assert registry_codes == set(vl.PROJECT_CODE_TO_RAW_KEY)
+    for code, raw_key in vl.PROJECT_CODE_TO_RAW_KEY.items():
+        assert raw_key in vl.LEDGER_FILES, f"{code}: {raw_key!r} missing from LEDGER_FILES"
+        assert raw_key in vl.PROJECT_PREFIX, f"{code}: {raw_key!r} missing from PROJECT_PREFIX"
+        assert code.startswith(vl.PROJECT_PREFIX[raw_key] + "_"), (
+            f"{code}: PROJECT_PREFIX[{raw_key!r}] = {vl.PROJECT_PREFIX[raw_key]!r} "
+            "doesn't match the code's own prefix"
+        )

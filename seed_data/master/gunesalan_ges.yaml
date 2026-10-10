@@ -1,0 +1,27 @@
+# Güneşalan GES — truth ledger (Adım 5 Aşama C, 10.10.2026, NACI_CEVAP_2026-10-08.md §3)
+# Kredisiz, özkaynakla finanse edilmiş işletme-aşaması GES; dava yok (NACI_CEVAP §3.7).
+meta:
+  schema_version: 1
+  demo_today: 2026-10-06
+  currency_note: "Kredi yok (özkaynak). O&M TRY (NACI_CEVAP §3.7)."
+
+project:
+  code: GNS_GES
+  name: Güneşalan GES
+  stage: operation
+  spv:
+    name: {value: "Güneşalan GES Enerji Üretim A.Ş.", tag: USER_FACT}
+    shareholders:
+      - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
+  capacity_mw:
+    current: {value: 18, tag: USER_FACT, note: "MWp (güneş)."}
+  # Güneş (GES) — türbin kavramı yok (NACI_CEVAP §3.1).
+  timeline: {}
+
+  finance: null
+
+  operations:
+    om_contractor: {value: "Solaris GES İşletme Hizmetleri Ltd. Şti.", tag: USER_FACT}
+    om_contract_price: {value: 3240000, currency: TRY, tag: USER_FACT, note: "Yıllık."}
+
+documents: []

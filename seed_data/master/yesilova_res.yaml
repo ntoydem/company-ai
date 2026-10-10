@@ -1,0 +1,73 @@
+# Yeşilova RES — truth ledger (Adım 5 Aşama C, 10.10.2026, NACI_CEVAP_2026-10-08.md §3)
+# Tansu'nun verdiği değerler USER_FACT; verilmeyen her alan açıkça unset/pending kalır
+# (bu dosyada icat edilmiş hiçbir sayı yok — tek istisna: 24 taksitin tam tarih listesi,
+# Tansu'nun verdiği eşit-anapara/3-aylık/başlangıç-bitiş deseninden mekanik olarak
+# türetildi ve iki çapa noktasıyla [#11 öncesi 1.372.000, 2025 yıl sonu 1.666.000]
+# gerçek kodla değil ama aritmetik olarak doğrulandı — bkz. ADIM5_ASAMA_C_REPORT.md §3).
+meta:
+  schema_version: 1
+  demo_today: 2026-10-06
+  currency_note: "Kredi USD; O&M EUR (NACI_CEVAP §3.7)."
+
+project:
+  code: YSV_RES
+  name: Yeşilova RES
+  stage: operation
+  spv:
+    name: {value: "Yeşilova RES Enerji Üretim A.Ş.", tag: USER_FACT}
+    shareholders:
+      - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
+  capacity_mw:
+    current: {value: 22, tag: USER_FACT}
+  # Vestas V136 verildi; adet verilmedi (QRS Turbines A/S: Vestas'ın Ç-12 bekleyen
+  # kurgusal karşılığı — bkz. company.yaml name_whitelist notu).
+  turbines:
+    model_generic: {value: "QRS Turbines A/S V136", tag: USER_FACT}
+  timeline: {}
+
+  finance:
+    lender: {value: "LMN Bank", tag: USER_FACT}
+    interest: {base: {value: "Term SOFR 3,89378%", tag: USER_FACT}, margin_pct: {value: 1.50, tag: USER_FACT}}
+    total_debt: {value: 2352000, currency: USD, tag: USER_FACT}
+    dscr_covenant: {value: 1.15, tag: USER_FACT, note: "Minimum eşik; tarihsel test sonucu verilmedi."}
+    dsra_balance: {value: 702000, currency: USD, tag: USER_FACT}
+    debt_service_account_balance: {value: 84500, currency: USD, tag: USER_FACT}
+    repayment_profile: {value: "Equal principal (98.000 USD), quarterly, 24 instalments", tag: USER_FACT}
+    # 24 taksit, eşit anapara 98.000 USD, 14.04.2024'ten 14.01.2030'a 3 aylık — tarihler
+    # mekanik olarak türetildi; Tansu'nun 3 çapa noktası tam örtüşüyor (#11 öncesi
+    # 1.372.000 = 2.352.000 - 10×98.000; 2025 yıl sonu 1.666.000 = 2.352.000 - 7×98.000;
+    # 2026'da #8/#9/#10 ödendi, #12 vadesi 14.01.2027).
+    repayment_schedule:
+      - {date: 2024-04-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#1."}, tag: USER_FACT}
+      - {date: 2024-07-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2024-10-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2025-01-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#4 — 2025'te ödenen 4 taksitin ilki (anapara toplamı 392.000)."}, tag: USER_FACT}
+      - {date: 2025-04-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2025-07-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2025-10-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#7 — 2025 yıl sonu bakiyesi 1.666.000 (2.352.000 - 7×98.000) ile doğrulanır."}, tag: USER_FACT}
+      - {date: 2026-01-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#8 — 2026'da ödenen 3 taksitin ilki."}, tag: USER_FACT}
+      - {date: 2026-04-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#9"}, tag: USER_FACT}
+      - {date: 2026-07-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#10 — son ödenen taksit (demo_today 06.10.2026 öncesi)."}, tag: USER_FACT}
+      - {date: 2026-10-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#11 — vade 14.10.2026, demo_today'den sonra (henüz ödenmedi). Öncesi bakiye 1.372.000, sonrası 1.274.000."}, interest: {value: 18240, currency: USD, tag: USER_FACT, deliberate_conflict: true, conflict_group: "yesilova-taksit11-faiz", note: "Ödeme planındaki faiz; banka bildirimi 18.912 USD der — kasıtlı fark."}, tag: USER_FACT}
+      - {date: 2027-01-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#12"}, tag: USER_FACT}
+      - {date: 2027-04-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2027-07-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2027-10-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2028-01-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2028-04-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2028-07-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2028-10-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2029-01-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2029-04-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2029-07-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2029-10-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+      - {date: 2030-01-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#24, son taksit."}, tag: USER_FACT}
+    bank_interest_notices:
+      - {instalment_date: 2026-10-14, amount: {value: 18912, currency: USD, tag: USER_FACT, deliberate_conflict: true, conflict_group: "yesilova-taksit11-faiz", note: "Banka faiz bildirimi; ödeme planındaki tutar 18.240 USD'dir — kasıtlı fark (NACI_CEVAP §3.2)."}, tag: USER_FACT}
+
+  operations:
+    om_contractor: {value: "QRS Turbines A/S Bakım Hizmetleri", tag: USER_FACT, source_doc: null, note: "Sözleşme S-24-009; Vestas Bakım Hizmetleri'nin kurgusal karşılığı (Ç-12 bekliyor)."}
+    om_contract_price: {value: 396000, currency: EUR, tag: USER_FACT, note: "Yıllık (S-24-009)."}
+    insurance_expiry: 2027-03-31
+
+documents: []

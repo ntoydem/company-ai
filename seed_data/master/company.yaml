@@ -72,6 +72,14 @@ name_whitelist:
   - "Akyar GES Enerji Üretim A.Ş."
   - "Demirci RES Enerji Üretim A.Ş."
   - "RST Turbines GmbH"
+  # Adım 5 Aşama C (10.10.2026, NACI_CEVAP §3.7): Boztepe/Yeşilova's real lenders/turbine
+  # OEM (Garanti BBVA, Commerzbank AG, Enercon, Vestas) still conflict with Ç-12 (no real
+  # company in the demo) — fictional stand-ins, same single-table convention as PQR
+  # Bank/RST Turbines GmbH, pending the product owner's merge decision (flagged, not
+  # applied as real names here).
+  - "LMN Bank"  # Commerzbank AG stand-in (Yeşilova's 2023-YS credit)
+  - "QRS Turbines A/S"  # Vestas stand-in (Yeşilova's V136 turbines + O&M)
+  - "Solaris GES İşletme Hizmetleri Ltd. Şti."  # already fictional in NACI_CEVAP (Güneşalan O&M)
   - "JKL İnşaat A.Ş."
   - "MNO Teknik Danışmanlık Ltd."
   - "PQR Bank"
