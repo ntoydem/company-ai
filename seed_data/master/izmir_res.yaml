@@ -60,6 +60,29 @@ project:
       - {step: "Üretim Lisansı", expected: null, tag: USER_FACT}
     latest_event: {date: 2026-08-27, doc: DOC-IZM-DEV-003, tag: USER_FACT, note: "ÇED İnceleme Değerlendirme Komisyonu toplantısı; ek bilgi/belge talebi"}
 
+  # Adım 5 Aşama C (10.10.2026, NACI_CEVAP §3.2/§3.3) — imzalı ama kullandırılmamış/
+  # başlamamış: kullandırım talebi, inşaat sigortası (CAR/EAR) ve inşaat ilerleme raporu
+  # bilinçli olarak üretilmeyecek (Tansu'nun İ-1 kararı). Hakediş 1 (SÖ-26-014, Eylül 2026
+  # mühendislik/tasarım) tutarları "canvas'taki gibi" deniyor ama bu depoya aktarılmadı —
+  # modellenmedi, bkz. ADIM5_ASAMA_C_REPORT.md §4.
+  signed_undrawn_facility:
+    lender: {value: "PQR Bank", tag: USER_FACT, note: "2026-KZ, Garanti BBVA'nın kurgusal karşılığı (Ç-12 bekliyor)."}
+    contract_amount: {value: 30000000, currency: USD, tag: USER_FACT}
+    drawdown_condition: {value: "Üretim lisansının alınması", tag: USER_FACT}
+    commitment_fee: {value: 61333, currency: USD, tag: USER_FACT, note: "30.000.000 × %0,80 × 92/360 (NACI_CEVAP §3.2)."}
+    commitment_fee_date: 2027-01-05
+
+  signed_unstarted_epc:
+    contractor: {value: "ABC İnşaat A.Ş.", tag: USER_FACT}
+    contract_price: {value: 10000000, currency: USD, tag: USER_FACT, note: "KDV hariç, anahtar teslim (S-26-001)."}
+    signed_date: 2026-09-15
+    lntp: true
+    advance_pct: 20
+    advance_amount: {value: 2400000, currency: USD, tag: USER_FACT, note: "KDV dahil (net 2.000.000 + KDV 400.000). Fatura ABC2026000000184; itiraz son günü 14.10.2026; vade 15.10.2026; ödeme 12.10.2026."}
+    advance_guarantee: {value: "DEF Bank", tag: USER_FACT, note: "Akbank'ın kurgusal karşılığı (Ç-12 bekliyor)."}
+    advance_guarantee_amount: {value: 2000000, currency: USD, tag: USER_FACT}
+    advance_guarantee_expiry: 2028-03-15
+
 documents:
   - id: DOC-IZM-DEV-001
     department: enerji_grubu

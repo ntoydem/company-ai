@@ -454,6 +454,39 @@ class Development(_Strict):
     latest_event: Event
 
 
+class SignedUndrawnFacility(_Strict):
+    """Adım 5 Aşama C (10.10.2026, NACI_CEVAP §3.2, 2026-KZ) — Kızılova-specific, not
+    shared with `Finance` or the generic development shape (Naci's correction): a credit
+    that is signed but undrawn, conditional on the licence. No interest accrues and no
+    repayment schedule exists yet, so `Finance`'s shape doesn't fit."""
+
+    lender: Fact
+    contract_amount: Money
+    # Tansu confirms only the signing *year* (the "2026-KZ" code itself, §3.2's "kod yılı
+    # = imza yılı"), not an exact day — stays unset rather than a guessed date.
+    signed_date: date | None = None
+    drawdown_condition: Fact | None = None
+    commitment_fee: Money | None = None
+    commitment_fee_date: date | None = None
+
+
+class SignedUnstartedEpc(_Strict):
+    """Adım 5 Aşama C: Kızılova's EPC is signed (LNTP issued) but construction hasn't
+    started. Tansu's İ-1 scope note (NACI_CEVAP §3.3) is explicit: no CAR/EAR insurance,
+    no drawdown request, no construction progress report exist for Kızılova yet — this
+    shape only carries what *does* exist (the contract, the advance, its guarantee)."""
+
+    contractor: Fact
+    contract_price: Money
+    signed_date: date
+    lntp: bool = True
+    advance_pct: float | None = None
+    advance_amount: Money | None = None
+    advance_guarantee: Fact | None = None
+    advance_guarantee_amount: Money | None = None
+    advance_guarantee_expiry: date | None = None
+
+
 class IzmirProject(_Strict):
     code: Literal["IZM_RES"]
     name: Literal["Kızılova RES"]
@@ -466,6 +499,9 @@ class IzmirProject(_Strict):
     construction: None
     operations: None
     development: Development
+    # Adım 5 Aşama C: Kızılova-specific (not Akyar/Demirci's `GenericDevelopmentProject`).
+    signed_undrawn_facility: SignedUndrawnFacility | None = None
+    signed_unstarted_epc: SignedUnstartedEpc | None = None
 
 
 # ---------------------------------------------------------------- documents inventory

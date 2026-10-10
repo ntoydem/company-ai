@@ -80,6 +80,8 @@ name_whitelist:
   - "LMN Bank"  # Commerzbank AG stand-in (Yeşilova's 2023-YS credit)
   - "QRS Turbines A/S"  # Vestas stand-in (Yeşilova's V136 turbines + O&M)
   - "Solaris GES İşletme Hizmetleri Ltd. Şti."  # already fictional in NACI_CEVAP (Güneşalan O&M)
+  - "ABC İnşaat A.Ş."  # already fictional in NACI_CEVAP (Kızılova EPC contractor, S-26-001)
+  - "DEF Bank"  # Akbank stand-in (Kızılova's EPC advance guarantee letter) — Ç-12 bekliyor
   - "JKL İnşaat A.Ş."
   - "MNO Teknik Danışmanlık Ltd."
   - "PQR Bank"
