@@ -196,7 +196,7 @@ def test_sources_come_from_citations_with_page_and_chain(
     # The prompt carried the chain flags computed in code, current document first.
     prompt = fake_llm.requests[0].user
     assert prompt.index("Zincir: GÜNCEL") < prompt.index("Zincir: İLK HALKA")
-    assert "BUGÜN: 15.09.2026" in prompt
+    assert "BUGÜN: 06.10.2026" in prompt
     assert str(facility.id) in body["retrieved_document_ids"]  # type: ignore[operator]
     assert str(amendment.id) in body["retrieved_document_ids"]  # type: ignore[operator]
 

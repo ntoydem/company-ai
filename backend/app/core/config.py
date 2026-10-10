@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     demo_mode_enabled: bool = Field(
         default=True, validation_alias=AliasChoices("DEMO_MODE", "DEMO_MODE_ENABLED")
     )
-    demo_today: date = date(2026, 9, 15)
+    demo_today: date = date(2026, 10, 6)
     # Used only when `demo_mode_enabled` is False: the customer's own calendar day,
     # not the container's UTC clock (ADR-026).
     company_timezone: str = "Europe/Istanbul"

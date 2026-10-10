@@ -14,7 +14,7 @@ from app.services import temporal
 
 def test_demo_mode_on_returns_demo_today(settings: Settings) -> None:
     assert settings.demo_mode_enabled is True
-    assert temporal.today(settings) == date(2026, 9, 15)
+    assert temporal.today(settings) == date(2026, 10, 6)
 
 
 def test_demo_mode_off_returns_the_real_day_in_company_timezone(

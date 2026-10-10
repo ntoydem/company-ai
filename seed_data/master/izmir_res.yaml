@@ -3,7 +3,7 @@
 # Tamamlanan/bekleyen adımlar ortak tarafından onaylandı (SORU 6).
 meta:
   schema_version: 1
-  demo_today: 2026-09-15
+  demo_today: 2026-10-06
   currency_note: "Finansman yok; tutar alanı yok (SPEC_05 §6: Finans 0)."
 
 project:

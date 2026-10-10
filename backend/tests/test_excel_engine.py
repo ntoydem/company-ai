@@ -53,7 +53,7 @@ def test_dscr_q2_2026_comes_from_the_covenant_report_cell(
 ) -> None:
     """PHASES.md 4.2 kabul kriteri 2: "Ankara RES 2026 Q2 DSCR kaç?" ->
     Covenant_Report.xlsx Q2_2026!D14."""
-    result = run_function(engine, workbooks, "dscr", {"period": "2026 Q2"}, today=date(2026, 9, 15))
+    result = run_function(engine, workbooks, "dscr", {"period": "2026 Q2"}, today=date(2026, 10, 6))
     assert result.value == pytest.approx(1.37)
     assert result.source.label == "Covenant_Report.xlsx Q2_2026!D14"
 
@@ -62,12 +62,12 @@ def test_outstanding_debt_today_and_after_a_quarter(
     workbooks: list[LoadedWorkbook], engine: CachedValueEngine
 ) -> None:
     today = run_function(
-        engine, workbooks, "outstanding_debt", {"as_of": "today"}, today=date(2026, 9, 15)
+        engine, workbooks, "outstanding_debt", {"as_of": "today"}, today=date(2026, 10, 6)
     )
     assert today.value == pytest.approx(11_671_800)
     assert today.source.file == "Financial_Model_2026.xlsx" and today.source.sheet == "Debt"
     q = run_function(
-        engine, workbooks, "outstanding_debt", {"as_of": "Q4_2024"}, today=date(2026, 9, 15)
+        engine, workbooks, "outstanding_debt", {"as_of": "Q4_2024"}, today=date(2026, 10, 6)
     )
     assert q.value == pytest.approx(12_703_700)
     assert q.source.label == "Covenant_Report.xlsx Q4_2024!D12"
@@ -76,11 +76,11 @@ def test_outstanding_debt_today_and_after_a_quarter(
 def test_outstanding_debt_today_refuses_a_stale_snapshot(
     workbooks: list[LoadedWorkbook], engine: CachedValueEngine
 ) -> None:
-    """ADR-026: `Outstanding_DemoToday` was frozen for 15.09.2026 (`Ledger_DemoToday`); once
+    """ADR-026: `Outstanding_DemoToday` was frozen for 06.10.2026 (`Ledger_DemoToday`); once
     the system's own day has moved on, the figure must be refused, not served silently."""
     with pytest.raises(FunctionError):
         run_function(
-            engine, workbooks, "outstanding_debt", {"as_of": "today"}, today=date(2026, 9, 16)
+            engine, workbooks, "outstanding_debt", {"as_of": "today"}, today=date(2026, 10, 7)
         )
 
 
@@ -88,28 +88,28 @@ def test_budget_variance_production_and_capacity_factor(
     workbooks: list[LoadedWorkbook], engine: CachedValueEngine
 ) -> None:
     variance = run_function(
-        engine, workbooks, "budget_variance", {"period": "Q2 2026"}, today=date(2026, 9, 15)
+        engine, workbooks, "budget_variance", {"period": "Q2 2026"}, today=date(2026, 10, 6)
     )
     assert variance.value == pytest.approx(882_000)
     assert variance.unit == "TRY" and variance.source.sheet == "Summary"
 
     month = run_function(
-        engine, workbooks, "production", {"period": "2026-08"}, today=date(2026, 9, 15)
+        engine, workbooks, "production", {"period": "2026-08"}, today=date(2026, 10, 6)
     )
     assert month.value == pytest.approx(13_538)
     year = run_function(
-        engine, workbooks, "production", {"period": "2025"}, today=date(2026, 9, 15)
+        engine, workbooks, "production", {"period": "2025"}, today=date(2026, 10, 6)
     )
     assert year.value == pytest.approx(164_244)
     assert year.source.label == "Monthly_Production_2026.xlsx KPI!B4"
     quarter = run_function(
-        engine, workbooks, "production", {"period": "Q2_2026"}, today=date(2026, 9, 15)
+        engine, workbooks, "production", {"period": "Q2_2026"}, today=date(2026, 10, 6)
     )
     assert quarter.value == pytest.approx(12_561 + 12_304 + 10_951)
     assert quarter.source.sheet == "Production" and quarter.source.ref.startswith("A")
 
     cf = run_function(
-        engine, workbooks, "capacity_factor", {"period": "2026-01"}, today=date(2026, 9, 15)
+        engine, workbooks, "capacity_factor", {"period": "2026-01"}, today=date(2026, 10, 6)
     )
     assert cf.value == pytest.approx(38.2)
 
@@ -118,9 +118,9 @@ def test_function_errors_on_bad_period_or_unknown_name(
     workbooks: list[LoadedWorkbook], engine: CachedValueEngine
 ) -> None:
     with pytest.raises(FunctionError):
-        run_function(engine, workbooks, "dscr", {"period": "some day"}, today=date(2026, 9, 15))
+        run_function(engine, workbooks, "dscr", {"period": "some day"}, today=date(2026, 10, 6))
     with pytest.raises(FunctionError):
-        run_function(engine, workbooks, "nope", {}, today=date(2026, 9, 15))
+        run_function(engine, workbooks, "nope", {}, today=date(2026, 10, 6))
 
 
 def test_sql_sum_over_the_production_table_cites_the_sheet_range(

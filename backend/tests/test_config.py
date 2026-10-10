@@ -39,7 +39,7 @@ def test_secrets_are_not_exposed_in_repr(settings: Settings) -> None:
 
 
 def test_demo_today_is_fixed_date(settings: Settings) -> None:
-    assert settings.demo_today.isoformat() == "2026-09-15"
+    assert settings.demo_today.isoformat() == "2026-10-06"
 
 
 def test_demo_mode_defaults_on_with_istanbul_as_the_real_calendar_timezone(

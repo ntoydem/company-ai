@@ -3,7 +3,7 @@
 # AI_ASSUMPTION ile girilir. Kurallar: python -m seed_data.generator.validate_ledger
 meta:
   schema_version: 1
-  demo_today: 2026-09-15
+  demo_today: 2026-10-06
   currency_note: "Kredi/capex/EPC EUR; tarife USD; OPEX/bütçe TRY (SPEC_03 §4). Kurlar fx_rates.yaml."
 
 project:

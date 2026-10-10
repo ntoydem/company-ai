@@ -2,7 +2,7 @@
 # ONAYLI (23.09.2026): tüm değerler USER_FACT. Kurgusal; gerçek kur değildir. Phase 4.2 workbook'ları bunu kullanır.
 meta:
   schema_version: 1
-  demo_today: 2026-09-15
+  demo_today: 2026-10-06
   currency_note: "EUR/USD = EUR/TRY ÷ USD/TRY (validator %2 tolerans)."
 
 base_note: "Yıllık ortalama (period: YYYY) + demo_today spot (period: 2026-09-15)."
