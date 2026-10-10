@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-10T16:24:22+00:00",
+  "generated_at": "2026-10-10T18:49:07+00:00",
   "ledger_demo_today": "2026-10-06",
   "workbooks": [
     {
@@ -238,6 +238,74 @@
         "Production_2026_06",
         "Production_2026_07",
         "Production_2026_08"
+      ]
+    },
+    {
+      "external_ref": "DOC-YSV-FIN-007",
+      "file": "Yesilova_Repayment_Schedule_2026-09.xlsx",
+      "title": "Ödeme Planı — Güncel",
+      "document_type": "Repayment Schedule",
+      "department": "finans",
+      "subdepartment": null,
+      "project_code": "YSV_RES",
+      "counterparty": "Yeşilova RES Enerji Üretim A.Ş.",
+      "document_date": "2026-09-01",
+      "effective_date": null,
+      "status": "active",
+      "version_label": "2026-09",
+      "version_number": 2,
+      "supersedes_ref": "DOC-YSV-FIN-008",
+      "related_refs": [],
+      "tags": [],
+      "parties": [
+        "Yeşilova RES Enerji Üretim A.Ş.",
+        "LMN Bank"
+      ],
+      "language": "en",
+      "confidentiality": "normal",
+      "source_type": "xlsx",
+      "sheets": [
+        "Schedule",
+        "_meta"
+      ],
+      "named_ranges": [
+        "Ledger_DemoToday",
+        "Schedule_LastRow",
+        "Snapshot_Date"
+      ]
+    },
+    {
+      "external_ref": "DOC-YSV-FIN-008",
+      "file": "Yesilova_Repayment_Schedule_2026-03.xlsx",
+      "title": "Ödeme Planı — Mart 2026",
+      "document_type": "Repayment Schedule",
+      "department": "finans",
+      "subdepartment": null,
+      "project_code": "YSV_RES",
+      "counterparty": "Yeşilova RES Enerji Üretim A.Ş.",
+      "document_date": "2026-03-15",
+      "effective_date": null,
+      "status": "superseded",
+      "version_label": "2026-03",
+      "version_number": 1,
+      "supersedes_ref": null,
+      "related_refs": [],
+      "tags": [],
+      "parties": [
+        "Yeşilova RES Enerji Üretim A.Ş.",
+        "LMN Bank"
+      ],
+      "language": "en",
+      "confidentiality": "normal",
+      "source_type": "xlsx",
+      "sheets": [
+        "Schedule",
+        "_meta"
+      ],
+      "named_ranges": [
+        "Ledger_DemoToday",
+        "Schedule_LastRow",
+        "Snapshot_Date"
       ]
     }
   ]

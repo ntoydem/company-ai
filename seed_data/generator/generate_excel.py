@@ -32,6 +32,8 @@ FINANCIAL_MODEL = "Financial_Model_2026.xlsx"
 COVENANT_REPORT = "Covenant_Report.xlsx"
 BUDGET_VS_ACTUAL = "Budget_vs_Actual_2026.xlsx"
 MONTHLY_PRODUCTION = "Monthly_Production_2026.xlsx"
+YESILOVA_SCHEDULE_CURRENT = "Yesilova_Repayment_Schedule_2026-09.xlsx"
+YESILOVA_SCHEDULE_OLD = "Yesilova_Repayment_Schedule_2026-03.xlsx"
 
 # Fixed cell positions in each quarter sheet of the Covenant Report (SPEC_04 §5's example
 # `Covenant_Report.xlsx Q2_2026!D14` is literally the DSCR cell).
@@ -62,6 +64,10 @@ class WorkbookSpec:
     document_date: str
     version_label: str
     sheets: tuple[str, ...]
+    # Adım 5 İş 4b (10.10.2026): which ledger this workbook's counterparty/project_code
+    # come from — the original 4 workbooks are all Karatepe, so this defaults to it.
+    ledger_key: str = "ankara_res"
+    project_code: str = "ANK_RES"
 
 
 def _ankara(raws: dict[str, Any]) -> dict[str, Any]:
@@ -415,6 +421,55 @@ def build_monthly_production(raws: dict[str, Any]) -> Workbook:
     return wb
 
 
+# ---------------------------------------------------------------- 5. Yeşilova Repayment Schedule
+
+
+def _yesilova_schedule_rows(raws: dict[str, Any]) -> list[dict[str, Any]]:
+    return list(raws["yesilova_res"]["project"]["finance"]["repayment_schedule"])
+
+
+def _build_yesilova_repayment_schedule(raws: dict[str, Any], snapshot_date: date) -> Workbook:
+    """Adım 5 İş 4b: both the "current" (01.09.2026) and "old" (Mart 2026) documents
+    share this builder — same immutable 24-row schedule (NACI_CEVAP never gave two
+    different sets of numbers, only two snapshot dates), the only thing that differs
+    between them is which instalments had already fallen due as of each snapshot's own
+    date (a derived "Durum" column, not a stored fact). The version_difference itself
+    lives in the ledger's `supersedes`/`version`/`status` chain, not in different cell
+    values here (TEMPORAL TRUTH, not a conflict — ADIM5_PF_PARTISI_PLAN §3)."""
+    rows = _yesilova_schedule_rows(raws)
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Schedule"
+    ws["A1"] = "Ödeme Planı — Yeşilova RES"
+    ws["A1"].font = _BOLD
+    ws["A2"] = "Anlık görüntü tarihi"
+    ws["B2"] = snapshot_date
+    ws["B2"].number_format = "DD.MM.YYYY"
+    _name(wb, "Snapshot_Date", "Schedule", "B2")
+    _header(ws, 4, ["Taksit No", "Vade", "Anapara (USD)", "Durum (bu anlık görüntüye göre)"])
+    for i, r in enumerate(rows, start=1):
+        row = 4 + i
+        ws.cell(row=row, column=1, value=i)
+        ws.cell(row=row, column=2, value=r["date"]).number_format = "DD.MM.YYYY"
+        ws.cell(row=row, column=3, value=r["principal"]["value"])
+        status = "Ödendi" if r["date"] <= snapshot_date else "Bekliyor"
+        ws.cell(row=row, column=4, value=status)
+    last = 4 + len(rows)
+    _name(wb, "Schedule_LastRow", "Schedule", f"A{last}")
+    for col in range(1, 5):
+        ws.column_dimensions[get_column_letter(col)].width = 24
+    _meta(wb, raws)
+    return wb
+
+
+def build_yesilova_repayment_schedule_current(raws: dict[str, Any]) -> Workbook:
+    return _build_yesilova_repayment_schedule(raws, date(2026, 9, 1))
+
+
+def build_yesilova_repayment_schedule_old(raws: dict[str, Any]) -> Workbook:
+    return _build_yesilova_repayment_schedule(raws, date(2026, 3, 15))
+
+
 # ---------------------------------------------------------------- manifest + entrypoint
 
 SPECS: tuple[WorkbookSpec, ...] = (
@@ -466,6 +521,34 @@ SPECS: tuple[WorkbookSpec, ...] = (
         "2026-08",
         ("Production", "KPI", META_SHEET),
     ),
+    WorkbookSpec(
+        YESILOVA_SCHEDULE_CURRENT,
+        "DOC-YSV-FIN-007",
+        "Ödeme Planı — Güncel",
+        "Repayment Schedule",
+        "finans",
+        None,
+        "en",
+        "2026-09-01",
+        "2026-09",
+        ("Schedule", META_SHEET),
+        ledger_key="yesilova_res",
+        project_code="YSV_RES",
+    ),
+    WorkbookSpec(
+        YESILOVA_SCHEDULE_OLD,
+        "DOC-YSV-FIN-008",
+        "Ödeme Planı — Mart 2026",
+        "Repayment Schedule",
+        "finans",
+        None,
+        "en",
+        "2026-03-15",
+        "2026-03",
+        ("Schedule", META_SHEET),
+        ledger_key="yesilova_res",
+        project_code="YSV_RES",
+    ),
 )
 
 BUILDERS = {
@@ -473,6 +556,8 @@ BUILDERS = {
     COVENANT_REPORT: build_covenant_report,
     BUDGET_VS_ACTUAL: build_budget_vs_actual,
     MONTHLY_PRODUCTION: build_monthly_production,
+    YESILOVA_SCHEDULE_CURRENT: build_yesilova_repayment_schedule_current,
+    YESILOVA_SCHEDULE_OLD: build_yesilova_repayment_schedule_old,
 }
 
 
@@ -502,10 +587,11 @@ def generate(out_dir: Path = EXCEL_DIR) -> list[dict[str, Any]]:
     raws = facts_mod.load_raws()
     out_dir.mkdir(parents=True, exist_ok=True)
     entries: list[dict[str, Any]] = []
-    spv = str(raws["ankara_res"]["project"]["spv"]["name"]["value"])
     for spec in SPECS:
         wb = BUILDERS[spec.file](raws)
         wb.save(out_dir / spec.file)
+        ledger_doc = _ledger_document(raws, spec.doc_id)
+        supersedes_ref = ledger_doc.get("supersedes")
         entries.append(
             {
                 "external_ref": spec.doc_id,
@@ -514,14 +600,16 @@ def generate(out_dir: Path = EXCEL_DIR) -> list[dict[str, Any]]:
                 "document_type": spec.document_type,
                 "department": spec.department,
                 "subdepartment": spec.subdepartment,
-                "project_code": "ANK_RES",
-                "counterparty": spv,
+                "project_code": spec.project_code,
+                "counterparty": str(raws[spec.ledger_key]["project"]["spv"]["name"]["value"]),
                 "document_date": spec.document_date,
                 "effective_date": None,
-                "status": "active",
+                # Adım 5 İş 4b: read from the ledger's own status, not hardcoded "active" —
+                # Yeşilova's "old" repayment schedule is `superseded`, not current.
+                "status": str(ledger_doc["status"]),
                 "version_label": spec.version_label,
-                "version_number": 1,
-                "supersedes_ref": None,
+                "version_number": 1 if supersedes_ref is None else 2,
+                "supersedes_ref": supersedes_ref,
                 "related_refs": [],
                 "tags": [],
                 # B-28b: parties from the ledger document entry (SPV + bank where recorded).

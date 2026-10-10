@@ -217,3 +217,51 @@ documents:
     confidentiality: normal
     generate_in_phase: "5.1"
     tag: AI_ASSUMPTION
+
+  # Adım 5 İş 4b (10.10.2026, ADIM5_PF_PARTISI_PLAN §2.2/§3): ödeme planının iki
+  # sürümü — version_difference (ÇELİŞKİ DEĞİL, kasıtlı); conflict_group/
+  # deliberate_conflict KULLANILMAZ, supersedes/version zinciriyle bağlanır
+  # (TEMPORAL TRUTH kuralı zaten bu ayrımı taşıyor). Excel workbook (generate_excel.py).
+  - id: DOC-YSV-FIN-008
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Repayment Schedule
+    name: {value: "Ödeme Planı — Mart 2026", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-03-15, tag: AI_ASSUMPTION, note: "NACI_CEVAP §3.2: 'Mart 2026 eski' — gün verilmedi, ay içinde seçildi."}
+    effective_date: null
+    expiration_date: null
+    version: "2026-03"
+    status: superseded
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: DOC-YSV-FIN-007
+    related: []
+    source_type: xlsx
+    language: en
+    confidentiality: normal
+    generate_in_phase: "4.2"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-YSV-FIN-007
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Repayment Schedule
+    name: {value: "Ödeme Planı — Güncel", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-09-01, tag: USER_FACT, note: "NACI_CEVAP §3.2: 'güncel (01.09.2026)'."}
+    effective_date: null
+    expiration_date: null
+    version: "2026-09"
+    status: active
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    key_facts: {}
+    supersedes: DOC-YSV-FIN-008
+    superseded_by: null
+    related: []
+    source_type: xlsx
+    language: en
+    confidentiality: normal
+    generate_in_phase: "4.2"
+    tag: AI_ASSUMPTION
