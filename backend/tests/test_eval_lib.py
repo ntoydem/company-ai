@@ -212,6 +212,22 @@ def test_resolve_expected_none_answer_skips_value_check() -> None:
     assert expected.skip_reason == "expect_no_answer"
 
 
+def test_resolve_expected_literal_answer_accepts_its_own_aliases() -> None:
+    """Adım 5 Aşama C.5 (10.10.2026, ANK-FIN-004): a non-`ledger:` expected_answer has no
+    single canonical phrasing — `expected_answer_aliases` gives acceptable alternatives,
+    any one of which satisfies the check."""
+    question = _question(
+        id="ANK-FIN-004",
+        expected_answer="ECA tranşı yok",
+        expected_answer_aliases=["ECA katılımı yok", "ECA kullandırılmadı"],
+    )
+    expected = resolve_expected(question, {})
+    assert not expected.skip
+    assert expected.required == (("ECA tranşı yok", "ECA katılımı yok", "ECA kullandırılmadı"),)
+    assert value_check_passes(expected, "Hayır, ECA katılımı yok.")
+    assert not value_check_passes(expected, "Evet, 5.000.000 USD ECA tranşı vardır.")
+
+
 def test_every_question_with_a_ledger_expected_answer_resolves_without_error() -> None:
     """Smoke test over the full real dataset: `resolve_expected` must never raise, even
     if it ends up skipping most of them."""

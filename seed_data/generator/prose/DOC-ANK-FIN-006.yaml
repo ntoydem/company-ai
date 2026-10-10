@@ -2,9 +2,11 @@ doc_id: DOC-ANK-FIN-006
 model: gemini-3.5-flash-lite
 tag: AI_ASSUMPTION
 hand_edited: Phase 3.2c (25.09.2026) — icerik boslugu kapatan cumleler elle eklendi; Adım 5
-  (09.10.2026) metin DOC-ANK-FIN-005 ile değiştirildi (bu belge artık DSCR/marj/tenor
-  değişikliğini anlatıyor, 005 konsolide/genel metni anlatıyor); generate_prose bu
-  dosyayı --force ile bile yeniden üretmez
+  (09.10.2026) metin DOC-ANK-FIN-005 ile değiştirildi (bu belge artık DSCR/marj
+  değişikliğini anlatıyor, 005 konsolide/genel metni anlatıyor); Adım 5 Aşama C.5
+  (10.10.2026) — "tenor uzatıldı" cümlesi kaldırıldı (tenor fiilen değişmiyor), yerine
+  marj değişikliği cümlesi eklendi; generate_prose bu dosyayı --force ile bile yeniden
+  üretmez
 sections:
 - heading: 1. Background
   paragraphs:
@@ -20,8 +22,8 @@ sections:
   - The parties hereby agree to modify the financial covenants, specifically updating
     the minimum debt service coverage ratio (DSCR) to [[dscr_covenant]] with effect from
     [[effective_date]].
-  - Furthermore, the maturity schedule is extended, such that the tenor of the facility
-    is adjusted to [[tenor_years]].
+  - Furthermore, the applicable interest margin over the baseline index is adjusted
+    to [[margin_pct]].
   - All references to the designated [[title]] within the principal clauses are amended
     accordingly to reflect these structural adjustments.
 - heading: 3. Continuing Effect

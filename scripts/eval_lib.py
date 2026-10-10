@@ -191,15 +191,19 @@ def resolve_expected(question: ls.Question, raws: dict[str, Any]) -> ExpectedVal
                 return sub
             groups.extend(sub.required)
         return ExpectedValue(required=tuple(groups))
+    if not ea.startswith("ledger:"):
+        # A literal spelling, not a ledger path — e.g. a fact the ledger no longer models
+        # a path for (ANK-COR-001: GHI's historical 20% share, bought out) or a yes/no
+        # fact with no single canonical phrasing (ANK-FIN-004: "ECA katılımı yok" — Adım
+        # 5 Aşama C.5). `expected_answer_aliases` gives alternative acceptable spellings
+        # for exactly this case (any one of them satisfies the check, same as a ledger
+        # value's own formatted/aliased spellings).
+        return ExpectedValue(required=((ea, *question.expected_answer_aliases),))
     return _resolve_one(ea, raws)
 
 
 def _resolve_one(ea: str, raws: dict[str, Any]) -> ExpectedValue:
     if not ea.startswith("ledger:"):
-        # A literal spelling, not a ledger path — e.g. a fact the ledger no longer models
-        # a path for (ANK-COR-001: GHI's historical 20% share, bought out — see Adım 5
-        # report). validate_ledger.py's Q4 check already treats a non-`ledger:` string
-        # this way (no path to validate); this mirrors that for scoring.
         return ExpectedValue(required=((ea,),))
     ref = ea.removeprefix("ledger:")
     file_key, _, path = ref.partition(".")

@@ -345,10 +345,12 @@ documents:
     version: EXECUTED
     status: superseded
     parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    # Adım 5 Aşama C (10.10.2026, C5 kararı): local_debt/eca_debt rakamları kaldırıldı —
+    # fiilen kullandırılan 13,6M tutarı yalnız DOC-ANK-FIN-007 ve ödeme planında kalır;
+    # bu belge yalnız sözleşme tutarını (contract_amount) ve ECA tranşının olmadığını
+    # rakamsız olarak anlatır (bkz. prose DOC-ANK-FIN-004.yaml).
     key_facts:
       total_debt: project.finance.contract_amount.value
-      local_debt: project.finance.local_debt.value
-      eca_debt: project.finance.eca_debt.value
       margin_pct: project.finance.interest.margin_pct.initial.value
       tenor_years: project.finance.tenor_years.initial.value
       grace_months: project.finance.grace_months.value
@@ -403,9 +405,12 @@ documents:
     version: AMD02
     status: executed
     parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    # Adım 5 Aşama C (10.10.2026, C5 kararı): tenor_years kaldırıldı — tenor fiilen
+    # değişmedi, "uzatıldı" cümlesi tutarsızdı (bkz. prose). margin_pct eklendi —
+    # bu tadilin gerçekten değiştirdiği ikinci alan (DSCR'ın yanında).
     key_facts:
       dscr_covenant: project.finance.dscr_covenant.current.value
-      tenor_years: project.finance.tenor_years.current.value
+      margin_pct: project.finance.interest.margin_pct.current.value
       financial_close_date: project.timeline.financial_close.date
     supersedes: DOC-ANK-FIN-005
     superseded_by: null

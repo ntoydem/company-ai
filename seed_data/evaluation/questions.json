@@ -149,9 +149,14 @@
     {
       "id": "ANK-FIN-004",
       "category": "document",
-      "question": "Karatepe RES finansmanında ECA kredisi ne kadar?",
-      "expected_answer": "ledger:ankara_res.project.finance.eca_debt.value",
-      "expected_answer_aliases": [],
+      "question": "Karatepe RES finansmanında ECA (ihracat kredi kurumu) katılımı var mı?",
+      "expected_answer": "ECA tranşı yok",
+      "expected_answer_aliases": [
+        "ECA katılımı yok",
+        "ECA tranşı bulunmamaktadır",
+        "ECA kullandırılmadı",
+        "export credit agency tranche"
+      ],
       "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
@@ -162,7 +167,7 @@
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
-      "notes": null
+      "notes": "Adım 5 Aşama C.5 (10.10.2026): eski soru 'ECA kredisi ne kadar?' idi, ledger:ankara_res.project.finance.eca_debt.value (0 USD) bekliyordu — belge-temelli ama 'ne kadar?' sorup '0' cevabı almak yanıltıcı okunuyordu (Aşama A/B raporlarında flaglandı). Artık belge-temelli bir evet/hayır sorusu: DOC-ANK-FIN-004 açıkça 'no separate ECA tranche' diyor. Not: değer kontrolü burada tam bir metin eşleşmesi değil, kısmi dize eşleşmesi — model farklı bir olumsuzlama ifadesi kullanırsa (aliases'ta yoksa) yanlış negatif verebilir; bu, literal-substring eval mekanizmasının bilinen bir sınırı."
     },
     {
       "id": "ANK-FIN-005",
@@ -957,7 +962,7 @@
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
-      "notes": "Phase 5.1 yeni belge (DOC-ANK-FIN-014); ilk çekim 2021-12-15, 15.000.000 EUR."
+      "notes": "Phase 5.1 yeni belge (DOC-ANK-FIN-014); Adım 5 Aşama A (09.10.2026) ile ilk çekim 2022-07-15, 8.000.000 USD oldu (eski 2021-12-15/15.000.000 EUR geçersiz)."
     },
     {
       "id": "ANK-DEV-006",
@@ -1389,14 +1394,19 @@
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
-      "notes": "TASLAK — NEGATİF KONTROL (ADR-027): soru glossary eş anlamlısıyla ('vade' → tenor; belgeler İngilizce 'tenor' der, 4 chunk). Beklenen: normal cevap (güncel vade), expect_assist yok, gereksiz netleştirme yok. Model 12 ve 14'ü birlikte verirse de 14 geçmeli."
+      "notes": "TASLAK — NEGATİF KONTROL (ADR-027): soru glossary eş anlamlısıyla ('vade' → tenor; belgeler İngilizce 'tenor' der, 4 chunk). Beklenen: normal cevap (güncel vade, 13 yıl), expect_assist yok, gereksiz netleştirme yok. Adım 5 Aşama C (10.10.2026): tenor artık değişmiyor (13→13, eski 12/14 senaryosu geçersiz) — model tek bir değer (13) vermeli."
     },
     {
       "id": "ANK-NEG-002",
       "category": "document",
-      "question": "Karatepe RES finansmanında ihracat kredi kurumu kredisi ne kadar?",
-      "expected_answer": "ledger:ankara_res.project.finance.eca_debt.value",
-      "expected_answer_aliases": [],
+      "question": "Karatepe RES finansmanında ihracat kredi kurumu katılımı var mı?",
+      "expected_answer": "ECA tranşı yok",
+      "expected_answer_aliases": [
+        "ECA katılımı yok",
+        "ECA tranşı bulunmamaktadır",
+        "ECA kullandırılmadı",
+        "export credit agency tranche"
+      ],
       "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
@@ -1407,7 +1417,7 @@
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
-      "notes": "TASLAK — NEGATİF KONTROL (ADR-027): 'ihracat kredi kurumu' glossary ile 'export credit agency'ye açılır (21 chunk). Beklenen: normal cevap, expect_assist yok. GEN-TRM-003 (spread/margin) bunun yerine çıkarıldı: belgeler 'margin' kelimesini hiç kullanmıyor ('baseline index plus 3.25%'), dolayısıyla eş anlamlı kontrol olamaz."
+      "notes": "NEGATİF KONTROL (ADR-027): 'ihracat kredi kurumu' glossary ile 'export credit agency'ye açılır (21 chunk). Beklenen: normal cevap, expect_assist yok. Adım 5 Aşama C.5 (10.10.2026): soru 'ne kadar?' biçiminden 'var mı?' biçimine çevrildi — eski soru ledger:ankara_res.project.finance.eca_debt.value (0 USD) bekliyordu, artık belge-temelli bir evet/hayır sorusu. GEN-TRM-003 (spread/margin) bunun yerine çıkarıldı: belgeler 'margin' kelimesini hiç kullanmıyor ('baseline index plus 3.25%'), dolayısıyla eş anlamlı kontrol olamaz."
     },
     {
       "id": "ANK-NEG-003",
@@ -1425,7 +1435,7 @@
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
-      "notes": "NEGATİF KONTROL (BELIRSIZLIK_PLAN §3, Naci 07.10.2026): sözleşme adı verilmiyor ama finans kullanıcısının tek kredi sözleşmesi zinciri var; sürüm zinciri belirsizlik değildir (kural 12-a). Beklenen: güncel vade (14), netleştirme yok. ANK-NEG-001 ile aynı ledger deseni (initial/current → current)."
+      "notes": "NEGATİF KONTROL (BELIRSIZLIK_PLAN §3, Naci 07.10.2026): sözleşme adı verilmiyor ama finans kullanıcısının tek kredi sözleşmesi zinciri var; sürüm zinciri belirsizlik değildir (kural 12-a). Beklenen: güncel vade (13 yıl), netleştirme yok. ANK-NEG-001 ile aynı ledger deseni. Adım 5 Aşama C (10.10.2026): tenor artık değişmiyor (eski 14 senaryosu geçersiz)."
     },
     {
       "id": "ANK-NEG-004",

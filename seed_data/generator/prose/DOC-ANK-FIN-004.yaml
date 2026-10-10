@@ -1,7 +1,12 @@
 doc_id: DOC-ANK-FIN-004
 model: gemini-3.5-flash-lite
 tag: AI_ASSUMPTION
-hand_edited: Phase 3.2c (25.09.2026) — icerik boslugu kapatan cumleler elle eklendi; generate_prose bu dosyayi --force ile bile yeniden uretmez
+hand_edited: >-
+  Phase 3.2c (25.09.2026) -- icerik boslugu kapatan cumleler elle eklendi; Adim 5 Asama
+  C.5 (10.10.2026) -- local_debt/eca_debt rakamlari kaldirildi, kasitli celiski (14,0 vs
+  13,6 mn) belge-ici cumleyle degil FIN-004 (14,0M) ile FIN-007/odeme plani (13,6M)
+  arasinda kalsin diye (Tansu'nun gercek celiski tanimina uysun -- iki guncel kaynak
+  farkli deger verir); generate_prose bu dosyayi --force ile bile yeniden uretmez
 sections:
 - heading: 1. Definitions and Interpretation
   paragraphs:
@@ -14,9 +19,8 @@ sections:
 - heading: 2. The Facility
   paragraphs:
   - The total financial accommodation provided to [[spv_name]] is structured as [[total_debt]].
-    This structure comprises a local bank facility of [[local_debt]] provided by [[counterparty]]
-    and an export credit agency (ECA) facility of [[eca_debt]] provided by the export credit
-    agency party, as outlined in the financial plan.
+    The entire facility is provided by [[counterparty]] as the local bank; no separate
+    export credit agency (ECA) tranche forms part of this structure.
   - The applicable interest rate shall be determined by the baseline index plus [[margin_pct]].
     Funds shall be disbursed in accordance with the milestones established for [[project_name]].
 - heading: 3. Conditions Precedent
