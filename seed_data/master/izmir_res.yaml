@@ -78,7 +78,13 @@ project:
     signed_date: 2026-09-15
     lntp: true
     advance_pct: 20
-    advance_amount: {value: 2400000, currency: USD, tag: USER_FACT, note: "KDV dahil (net 2.000.000 + KDV 400.000). Fatura ABC2026000000184; itiraz son günü 14.10.2026; vade 15.10.2026; ödeme 12.10.2026."}
+    advance_amount: {value: 2400000, currency: USD, tag: USER_FACT, note: "KDV dahil (net 2.000.000 + KDV 400.000)."}
+    # Adım 5 İş 4b (10.10.2026): advance_amount'ın notunda duran fatura alanları
+    # yapılandırılmış alanlara taşındı (Avans Faturası belgesinin key_facts'i için).
+    advance_invoice_no: {value: "ABC2026000000184", tag: USER_FACT}
+    advance_invoice_dispute_deadline: 2026-10-14
+    advance_invoice_due_date: 2026-10-15
+    advance_invoice_paid_date: 2026-10-12
     advance_guarantee: {value: "DEF Bank", tag: USER_FACT, note: "Akbank'ın kurgusal karşılığı (Ç-12 bekliyor)."}
     advance_guarantee_amount: {value: 2000000, currency: USD, tag: USER_FACT}
     advance_guarantee_expiry: 2028-03-15
@@ -406,6 +412,75 @@ documents:
     status: active
     parties: ["Kızılova RES Enerji Üretim A.Ş."]
     key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  # Adım 5 İş 4b (10.10.2026, ADIM5_PF_PARTISI_PLAN §2.3): PF'nin banka enstrümanları
+  # (teminat mektubu, komisyon bildirimi) — kodla (0 LLM), hand-authored prose. EPC
+  # sözleşmesinin kendisi ve hakediş Enerji/EPC partisinin kapsamında (bu listeye girmez).
+  - id: DOC-IZM-FIN-001
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Commitment Fee Notice
+    name: {value: "Taahhüt Komisyonu Bildirimi", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-10-01, tag: AI_ASSUMPTION, note: "05.01.2027 vadeli komisyon öncesi bildirim; bildirimin kendi gönderim tarihi verilmedi, demo_today (06.10.2026) öncesi seçildi."}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "PQR Bank"]
+    key_facts: {commitment_fee: "project.signed_undrawn_facility.commitment_fee.value", commitment_fee_date: "project.signed_undrawn_facility.commitment_fee_date"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-IZM-FIN-002
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Advance Guarantee Letter
+    name: {value: "EPC Avans Teminat Mektubu", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-09-20, tag: AI_ASSUMPTION, note: "EPC imzası (15.09.2026) sonrası, avans ödemesi (12.10.2026) öncesi; mektubun kendi düzenleme tarihi verilmedi."}
+    effective_date: null
+    expiration_date: {value: 2028-03-15, tag: USER_FACT}
+    version: EXECUTED
+    status: active
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "DEF Bank"]
+    key_facts: {advance_guarantee_amount: "project.signed_unstarted_epc.advance_guarantee_amount.value", advance_guarantee_expiry: "project.signed_unstarted_epc.advance_guarantee_expiry"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-IZM-FIN-003
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Invoice
+    name: {value: "Avans Faturası — ABC2026000000184", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-10-05, tag: AI_ASSUMPTION, note: "İtiraz son günü (14.10.2026) öncesi; faturanın kendi düzenleme tarihi verilmedi, demo_today (06.10.2026) öncesi seçildi."}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "ABC İnşaat A.Ş."]
+    key_facts: {advance_amount: "project.signed_unstarted_epc.advance_amount.value", advance_invoice_no: "project.signed_unstarted_epc.advance_invoice_no.value", advance_invoice_due_date: "project.signed_unstarted_epc.advance_invoice_due_date", advance_invoice_dispute_deadline: "project.signed_unstarted_epc.advance_invoice_dispute_deadline"}
     supersedes: null
     superseded_by: null
     related: []

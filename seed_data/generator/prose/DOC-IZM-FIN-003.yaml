@@ -1,0 +1,21 @@
+doc_id: DOC-IZM-FIN-003
+model: none (hand-authored, Adım 5 İş 4b, 0 LLM)
+tag: AI_ASSUMPTION
+hand_edited: >-
+  Adim 5 Is 4b (10.10.2026) -- bastan hand-authored, generate_prose.py hic cagirilmadi
+  (0 LLM); fatura no/tutar/tarihler NACI_CEVAP SS3.3'ten (ABC2026000000184)
+sections:
+- heading: Fatura Bilgileri
+  paragraphs:
+  - "[[counterparty]], [[spv_name]] adına [[project_name]] kapsamındaki EPC
+    sözleşmesi avans ödemesi için [[advance_invoice_no]] numaralı faturayı
+    düzenlemiştir. Fatura tutarı [[advance_amount]]'dır (KDV dahil)."
+  - Bu fatura [[document_no]] referans numarası ile [[document_date]]
+    tarihinde düzenlenmiştir.
+- heading: Ödeme Koşulları
+  paragraphs:
+  - Faturaya itiraz süresi [[advance_invoice_dispute_deadline]] tarihinde
+    sona ermektedir. Ödeme vadesi [[advance_invoice_due_date]] olarak
+    belirlenmiştir.
+  - Ödemenin [[counterparty]] tarafından bildirilen banka hesabına
+    yapılması gerekmektedir.

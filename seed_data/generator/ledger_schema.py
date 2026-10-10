@@ -304,12 +304,14 @@ class QuarterCfads(_Strict):
 
 
 class GuaranteeLetter(_Strict):
-    """Adım 5 İş 4a (10.10.2026, NACI_CEVAP §3.2): Karatepe's forest-permit guarantee
-    letter, due for renewal January 2027 — only the purpose and renewal date are given;
-    the issuing bank and amount are not (no fabrication, left `None`/pending)."""
+    """Adım 5 İş 4a/4b (10.10.2026, NACI_CEVAP §3.2): Karatepe's forest-permit guarantee
+    letter, due for renewal January 2027 — only the purpose and renewal month are given
+    (no exact day), the issuing bank and amount are not. `renewal_date` is a `Fact` (its
+    `value` a string like "Ocak 2027"), not a strict `date` — a real `date` would force a
+    day Tansu never gave (no fabrication)."""
 
     purpose: Fact
-    renewal_date: date
+    renewal_date: Fact
     lender: Fact | None = None
     amount: Money | None = None
     doc: str | None = None
@@ -510,6 +512,12 @@ class SignedUnstartedEpc(_Strict):
     advance_guarantee: Fact | None = None
     advance_guarantee_amount: Money | None = None
     advance_guarantee_expiry: date | None = None
+    # Adım 5 İş 4b (10.10.2026): promoted out of `advance_amount.note` into structured
+    # fields — the Avans Faturası document needs them as real `key_facts` paths.
+    advance_invoice_no: Fact | None = None
+    advance_invoice_dispute_deadline: date | None = None
+    advance_invoice_due_date: date | None = None
+    advance_invoice_paid_date: date | None = None
 
 
 class IzmirProject(_Strict):

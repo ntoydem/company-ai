@@ -1,0 +1,21 @@
+doc_id: DOC-ANK-FIN-018
+model: none (hand-authored, Adım 5 İş 4b, 0 LLM)
+tag: AI_ASSUMPTION
+hand_edited: >-
+  Adim 5 Is 4b (10.10.2026) -- bastan hand-authored, generate_prose.py hic cagirilmadi
+  (0 LLM); amac/yenileme ayi NACI_CEVAP SS3.2'den (gun verilmedi, icat edilmedi)
+sections:
+- heading: Teminat Mektubu
+  paragraphs:
+  - Sayın [[spv_name]], [[project_name]] kapsamında [[counterparty]] nezdinde
+    bulunan ve [[guarantee_purpose]] amacıyla düzenlenmiş teminat mektubunun
+    yenileme süreci hakkında aşağıdaki bilgiler sunulmaktadır.
+  - İşbu bildirim [[document_no]] referans numarası ile [[document_date]]
+    tarihinde düzenlenmiştir.
+- heading: Yenileme
+  paragraphs:
+  - Söz konusu teminat mektubunun yenilenmesi [[guarantee_renewal_date]]
+    döneminde planlanmaktadır. [[spv_name]]'in gerekli belgeleri ilgili tarihten
+    önce [[counterparty]]'ye iletmesi gerekmektedir.
+  - Yenileme işleminin tamamlanmasıyla birlikte güncel teminat mektubu
+    [[spv_name]]'e ayrıca iletilecektir.

@@ -81,6 +81,15 @@ _FIELD_KIND: dict[str, tuple[str, str]] = {
     "covenant_result": ("text", ""),
     "availability_pct": ("percent", ""),
     "ghi_share_pct": ("percent", ""),
+    # Adım 5 İş 4b (PF-1 kodla belgeleri)
+    "commitment_fee": ("money", ""),
+    "commitment_fee_date": ("date", ""),
+    "advance_amount": ("money", ""),
+    "advance_guarantee_amount": ("money", ""),
+    "advance_guarantee_expiry": ("date", ""),
+    "advance_invoice_due_date": ("date", ""),
+    "advance_invoice_dispute_deadline": ("date", ""),
+    "advance_invoice_paid_date": ("date", ""),
 }
 
 _PREFIX_TO_LEDGER = {"ANK": "ankara_res", "IZM": "izmir_res", "CO": "company"}

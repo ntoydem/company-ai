@@ -168,6 +168,13 @@ project:
       - {period: Q4_2025, cfads: {value: 537300, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
       - {period: Q1_2026, cfads: {value: 515800, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
       - {period: Q2_2026, cfads: {value: 527300, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
+    # Adım 5 İş 4b (10.10.2026, NACI_CEVAP §3.2): yalnız amaç ve yenileme AYI verildi
+    # ("Ocak 2027'de yenilenecek teminat mektubu, orman izni teminatıdır") — gün, banka,
+    # tutar verilmedi; icat edilmedi, lender/amount pending (None).
+    guarantee_letters:
+      - purpose: {value: "Orman izni teminatı", tag: USER_FACT}
+        renewal_date: {value: "Ocak 2027", tag: USER_FACT}
+        tag: USER_FACT
 
   construction:
     epc_contractor:   {value: "JKL İnşaat A.Ş.", tag: USER_FACT}
@@ -1336,4 +1343,52 @@ documents:
     language: tr
     confidentiality: normal
     generate_in_phase: "4.2"
+    tag: AI_ASSUMPTION
+
+  # Adım 5 İş 4b (10.10.2026, ADIM5_PF_PARTISI_PLAN §2.1): NACI_CEVAP §3.7'de adı geçen
+  # ama henüz belge olarak üretilmemiş 2 belge — kodla (0 LLM), hand-authored prose.
+  # Listenin SONUNA eklendi (var olan hiçbir documents[N] pozisyonel referansı kaymasın —
+  # questions.json'daki ANK-OPS-004, documents[36]'yı DOC-ANK-OPS-009 olarak sabitliyor).
+  - id: DOC-ANK-FIN-017
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Bank Interest Notice
+    name: {value: "Garanti BBVA Faiz Belirleme Bildirimi", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-09-25, tag: AI_ASSUMPTION, note: "07.10.2026 vadeli taksit öncesi (NACI_CEVAP §3.2); bildirimin kendi gönderim tarihi verilmedi, demo_today (06.10.2026) öncesi seçildi."}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    key_facts: {margin_pct: "project.finance.interest.margin_pct.current.value"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-FIN-006]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-ANK-FIN-018
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Guarantee Renewal Notice
+    name: {value: "Teminat Mektubu Yenileme Bildirimi — Orman İzni", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-10-01, tag: AI_ASSUMPTION, note: "Yenileme tarihi öncesi bildirim; bildirimin kendi gönderim tarihi verilmedi, demo_today'e yakın seçildi."}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    key_facts: {guarantee_purpose: "project.finance.guarantee_letters[0].purpose.value", guarantee_renewal_date: "project.finance.guarantee_letters[0].renewal_date.value"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
     tag: AI_ASSUMPTION

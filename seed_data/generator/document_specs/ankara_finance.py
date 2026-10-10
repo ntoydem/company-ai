@@ -221,4 +221,28 @@ SPECS: dict[str, DocumentSpec] = {
             "Reviewed by: Department Manager",
         ],
     ),
+    # Adım 5 İş 4b (10.10.2026): kodla (0 LLM) — prose hand-authored, generate_prose.py
+    # bu ikisine hiç dokunmaz (prose/*.yaml'daki hand_edited notu).
+    "DOC-ANK-FIN-017": DocumentSpec(
+        doc_id="DOC-ANK-FIN-017",
+        family="letter",
+        subtitle_tr="Karatepe RES Wind Power Project — Faiz Oranı Bildirimi",
+        subtitle_en="",
+        section_headings_tr=["Faiz Oranı Belirleme", "Bilgilendirme"],
+        section_headings_en=[],
+        signature_roles_tr=["Hazırlayan: Kredi Operasyonları", "Onaylayan: Yetkili İmza"],
+        subject_label_tr="Faiz Belirleme Bildirimi — [[project_name]]",
+        reference_label_tr="Sayı",
+    ),
+    "DOC-ANK-FIN-018": DocumentSpec(
+        doc_id="DOC-ANK-FIN-018",
+        family="letter",
+        subtitle_tr="Karatepe RES Wind Power Project — Teminat Mektubu Yenileme Bildirimi",
+        subtitle_en="",
+        section_headings_tr=["Teminat Mektubu", "Yenileme"],
+        section_headings_en=[],
+        signature_roles_tr=["Hazırlayan: Kredi Operasyonları", "Onaylayan: Yetkili İmza"],
+        subject_label_tr="Teminat Mektubu Yenileme Bildirimi — [[project_name]]",
+        reference_label_tr="Sayı",
+    ),
 }

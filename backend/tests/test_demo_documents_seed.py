@@ -40,25 +40,25 @@ def _seeded_documents(session: Session) -> dict[str, Document]:
     return {d.external_ref: d for d in rows if d.external_ref is not None}
 
 
-def test_seed_creates_70_pdfs_plus_4_workbooks_and_queues_pdf_jobs(
+def test_seed_creates_75_pdfs_plus_4_workbooks_and_queues_pdf_jobs(
     db_session: Session, settings: Settings
 ) -> None:
     _prepare(db_session, settings)
 
     results = ensure_demo_documents(db_session, settings, MANIFEST_PATH)
 
-    assert len(results) == 74  # 70 PDF (Phase 3.1 + 5.1) + 4 workbook (Phase 4.2)
+    assert len(results) == 79  # 75 PDF (Phase 3.1 + 5.1 + Adım 5 İş 4b) + 4 workbook (Phase 4.2)
     assert all(r.created for r in results)
     documents = _seeded_documents(db_session)
-    assert len(documents) == 74
+    assert len(documents) == 79
     workbooks = [d for d in documents.values() if d.storage_path.endswith(".xlsx")]
     assert len(workbooks) == 4 and all(d.ingestion_status.value == "ready" for d in workbooks)
     pdfs = [d for d in documents.values() if d.storage_path.endswith(".pdf")]
-    assert len(pdfs) == 70 and all(d.ingestion_status.value == "uploaded" for d in pdfs)
+    assert len(pdfs) == 75 and all(d.ingestion_status.value == "uploaded" for d in pdfs)
     jobs = db_session.scalars(
         select(IngestionJob).where(IngestionJob.document_id.in_([d.id for d in documents.values()]))
     ).all()
-    assert len(jobs) == 70  # workbooks get no OCR job
+    assert len(jobs) == 75  # workbooks get no OCR job
     assert all(j.status.value == "queued" for j in jobs)
 
 
@@ -68,9 +68,9 @@ def test_seed_is_idempotent(db_session: Session, settings: Settings) -> None:
 
     results = ensure_demo_documents(db_session, settings, MANIFEST_PATH)
 
-    assert len(results) == 74  # 70 PDF (Phase 3.1 + 5.1) + 4 workbook (Phase 4.2)
+    assert len(results) == 79  # 75 PDF (Phase 3.1 + 5.1 + Adım 5 İş 4b) + 4 workbook (Phase 4.2)
     assert all(r.created is False for r in results)
-    assert len(_seeded_documents(db_session)) == 74
+    assert len(_seeded_documents(db_session)) == 79
 
 
 def test_seeded_metadata_matches_ledger(db_session: Session, settings: Settings) -> None:
@@ -186,7 +186,7 @@ def test_refresh_resyncs_only_named_gate_fields_from_the_manifest(
     assert results[1].found is False and results[1].changed == {}
     db_session.expire_all()
     documents = _seeded_documents(db_session)
-    assert len(documents) == 74
+    assert len(documents) == 79
     assert documents["DOC-ANK-FIN-008"].confidentiality.value == "normal"
     assert documents["DOC-ANK-FIN-008"].title == "Finansal Model (düzenlendi)"
     assert documents["DOC-ANK-FIN-009"].confidentiality.value == "restricted"

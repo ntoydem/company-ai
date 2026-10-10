@@ -1,0 +1,21 @@
+doc_id: DOC-IZM-FIN-002
+model: none (hand-authored, Adım 5 İş 4b, 0 LLM)
+tag: AI_ASSUMPTION
+hand_edited: >-
+  Adim 5 Is 4b (10.10.2026) -- bastan hand-authored, generate_prose.py hic cagirilmadi
+  (0 LLM); teminat mektubu tutari/vadesi NACI_CEVAP SS3.3'ten (S-26-001 EPC avansi)
+sections:
+- heading: Teminat Mektubu
+  paragraphs:
+  - İşbu mektup ile [[counterparty]], [[spv_name]] lehine [[project_name]]
+    kapsamındaki EPC sözleşmesi avans ödemesine karşılık olarak [[advance_guarantee_amount]]
+    tutarında teminat mektubu düzenlemiştir.
+  - Bu bildirim [[document_no]] referans numarası ile [[document_date]]
+    tarihinde düzenlenmiştir.
+- heading: Geçerlilik
+  paragraphs:
+  - Teminat mektubunun geçerlilik süresi [[advance_guarantee_expiry]] tarihine
+    kadardır. Bu tarihten önce avans tutarının tamamının mahsup edilmesi
+    halinde mektup iade edilecektir.
+  - İşbu teminat mektubu, [[spv_name]] ile EPC yüklenicisi arasındaki
+    sözleşme kapsamındaki avans ödemesinin teminatı olarak düzenlenmiştir.

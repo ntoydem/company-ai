@@ -1,0 +1,23 @@
+doc_id: DOC-IZM-FIN-001
+model: none (hand-authored, Adım 5 İş 4b, 0 LLM)
+tag: AI_ASSUMPTION
+hand_edited: >-
+  Adim 5 Is 4b (10.10.2026) -- bastan hand-authored, generate_prose.py hic cagirilmadi
+  (0 LLM); taahhut komisyonu tutari/tarihi NACI_CEVAP SS3.2'den (imzali-kullanilmayan
+  30 mn USD kredi, komisyon = 30mn x %0,80 x 92/360)
+sections:
+- heading: Taahhüt Komisyonu
+  paragraphs:
+  - Sayın [[spv_name]], [[project_name]] kapsamında [[counterparty]] tarafından
+    sağlanan ve henüz kullandırılmamış yatırım kredisi için taahhüt komisyonu
+    tahakkuk ettirilecektir. Tahakkuk edecek tutar [[commitment_fee]] olarak
+    hesaplanmıştır.
+  - Bu bildirim [[document_no]] referans numarası ile [[document_date]]
+    tarihinde düzenlenmiştir.
+- heading: Bilgilendirme
+  paragraphs:
+  - Söz konusu taahhüt komisyonu [[commitment_fee_date]] tarihinde tahsil
+    edilecektir. Kredinin kullandırılması, üretim lisansının alınmasına
+    bağlıdır.
+  - Sorularınız için [[counterparty]] kredi operasyonları birimiyle iletişime
+    geçilmesi rica olunur.
