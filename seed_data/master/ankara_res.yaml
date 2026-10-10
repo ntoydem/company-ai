@@ -48,16 +48,23 @@ project:
     # Adım 5 (Tansu §3.1-3.2): new USD figures replace the old EUR figures below. capex/equity
     # are AI_ASSUMPTION (Tansu gave neither) derived from a standard 70/30 debt/equity split
     # against the new 14.0M USD contract_amount.
-    capex:      {value: 20000000, currency: USD, tag: AI_ASSUMPTION}
-    equity:     {value: 6400000,  currency: USD, tag: AI_ASSUMPTION}
+    # Adım 5 İş 4b (10.10.2026): M2 kapsamındaki 6 alan (capex/equity/total_debt/local_debt/
+    # eca_debt/outstanding_debt_as_of_demo_today) currency: USD -> EUR — M2 kararıyla
+    # (loan amounts are EUR by decision) veriyi uyumlu hale getirir, M2 uyarısı kalkar.
+    # `contract_amount` bu kapsamın DIŞINDA bilinçli tutuldu — Tansu'nun NACI_CEVAP §3.2'de
+    # verdiği rakam zaten USD; M2'nin `monies` listesine hiç dahil edilmemişti (14.0M/13.6M
+    # çelişkisi Aşama A'da eklendi, M2'den sonra). Belgede total_debt token'ı (contract_amount
+    # üzerinden, DOC-ANK-FIN-004/DOC-ANK-FIN-010) bu yüzden USD göstermeye devam eder.
+    capex:      {value: 20000000, currency: EUR, tag: AI_ASSUMPTION}
+    equity:     {value: 6400000,  currency: EUR, tag: AI_ASSUMPTION}
     # Kasıtlı tuzak (Tansu §3.2, conflict_group "karatepe-kredi-tutari"): kredi sözleşmesinde
     # yazan tutar 14.000.000 USD (contract_amount) iken fiilen kullandırılan/ödeme planındaki
     # toplam 13.600.000 USD'dir (total_debt = sum(drawdowns) = sum(repayment_schedule.principal),
     # validator F11). total_debt artık "kullandırılan/ödenecek" tutarı ifade eder.
     contract_amount: {value: 14000000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-004, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", conflict_kind: genuine_conflict, note: "Sözleşmede yazan tesis tutarı; fiilen kullandırılan 13.600.000 USD'dir."}
-    total_debt: {value: 13600000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", conflict_kind: genuine_conflict, note: "Fiilen kullandırılan/ödeme planındaki tutar; sözleşme tutarı (contract_amount) 14.000.000 USD'dir."}
-    local_debt: {value: 13600000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007}
-    eca_debt:   {value: 0, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-004, note: "ECA tarafı kullandırılmadı (Tansu §3.2); taraf listesinde biçimsel olarak kalıyor."}
+    total_debt: {value: 13600000, currency: EUR, tag: USER_FACT, source_doc: DOC-ANK-FIN-007, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", conflict_kind: genuine_conflict, note: "Fiilen kullandırılan/ödeme planındaki tutar; sözleşme tutarı (contract_amount) 14.000.000 USD'dir."}
+    local_debt: {value: 13600000, currency: EUR, tag: USER_FACT, source_doc: DOC-ANK-FIN-007}
+    eca_debt:   {value: 0, currency: EUR, tag: USER_FACT, source_doc: DOC-ANK-FIN-004, note: "ECA tarafı kullandırılmadı (Tansu §3.2); taraf listesinde biçimsel olarak kalıyor."}
     lenders:
       local_bank: {value: "PQR Bank", tag: USER_FACT}
       eca:        {value: "VWX Export Credit Agency", tag: USER_FACT}
@@ -79,10 +86,12 @@ project:
       initial: {value: 1.25, tag: USER_FACT, source_doc: DOC-ANK-FIN-004}
       current: {value: 1.20, tag: USER_FACT, source_doc: DOC-ANK-FIN-006}
       changed_by: DOC-ANK-FIN-006
+    # drawdowns' currency: F3 (validate_ledger.py) requires it match total_debt.currency —
+    # EUR here is a forced follow-on of the M2 fix above, not a separate scope decision.
     drawdowns:
-      - {date: 2022-07-15, amount: {value: 8000000, currency: USD, tag: USER_FACT}, doc: DOC-ANK-FIN-014, tag: USER_FACT}
-      - {date: 2023-01-15, amount: {value: 5600000, currency: USD, tag: USER_FACT}, doc: null, tag: USER_FACT}
-    outstanding_debt_as_of_demo_today: {value: 11671800, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007}
+      - {date: 2022-07-15, amount: {value: 8000000, currency: EUR, tag: USER_FACT}, doc: DOC-ANK-FIN-014, tag: USER_FACT}
+      - {date: 2023-01-15, amount: {value: 5600000, currency: EUR, tag: USER_FACT}, doc: null, tag: USER_FACT}
+    outstanding_debt_as_of_demo_today: {value: 11671800, currency: EUR, tag: USER_FACT, source_doc: DOC-ANK-FIN-007}
     dsra_balance: {value: 1240000, currency: USD, tag: USER_FACT}
     # Covenant threshold: 1.25 until AMD02 (effective 2025-03-15), 1.20 after. Q4_2024 breach motivates AMD02.
     covenant_tests:

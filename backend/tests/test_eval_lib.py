@@ -151,12 +151,16 @@ def test_resolve_expected_accepts_grouped_and_ungrouped_mwh() -> None:
 
 
 def test_resolve_expected_formats_money_with_the_ledgers_own_currency() -> None:
+    """Adım 5 İş 4b: Karatepe's `total_debt`/`capex`/etc. moved to EUR (M2 fix: the YAML's
+    own `currency: USD` tag was the bug, now corrected), so this now exercises Yeşilova's
+    `total_debt` instead — genuinely USD, M2 never applied to it — to keep proving
+    currency comes from the ledger's own tag and isn't just the EUR default."""
     raws = load_ledger_raws()
     question = _question(
-        id="ANK-FIN-002", expected_answer="ledger:ankara_res.project.finance.total_debt.value"
+        id="ANK-FIN-002", expected_answer="ledger:yesilova_res.project.finance.total_debt.value"
     )
     expected = resolve_expected(question, raws)
-    assert expected.required == (("13.600.000 USD", "13,600,000 USD"),)
+    assert expected.required == (("2.352.000 USD", "2,352,000 USD"),)
 
 
 def test_value_check_passes_accepts_the_english_thousands_grouping_of_a_money_figure() -> None:
@@ -169,8 +173,9 @@ def test_value_check_passes_accepts_the_english_thousands_grouping_of_a_money_fi
         expected_answer="ledger:ankara_res.project.finance.outstanding_debt_as_of_demo_today.value",
     )
     expected = resolve_expected(question, raws)
-    assert value_check_passes(expected, "Güncel kalan borç 11,671,800 USD'dur.")
-    assert value_check_passes(expected, "Güncel kalan borç 11.671.800 USD'dur.")
+    # Adım 5 İş 4b: outstanding_debt_as_of_demo_today moved to EUR (M2 fix).
+    assert value_check_passes(expected, "Güncel kalan borç 11,671,800 EUR'dur.")
+    assert value_check_passes(expected, "Güncel kalan borç 11.671.800 EUR'dur.")
 
 
 def test_resolve_expected_handles_the_initial_current_compound_value() -> None:

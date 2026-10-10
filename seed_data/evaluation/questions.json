@@ -962,7 +962,7 @@
       ],
       "ask_as_user": "finans",
       "expect_no_answer": false,
-      "notes": "Phase 5.1 yeni belge (DOC-ANK-FIN-014); Adım 5 Aşama A (09.10.2026) ile ilk çekim 2022-07-15, 8.000.000 USD oldu (eski 2021-12-15/15.000.000 EUR geçersiz)."
+      "notes": "Phase 5.1 yeni belge (DOC-ANK-FIN-014); Adım 5 Aşama A (09.10.2026) ile ilk çekim 2022-07-15, 8.000.000 oldu (eski 2021-12-15/15.000.000 geçersiz). Adım 5 İş 4b (10.10.2026, M2 düzeltmesi): para birimi EUR (önceki not '8.000.000 USD' derken yanlıştı — drawdowns, total_debt'in currency'sine bağlı, M2 kararıyla EUR)."
     },
     {
       "id": "ANK-DEV-006",

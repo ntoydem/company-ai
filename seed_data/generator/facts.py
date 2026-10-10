@@ -160,16 +160,24 @@ def _format_ced_status(value: str, language: str) -> str:
     return str(value)
 
 
-def format_value(field_name: str, value: Any, language: str, *, ocr_friendly: bool = False) -> str:
+def format_value(
+    field_name: str,
+    value: Any,
+    language: str,
+    *,
+    ocr_friendly: bool = False,
+    currency: str | None = None,
+) -> str:
     """Format a resolved `key_facts` scalar for prose substitution. `ocr_friendly` changes
-    only the percent kind (see `format_percent`)."""
+    only the percent kind (see `format_percent`). `currency` is the resolved Money's own
+    sibling `currency` field, when the caller has it; defaults to EUR when absent."""
     kind, unit = _FIELD_KIND.get(field_name, ("text", ""))
     if kind == "date":
         if not isinstance(value, date):
             raise TypeError(f"{field_name}: expected a date, got {value!r}")
         return format_date(value, language)
     if kind == "money":
-        return _format_money(float(value), language)
+        return _format_money(float(value), language, currency or "EUR")
     if kind == "percent":
         return format_percent(float(value), language, ocr_friendly=ocr_friendly)
     if kind == "ratio":
@@ -203,15 +211,14 @@ def format_ledger_leaf(path: str, value: Any, parent: Any, language: str) -> str
     """Format a resolved ledger leaf as it would appear in a generated document, or
     `None` if `path` doesn't match a known field kind (Phase 4.1's eval runner then skips
     the value check for that question rather than guessing a format). `parent` is the
-    dict enclosing `value` (if any) — used only for money's sibling `currency` key, since
-    `format_value()` alone always assumes EUR."""
+    dict enclosing `value` (if any) — used only for money's sibling `currency` key."""
     field_name = guess_field_kind(path)
     if field_name is None:
         return None
-    kind, _unit = _FIELD_KIND[field_name]
-    if kind == "money" and isinstance(parent, dict) and "currency" in parent:
-        return _format_money(float(value), language, str(parent["currency"]))
-    return format_value(field_name, value, language)
+    currency = (
+        str(parent["currency"]) if isinstance(parent, dict) and "currency" in parent else None
+    )
+    return format_value(field_name, value, language, currency=currency)
 
 
 def _ledger_key_for_doc_id(doc_id: str) -> str:
@@ -272,6 +279,13 @@ def build_facts(doc: dict[str, Any], raws: dict[str, Any]) -> dict[str, str]:
     ocr_friendly = doc.get("source_type") == "scanned_pdf"
     for field_name, path in doc.get("key_facts", {}).items():
         raw_value = resolve_path(raws[ledger_key], path)
-        facts[field_name] = format_value(field_name, raw_value, language, ocr_friendly=ocr_friendly)
+        currency = None
+        if path.endswith(".value"):
+            parent = resolve_path(raws[ledger_key], path[: -len(".value")])
+            if isinstance(parent, dict) and "currency" in parent:
+                currency = str(parent["currency"])
+        facts[field_name] = format_value(
+            field_name, raw_value, language, ocr_friendly=ocr_friendly, currency=currency
+        )
 
     return facts
