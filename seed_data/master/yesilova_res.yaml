@@ -178,7 +178,9 @@ documents:
     department: finans
     subdepartment: null
     folder: finance
-    type: Insurance Endorsement
+    # Naci kararı (10.10.2026): Karatepe'nin "Insurance Notice" türüyle birleştirildi —
+    # belge türü x proje matrisinde aynı satırda sayılsın (önceden "Insurance Endorsement").
+    type: Insurance Notice
     name: {value: "Sigorta Zeyilnamesi — Ara Dönem", tag: AI_ASSUMPTION}
     document_date: {value: 2026-09-15, tag: AI_ASSUMPTION, note: "NACI_CEVAP §3.7: 'Eylül'deki talep yenileme değil, ara dönem zeyilnamesidir' — gün verilmedi, Eylül içinde seçildi."}
     effective_date: null
