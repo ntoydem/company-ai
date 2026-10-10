@@ -40,6 +40,15 @@ LEDGER_FILES = {
     "fx_rates": "fx_rates.yaml",
 }
 PROJECT_PREFIX = {"ankara_res": "ANK", "izmir_res": "IZM", "company": "CO"}
+# Adım 5 Aşama C (10.10.2026): any parsed ledger model, Ankara/İzmir/company's original
+# three or one of the two new shared shapes (ADIM5_ASAMA_C_PLAN.md §2.2).
+LedgerModel = (
+    ls.AnkaraLedger
+    | ls.IzmirLedger
+    | ls.CompanyLedger
+    | ls.OperatingLedger
+    | ls.GenericDevelopmentLedger
+)
 IZMIR_POST_LICENCE_KEYS = (
     "licence",
     "financing_signed",
@@ -602,12 +611,19 @@ def check_izmir_isolation(
 
 
 def check_cross_project_refs(raws: dict[str, dict[str, Any]], report: Report) -> None:
-    for name, other in (("ankara_res", "izmir_res"), ("izmir_res", "ankara_res")):
+    """Adım 5 Aşama C (10.10.2026): generalized from a hardcoded Ankara<->İzmir pair to
+    every registered project (N-way) — a project's raw file must never reference any
+    *other* project's raw-file key or `DOC-<prefix>-` id, however many there are."""
+    project_names = [name for name in PROJECT_PREFIX if name != "company" and name in raws]
+    for name in project_names:
+        others = [other for other in project_names if other != name]
         for path, text in string_leaves(raws[name]):
-            if f"{other}." in text or f"DOC-{PROJECT_PREFIX[other]}-" in text:
-                report.error(
-                    LEDGER_FILES[name], path, f"I3: references the other project ({text!r})"
-                )
+            for other in others:
+                if f"{other}." in text or f"DOC-{PROJECT_PREFIX[other]}-" in text:
+                    report.error(
+                        LEDGER_FILES[name], path, f"I3: references the other project ({text!r})"
+                    )
+                    break
 
 
 def check_names(
@@ -641,7 +657,7 @@ def check_names(
 
 def check_documents(
     raws: dict[str, dict[str, Any]],
-    ledgers: dict[str, ls.AnkaraLedger | ls.IzmirLedger | ls.CompanyLedger],
+    ledgers: dict[str, LedgerModel],
     report: Report,
 ) -> None:
     all_ids: dict[str, str] = {}
@@ -689,13 +705,14 @@ def check_documents(
                     )
         # every DOC-... reference anywhere in the file must resolve
         for path, text in string_leaves(raws[name]):
-            if re.fullmatch(r"DOC-(ANK|IZM|CO)-[A-Z]{3}-\d{3}", text) and text not in all_ids:
+            if (
+                re.fullmatch(r"DOC-(ANK|IZM|CO|YSV|BOZ|GNS|AKY|DMR)-[A-Z]{3}-\d{3}", text)
+                and text not in all_ids
+            ):
                 report.error(file, path, f"D2: unknown document {text}")
 
 
-def check_version_links(
-    ledgers: dict[str, ls.AnkaraLedger | ls.IzmirLedger | ls.CompanyLedger], report: Report
-) -> None:
+def check_version_links(ledgers: dict[str, LedgerModel], report: Report) -> None:
     """Phase 5.1 (SPEC_05 §11 "Legal"/"Version"): generalizes F6's Facility-chain-only
     rule to every document. Two parts: (1) `supersedes`/`superseded_by` must be mutual
     wherever either is set — a one-way link is almost always a copy-paste mistake in a
@@ -788,9 +805,7 @@ _DISTRIBUTION_TOLERANCE = 0.3
 _GENERATED_PHASES = ("3.1", "5.1")
 
 
-def check_document_distribution(
-    ledgers: dict[str, ls.AnkaraLedger | ls.IzmirLedger | ls.CompanyLedger], report: Report
-) -> None:
+def check_document_distribution(ledgers: dict[str, LedgerModel], report: Report) -> None:
     """SPEC_05 §6: ~70 documents (Ankara ~45, İzmir ~15, company ~10), hard cap 80,
     8-10 of them scanned. Replaces the old G1 hardcoded-15 warning (Phase 3.1 -> 5.1:
     the count is no longer a single fixed number, so only the cap is a hard ERROR — the
@@ -836,7 +851,7 @@ def check_meta(models: dict[str, BaseModel | None], report: Report) -> None:
             for name, value in todays.items():
                 if value != env_date:
                     report.error(
-                        LEDGER_FILES[name],
+                        LEDGER_FILES.get(name, name),
                         "meta.demo_today",
                         f"C10: {value} != DEMO_TODAY {env_date}",
                     )
@@ -863,7 +878,7 @@ def check_fx(fx: ls.FxLedger, report: Report) -> None:
 def check_questions(
     qs: ls.QuestionSet,
     raws: dict[str, dict[str, Any]],
-    ledgers: dict[str, ls.AnkaraLedger | ls.IzmirLedger | ls.CompanyLedger],
+    ledgers: dict[str, LedgerModel],
     report: Report,
 ) -> None:
     f = "questions.json"
@@ -991,6 +1006,22 @@ def validate(master: Path, questions: Path | None) -> tuple[Report, dict[str, in
         )
     if "fx_rates" in raws:
         models["fx_rates"] = parse_model(ls.FxLedger, raws["fx_rates"], "fx_rates.yaml", report)
+    # Adım 5 Aşama C (10.10.2026): any ledger file beyond the original 4 is one of the new
+    # SPVs (ADIM5_ASAMA_C_PLAN.md §2.2) — dispatched to its shape by `project.stage`, not a
+    # hardcoded per-project branch. No file uses this yet; it activates as Aşama C.3 adds
+    # `yesilova_res.yaml` etc. and their `LEDGER_FILES`/`PROJECT_PREFIX` entries.
+    _core_files = {"company", "ankara_res", "izmir_res", "fx_rates"}
+    for name in raws:
+        if name in _core_files:
+            continue
+        filename = LEDGER_FILES.get(name, name)
+        stage = (raws[name].get("project") or {}).get("stage")
+        if stage == "operation":
+            models[name] = parse_model(ls.OperatingLedger, raws[name], filename, report)
+        elif stage == "development":
+            models[name] = parse_model(ls.GenericDevelopmentLedger, raws[name], filename, report)
+        else:
+            report.error(filename, "project.stage", f"unknown stage {stage!r} for a generic SPV")
 
     check_meta(models, report)
     company = models.get("company")
@@ -1010,15 +1041,15 @@ def validate(master: Path, questions: Path | None) -> tuple[Report, dict[str, in
         check_document_dates("izmir_res.yaml", izmir.documents, izmir.meta.demo_today, report)
     if isinstance(company, ls.CompanyLedger):
         check_document_dates("company.yaml", company.documents, company.meta.demo_today, report)
-    if "ankara_res" in raws and "izmir_res" in raws:
-        check_cross_project_refs(raws, report)
+    for name, model in models.items():
+        if isinstance(model, ls.OperatingLedger | ls.GenericDevelopmentLedger):
+            check_document_dates(
+                LEDGER_FILES.get(name, name), model.documents, model.meta.demo_today, report
+            )
+    check_cross_project_refs(raws, report)
     check_names(raws, company if isinstance(company, ls.CompanyLedger) else None, report)
     check_conflict_groups(raws, report)
-    ledgers = {
-        name: model
-        for name, model in models.items()
-        if isinstance(model, ls.AnkaraLedger | ls.IzmirLedger | ls.CompanyLedger)
-    }
+    ledgers = {name: model for name, model in models.items() if isinstance(model, LedgerModel)}
     if ledgers:
         check_documents(raws, ledgers, report)
         check_version_links(ledgers, report)

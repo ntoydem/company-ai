@@ -196,7 +196,9 @@ class Capacity(_Strict):
 
 
 class Turbines(_Strict):
-    count: Fact
+    # Adım 5 Aşama C (10.10.2026): `count` optional — Yeşilova's turbine model (Vestas V136)
+    # is given but its count is not; Karatepe/Boztepe always give both, unaffected.
+    count: Fact | None = None
     model_generic: Fact
 
 
@@ -226,6 +228,15 @@ class Interest(_Strict):
     # Adım 5: Karatepe's margin changed with the 2nd amendment (Tansu §3.2) — same
     # initial/current/changed_by shape already used by `dscr_covenant`/`tenor_years`.
     margin_pct: ChangedFact
+
+
+class SingleLenderInterest(_Strict):
+    """Adım 5 Aşama C (10.10.2026): a lighter `Interest` for single-lender facilities with
+    no margin-change history (Yeşilova: Term SOFR + 1,50%, never amended) — `Interest`
+    itself stays untouched (Karatepe's own shape, margin genuinely changed once)."""
+
+    base: Fact
+    margin_pct: Fact
 
 
 class ChangedFact(_Strict):
@@ -259,6 +270,21 @@ class Instalment(_Strict):
     date: date
     principal: Money
     tag: Tag
+    # Adım 5 Aşama C (10.10.2026): some facilities state a per-instalment interest figure
+    # directly (Karatepe's interest is computed by `debt_math.py`, never stored here —
+    # this stays `None` for Karatepe). Yeşilova's instalment #11 is a deliberate conflict
+    # against `BankInterestNotice` (schedule says 18.240, the bank's own notice says 18.912).
+    interest: Money | None = None
+
+
+class BankInterestNotice(_Strict):
+    """Adım 5 Aşama C (10.10.2026): a lender's own interest notice for one instalment,
+    kept distinct from the repayment schedule's own figure — not every facility has a
+    deliberate gap between the two (Yeşilova's #11 does, Tansu §3.2)."""
+
+    instalment_date: date
+    amount: Money
+    tag: Tag
 
 
 class QuarterCfads(_Strict):
@@ -268,30 +294,42 @@ class QuarterCfads(_Strict):
 
 
 class Finance(_Strict):
-    capex: Money
-    equity: Money
-    total_debt: Money
-    local_debt: Money
-    eca_debt: Money
-    lenders: Lenders
-    interest: Interest
-    tenor_years: ChangedFact
-    grace_months: Fact
-    repayment_profile: Fact
-    dscr_covenant: ChangedFact
-    drawdowns: list[Drawdown]
-    outstanding_debt_as_of_demo_today: Money
+    # Adım 5 Aşama C (10.10.2026): reused for Yeşilova/Boztepe (ADIM5_ASAMA_C_REPORT.md
+    # §2) — most fields below are Optional/default-empty *only* because Tansu's
+    # NACI_CEVAP §3.2 doesn't give them for these two (no fabrication, ADIM5_ASAMA_C_PLAN
+    # kuralı). Karatepe's own `ankara_res.yaml` populates every one of them, so none of
+    # this loosening changes Karatepe's behavior.
+    capex: Money | None = None
+    equity: Money | None = None
+    total_debt: Money | None = None
+    local_debt: Money | None = None
+    eca_debt: Money | None = None
+    lenders: Lenders | None = None
+    # Single-lender facilities (Yeşilova, Boztepe) that don't split local/ECA.
+    lender: Fact | None = None
+    interest: Interest | SingleLenderInterest | None = None
+    tenor_years: ChangedFact | None = None
+    grace_months: Fact | None = None
+    repayment_profile: Fact | None = None
+    dscr_covenant: ChangedFact | Fact | None = None
+    drawdowns: list[Drawdown] = Field(default_factory=list)
+    outstanding_debt_as_of_demo_today: Money | None = None
     # Adım 5 (Tansu §3.2): DSRA balance — a new, optional fact (not every SPV has one yet).
     dsra_balance: Money | None = None
     # Adım 5 (Tansu §3.2, kasıtlı tuzak): the signed facility size, kept distinct from
     # `total_debt` (the actually drawn/repaid amount) — not every SPV has this gap.
     contract_amount: Money | None = None
-    covenant_tests: list[CovenantTest]
-    facility_chain: list[str]
+    covenant_tests: list[CovenantTest] = Field(default_factory=list)
+    facility_chain: list[str] = Field(default_factory=list)
     # Phase 4.2 (Financial Model inputs)
-    base_rate_pct_by_year: list[BaseRate]
-    repayment_schedule: list[Instalment]
-    cfads_by_quarter: list[QuarterCfads]
+    base_rate_pct_by_year: list[BaseRate] = Field(default_factory=list)
+    repayment_schedule: list[Instalment] = Field(default_factory=list)
+    cfads_by_quarter: list[QuarterCfads] = Field(default_factory=list)
+    # Adım 5 Aşama C: Yeşilova's dedicated debt-service account balance.
+    debt_service_account_balance: Money | None = None
+    # Adım 5 Aşama C: Yeşilova instalment #11's bank-notice interest, deliberately
+    # conflicting with that instalment's own `repayment_schedule.interest` figure.
+    bank_interest_notices: list[BankInterestNotice] = Field(default_factory=list)
 
 
 class ChangeOrder(_Strict):
@@ -332,10 +370,19 @@ class Incident(_Strict):
 
 
 class Operations(_Strict):
-    operating_year_on_demo_today: Fact
-    monthly_production: list[MonthlyProduction]
-    budget_vs_actual: list[BudgetVsActual]
-    incidents: list[Incident]
+    # Adım 5 Aşama C (10.10.2026): reused for Yeşilova/Boztepe/Güneşalan, none of which
+    # Tansu gave monthly production/budget figures for — Karatepe's `ankara_res.yaml`
+    # still populates every one of these, unaffected.
+    operating_year_on_demo_today: Fact | None = None
+    monthly_production: list[MonthlyProduction] = Field(default_factory=list)
+    budget_vs_actual: list[BudgetVsActual] = Field(default_factory=list)
+    incidents: list[Incident] = Field(default_factory=list)
+    # Adım 5 Aşama C: O&M contractor + contract price (Enercon Servis Türkiye 38.500
+    # EUR/ay, Vestas Bakım Hizmetleri 396.000 EUR/yıl, Solaris 3.240.000 TRY/yıl).
+    om_contractor: Fact | None = None
+    om_contract_price: Money | None = None
+    # Insurance policy expiry (Boztepe 10.11.2026, Yeşilova 31.03.2027).
+    insurance_expiry: date | None = None
 
 
 class AnkaraProject(_Strict):
@@ -421,7 +468,9 @@ class IzmirProject(_Strict):
 
 
 class Document(_Strict):
-    id: str = Field(pattern=r"^DOC-(ANK|IZM|CO)-(DEV|FIN|EPC|OPS|LEG|ADM)-\d{3}$")
+    id: str = Field(
+        pattern=r"^DOC-(ANK|IZM|CO|YSV|BOZ|GNS|AKY|DMR)-(DEV|FIN|EPC|OPS|LEG|ADM)-\d{3}$"
+    )
     department: DepartmentSlug
     subdepartment: DepartmentSlug | None
     folder: str
@@ -455,6 +504,79 @@ class AnkaraLedger(_Strict):
 class IzmirLedger(_Strict):
     meta: Meta
     project: IzmirProject
+    documents: list[Document]
+
+
+# ---------------------------------------------------------------- Adım 5 Aşama C: shared
+# project shapes (ADIM5_ASAMA_C_REPORT.md §2). Additive only — AnkaraProject/AnkaraLedger
+# and IzmirProject/IzmirLedger above are never touched; these two new shapes exist
+# alongside them for the other 5 SPVs (NACI_CEVAP §3.1):
+#   OperatingProject            -> Yeşilova RES, Boztepe RES, Güneşalan GES
+#   GenericDevelopmentProject   -> Akyar GES, Demirci RES
+# A project's exact `code`/`name` are plain `str` (pattern-checked), not a per-project
+# Literal — adding an 8th/9th SPV later needs a new ledger file, not a new schema class.
+_PROJECT_CODE_PATTERN = r"^[A-Z]{3}_(RES|GES)$"
+
+
+class OperatingCapacity(_Strict):
+    """A single current capacity value — unlike `Capacity`, no amendment history is
+    claimed (Tansu's NACI_CEVAP §3.1 gives one number per SPV, nothing about a change)."""
+
+    current: Fact
+
+
+class OperatingTimeline(_Strict):
+    """Deliberately thin: Tansu's NACI_CEVAP §3 restates only each SPV's *current*
+    operating facts (capacity, credit, O&M), not its development/construction history —
+    unlike `AnkaraTimeline`, nothing here is required."""
+
+    commissioning: Event | None = None
+    operation_start: Event | None = None
+    cod_actual: Event | None = None
+
+
+class OperatingProject(_Strict):
+    code: str = Field(pattern=_PROJECT_CODE_PATTERN)
+    name: str
+    stage: Literal["operation"]
+    spv: Spv
+    capacity_mw: OperatingCapacity
+    turbines: Turbines | None = None
+    timeline: OperatingTimeline
+    finance: Finance | None = None
+    # No EPC/construction history is given for an already-operating SPV in this round
+    # (ADIM5_ASAMA_C_REPORT.md §2) — structurally `None`, same as `IzmirProject`'s.
+    construction: None = None
+    operations: Operations | None = None
+
+
+class GenericDevelopmentProject(_Strict):
+    """Same shape as `IzmirProject`, generalized: `IzmirTimeline`/`Development`/
+    `TargetCapacity` were already project-agnostic, only `IzmirProject` itself was
+    Literal-locked to Kızılova's code/name."""
+
+    code: str = Field(pattern=_PROJECT_CODE_PATTERN)
+    name: str
+    stage: Literal["development"]
+    spv: Spv
+    capacity_mw: TargetCapacity
+    turbines: None = None
+    timeline: IzmirTimeline
+    finance: None = None
+    construction: None = None
+    operations: None = None
+    development: Development
+
+
+class OperatingLedger(_Strict):
+    meta: Meta
+    project: OperatingProject
+    documents: list[Document]
+
+
+class GenericDevelopmentLedger(_Strict):
+    meta: Meta
+    project: GenericDevelopmentProject
     documents: list[Document]
 
 
