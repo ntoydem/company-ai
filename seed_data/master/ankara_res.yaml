@@ -162,7 +162,7 @@ project:
 
   construction:
     epc_contractor:   {value: "JKL İnşaat A.Ş.", tag: USER_FACT}
-    turbine_supplier: {value: "RST Turbines GmbH", tag: USER_FACT}
+    turbine_supplier: {value: "Enercon", tag: USER_FACT}
     epc_contract_price: {value: 41500000, currency: EUR, tag: USER_FACT, source_doc: DOC-ANK-EPC-001}
     epc_contract_current_doc: DOC-ANK-EPC-001
     change_orders:
@@ -1076,7 +1076,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "RST Turbines GmbH"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Enercon"]
     key_facts: {availability_pct: "project.operations.monthly_production[33].availability_pct"}
     supersedes: null
     superseded_by: null
@@ -1098,7 +1098,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "RST Turbines GmbH"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Enercon"]
     key_facts: {}
     supersedes: null
     superseded_by: null

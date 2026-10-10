@@ -18,9 +18,10 @@ parties:
   - {name: {value: "PQR Bank", tag: USER_FACT},                    role: local_bank,        kind: bank}
   - {name: {value: "VWX Export Credit Agency", tag: USER_FACT},    role: eca,               kind: agency}
   - {name: {value: "JKL İnşaat A.Ş.", tag: USER_FACT},             role: epc_contractor,    kind: company}
-  # Adım 5: renamed only to avoid reading as the same company as the new holding ("XYZ
-  # Enerji A.Ş.") — still fictional (Ç-12/Ek-E-8 undecided; Naci SORU 3, 09.10.2026).
-  - {name: {value: "RST Turbines GmbH", tag: USER_FACT},           role: turbine_supplier,  kind: company}
+  # Adım 5 Aşama C (10.10.2026): Tansu's T-9 answer (Ç-12/Ek-E-8) says keep producing with
+  # the real manufacturer name until a formal ADT-3 decision — reverted from the
+  # temporary fictional "RST Turbines GmbH" back to Enercon (URUN1_KARARLAR_VE_SIRA §7.4).
+  - {name: {value: "Enercon", tag: USER_FACT},           role: turbine_supplier,  kind: company}
   - {name: {value: "MNO Teknik Danışmanlık Ltd.", tag: USER_FACT}, role: technical_advisor, kind: company}
   - {name: {value: "STU Sigorta", tag: USER_FACT},                 role: insurer,           kind: company}
   - {name: {value: "KLM Hukuk Bürosu", tag: USER_FACT},            role: legal_counsel,     kind: company}
@@ -71,14 +72,16 @@ name_whitelist:
   - "Güneşalan GES Enerji Üretim A.Ş."
   - "Akyar GES Enerji Üretim A.Ş."
   - "Demirci RES Enerji Üretim A.Ş."
-  - "RST Turbines GmbH"
-  # Adım 5 Aşama C (10.10.2026, NACI_CEVAP §3.7): Boztepe/Yeşilova's real lenders/turbine
-  # OEM (Garanti BBVA, Commerzbank AG, Enercon, Vestas) still conflict with Ç-12 (no real
-  # company in the demo) — fictional stand-ins, same single-table convention as PQR
-  # Bank/RST Turbines GmbH, pending the product owner's merge decision (flagged, not
-  # applied as real names here).
+  - "Enercon"
+  # Adım 5 Aşama C (10.10.2026, NACI_CEVAP §3.7): Boztepe/Yeşilova's real lenders
+  # (Garanti BBVA, Commerzbank AG) still conflict with Ç-12 (no real company in the demo)
+  # — fictional stand-ins, same single-table convention as PQR Bank, pending the product
+  # owner's merge decision. Turbine OEM names (Enercon, Vestas) are a *separate* decision
+  # (Ç-12/Ek-E-8, T-9): Tansu said keep producing with the real names until ADT-3 —
+  # reverted from the temporary fictional "QRS Turbines A/S" back to Vestas
+  # (URUN1_KARARLAR_VE_SIRA §7.4).
   - "LMN Bank"  # Commerzbank AG stand-in (Yeşilova's 2023-YS credit)
-  - "QRS Turbines A/S"  # Vestas stand-in (Yeşilova's V136 turbines + O&M)
+  - "Vestas"
   - "Solaris GES İşletme Hizmetleri Ltd. Şti."  # already fictional in NACI_CEVAP (Güneşalan O&M)
   - "ABC İnşaat A.Ş."  # already fictional in NACI_CEVAP (Kızılova EPC contractor, S-26-001)
   - "DEF Bank"  # Akbank stand-in (Kızılova's EPC advance guarantee letter) — Ç-12 bekliyor

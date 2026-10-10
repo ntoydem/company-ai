@@ -18,7 +18,7 @@ project:
     current: {value: 30, tag: USER_FACT}
   turbines:
     count: {value: 10, tag: USER_FACT}
-    model_generic: {value: "RST Turbines GmbH E-82 3,0 MW", tag: USER_FACT}
+    model_generic: {value: "Enercon E-82 3,0 MW", tag: USER_FACT}
   timeline: {}
 
   finance:
@@ -31,7 +31,7 @@ project:
       - {date: 2026-11-02, principal: {value: 0, currency: USD, tag: USER_FACT, note: "Sıradaki ödeme; tutar Tansu'nun verdiği sabit aylık faiz (01.11 pazar olduğu için 02.11'e kaymış)."}, interest: {value: 84300, currency: USD, tag: USER_FACT}, tag: USER_FACT}
 
   operations:
-    om_contractor: {value: "RST Turbines GmbH Servis Türkiye", tag: USER_FACT, note: "Sözleşme S-25-007/008; Karatepe ile aynı fiyat (38.500 EUR/ay) — Karatepe'nin kendi ledger'ına bu round'da işlenmedi, bkz. §4 raporu."}
+    om_contractor: {value: "Enercon Servis Türkiye", tag: USER_FACT, note: "Sözleşme S-25-007/008; Karatepe ile aynı fiyat (38.500 EUR/ay) — Karatepe'nin kendi ledger'ına bu round'da işlenmedi, bkz. ADIM5_ASAMA_C_REPORT.md §4."}
     om_contract_price: {value: 38500, currency: EUR, tag: USER_FACT, note: "Aylık (S-25-007/008)."}
     insurance_expiry: 2026-11-10
 

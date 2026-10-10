@@ -19,10 +19,11 @@ project:
       - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
   capacity_mw:
     current: {value: 22, tag: USER_FACT}
-  # Vestas V136 verildi; adet verilmedi (QRS Turbines A/S: Vestas'ın Ç-12 bekleyen
-  # kurgusal karşılığı — bkz. company.yaml name_whitelist notu).
+  # Vestas V136 verildi; adet verilmedi (NACI_CEVAP §3.1). Adım 5'te kurgusallaştırılmıştı
+  # (Ç-12 netleşmeden önce temkinli taraf seçimi); Tansu'nun T-9 cevabıyla (10.10.2026)
+  # gerçek adlara geri dönüldü (URUN1_KARARLAR_VE_SIRA.md §7.3/§7.4).
   turbines:
-    model_generic: {value: "QRS Turbines A/S V136", tag: USER_FACT}
+    model_generic: {value: "Vestas V136", tag: USER_FACT}
   timeline: {}
 
   finance:
@@ -66,7 +67,7 @@ project:
       - {instalment_date: 2026-10-14, amount: {value: 18912, currency: USD, tag: USER_FACT, deliberate_conflict: true, conflict_group: "yesilova-taksit11-faiz", note: "Banka faiz bildirimi; ödeme planındaki tutar 18.240 USD'dir — kasıtlı fark (NACI_CEVAP §3.2)."}, tag: USER_FACT}
 
   operations:
-    om_contractor: {value: "QRS Turbines A/S Bakım Hizmetleri", tag: USER_FACT, source_doc: null, note: "Sözleşme S-24-009; Vestas Bakım Hizmetleri'nin kurgusal karşılığı (Ç-12 bekliyor)."}
+    om_contractor: {value: "Vestas Bakım Hizmetleri", tag: USER_FACT, source_doc: null, note: "Sözleşme S-24-009."}
     om_contract_price: {value: 396000, currency: EUR, tag: USER_FACT, note: "Yıllık (S-24-009)."}
     insurance_expiry: 2027-03-31
 
