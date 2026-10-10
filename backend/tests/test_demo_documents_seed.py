@@ -47,7 +47,7 @@ def test_seed_creates_81_pdfs_plus_6_workbooks_and_queues_pdf_jobs(
 
     results = ensure_demo_documents(db_session, settings, MANIFEST_PATH)
 
-    assert len(results) == 87  # 81 PDF (Phase 3.1 + 5.1 + Adım 5 İş 4b) + 6 workbook (Phase 4.2 + Adım 5 İş 4b)
+    assert len(results) == 87  # 81 PDF + 6 workbook (Adım 5 İş 4b)
     assert all(r.created for r in results)
     documents = _seeded_documents(db_session)
     assert len(documents) == 87
@@ -68,7 +68,7 @@ def test_seed_is_idempotent(db_session: Session, settings: Settings) -> None:
 
     results = ensure_demo_documents(db_session, settings, MANIFEST_PATH)
 
-    assert len(results) == 87  # 81 PDF (Phase 3.1 + 5.1 + Adım 5 İş 4b) + 6 workbook (Phase 4.2 + Adım 5 İş 4b)
+    assert len(results) == 87  # 81 PDF + 6 workbook (Adım 5 İş 4b)
     assert all(r.created is False for r in results)
     assert len(_seeded_documents(db_session)) == 87
 

@@ -623,11 +623,12 @@ def check_finance(ankara: ls.AnkaraLedger, report: Report) -> None:
             report.warning(
                 f, f"project.operations.budget_vs_actual[{i}]", "M2: budgets are TRY by decision"
             )
-    for name, money in monies.items():
-        if money.currency != "EUR":
-            report.warning(
-                f, f"project.finance.{name}.currency", "M2: loan amounts are EUR by decision"
-            )
+    # DÜZELTME (10.10.2026): "loan amounts are EUR by decision" M2 kuralı buradan
+    # kaldırıldı. M2, Adım 5'ten ÖNCEKİ eski (EUR) rakamların kararıydı; Tansu'nun
+    # NACI_CEVAP §3.1-3.2'de verdiği yeni rakamlar USD'dir ve eskilerin yerine geçti —
+    # Karatepe'nin kredi alanları (capex/equity/total_debt/local_debt/eca_debt/
+    # outstanding_debt_as_of_demo_today/drawdowns) için M2 artık geçerli değil. EPC
+    # fiyatı (EUR) ve bütçeler (TRY) kuralları ayrı kararlar, değişmedi.
     if ankara.project.construction.epc_contract_price.currency != "EUR":
         report.warning(
             f,
