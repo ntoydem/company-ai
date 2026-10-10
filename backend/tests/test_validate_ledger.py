@@ -277,18 +277,32 @@ def test_list_expected_answer_paths_are_each_checked(tmp_path: Path) -> None:
 
 def test_find_conflict_groups_walks_nested_dicts_and_lists() -> None:
     """Pure function, no file I/O: `conflict_group` is found at any depth, in a dict
-    nested under a list, and the path/deliberate_conflict for each hit is recorded."""
+    nested under a list, and the path/deliberate_conflict/conflict_kind for each hit is
+    recorded."""
     node = {
-        "a": {"value": 1, "conflict_group": "g1", "deliberate_conflict": True},
+        "a": {
+            "value": 1,
+            "conflict_group": "g1",
+            "deliberate_conflict": True,
+            "conflict_kind": "genuine_conflict",
+        },
         "b": [
-            {"value": 2, "conflict_group": "g1", "deliberate_conflict": True},
-            {"value": 3, "conflict_group": "g2"},  # no deliberate_conflict at all
+            {
+                "value": 2,
+                "conflict_group": "g1",
+                "deliberate_conflict": True,
+                "conflict_kind": "genuine_conflict",
+            },
+            {"value": 3, "conflict_group": "g2"},  # no deliberate_conflict/conflict_kind at all
         ],
         "c": {"nested": {"value": 4}},  # no conflict_group anywhere here
     }
     groups = vl.find_conflict_groups(node, "x.yaml")
-    assert groups["g1"] == [("x.yaml", "a", True), ("x.yaml", "b[0]", True)]
-    assert groups["g2"] == [("x.yaml", "b[1]", False)]
+    assert groups["g1"] == [
+        ("x.yaml", "a", True, "genuine_conflict"),
+        ("x.yaml", "b[0]", True, "genuine_conflict"),
+    ]
+    assert groups["g2"] == [("x.yaml", "b[1]", False, None)]
     assert "g3" not in groups
 
 
@@ -300,8 +314,22 @@ def test_conflict_group_can_span_two_different_files() -> None:
     """`check_conflict_groups` aggregates across every raw file, not just one — a group's
     two members don't have to live in the same ledger."""
     raws = {
-        "ankara_res": {"fact": {"value": 1, "conflict_group": "g", "deliberate_conflict": True}},
-        "izmir_res": {"fact": {"value": 2, "conflict_group": "g", "deliberate_conflict": True}},
+        "ankara_res": {
+            "fact": {
+                "value": 1,
+                "conflict_group": "g",
+                "deliberate_conflict": True,
+                "conflict_kind": "genuine_conflict",
+            }
+        },
+        "izmir_res": {
+            "fact": {
+                "value": 2,
+                "conflict_group": "g",
+                "deliberate_conflict": True,
+                "conflict_kind": "genuine_conflict",
+            }
+        },
     }
     report = vl.Report()
     vl.check_conflict_groups(raws, report)
@@ -341,6 +369,46 @@ def test_conflict_group_name_typo_still_reads_as_two_singleton_groups(
     report = _run(_mutated(tmp_path, "ankara_res.yaml", typo_group_name))
     codes = _codes(report)
     assert sum("only one member" in line for line in codes) == 2
+
+
+def test_conflict_group_missing_conflict_kind_on_every_member_is_an_error(
+    tmp_path: Path,
+) -> None:
+    """Both members lack `conflict_kind` (nobody tagged the trap's kind at all) — a
+    distinct case from one member disagreeing with the other (see the mismatch test
+    below), which the same group-of-None value would otherwise mask."""
+
+    def drop_conflict_kind_from_both(data: dict[str, Any]) -> None:
+        del data["project"]["finance"]["contract_amount"]["conflict_kind"]
+        del data["project"]["finance"]["total_debt"]["conflict_kind"]
+
+    report = _run(_mutated(tmp_path, "ankara_res.yaml", drop_conflict_kind_from_both))
+    assert _has(report, "C1")
+    assert any("missing conflict_kind" in line for line in _codes(report))
+
+
+def test_conflict_group_member_missing_conflict_kind_reads_as_a_mismatch(
+    tmp_path: Path,
+) -> None:
+    """Only one member drops `conflict_kind` while the other keeps `genuine_conflict` —
+    None vs. a real value is itself a disagreement, so this is a mismatch, not the
+    "nobody tagged it" case above."""
+
+    def drop_conflict_kind_from_one(data: dict[str, Any]) -> None:
+        del data["project"]["finance"]["total_debt"]["conflict_kind"]
+
+    report = _run(_mutated(tmp_path, "ankara_res.yaml", drop_conflict_kind_from_one))
+    assert _has(report, "C1")
+    assert any("mismatched conflict_kind" in line for line in _codes(report))
+
+
+def test_conflict_group_member_mismatched_conflict_kind_is_an_error(tmp_path: Path) -> None:
+    def change_one_members_kind(data: dict[str, Any]) -> None:
+        data["project"]["finance"]["total_debt"]["conflict_kind"] = "duplicate"
+
+    report = _run(_mutated(tmp_path, "ankara_res.yaml", change_one_members_kind))
+    assert _has(report, "C1")
+    assert any("mismatched conflict_kind" in line for line in _codes(report))
 
 
 # --- kapsam: Adım 5 Aşama C — PROJECT_PREFIX / company.yaml spv registry sync ---------

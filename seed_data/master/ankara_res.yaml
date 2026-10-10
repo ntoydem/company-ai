@@ -54,8 +54,8 @@ project:
     # yazan tutar 14.000.000 USD (contract_amount) iken fiilen kullandırılan/ödeme planındaki
     # toplam 13.600.000 USD'dir (total_debt = sum(drawdowns) = sum(repayment_schedule.principal),
     # validator F11). total_debt artık "kullandırılan/ödenecek" tutarı ifade eder.
-    contract_amount: {value: 14000000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-004, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", note: "Sözleşmede yazan tesis tutarı; fiilen kullandırılan 13.600.000 USD'dir."}
-    total_debt: {value: 13600000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", note: "Fiilen kullandırılan/ödeme planındaki tutar; sözleşme tutarı (contract_amount) 14.000.000 USD'dir."}
+    contract_amount: {value: 14000000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-004, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", conflict_kind: genuine_conflict, note: "Sözleşmede yazan tesis tutarı; fiilen kullandırılan 13.600.000 USD'dir."}
+    total_debt: {value: 13600000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", conflict_kind: genuine_conflict, note: "Fiilen kullandırılan/ödeme planındaki tutar; sözleşme tutarı (contract_amount) 14.000.000 USD'dir."}
     local_debt: {value: 13600000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007}
     eca_debt:   {value: 0, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-004, note: "ECA tarafı kullandırılmadı (Tansu §3.2); taraf listesinde biçimsel olarak kalıyor."}
     lenders:

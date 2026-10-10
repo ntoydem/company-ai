@@ -194,17 +194,22 @@ def count_tags(node: Any) -> dict[str, int]:
 
 def find_conflict_groups(
     node: Any, file: str, path: str = ""
-) -> dict[str, list[tuple[str, str, bool]]]:
+) -> dict[str, list[tuple[str, str, bool, str | None]]]:
     """Adım 5 (09.10.2026): every `conflict_group` tag found anywhere in a raw ledger dict,
-    with where it was found and whether `deliberate_conflict` was set alongside it. Walks
-    the *raw* YAML (same style as `count_tags`), so it works uniformly across every ledger
-    file without per-schema special-casing."""
-    groups: dict[str, list[tuple[str, str, bool]]] = {}
+    with where it was found, whether `deliberate_conflict` was set alongside it, and its
+    `conflict_kind` (İş 4a). Walks the *raw* YAML (same style as `count_tags`), so it works
+    uniformly across every ledger file without per-schema special-casing."""
+    groups: dict[str, list[tuple[str, str, bool, str | None]]] = {}
     if isinstance(node, dict):
         group = node.get("conflict_group")
         if isinstance(group, str):
             groups.setdefault(group, []).append(
-                (file, path or "<root>", bool(node.get("deliberate_conflict")))
+                (
+                    file,
+                    path or "<root>",
+                    bool(node.get("deliberate_conflict")),
+                    node.get("conflict_kind"),
+                )
             )
         for key, value in node.items():
             for g, entries in find_conflict_groups(
@@ -222,26 +227,40 @@ def check_conflict_groups(raws: dict[str, dict[str, Any]], report: Report) -> No
     """C1 (Adım 5): a `conflict_group` name must be used on at least two values (a group of
     one marks nothing) and every member of a group must carry `deliberate_conflict: true` —
     a value in a group without the flag is either a typo'd group name or a forgotten flag,
-    both worth a hard error rather than silently passing."""
-    all_groups: dict[str, list[tuple[str, str, bool]]] = {}
+    both worth a hard error rather than silently passing. İş 4a: every member of a group
+    must also carry the same `conflict_kind` (missing, or disagreeing with the rest of the
+    group, is an error — a group is one kind of trap, not a mix)."""
+    all_groups: dict[str, list[tuple[str, str, bool, str | None]]] = {}
     for name, raw in raws.items():
         filename = LEDGER_FILES.get(name, name)
         for group, entries in find_conflict_groups(raw, filename).items():
             all_groups.setdefault(group, []).extend(entries)
     for group, entries in all_groups.items():
         if len(entries) < 2:
-            file, path, _ = entries[0]
+            file, path, _, _ = entries[0]
             report.error(
                 file, path, f"C1: conflict_group {group!r} has only one member — tag or group name?"
             )
             continue
-        for file, path, flagged in entries:
+        for file, path, flagged, _ in entries:
             if not flagged:
                 report.error(
                     file,
                     path,
                     f"C1: conflict_group {group!r} member missing deliberate_conflict: true",
                 )
+        kinds = {kind for _, _, _, kind in entries}
+        if len(kinds) > 1:
+            for file, path, _, kind in entries:
+                report.error(
+                    file,
+                    path,
+                    f"C1: conflict_group {group!r} has mismatched conflict_kind "
+                    f"({kind!r}) — every member must share one kind",
+                )
+        elif None in kinds:
+            file, path, _, _ = entries[0]
+            report.error(file, path, f"C1: conflict_group {group!r} member missing conflict_kind")
 
 
 def quarter_end(period: str) -> date:

@@ -145,6 +145,9 @@ class Meta(_Strict):
     currency_note: str
 
 
+ConflictKind = Literal["genuine_conflict", "version_difference", "duplicate", "missing_document"]
+
+
 class Fact(_Strict):
     value: int | float | str | bool | date
     tag: Tag
@@ -158,6 +161,12 @@ class Fact(_Strict):
     # unmarked disagreement, or a group of one, is still an error.
     deliberate_conflict: bool = False
     conflict_group: str | None = None
+    # Adım 5 İş 4a (10.10.2026, ADIM5_PF_PARTISI_PLAN §4): what *kind* of trap a
+    # `conflict_group` member is — only `genuine_conflict` actually uses `conflict_group`
+    # today (version_difference uses `supersedes`/`version` instead; duplicate/
+    # missing_document need no ledger mechanism at all, per the plan's general rule).
+    # The validator requires every member of one `conflict_group` to share one kind.
+    conflict_kind: ConflictKind | None = None
 
 
 class Money(_Strict):
@@ -168,6 +177,7 @@ class Money(_Strict):
     note: str | None = None
     deliberate_conflict: bool = False
     conflict_group: str | None = None
+    conflict_kind: ConflictKind | None = None
 
 
 class Event(_Strict):
@@ -293,6 +303,19 @@ class QuarterCfads(_Strict):
     tag: Tag
 
 
+class GuaranteeLetter(_Strict):
+    """Adım 5 İş 4a (10.10.2026, NACI_CEVAP §3.2): Karatepe's forest-permit guarantee
+    letter, due for renewal January 2027 — only the purpose and renewal date are given;
+    the issuing bank and amount are not (no fabrication, left `None`/pending)."""
+
+    purpose: Fact
+    renewal_date: date
+    lender: Fact | None = None
+    amount: Money | None = None
+    doc: str | None = None
+    tag: Tag
+
+
 class Finance(_Strict):
     # Adım 5 Aşama C (10.10.2026): reused for Yeşilova/Boztepe (ADIM5_ASAMA_C_REPORT.md
     # §2) — most fields below are Optional/default-empty *only* because Tansu's
@@ -330,6 +353,8 @@ class Finance(_Strict):
     # Adım 5 Aşama C: Yeşilova instalment #11's bank-notice interest, deliberately
     # conflicting with that instalment's own `repayment_schedule.interest` figure.
     bank_interest_notices: list[BankInterestNotice] = Field(default_factory=list)
+    # Adım 5 İş 4a: Karatepe's forest-permit guarantee letter (not every SPV has one).
+    guarantee_letters: list[GuaranteeLetter] = Field(default_factory=list)
 
 
 class ChangeOrder(_Strict):

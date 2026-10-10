@@ -49,7 +49,7 @@ project:
       - {date: 2026-01-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#8 — 2026'da ödenen 3 taksitin ilki."}, tag: USER_FACT}
       - {date: 2026-04-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#9"}, tag: USER_FACT}
       - {date: 2026-07-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#10 — son ödenen taksit (demo_today 06.10.2026 öncesi)."}, tag: USER_FACT}
-      - {date: 2026-10-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#11 — vade 14.10.2026, demo_today'den sonra (henüz ödenmedi). Öncesi bakiye 1.372.000, sonrası 1.274.000."}, interest: {value: 18240, currency: USD, tag: USER_FACT, deliberate_conflict: true, conflict_group: "yesilova-taksit11-faiz", note: "Ödeme planındaki faiz; banka bildirimi 18.912 USD der — kasıtlı fark."}, tag: USER_FACT}
+      - {date: 2026-10-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#11 — vade 14.10.2026, demo_today'den sonra (henüz ödenmedi). Öncesi bakiye 1.372.000, sonrası 1.274.000."}, interest: {value: 18240, currency: USD, tag: USER_FACT, deliberate_conflict: true, conflict_group: "yesilova-taksit11-faiz", conflict_kind: genuine_conflict, note: "Ödeme planındaki faiz; banka bildirimi 18.912 USD der — kasıtlı fark."}, tag: USER_FACT}
       - {date: 2027-01-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#12"}, tag: USER_FACT}
       - {date: 2027-04-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
       - {date: 2027-07-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
@@ -64,7 +64,7 @@ project:
       - {date: 2029-10-14, principal: {value: 98000, currency: USD, tag: USER_FACT}, tag: USER_FACT}
       - {date: 2030-01-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#24, son taksit."}, tag: USER_FACT}
     bank_interest_notices:
-      - {instalment_date: 2026-10-14, amount: {value: 18912, currency: USD, tag: USER_FACT, deliberate_conflict: true, conflict_group: "yesilova-taksit11-faiz", note: "Banka faiz bildirimi; ödeme planındaki tutar 18.240 USD'dir — kasıtlı fark (NACI_CEVAP §3.2)."}, tag: USER_FACT}
+      - {instalment_date: 2026-10-14, amount: {value: 18912, currency: USD, tag: USER_FACT, deliberate_conflict: true, conflict_group: "yesilova-taksit11-faiz", conflict_kind: genuine_conflict, note: "Banka faiz bildirimi; ödeme planındaki tutar 18.240 USD'dir — kasıtlı fark (NACI_CEVAP §3.2)."}, tag: USER_FACT}
 
   operations:
     om_contractor: {value: "Vestas Bakım Hizmetleri", tag: USER_FACT, source_doc: null, note: "Sözleşme S-24-009."}
