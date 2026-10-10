@@ -845,7 +845,14 @@ def check_technical(ankara: ls.AnkaraLedger, report: Report) -> None:
         )
 
 
-_DISTRIBUTION_CAP = 80
+# Adım 5 İş 4b (10.10.2026, Naci onayı): SPEC_05 §6's hard cap was 80, sized for the
+# original 2-project corpus. Adım 5 adds 5 more SPVs across upcoming parties (PF-1 done,
+# PF-2/Hukuk/Enerji/Mali/İdari/İK still to come); ADIM5_PLAN.md's overall target is
+# ~380 documents excluding İK (discussed separately in Adım 6), so the cap is raised to
+# 450 to leave headroom without re-deriving an exact number now. Only the CAP moved;
+# per-project targets (below) are unchanged for Karatepe/Kızılova, and SPEC_05 §6's own
+# text is intentionally left stale until Adım 5 closes (Aşama B SORU 5).
+_DISTRIBUTION_CAP = 450
 _DISTRIBUTION_TARGETS = {"ankara_res": 45, "izmir_res": 15, "company": 10}
 _SCANNED_RANGE = (8, 10)
 _DISTRIBUTION_TOLERANCE = 0.3
