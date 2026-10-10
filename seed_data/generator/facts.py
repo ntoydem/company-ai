@@ -90,9 +90,26 @@ _FIELD_KIND: dict[str, tuple[str, str]] = {
     "advance_invoice_due_date": ("date", ""),
     "advance_invoice_dispute_deadline": ("date", ""),
     "advance_invoice_paid_date": ("date", ""),
+    # Adım 5 İş 4b — Yeşilova's 6 notice documents
+    "bank_interest_notice_amount": ("money", ""),
+    "bank_interest_notice_date": ("date", ""),
+    "dsra_balance": ("money", ""),
+    "debt_service_account_balance": ("money", ""),
+    "insurance_expiry": ("date", ""),
+    "annex_f_request_date": ("date", ""),
+    "annex_f_deadline": ("date", ""),
+    "annex_f_reporting_year": ("number", ""),
+    "om_contract_price": ("money", ""),
 }
 
-_PREFIX_TO_LEDGER = {"ANK": "ankara_res", "IZM": "izmir_res", "CO": "company"}
+_PREFIX_TO_LEDGER = {
+    "ANK": "ankara_res",
+    "IZM": "izmir_res",
+    "CO": "company",
+    # Adım 5 İş 4b (10.10.2026): Yeşilova — the first of 5 new SPVs (Aşama C) to get
+    # real generated documents.
+    "YSV": "yesilova_res",
+}
 
 
 def load_raws(master_dir: Path = MASTER_DIR) -> dict[str, dict[str, Any]]:
@@ -237,7 +254,7 @@ def _ledger_key_for_doc_id(doc_id: str) -> str:
 
 def _project_name(doc_id: str) -> str | None:
     prefix = doc_id.split("-")[1]
-    return {"ANK": "Karatepe RES", "IZM": "Kızılova RES", "CO": None}[prefix]
+    return {"ANK": "Karatepe RES", "IZM": "Kızılova RES", "CO": None, "YSV": "Yeşilova RES"}[prefix]
 
 
 def _spv_name(doc_id: str, raws: dict[str, Any]) -> str:

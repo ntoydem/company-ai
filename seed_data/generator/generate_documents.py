@@ -38,7 +38,7 @@ _SCAN_DPI = 200
 # the original "3.1"); "4.2" (Excel workbooks) and "never" are never rendered here.
 GENERATED_PHASES = ("3.1", "5.1")
 
-_PROJECT_CODE = {"ANK": "ANK_RES", "IZM": "IZM_RES", "CO": None}
+_PROJECT_CODE = {"ANK": "ANK_RES", "IZM": "IZM_RES", "CO": None, "YSV": "YSV_RES"}
 
 _FOOTER_TEXT = {
     "tr": "DEMO — sentetik demo belgesi — sayfa",
@@ -119,9 +119,12 @@ _TABLE_BUILDERS = {
 
 
 def _all_ledger_documents(raws: dict[str, Any]) -> dict[str, tuple[str, dict[str, Any]]]:
+    """Adım 5 İş 4b (10.10.2026): generalized from a hardcoded 3-ledger tuple to every
+    ledger that has a `documents` list — Yeşilova is the first of the 5 new SPVs to get
+    one; the other 4 still have `documents: []` and so contribute nothing here."""
     by_id: dict[str, tuple[str, dict[str, Any]]] = {}
-    for ledger_key in ("ankara_res", "izmir_res", "company"):
-        for doc in raws[ledger_key]["documents"]:
+    for ledger_key, raw in raws.items():
+        for doc in raw.get("documents", []):
             by_id[doc["id"]] = (ledger_key, doc)
     return by_id
 

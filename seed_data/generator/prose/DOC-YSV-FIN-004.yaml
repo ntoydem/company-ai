@@ -1,0 +1,19 @@
+doc_id: DOC-YSV-FIN-004
+model: none (hand-authored, Adım 5 İş 4b, 0 LLM)
+tag: AI_ASSUMPTION
+hand_edited: >-
+  Adim 5 Is 4b (10.10.2026) -- bastan hand-authored, generate_prose.py hic cagirilmadi
+  (0 LLM); borc servis hesabi bakiyesi NACI_CEVAP SS3.2'den (84.500 USD)
+sections:
+- heading: Hesap Bakiyesi
+  paragraphs:
+  - Sayın [[spv_name]], [[project_name]] kapsamındaki Borç Servis Hesabı
+    güncel bakiyesi [[debt_service_account_balance]] olarak tespit edilmiştir.
+  - Bu ekstre [[document_no]] referans numarası ile [[document_date]]
+    tarihinde düzenlenmiştir.
+- heading: Bilgilendirme
+  paragraphs:
+  - Borç servis hesabı, taksit ödemelerinin gerçekleştirilmesi amacıyla
+    tutulmaktadır.
+  - Sorularınız için [[counterparty]] kredi operasyonları birimiyle iletişime
+    geçilmesi rica olunur.

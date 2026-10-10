@@ -357,6 +357,11 @@ class Finance(_Strict):
     bank_interest_notices: list[BankInterestNotice] = Field(default_factory=list)
     # Adım 5 İş 4a: Karatepe's forest-permit guarantee letter (not every SPV has one).
     guarantee_letters: list[GuaranteeLetter] = Field(default_factory=list)
+    # Adım 5 İş 4b: Yeşilova's Annex F reporting request (NACI_CEVAP §3.2) — request
+    # e-mail date, deadline, and the reporting year the request covers.
+    annex_f_request_date: date | None = None
+    annex_f_deadline: date | None = None
+    annex_f_reporting_year: int | None = None
 
 
 class ChangeOrder(_Strict):
@@ -410,6 +415,8 @@ class Operations(_Strict):
     om_contract_price: Money | None = None
     # Insurance policy expiry (Boztepe 10.11.2026, Yeşilova 31.03.2027).
     insurance_expiry: date | None = None
+    # Adım 5 İş 4b (NACI_CEVAP §3.7): policy number, for the endorsement/renewal notices.
+    insurance_policy_no: Fact | None = None
 
 
 class AnkaraProject(_Strict):

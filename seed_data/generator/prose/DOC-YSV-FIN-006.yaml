@@ -1,0 +1,23 @@
+doc_id: DOC-YSV-FIN-006
+model: none (hand-authored, Adım 5 İş 4b, 0 LLM)
+tag: AI_ASSUMPTION
+hand_edited: >-
+  Adim 5 Is 4b (10.10.2026) -- bastan hand-authored, generate_prose.py hic cagirilmadi
+  (0 LLM); O&M sozlesme bedeli NACI_CEVAP SS3.7'den (396.000 EUR/yil); bu belge O&M
+  bakim butcesinden ayri, bankaya sunulan isletme butcesidir (T-3)
+sections:
+- heading: Bütçe Kapsamı
+  paragraphs:
+  - Sayın [[counterparty]], [[project_name]] kapsamındaki işletme döneminin
+    bankaya sunulan bütçesi aşağıda özetlenmiştir. İşletme ve bakım (O&M)
+    sözleşmesi kapsamındaki yıllık bedel [[om_contract_price]] olarak
+    öngörülmüştür.
+  - Bu bütçe [[document_no]] referans numarası ile [[document_date]]
+    tarihinde [[spv_name]] tarafından [[counterparty]]'ye iletilmiştir.
+- heading: Bilgilendirme
+  paragraphs:
+  - İşbu bütçe, finansman sözleşmesi kapsamındaki raporlama yükümlülüklerinin
+    bir parçası olarak sunulmaktadır; işletme ve bakım yüklenicisiyle
+    yapılan bütçe çalışmasından ayrı bir belgedir.
+  - Sorularınız için [[spv_name]] finans birimiyle iletişime geçilmesi
+    rica olunur.

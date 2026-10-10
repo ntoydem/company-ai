@@ -65,10 +65,155 @@ project:
       - {date: 2030-01-14, principal: {value: 98000, currency: USD, tag: USER_FACT, note: "#24, son taksit."}, tag: USER_FACT}
     bank_interest_notices:
       - {instalment_date: 2026-10-14, amount: {value: 18912, currency: USD, tag: USER_FACT, deliberate_conflict: true, conflict_group: "yesilova-taksit11-faiz", conflict_kind: genuine_conflict, note: "Banka faiz bildirimi; ödeme planındaki tutar 18.240 USD'dir — kasıtlı fark (NACI_CEVAP §3.2)."}, tag: USER_FACT}
+    # Adım 5 İş 4b (10.10.2026, NACI_CEVAP §3.2): Annex F talep e-postası — talep
+    # 14.09.2026, son gün 14.10.2026, raporlama yılı 2025.
+    annex_f_request_date: 2026-09-14
+    annex_f_deadline: 2026-10-14
+    annex_f_reporting_year: 2025
 
   operations:
     om_contractor: {value: "Vestas Bakım Hizmetleri", tag: USER_FACT, source_doc: null, note: "Sözleşme S-24-009."}
     om_contract_price: {value: 396000, currency: EUR, tag: USER_FACT, note: "Yıllık (S-24-009)."}
     insurance_expiry: 2027-03-31
+    insurance_policy_no: {value: "YS-2026-04471", tag: USER_FACT, note: "STU Sigorta (NACI_CEVAP §3.7, kurgusal)."}
 
-documents: []
+documents:
+  # Adım 5 İş 4b (10.10.2026, ADIM5_PF_PARTISI_PLAN §2.2): PF-1'in kodla (0 LLM) 6
+  # bildirimi — Facility Agreement/Annex F Raporu/ödeme planı Excel'leri bu turda DEĞİL
+  # (Facility Agreement + Annex F Raporu LLM prose, bu turun kapsamı dışı; ödeme planı
+  # Excel workbook'u ayrı bir commit'te). Teminat mektubu belgesi bilinçli üretilmedi
+  # (missing_document tuzağı, NACI_CEVAP §3.7).
+  - id: DOC-YSV-FIN-001
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Bank Interest Notice
+    name: {value: "Taksit #11 Banka Faiz Bildirimi", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-09-20, tag: AI_ASSUMPTION, note: "14.10.2026 vadeli taksit öncesi; bildirimin kendi gönderim tarihi verilmedi, demo_today (06.10.2026) öncesi seçildi."}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    key_facts: {bank_interest_notice_amount: "project.finance.bank_interest_notices[0].amount.value", bank_interest_notice_date: "project.finance.bank_interest_notices[0].instalment_date"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-YSV-FIN-002
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Reporting Request
+    name: {value: "Annex F Talep E-postası", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-09-14, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    key_facts: {annex_f_deadline: "project.finance.annex_f_deadline", annex_f_reporting_year: "project.finance.annex_f_reporting_year"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-YSV-FIN-003
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Account Statement
+    name: {value: "DSRA Hesap Ekstresi", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-10-01, tag: AI_ASSUMPTION, note: "Ekstrenin kendi kesim tarihi verilmedi, demo_today (06.10.2026) öncesi seçildi."}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    key_facts: {dsra_balance: "project.finance.dsra_balance.value"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-YSV-FIN-004
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Account Statement
+    name: {value: "Borç Servis Hesabı Ekstresi", tag: AI_ASSUMPTION}
+    # Not: DOC-YSV-FIN-003 ile aynı gün olmasın — _filename() (generate_documents.py)
+    # tarih+proje+tür+versiyon+status'tan üretiyor; ikisi "Account Statement" + aynı
+    # tarih olsaydı dosya adı çakışırdı (G4 hatası olarak ortaya çıktı, bkz. İş 4b raporu).
+    document_date: {value: 2026-09-30, tag: AI_ASSUMPTION, note: "Ekstrenin kendi kesim tarihi verilmedi, demo_today (06.10.2026) öncesi seçildi."}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    key_facts: {debt_service_account_balance: "project.finance.debt_service_account_balance.value"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-YSV-FIN-005
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Insurance Endorsement
+    name: {value: "Sigorta Zeyilnamesi — Ara Dönem", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-09-15, tag: AI_ASSUMPTION, note: "NACI_CEVAP §3.7: 'Eylül'deki talep yenileme değil, ara dönem zeyilnamesidir' — gün verilmedi, Eylül içinde seçildi."}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "STU Sigorta"]
+    key_facts: {insurance_policy_no: "project.operations.insurance_policy_no.value", insurance_expiry: "project.operations.insurance_expiry"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-YSV-FIN-006
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Budget
+    name: {value: "Bankaya Giden İşletme Bütçesi", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-09-10, tag: AI_ASSUMPTION, note: "Bütçenin kendi gönderim tarihi verilmedi, demo_today (06.10.2026) öncesi seçildi. O&M bakım bütçesinden ayrı bir belge (T-3)."}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    key_facts: {om_contract_price: "project.operations.om_contract_price.value"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION

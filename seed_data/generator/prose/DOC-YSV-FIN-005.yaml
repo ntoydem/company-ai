@@ -1,0 +1,21 @@
+doc_id: DOC-YSV-FIN-005
+model: none (hand-authored, Adım 5 İş 4b, 0 LLM)
+tag: AI_ASSUMPTION
+hand_edited: >-
+  Adim 5 Is 4b (10.10.2026) -- bastan hand-authored, generate_prose.py hic cagirilmadi
+  (0 LLM); police no/bitis tarihi NACI_CEVAP SS3.7'den; Eylul'deki talep yenileme degil
+  ara donem zeyilnamesidir (Tansu'nun kendi ifadesi)
+sections:
+- heading: Poliçe Bilgileri
+  paragraphs:
+  - Sayın [[spv_name]], [[project_name]] kapsamındaki [[insurance_policy_no]]
+    numaralı sigorta poliçesine ilişkin aşağıdaki zeyilname düzenlenmiştir.
+  - Bu zeyilname [[document_no]] referans numarası ile [[document_date]]
+    tarihinde düzenlenmiştir.
+- heading: Zeyilname
+  paragraphs:
+  - İşbu zeyilname bir yenileme işlemi değildir; poliçenin ara dönem
+    güncellemesidir. Poliçenin geçerlilik süresi [[insurance_expiry]]
+    tarihine kadardır.
+  - Poliçe şartlarının diğer tüm hükümleri değişiklik olmaksızın
+    geçerliliğini sürdürmektedir.

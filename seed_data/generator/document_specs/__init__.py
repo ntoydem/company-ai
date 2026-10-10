@@ -16,6 +16,7 @@ from seed_data.generator.document_specs import (
     ankara_operations,
     company,
     izmir,
+    yesilova,
 )
 from seed_data.generator.document_specs._base import DocumentSpec, ExtraTable, Family
 
@@ -30,6 +31,7 @@ _BUCKETS = (
     ankara_admin,
     izmir,
     company,
+    yesilova,
 )
 
 SPECS: dict[str, DocumentSpec] = {}
