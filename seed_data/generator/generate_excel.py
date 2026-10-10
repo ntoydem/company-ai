@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from openpyxl import Workbook
-from openpyxl.styles import Font
+from openpyxl.styles import Alignment, Font
 from openpyxl.utils import get_column_letter
 from openpyxl.workbook.defined_name import DefinedName
 from openpyxl.worksheet.worksheet import Worksheet
@@ -435,7 +435,12 @@ def _build_yesilova_repayment_schedule(raws: dict[str, Any], snapshot_date: date
     between them is which instalments had already fallen due as of each snapshot's own
     date (a derived "Durum" column, not a stored fact). The version_difference itself
     lives in the ledger's `supersedes`/`version`/`status` chain, not in different cell
-    values here (TEMPORAL TRUTH, not a conflict — ADIM5_PF_PARTISI_PLAN §3)."""
+    values here (TEMPORAL TRUTH, not a conflict — ADIM5_PF_PARTISI_PLAN §3).
+
+    Faiz (interest) sütunu: yalnız ledger'da `Instalment.interest` olan satır(lar) için
+    dolu — şu an yalnız taksit #11 (18.240 USD, taksit planının kendi değeri; bankanın
+    18.912 USD'si yalnız Bank Interest Notice belgesinde kalır, buraya hiç girmez).
+    Diğer 23 taksitin faizi ledger'da hiç yok — boş bırakılır, türetilmez/uydurulmaz."""
     rows = _yesilova_schedule_rows(raws)
     wb = Workbook()
     ws = wb.active
@@ -446,18 +451,47 @@ def _build_yesilova_repayment_schedule(raws: dict[str, Any], snapshot_date: date
     ws["B2"] = snapshot_date
     ws["B2"].number_format = "DD.MM.YYYY"
     _name(wb, "Snapshot_Date", "Schedule", "B2")
-    _header(ws, 4, ["Taksit No", "Vade", "Anapara (USD)", "Durum (bu anlık görüntüye göre)"])
+    _header(
+        ws,
+        4,
+        ["Taksit No", "Vade", "Anapara (USD)", "Faiz (USD)", "Durum (bu anlık görüntüye göre)"],
+    )
+    interest_rows: list[int] = []
     for i, r in enumerate(rows, start=1):
         row = 4 + i
         ws.cell(row=row, column=1, value=i)
         ws.cell(row=row, column=2, value=r["date"]).number_format = "DD.MM.YYYY"
         ws.cell(row=row, column=3, value=r["principal"]["value"])
+        interest = r.get("interest")
+        if interest is not None:
+            ws.cell(row=row, column=4, value=interest["value"])
+            interest_rows.append(row)
         status = "Ödendi" if r["date"] <= snapshot_date else "Bekliyor"
-        ws.cell(row=row, column=4, value=status)
+        ws.cell(row=row, column=5, value=status)
     last = 4 + len(rows)
     _name(wb, "Schedule_LastRow", "Schedule", f"A{last}")
-    for col in range(1, 5):
+    total_row = last + 2
+    ws.cell(row=total_row, column=3, value="Faiz toplamı (yalnız ledger'da verilen satırlar):")
+    if interest_rows:
+        refs = ",".join(f"D{r}" for r in interest_rows)
+        ws.cell(row=total_row, column=4, value=f"=SUM({refs})")
+    else:
+        ws.cell(row=total_row, column=4, value=0)
+    ws.cell(row=total_row + 1, column=3, value="Not")
+    ws.cell(row=total_row + 1, column=4).alignment = Alignment(wrap_text=True)
+    ws.cell(
+        row=total_row + 1,
+        column=4,
+        value=(
+            "Ledger'da bağımsız bir 'toplam faiz' alanı yok (karşılaştırılacak bir "
+            "referans değer yok) — yalnız taksit #11 için tek bir faiz değeri "
+            "verilmiş; diğer taksitler boş, türetilmedi."
+        ),
+    )
+    _name(wb, "Interest_Total", "Schedule", f"D{total_row}")
+    for col in range(1, 6):
         ws.column_dimensions[get_column_letter(col)].width = 24
+    ws.column_dimensions["D"].width = 28
     _meta(wb, raws)
     return wb
 
