@@ -169,6 +169,12 @@ SPECS: dict[str, DocumentSpec] = {
             "For and on behalf of [[counterparty]] — Authorized Signatory",
         ],
     ),
+    # Düzeltme (İş Emri 2026-10-11 Adım 5, Naci onaylı — Adım 3'te `check_self_
+    # referential_sentences` kapısıyla bulundu): önceki üretim "specifically including
+    # [[parties_list]] and [[spv_name]]" yazmıştı — `parties_list` zaten SPV'yi içeriyor,
+    # "and [[spv_name]]" eklenince SPV adı aynı cümlede 2 kez geçiyordu (Adım 1'in
+    # DOC-IZM-LEG-002'de bulduğu KÖK NEDENİN AYNISI). Çözüm aynı: `counterparty_list`
+    # (SPV hariç karşı taraflar — bu belgede STU Sigorta + PQR Bank).
     "DOC-ANK-FIN-013": DocumentSpec(
         doc_id="DOC-ANK-FIN-013",
         family="agreement",
@@ -176,6 +182,14 @@ SPECS: dict[str, DocumentSpec] = {
         subtitle_en="Karatepe RES Wind Power Project — Insurance Assignment Agreement",
         section_headings_tr=[],
         section_headings_en=["1. Assignment of Insurance Proceeds", "2. Governing Law"],
+        prose_guidance_en=(
+            "Never use the token [[parties_list]] together with [[spv_name]] in the "
+            "same sentence — [[parties_list]] already includes the SPV, so doing so "
+            "repeats the SPV's name twice in one sentence. When you need to name the "
+            "other parties (not the SPV), use [[counterparty_list]] instead of "
+            "[[parties_list]]."
+        ),
+        prose_suppress_facts=frozenset({"parties_list"}),
         signature_roles_en=[
             "For and on behalf of [[spv_name]] — Authorized Signatory",
             "For and on behalf of [[counterparty]] — Authorized Signatory",
