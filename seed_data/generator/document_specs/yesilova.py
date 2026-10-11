@@ -75,26 +75,36 @@ SPECS: dict[str, DocumentSpec] = {
         subtitle_tr="",
         subtitle_en="Yeşilova RES Wind Power Project — Term Loan Facility (2023-YS)",
         section_headings_tr=[],
-        # Düzeltme (11.10.2026, Naci): başlık 1 "Recitals" oldu — capex/equity'nin yalnız
-        # arka plan cümlesinde (kredinin sonradan gelen kısmi finansman olduğu, inşaatı
-        # finanse eden ana kaynağın özkaynak olduğu) geçmesini, "2. The Facility"nin
-        # kredinin capex'i finanse ettiği gibi yanlış bir ilişki kurmasını önlemek için.
-        # Gemini denemesi (önceki round) 429 kota fırtınasıyla tamamlanamadı. Claude
-        # sağlayıcısıyla 1. deneme (11.10.2026) İÇERİK olarak üretildi ama capex/equity
-        # YİNE "2. The Facility"ye sızdı ("funding of project costs within the overall
-        # capital expenditure of [[capex]]" — kredi capex'i finanse ediyor ilişkisi) VE
-        # section 1'de de "funded by equity... and debt of [[total_debt]]" diyerek capex'in
-        # BORÇLA da finanse edildiğini söyledi (istenen: yalnız özkaynakla, kredi SONRADAN
-        # gelen bağımsız kısmi finansman). Tek izinli retry için başlıklar bir kez daha
-        # güçlendirildi (aşağıda) — hâlâ yanlışsa (bkz. ADIM5_PF1_URETIM_RAPORU.md) prose
-        # elle düzeltilmeyecek, başlıklar bu (1. deneme ile eşleşen) haline dönecek.
+        # Düzeltme B (11.10.2026, Naci onaylı): başlıklar artık NÖTR — talimat
+        # `prose_guidance_en`'e taşındı (DocumentSpec'in yeni alanı), asla render edilmez.
+        # Önceki iki deneme (Gemini: 429 kota fırtınası; Claude: capex/equity "2. The
+        # Facility"ye sızdı, başlığın kendisine talimat gömülünce de 82 karaktere kadar
+        # çıkan parantez PDF'e basıldı) bu ayrımın gerekliliğini gösterdi.
+        # Düzeltme D (11.10.2026, Naci onaylı): equity cümlesi bu round'da YAZDIRILMIYOR
+        # (T-13.1 — Tansu'nun cevabı bekleniyor, "özkaynakla inşa" ile "equity+2023-YS=capex"
+        # aritmetiği arasındaki çelişki netleşmeden) — `prose_suppress_facts` ile equity
+        # token'ı LLM'e hiç önerilmiyor. T-13.1 cevaplanınca bu alan kaldırılacak.
         section_headings_en=[
-            "1. Recitals (Past Tense: the Project Was Already Built and Funded by Equity Alone)",
-            "2. The Facility (a Separate, Later, Partial Financing; Never Capex or Equity Here)",
+            "1. Recitals",
+            "2. The Facility",
             "3. Repayment",
             "4. Financial Covenants",
             "5. Governing Law",
         ],
+        prose_guidance_en=(
+            "Section 1 (Recitals): state the project's total capex figure using "
+            "[[capex]], and state that the plant was constructed and brought into "
+            "operation BEFORE this Facility existed (past tense for construction and "
+            "operation). Do not use the words 'entirely', 'solely', 'only', or the "
+            "phrase 'no third-party debt' anywhere. Do not mention equity or any "
+            "sponsor capital contribution at all in this generation. Do not describe "
+            "how, why, or by whom this financing was initiated — no application, "
+            "request, or negotiation language; state only that the Facility is a "
+            "subsequent, partial term loan. Section 2 (The Facility): never mention "
+            "capex here. Never invent a specific substantive provision not backed by "
+            "a token."
+        ),
+        prose_suppress_facts=frozenset({"equity"}),
         signature_roles_en=[
             "For and on behalf of [[spv_name]] (Borrower) — Authorized Signatory",
             "For and on behalf of [[counterparty]] (Lender) — Authorized Signatory",

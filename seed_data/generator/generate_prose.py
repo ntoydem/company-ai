@@ -169,8 +169,13 @@ def _build_prompt(
     """Düzeltme (11.10.2026): `suppressed_placeholders` — bir facts anahtarı (`language`
     dışında) teknik olarak orada ama "tanımsız" bir not metnine çözülüyorsa (örn. taslak
     bir belgenin `effective_date`'i "henüz belirlenmedi" döner) LLM'e hiç ÖNERİLMEZ;
-    `known_placeholders` (check_prose_document) hâlâ kabul eder, yalnız teşvik edilmez."""
+    `known_placeholders` (check_prose_document) hâlâ kabul eder, yalnız teşvik edilmez.
+
+    Düzeltme B (11.10.2026, Naci onaylı): `spec.prose_guidance_tr/_en` doluysa, ayrı bir
+    satır olarak eklenir — belgeye hiç yazılmaz, yalnız LLM'i yönlendirir. Boşsa (mevcut
+    tüm belgeler) bu fonksiyonun çıktısı önceki haliyle birebir aynı (ek satır yok)."""
     headings = spec.section_headings_tr if language == "tr" else spec.section_headings_en
+    guidance = spec.prose_guidance_tr if language == "tr" else spec.prose_guidance_en
     placeholders = sorted(k for k in facts if k != "language" and k not in suppressed_placeholders)
     system = _SYSTEM_TR if language == "tr" else _SYSTEM_EN
     user = (
@@ -179,6 +184,8 @@ def _build_prompt(
         f"Bölüm başlıkları (aynı sırayla, aynen): {json.dumps(headings, ensure_ascii=False)}\n\n"
         f"{_SCHEMA_NOTE}"
     )
+    if guidance:
+        user += f"\n\nEk yönerge (belgeye YAZILMAYACAK, sadece sana yön vermek için): {guidance}"
     return system, user
 
 
@@ -361,8 +368,10 @@ def generate_one(
     known = set(facts) - {"language"}
     # Düzeltme (11.10.2026): taslak (effective_date yok) belgelerde "effective_date"
     # placeholder'ı LLM'e önerilmez — değeri gerçek bir olgu değil, "henüz belirlenmedi"
-    # notu (DOC-YSV-FIN-010 bulgusu).
+    # notu (DOC-YSV-FIN-010 bulgusu). Düzeltme B: spec.prose_suppress_facts eklenir (örn.
+    # Tansu'nun cevabı beklenen bir alan — DOC-YSV-FIN-009/equity, SORU D).
     suppressed = {"effective_date"} if doc.get("effective_date") is None else frozenset()
+    suppressed = frozenset(suppressed) | spec.prose_suppress_facts
     system, user = _build_prompt(doc_id, spec, facts, language, suppressed)
 
     if provider == "anthropic":

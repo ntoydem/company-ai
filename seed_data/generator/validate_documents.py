@@ -30,6 +30,37 @@ from seed_data.generator.validate_ledger import _NAME_PATTERN
 NUMBER_PATTERN = re.compile(r"\d{3,}")
 CURRENCY_PATTERN = re.compile(r"\b(EUR|USD|TRY)\b|[€$₺]")
 
+# Statik kapı (11.10.2026, Naci onaylı — SORU B): document_specs.py'deki başlıkların
+# KENDİSİ LLM talimatı sızdırmasın (DOC-YSV-FIN-009 olayı — "(a Separate, Later, Partial
+# Financing; Never Capex or Equity Here)" gibi 82 karakter/13-14 kelimelik talimatlar PDF'e
+# basılmıştı). Eşik mevcut 195 başlıklık korpustan ölçüldü (en uzun meşru başlık 41 karakter/
+# 6 kelime); kilitli — gevşetilmeyecek. Gerçek bir yönerge `DocumentSpec.prose_guidance_*`
+# ile verilir, başlığa gömülmez.
+MAX_HEADING_CHARS = 55
+MAX_HEADING_WORDS = 8
+_HEADING_IMPERATIVE_PATTERN = re.compile(r"\b(Never|Always|Must|Do not)\b", re.IGNORECASE)
+_HEADING_META_COMMENT_PATTERN = re.compile(r"\([A-Z][a-zA-Z]*(?:\s[A-Z][a-zA-Z]*)*:\s")
+
+# Bir belgede tek sayı formatı (SORU C, 11.10.2026): DOC-YSV-FIN-009'da bulundu — bir EN
+# belgenin bazı sayıları (`facts.py`'nin dil-duyarlı `_format_money`'sinden geçen capex/
+# equity/total_debt) "26,400,000" (doğru), ama serbest-metin bir ledger alanı
+# (`repayment_profile`, `kind="text"`, dil-duyarlı formatlamadan GEÇMİYOR) "98.000" (TR
+# biçimi, ledger'a öyle yazılmıştı) basıyordu. En az 3 hane × en az bir grup gerektirir —
+# ondalık oranlarla ("1.15x", "%0,80") çakışmaz.
+_TR_GROUPED_NUMBER_PATTERN = re.compile(r"\b\d{1,3}(?:\.\d{3})+\b")
+_EN_GROUPED_NUMBER_PATTERN = re.compile(r"\b\d{1,3}(?:,\d{3})+\b")
+
+
+def check_number_format_consistency(doc_id: str, language: str, text: str) -> list[str]:
+    errors: list[str] = []
+    if language == "en":
+        for match in _TR_GROUPED_NUMBER_PATTERN.finditer(text):
+            errors.append(f"{doc_id}: EN belgede TR-biçimi (nokta-gruplu) sayı: {match.group()!r}")
+    elif language == "tr":
+        for match in _EN_GROUPED_NUMBER_PATTERN.finditer(text):
+            errors.append(f"{doc_id}: TR belgede EN-biçimi (virgül-gruplu) sayı: {match.group()!r}")
+    return errors
+
 
 @dataclass
 class Report:
@@ -96,6 +127,35 @@ def check_prose_document(
     return errors
 
 
+def check_heading_hygiene() -> list[str]:
+    """`document_specs.py`'nin kendi `section_headings_tr/_en`'ini tarar (üretilmiş prose'a
+    değil, Python-authored spec'e bakar — her `make lint`'te, prose hiç yoksa bile çalışır)."""
+    errors: list[str] = []
+    for doc_id, spec in SPECS.items():
+        for lang, headings in (("tr", spec.section_headings_tr), ("en", spec.section_headings_en)):
+            for heading in headings:
+                if len(heading) > MAX_HEADING_CHARS:
+                    errors.append(
+                        f"{doc_id}: {lang} başlık {len(heading)} karakter "
+                        f"(>{MAX_HEADING_CHARS}, talimat sızıntısı şüphesi): {heading!r}"
+                    )
+                if len(heading.split()) > MAX_HEADING_WORDS:
+                    errors.append(
+                        f"{doc_id}: {lang} başlık {len(heading.split())} kelime "
+                        f"(>{MAX_HEADING_WORDS}, talimat sızıntısı şüphesi): {heading!r}"
+                    )
+                if _HEADING_IMPERATIVE_PATTERN.search(heading):
+                    errors.append(
+                        f"{doc_id}: {lang} başlıkta emir kipi talimat kelimesi: {heading!r}"
+                    )
+                if _HEADING_META_COMMENT_PATTERN.search(heading):
+                    errors.append(
+                        f"{doc_id}: {lang} başlıkta meta-yorum kalıbı (örn. 'Past Tense:'): "
+                        f"{heading!r}"
+                    )
+    return errors
+
+
 def validate_prose(prose_dir: Path = PROSE_DIR) -> Report:
     report = Report()
     raws = facts_mod.load_raws()
@@ -152,6 +212,9 @@ def validate_generated(manifest_path: Path) -> Report:
             report.error(f"{doc_id}: {digital_path.name} yok")
             continue
         text = _extract_text(digital_path)
+
+        for error in check_number_format_consistency(doc_id, entry["language"], text):
+            report.error(error)
 
         if banners["all"] not in text:
             report.error(f"{doc_id}: DEMO banner metni bulunamadı (G1)")
@@ -213,6 +276,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     report = validate_prose()
+    for message in check_heading_hygiene():
+        report.error(message)
     if not args.prose_only:
         generated = validate_generated(args.manifest)
         report.errors.extend(generated.errors)

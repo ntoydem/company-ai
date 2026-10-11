@@ -40,3 +40,15 @@ class DocumentSpec:
     signature_roles_en: list[str] = field(default_factory=list)
     reference_label_tr: str = "Sayı"
     subject_label_tr: str = "Konu"
+    # Düzeltme (11.10.2026, Naci onaylı — SORU B): LLM'i yönlendirmek için başlığın
+    # KENDİSİNE talimat gömme ihtiyacı (DOC-YSV-FIN-009 Yeşilova FA olayı — 82 karaktere
+    # kadar çıkan parantez içi talimatlar PDF'e basıldı). Bu alan `generate_prose.py`'nin
+    # LLM'e giden kullanıcı mesajına "Ek yönerge (belgeye YAZILMAYACAK)" olarak eklenir;
+    # `generate_documents.py` BUNA HİÇ DOKUNMAZ — section_headings_* her zaman nötr ve
+    # render edilen metin olarak kalır.
+    prose_guidance_tr: str | None = None
+    prose_guidance_en: str | None = None
+    # Bir facts/key_facts anahtarını LLM'e hiç ÖNERMEZ (örn. "bu üretimde equity cümlesi
+    # yazılmasın" — Tansu'nun cevabı beklenirken). `known_placeholders` doğrulaması hâlâ
+    # kabul eder; yalnız teşvik edilmez (generate_prose.py::generate_one).
+    prose_suppress_facts: frozenset[str] = field(default_factory=frozenset)
