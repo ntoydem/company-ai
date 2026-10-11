@@ -40,27 +40,27 @@ def _seeded_documents(session: Session) -> dict[str, Document]:
     return {d.external_ref: d for d in rows if d.external_ref is not None}
 
 
-def test_seed_creates_87_pdfs_plus_7_workbooks_and_queues_pdf_jobs(
+def test_seed_creates_102_pdfs_plus_7_workbooks_and_queues_pdf_jobs(
     db_session: Session, settings: Settings
 ) -> None:
     _prepare(db_session, settings)
 
     results = ensure_demo_documents(db_session, settings, MANIFEST_PATH)
 
-    # 87 PDF + 7 workbook (PF-1 LLM üretim + İş Emri 2026-10-11 Adım 4: Boztepe PF-2
-    # +3 PDF/+1 workbook).
-    assert len(results) == 94
+    # 102 PDF + 7 workbook (PF-1 LLM üretim + Adım 4: Boztepe PF-2 +3 PDF/+1 workbook +
+    # İş Emri 2026-10-11-B Adım C: Hukuk partisi +15 PDF).
+    assert len(results) == 109
     assert all(r.created for r in results)
     documents = _seeded_documents(db_session)
-    assert len(documents) == 94
+    assert len(documents) == 109
     workbooks = [d for d in documents.values() if d.storage_path.endswith(".xlsx")]
     assert len(workbooks) == 7 and all(d.ingestion_status.value == "ready" for d in workbooks)
     pdfs = [d for d in documents.values() if d.storage_path.endswith(".pdf")]
-    assert len(pdfs) == 87 and all(d.ingestion_status.value == "uploaded" for d in pdfs)
+    assert len(pdfs) == 102 and all(d.ingestion_status.value == "uploaded" for d in pdfs)
     jobs = db_session.scalars(
         select(IngestionJob).where(IngestionJob.document_id.in_([d.id for d in documents.values()]))
     ).all()
-    assert len(jobs) == 87  # workbooks get no OCR job
+    assert len(jobs) == 102  # workbooks get no OCR job
     assert all(j.status.value == "queued" for j in jobs)
 
 
@@ -70,9 +70,9 @@ def test_seed_is_idempotent(db_session: Session, settings: Settings) -> None:
 
     results = ensure_demo_documents(db_session, settings, MANIFEST_PATH)
 
-    assert len(results) == 94  # 87 PDF + 7 workbook
+    assert len(results) == 109  # 102 PDF + 7 workbook
     assert all(r.created is False for r in results)
-    assert len(_seeded_documents(db_session)) == 94
+    assert len(_seeded_documents(db_session)) == 109
 
 
 def test_seeded_metadata_matches_ledger(db_session: Session, settings: Settings) -> None:
@@ -149,7 +149,11 @@ def test_financial_model_is_seeded_normal_after_question_15(
 ) -> None:
     """`DOC-ANK-FIN-008` was the only `restricted` demo document; Soru 15 flips it so the
     Proje Finans *specialist* can see it (docs/plans/URUN1_KARARLAR_VE_SIRA.md §3.2 step 1).
-    The ledger is the single source: generator spec, Excel manifest and seed all agree."""
+    The ledger is the single source: generator spec, Excel manifest and seed all agree.
+    İş Emri 2026-10-11-B: Hukuk partisinin 15 dava belgesi artık KASITLI olarak
+    `restricted` (Dava belgeleri restricted, Soru 15 = A) — bu yüzden "hiçbir belge
+    restricted olmasın" yerine "hukuk dışında hiçbir belge restricted olmasın" kontrol
+    edilir (orijinal amacı aynı: yanlışlıkla restricted kalan bir belge olmasın)."""
     _prepare(db_session, settings)
     ensure_demo_documents(db_session, settings, MANIFEST_PATH)
     documents = _seeded_documents(db_session)
@@ -158,7 +162,11 @@ def test_financial_model_is_seeded_normal_after_question_15(
     assert model.title == "Financial Model 2026"
     assert model.department == "finans"
     assert model.confidentiality.value == "normal"
-    assert all(d.confidentiality.value != "restricted" for d in documents.values())
+    assert all(
+        d.confidentiality.value != "restricted"
+        for d in documents.values()
+        if d.department != "hukuk"
+    )
 
 
 def test_refresh_resyncs_only_named_gate_fields_from_the_manifest(
@@ -188,7 +196,7 @@ def test_refresh_resyncs_only_named_gate_fields_from_the_manifest(
     assert results[1].found is False and results[1].changed == {}
     db_session.expire_all()
     documents = _seeded_documents(db_session)
-    assert len(documents) == 94
+    assert len(documents) == 109
     assert documents["DOC-ANK-FIN-008"].confidentiality.value == "normal"
     assert documents["DOC-ANK-FIN-008"].title == "Finansal Model (düzenlendi)"
     assert documents["DOC-ANK-FIN-009"].confidentiality.value == "restricted"
