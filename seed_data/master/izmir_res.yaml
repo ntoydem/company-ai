@@ -106,6 +106,25 @@ project:
     advance_guarantee_amount: {value: 2000000, currency: USD, tag: USER_FACT}
     advance_guarantee_expiry: 2028-03-15
 
+  # İş Emri 2026-10-11-B (T-12.4, NACI_CEVAP_2026-10-11.md §1 — ürün sahibi onaylı). Avans
+  # faturası (ABC2026000000184) ve Hakediş 1 (SÖ-26-014) bu ihtarın KONUSU DEĞİL — ayrı.
+  contractor_notice:
+    recipient: {value: "ABC İnşaat A.Ş.", tag: USER_FACT}
+    contract_ref: {value: "S-26-001", tag: USER_FACT}
+    subject: {value: "S-26-001 LNTP kapsamındaki saha yerleşim ve temel ön tasarım paketinin iş programındaki teslim tarihinde teslim edilmemesi (mühendislik teslim gecikmesi)", tag: USER_FACT}
+    original_due_date: 2026-09-25
+    demanded_date: 2026-10-22
+    penalty_rate_pct: 0.05
+    penalty_cap_pct: 10
+    sent_date: 2026-09-29
+    tag: USER_FACT
+
+  # İş Emri 2026-10-11-B (T-12.4b): Mera Tahsis Değişikliği talep yazısı — yalnız talep,
+  # sonuç/karar belgesi YOK (ÖNCEDEN VERİLMİŞ KARAR 5, komisyon henüz toplanmadı).
+  mera_request_recipient: {value: "Valilik Mera Komisyonu", tag: USER_FACT}
+  mera_request_date: 2026-08-21
+  mera_next_meeting: 2026-11-12
+
 documents:
   - id: DOC-IZM-DEV-001
     department: enerji_grubu
@@ -385,6 +404,53 @@ documents:
     confidentiality: normal
     generate_in_phase: "5.1"
     tag: AI_ASSUMPTION
+
+  # İş Emri 2026-10-11-B (Hukuk partisi, T-12.4) — ürün sahibi onaylı, tag USER_FACT.
+  - id: DOC-IZM-LEG-005
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Notary Notice
+    name: {value: "Yüklenici İhtilafı — Noter İhtarnamesi", tag: USER_FACT}
+    document_date: {value: 2026-09-29, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "ABC İnşaat A.Ş."]
+    key_facts: {recipient: "project.contractor_notice.recipient.value", contract_ref: "project.contractor_notice.contract_ref.value", legal_subject: "project.contractor_notice.subject.value", original_due_date: "project.contractor_notice.original_due_date", demanded_date: "project.contractor_notice.demanded_date", penalty_rate_pct: "project.contractor_notice.penalty_rate_pct", penalty_cap_pct: "project.contractor_notice.penalty_cap_pct", notice_sent_date: "project.contractor_notice.sent_date"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT
+
+  # İş Emri 2026-10-11-B (T-12.4b) — yalnız talep yazısı, sonuç/karar belgesi ÜRETİLMEDİ
+  # (ÖNCEDEN VERİLMİŞ KARAR 5).
+  - id: DOC-IZM-LEG-006
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Request Letter
+    name: {value: "Mera Tahsis Değişikliği Talebi", tag: USER_FACT}
+    document_date: {value: 2026-08-21, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "Valilik Mera Komisyonu"]
+    key_facts: {recipient: "project.mera_request_recipient.value", notice_sent_date: "project.mera_request_date", next_meeting: "project.mera_next_meeting"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT
 
   - id: DOC-IZM-ADM-001
     department: mali_isler

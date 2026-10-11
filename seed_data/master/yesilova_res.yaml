@@ -120,6 +120,22 @@ project:
     insurance_expiry: 2027-03-31
     insurance_policy_no: {value: "YS-2026-04471", tag: USER_FACT, note: "STU Sigorta (NACI_CEVAP §3.7, kurgusal)."}
 
+  # İş Emri 2026-10-11-B (T-12.2, NACI_CEVAP_2026-10-11.md §1 — ürün sahibi onaylı).
+  # `plaintiff` kaynakta özel ad DEĞİL — "arazi maliki (kurgusal kişi)" rol tanımı; bir isim
+  # İCAT EDİLMEDİ (ÖNCEDEN VERİLMİŞ KARAR 1). Bu yüzden dava dilekçesinin KENDİSİ (davacının
+  # ismiyle anılması gereken tek belge türü) ÜRETİLMEDİ — bkz. Adım A raporu §3.
+  legal_case:
+    court: {value: "Çanakkale 1. Asliye Hukuk Mahkemesi", tag: USER_FACT}
+    case_number: {value: "2025/208 E.", tag: USER_FACT}
+    plaintiff: {value: "Arazi Maliki (kurgusal kişi, ismi henüz verilmedi)", tag: USER_FACT}
+    defendant: {value: "Yeşilova RES Enerji Üretim A.Ş.", tag: USER_FACT}
+    subject: {value: "Arazi tahsisine ilişkin tazminat talebi", tag: USER_FACT}
+    filed_date: 2025-06-11
+    next_hearing: 2026-11-05
+    amount_claimed: {value: 1350000, currency: TRY, tag: USER_FACT, note: "Yaklaşık 27.700 USD (NACI_CEVAP §1)."}
+    material_litigation_threshold: {value: 250000, currency: USD, tag: USER_FACT, note: "Kredi sözleşmesindeki 'önemli dava' bildirim eşiği; bu dava eşiğin altında, bildirim ihlali yok."}
+    tag: USER_FACT
+
 documents:
   # Adım 5 İş 4b (10.10.2026, ADIM5_PF_PARTISI_PLAN §2.2): PF-1'in kodla (0 LLM) 6
   # bildirimi — Facility Agreement/Annex F Raporu/ödeme planı Excel'leri bu turda DEĞİL
@@ -360,3 +376,29 @@ documents:
     confidentiality: normal
     generate_in_phase: "5.1"
     tag: AI_ASSUMPTION
+
+  # İş Emri 2026-10-11-B (Hukuk partisi, T-12.2). Kaynak dosya adı (ÖNCEDEN VERİLMİŞ KARAR
+  # 3 — .msg desteği yok, e-posta çıktısı düzeninde PDF; `letter` ailesi, altyapı değişikliği
+  # yok): Yesilova_Arazi_Tahsis_Tazminat_Yazışması.msg. Tek taraflı (davacının ismi kaynakta
+  # yok — yalnız rolüyle "arazi maliki" anılır, isim icat edilmedi).
+  - id: DOC-YSV-LEG-001
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Legal Counsel Correspondence
+    name: {value: "Arazi Tahsisi Tazminat Davası — Hukuk Danışmanı Yazışması", tag: USER_FACT}
+    document_date: {value: 2026-09-14, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Yeşilova RES Enerji Üretim A.Ş."]
+    key_facts: {court: "project.legal_case.court.value", case_number: "project.legal_case.case_number.value", amount_claimed: "project.legal_case.amount_claimed.value", filed_date: "project.legal_case.filed_date", next_hearing: "project.legal_case.next_hearing", material_litigation_threshold: "project.legal_case.material_litigation_threshold.value"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT

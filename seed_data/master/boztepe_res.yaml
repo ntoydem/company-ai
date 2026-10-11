@@ -68,6 +68,21 @@ project:
     om_contract_price: {value: 38500, currency: EUR, tag: USER_FACT, note: "Aylık (S-25-007/008)."}
     insurance_expiry: 2026-11-10
 
+  # İş Emri 2026-10-11-B (T-12.3, NACI_CEVAP_2026-10-11.md §1 — ürün sahibi onaylı).
+  legal_case:
+    court: {value: "Ankara 2. İdare Mahkemesi", tag: USER_FACT}
+    case_number: {value: "2026/418 E.", tag: USER_FACT}
+    plaintiff: {value: "Boztepe RES Enerji Üretim A.Ş.", tag: USER_FACT}
+    defendant: {value: "İlçe Belediyesi", tag: USER_FACT}
+    subject: {value: "Belediye'nin santral sahasına bitişik alanı konut alanına çeviren imar planı değişikliğinin iptali (planlama esasları, şehircilik ilkeleri ve RES emniyet mesafeleri gerekçesiyle)", tag: USER_FACT}
+    filed_date: 2026-05-22
+    defense_date: 2026-06-25
+    stay_request_rejected_date: 2026-07-10
+    reply_date: 2026-09-22
+    expert_site_visit_date: 2026-09-26
+    next_hearing: 2026-10-28
+    tag: USER_FACT
+
 # İş Emri 2026-10-11 Adım 4 (Boztepe PF-2, plan §9.9): Boztepe'nin ilk belgeleri.
 # "DSCR test tablosu" bu iş emrinin istediği 5. teslimattı — Boztepe'de `covenant_tests`
 # hiç yok (yalnız `dscr_covenant` = 1.20x minimum, bkz. yukarıda), yani geçmiş test
@@ -163,3 +178,96 @@ documents:
     confidentiality: normal
     generate_in_phase: "4.2"
     tag: AI_ASSUMPTION
+
+  # İş Emri 2026-10-11-B (Hukuk partisi, T-12.3) — ürün sahibi onaylı, tag USER_FACT.
+  - id: DOC-BOZ-LEG-001
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Lawsuit Petition
+    name: {value: "İmar Planı Değişikliği İptali Davası — Dava Dilekçesi", tag: USER_FACT}
+    document_date: {value: 2026-05-22, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Boztepe RES Enerji Üretim A.Ş.", "İlçe Belediyesi"]
+    key_facts: {court: "project.legal_case.court.value", case_number: "project.legal_case.case_number.value", plaintiff: "project.legal_case.plaintiff.value", defendant: "project.legal_case.defendant.value", legal_subject: "project.legal_case.subject.value", filed_date: "project.legal_case.filed_date"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT
+
+  - id: DOC-BOZ-LEG-002
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Defense Brief
+    name: {value: "İmar Planı Değişikliği İptali Davası — Belediye Savunması", tag: USER_FACT}
+    document_date: {value: 2026-06-25, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Boztepe RES Enerji Üretim A.Ş.", "İlçe Belediyesi"]
+    key_facts: {court: "project.legal_case.court.value", case_number: "project.legal_case.case_number.value", legal_subject: "project.legal_case.subject.value", defense_date: "project.legal_case.defense_date"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-BOZ-LEG-001]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT
+
+  # İçerik notu (token değil, prose_guidance_tr): YD reddinin gerekçesi — plan yürürlükte,
+  # mevcut santral işletmesini/kredi servisini etkilemiyor, çevresinde ileride kısıt riski
+  # doğuruyor (NACI_CEVAP §1). Bu gerekçe metni bir tarih/tutar/isim olmadığı için token
+  # yerine document_specs'teki guidance ile anlatılacak.
+  - id: DOC-BOZ-LEG-003
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Interim Decision
+    name: {value: "İmar Planı Değişikliği İptali Davası — Yürütmeyi Durdurma Talebinin Reddi", tag: USER_FACT}
+    document_date: {value: 2026-07-10, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Boztepe RES Enerji Üretim A.Ş.", "İlçe Belediyesi"]
+    key_facts: {court: "project.legal_case.court.value", case_number: "project.legal_case.case_number.value", stay_request_rejected_date: "project.legal_case.stay_request_rejected_date", next_hearing: "project.legal_case.next_hearing"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-BOZ-LEG-001]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT
+
+  - id: DOC-BOZ-LEG-004
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Site Visit Record
+    name: {value: "İmar Planı Değişikliği İptali Davası — Bilirkişi Keşif Tutanağı", tag: USER_FACT}
+    document_date: {value: 2026-09-26, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Boztepe RES Enerji Üretim A.Ş.", "İlçe Belediyesi"]
+    key_facts: {court: "project.legal_case.court.value", case_number: "project.legal_case.case_number.value", expert_site_visit_date: "project.legal_case.expert_site_visit_date", next_hearing: "project.legal_case.next_hearing"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-BOZ-LEG-001]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT

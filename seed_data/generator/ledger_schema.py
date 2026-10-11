@@ -472,6 +472,35 @@ class Operations(_Strict):
     insurance_policy_no: Fact | None = None
 
 
+# ---------------------------------------------------------------- Hukuk (İş Emri
+# 2026-10-11-B): a single pending court case per project — Karatepe (T-12.1), Boztepe
+# (T-12.3) and Yeşilova (T-12.2) share this shape even though each project populates only
+# the fields its own case actually has (NACI_CEVAP_2026-10-11.md §1, canvas-onaylı).
+
+
+class LegalCase(_Strict):
+    court: Fact
+    case_number: Fact
+    plaintiff: Fact
+    defendant: Fact
+    subject: Fact
+    filed_date: date
+    defense_date: date | None = None
+    expert_report_date: date | None = None
+    expert_site_visit_date: date | None = None
+    hearing_record_date: date | None = None
+    stay_request_rejected_date: date | None = None
+    reply_date: date | None = None
+    next_hearing: date | None = None
+    amount_offered: Money | None = None
+    amount_claimed: Money | None = None
+    amount_expert: Money | None = None
+    court_clerk_email_date: date | None = None
+    opposing_counsel_email_date: date | None = None
+    material_litigation_threshold: Money | None = None
+    tag: Tag
+
+
 class AnkaraProject(_Strict):
     code: Literal["ANK_RES"]
     # Adım 5 (Ç-9 B, Tansu §3): display name only — the code/file/`DOC-ANK-*` prefix is
@@ -485,6 +514,7 @@ class AnkaraProject(_Strict):
     finance: Finance
     construction: Construction
     operations: Operations
+    legal_case: LegalCase | None = None
 
 
 # ---------------------------------------------------------------- İzmir
@@ -584,6 +614,21 @@ class SignedUnstartedEpc(_Strict):
     advance_invoice_paid_date: date | None = None
 
 
+class ContractorNotice(_Strict):
+    """Kızılova'nın ABC İnşaat'a gönderdiği noter ihtarnamesi (T-12.4) — bir dava değil,
+    sözleşme ihlali bildirimi."""
+
+    recipient: Fact
+    contract_ref: Fact
+    subject: Fact
+    original_due_date: date
+    demanded_date: date
+    penalty_rate_pct: float | None = None
+    penalty_cap_pct: float | None = None
+    sent_date: date
+    tag: Tag
+
+
 class IzmirProject(_Strict):
     code: Literal["IZM_RES"]
     name: Literal["Kızılova RES"]
@@ -599,6 +644,13 @@ class IzmirProject(_Strict):
     # Adım 5 Aşama C: Kızılova-specific (not Akyar/Demirci's `GenericDevelopmentProject`).
     signed_undrawn_facility: SignedUndrawnFacility | None = None
     signed_unstarted_epc: SignedUnstartedEpc | None = None
+    # İş Emri 2026-10-11-B (T-12.4).
+    contractor_notice: ContractorNotice | None = None
+    # İş Emri 2026-10-11-B (T-12.4b): Mera Tahsis Değişikliği talep yazısı — yalnız talep,
+    # sonuç/karar belgesi YOK (ÖNCEDEN VERİLMİŞ KARAR 5, komisyon henüz toplanmadı).
+    mera_request_recipient: Fact | None = None
+    mera_request_date: date | None = None
+    mera_next_meeting: date | None = None
 
 
 # ---------------------------------------------------------------- documents inventory
@@ -685,6 +737,34 @@ class OperatingProject(_Strict):
     # (ADIM5_ASAMA_C_REPORT.md §2) — structurally `None`, same as `IzmirProject`'s.
     construction: None = None
     operations: Operations | None = None
+    # İş Emri 2026-10-11-B: Boztepe (T-12.3) ve Yeşilova (T-12.2) — Güneşalan'ın davası yok
+    # (NACI_CEVAP §1 son satır), bu yüzden Güneşalan'ın kendi yaml'ı bu alanı hiç kullanmaz.
+    legal_case: LegalCase | None = None
+
+
+class RegulatoryObjection(_Strict):
+    """Demirci's TEA itirazı (T-12.5) — a one-off shape, not shared with `LegalCase`
+    (no court/plaintiff/defendant; this is an administrative objection, not a lawsuit)."""
+
+    recipient: Fact
+    prior_decision_ref: Fact
+    prior_decision_date: date
+    reason: Fact
+    objection_date: date
+    expected_response_date: date | None = None
+    tag: Tag
+
+
+class ExpropriationNegotiation(_Strict):
+    """Akyar's kamulaştırma ön değerlendirmesi (T-12.5b) — a pre-litigation negotiation
+    note, not a lawsuit (no court/case_number)."""
+
+    counterparty: Fact
+    valuation_date: date
+    meeting_date: date
+    next_meeting: date | None = None
+    note: str | None = None
+    tag: Tag
 
 
 class GenericDevelopmentProject(_Strict):
@@ -705,6 +785,9 @@ class GenericDevelopmentProject(_Strict):
     # Akyar/Demirci: Tansu gives only the pre-licence date/expiry (in `timeline`), no ÇED
     # status or permit history — `development` stays unset rather than fabricated.
     development: Development | None = None
+    # İş Emri 2026-10-11-B: each only the one that's its own (shared shape, both Optional).
+    regulatory_objection: RegulatoryObjection | None = None
+    expropriation_negotiation: ExpropriationNegotiation | None = None
 
 
 class OperatingLedger(_Strict):

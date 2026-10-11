@@ -33,4 +33,36 @@ project:
     cod_actual: null
     operation_start: null
 
-documents: []
+  # İş Emri 2026-10-11-B (T-12.5b, NACI_CEVAP_2026-10-11.md §1 — ürün sahibi onaylı).
+  # `counterparty` kaynakta özel ad DEĞİL — "malik (kurgusal kişi)"; isim İCAT EDİLMEDİ
+  # (ÖNCEDEN VERİLMİŞ KARAR 1). Dava yok — bu bir ön değerlendirme/müzakere notu.
+  expropriation_negotiation:
+    counterparty: {value: "Malik (kurgusal kişi, ismi henüz verilmedi)", tag: USER_FACT}
+    valuation_date: 2026-04-10
+    meeting_date: 2026-09-05
+    next_meeting: 2026-10-25
+    note: "Malik, görüşme tutanağında bedeli iki katına çıkardı (NACI_CEVAP §1)."
+    tag: USER_FACT
+
+documents:
+  - id: DOC-AKY-LEG-001
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Assessment Memo
+    name: {value: "Kamulaştırma Ön Değerlendirme Notu", tag: USER_FACT}
+    document_date: {value: 2026-09-05, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Akyar GES Enerji Üretim A.Ş."]
+    key_facts: {valuation_date: "project.expropriation_negotiation.valuation_date", meeting_date: "project.expropriation_negotiation.meeting_date", next_meeting: "project.expropriation_negotiation.next_meeting"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT

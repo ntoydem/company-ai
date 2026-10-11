@@ -31,4 +31,36 @@ project:
     cod_actual: null
     operation_start: null
 
-documents: []
+  # İş Emri 2026-10-11-B (T-12.5, NACI_CEVAP_2026-10-11.md §1 — ürün sahibi onaylı).
+  # Sonuç belgesi ÜRETİLMEDİ (kaynak: "sonuç belgesi üretilmez" — kurumun cevabı henüz yok).
+  regulatory_objection:
+    recipient: {value: "TEİAŞ", tag: USER_FACT, note: "İtiraz ETKB koordinasyonunda TEİAŞ'a yapıldı."}
+    prior_decision_ref: {value: "TEA-2026-119", tag: USER_FACT}
+    prior_decision_date: 2026-09-08
+    reason: {value: "T-04 ve T-07 türbinlerinin meteoroloji radarının etki alanında olması; radar etki alanının yeniden hesaplanması ve alternatif mikro-yerleşim önerisi", tag: USER_FACT}
+    objection_date: 2026-09-22
+    expected_response_date: 2026-11-08
+    tag: USER_FACT
+
+documents:
+  - id: DOC-DMR-LEG-001
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Regulatory Objection Letter
+    name: {value: "TEA Olumsuz Görüşüne İtiraz Dilekçesi", tag: USER_FACT}
+    document_date: {value: 2026-09-22, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Demirci RES Enerji Üretim A.Ş.", "TEİAŞ"]
+    key_facts: {recipient: "project.regulatory_objection.recipient.value", prior_decision_ref: "project.regulatory_objection.prior_decision_ref.value", prior_decision_date: "project.regulatory_objection.prior_decision_date", objection_reason: "project.regulatory_objection.reason.value", objection_date: "project.regulatory_objection.objection_date", expected_response_date: "project.regulatory_objection.expected_response_date"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT

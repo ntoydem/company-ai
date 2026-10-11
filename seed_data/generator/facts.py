@@ -118,6 +118,43 @@ _FIELD_KIND: dict[str, tuple[str, str]] = {
     "repayment_profile_en": ("text", ""),
     "signed_date": ("date", ""),
     "monthly_interest_amount": ("money", ""),
+    # İş Emri 2026-10-11-B — Hukuk partisi (dava/itiraz/ihtarname/değerlendirme belgeleri).
+    "court": ("text", ""),
+    "case_number": ("text", ""),
+    "plaintiff": ("text", ""),
+    "defendant": ("text", ""),
+    "legal_subject": ("text", ""),
+    "filed_date": ("date", ""),
+    "defense_date": ("date", ""),
+    "expert_report_date": ("date", ""),
+    "expert_site_visit_date": ("date", ""),
+    "hearing_record_date": ("date", ""),
+    "stay_request_rejected_date": ("date", ""),
+    "reply_date": ("date", ""),
+    "next_hearing": ("date", ""),
+    "amount_offered": ("money", ""),
+    "amount_claimed": ("money", ""),
+    "amount_expert": ("money", ""),
+    "court_clerk_email_date": ("date", ""),
+    "opposing_counsel_email_date": ("date", ""),
+    "material_litigation_threshold": ("money", ""),
+    "recipient": ("text", ""),
+    "contract_ref": ("text", ""),
+    "original_due_date": ("date", ""),
+    "demanded_date": ("date", ""),
+    "penalty_rate_pct": ("percent", ""),
+    "penalty_cap_pct": ("percent", ""),
+    "notice_sent_date": ("date", ""),
+    "prior_decision_ref": ("text", ""),
+    "prior_decision_date": ("date", ""),
+    "objection_reason": ("text", ""),
+    "objection_date": ("date", ""),
+    "expected_response_date": ("date", ""),
+    "valuation_date": ("date", ""),
+    "meeting_date": ("date", ""),
+    "next_meeting": ("date", ""),
+    "mera_request_date": ("date", ""),
+    "mera_next_meeting": ("date", ""),
 }
 
 _PREFIX_TO_LEDGER = {
@@ -129,6 +166,9 @@ _PREFIX_TO_LEDGER = {
     "YSV": "yesilova_res",
     # İş Emri 2026-10-11 Adım 4: Boztepe — ikinci SPV, ilk kez gerçek belge üretiyor.
     "BOZ": "boztepe_res",
+    # İş Emri 2026-10-11-B Adım B: Demirci/Akyar — Hukuk partisiyle ilk kez belge üretiyor.
+    "DMR": "demirci_res",
+    "AKY": "akyar_ges",
 }
 
 
@@ -281,6 +321,9 @@ def _project_name(doc_id: str) -> str | None:
         "YSV": "Yeşilova RES",
         # İş Emri 2026-10-11 Adım 4: Boztepe.
         "BOZ": "Boztepe RES",
+        # İş Emri 2026-10-11-B Adım B: Demirci/Akyar.
+        "DMR": "Demirci RES",
+        "AKY": "Akyar GES",
     }[prefix]
 
 

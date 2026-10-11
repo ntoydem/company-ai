@@ -256,6 +256,26 @@ project:
       - {date: 2024-07-08, type: {value: "Türbin dişli kutusu arızası (T-07), 11 gün duruş", tag: USER_FACT}, doc: null, tag: USER_FACT}
       - {date: 2025-01-22, type: {value: "Şebeke kaynaklı kesinti, 2 gün", tag: USER_FACT}, doc: null, tag: USER_FACT}
 
+  # İş Emri 2026-10-11-B (T-12.1, NACI_CEVAP_2026-10-11.md §1 — ürün sahibi onaylı, canvas
+  # "Dava Geçmişi" ekranıyla birebir, AI_ASSUMPTION gerekmiyor).
+  legal_case:
+    court: {value: "Ankara 4. İdare Mahkemesi", tag: USER_FACT}
+    case_number: {value: "2025/412 E.", tag: USER_FACT}
+    plaintiff: {value: "Karatepe RES Enerji Üretim A.Ş.", tag: USER_FACT}
+    defendant: {value: "Enerji ve Tabii Kaynaklar Bakanlığı", tag: USER_FACT}
+    subject: {value: "TEİAŞ'ın 154 kV enerji nakil hattı için Karatepe'ye ait iki parsel üzerinde tesis edilen irtifakın bedel tespiti", tag: USER_FACT}
+    filed_date: 2025-02-12
+    defense_date: 2025-04-03
+    expert_report_date: 2025-09-15
+    hearing_record_date: 2026-01-10
+    next_hearing: 2026-10-14
+    amount_offered: {value: 1850000, currency: TRY, tag: USER_FACT, note: "İdarenin belirlediği bedel."}
+    amount_claimed: {value: 3400000, currency: TRY, tag: USER_FACT, note: "Karatepe'nin talebi."}
+    amount_expert: {value: 2960000, currency: TRY, tag: USER_FACT, note: "Bilirkişi heyetinin bulduğu değer."}
+    court_clerk_email_date: 2026-09-15
+    opposing_counsel_email_date: 2026-09-10
+    tag: USER_FACT
+
 # Master document inventory. generate_in_phase: 3.1 -> Phase 3.1 produces the file; 5.1 -> inventory-only until then.
 documents:
   - id: DOC-ANK-DEV-001
@@ -1250,6 +1270,147 @@ documents:
     confidentiality: normal
     generate_in_phase: "5.1"
     tag: AI_ASSUMPTION
+
+  # İş Emri 2026-10-11-B (Hukuk partisi, T-12.1): plan DOC-ANK-LEG-001/002/003'ü önermişti
+  # ama bu ID'ler zaten yukarıdaki belgelerde kullanılıyor — 004'ten devam (bkz. Adım A
+  # raporu §2). Tamamı ürün sahibi onaylı (NACI_CEVAP_2026-10-11.md §1) — tag USER_FACT.
+  - id: DOC-ANK-LEG-004
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Lawsuit Petition
+    name: {value: "Kamulaştırma ve İrtifak Bedeli Tespiti Davası — Dava Dilekçesi", tag: USER_FACT}
+    document_date: {value: 2025-02-12, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Enerji ve Tabii Kaynaklar Bakanlığı"]
+    key_facts: {court: "project.legal_case.court.value", case_number: "project.legal_case.case_number.value", plaintiff: "project.legal_case.plaintiff.value", defendant: "project.legal_case.defendant.value", legal_subject: "project.legal_case.subject.value", filed_date: "project.legal_case.filed_date", amount_offered: "project.legal_case.amount_offered.value", amount_claimed: "project.legal_case.amount_claimed.value"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT
+
+  - id: DOC-ANK-LEG-005
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Defense Brief
+    name: {value: "Kamulaştırma ve İrtifak Bedeli Tespiti Davası — İdare Savunması", tag: USER_FACT}
+    document_date: {value: 2025-04-03, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Enerji ve Tabii Kaynaklar Bakanlığı"]
+    key_facts: {court: "project.legal_case.court.value", case_number: "project.legal_case.case_number.value", plaintiff: "project.legal_case.plaintiff.value", defendant: "project.legal_case.defendant.value", legal_subject: "project.legal_case.subject.value", defense_date: "project.legal_case.defense_date", amount_offered: "project.legal_case.amount_offered.value", amount_claimed: "project.legal_case.amount_claimed.value"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-LEG-004]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT
+
+  - id: DOC-ANK-LEG-006
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Expert Report
+    name: {value: "Kamulaştırma ve İrtifak Bedeli Tespiti Davası — Bilirkişi Raporu", tag: USER_FACT}
+    document_date: {value: 2025-09-15, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Enerji ve Tabii Kaynaklar Bakanlığı"]
+    key_facts: {court: "project.legal_case.court.value", case_number: "project.legal_case.case_number.value", legal_subject: "project.legal_case.subject.value", expert_report_date: "project.legal_case.expert_report_date", amount_expert: "project.legal_case.amount_expert.value"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-LEG-004]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT
+
+  # Kronoloji notu (prose'a YAZILMAZ, token değil): 10.01.2026 duruşmasında idarenin ek
+  # bilirkişi talebi reddedildi (NACI_CEVAP §1) — bu olayın kendisi bir tarih/tutar/isim
+  # olmadığı için token yerine document_specs'teki prose_guidance_tr ile anlatılacak.
+  - id: DOC-ANK-LEG-007
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Hearing Record
+    name: {value: "Kamulaştırma ve İrtifak Bedeli Tespiti Davası — Duruşma Tutanağı", tag: USER_FACT}
+    document_date: {value: 2026-01-10, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Enerji ve Tabii Kaynaklar Bakanlığı"]
+    key_facts: {court: "project.legal_case.court.value", case_number: "project.legal_case.case_number.value", hearing_record_date: "project.legal_case.hearing_record_date", next_hearing: "project.legal_case.next_hearing"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-LEG-004]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT
+
+  # Kaynak dosya adı (ÖNCEDEN VERİLMİŞ KARAR 3 — .eml desteği yok, e-posta çıktısı
+  # düzeninde PDF; `letter` ailesi, altyapı değişikliği yok): Kamulaştırma_Itiraz_Sureci.eml.
+  - id: DOC-ANK-LEG-008
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Court Clerk Email
+    name: {value: "Mahkeme Kalemi E-postası — Dava Süreci Güncellemesi", tag: USER_FACT}
+    document_date: {value: 2026-09-15, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Ankara 4. İdare Mahkemesi"]
+    key_facts: {court: "project.legal_case.court.value", case_number: "project.legal_case.case_number.value", court_clerk_email_date: "project.legal_case.court_clerk_email_date", next_hearing: "project.legal_case.next_hearing"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-LEG-004]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT
+
+  # Kaynak dosya adı (aynı kural): Dava_Dosyasi_Guncelleme.eml.
+  - id: DOC-ANK-LEG-009
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Opposing Counsel Email
+    name: {value: "Karşı Taraf Vekili E-postası — Dava Dosyası Güncellemesi", tag: USER_FACT}
+    document_date: {value: 2026-09-10, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Enerji ve Tabii Kaynaklar Bakanlığı"]
+    key_facts: {court: "project.legal_case.court.value", case_number: "project.legal_case.case_number.value", defendant: "project.legal_case.defendant.value", opposing_counsel_email_date: "project.legal_case.opposing_counsel_email_date"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-ANK-LEG-004]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT
 
   - id: DOC-ANK-ADM-001
     department: mali_isler
