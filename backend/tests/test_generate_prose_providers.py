@@ -11,6 +11,7 @@ from types import SimpleNamespace
 
 import anthropic
 import httpx
+import openai
 import pytest
 import yaml
 
@@ -259,3 +260,65 @@ def test_usage_recorded_even_when_output_is_not_valid_json(monkeypatch, tmp_path
     assert tracker.call_count == generate_prose.MAX_ATTEMPTS
     assert tracker.input_tokens == 42 * generate_prose.MAX_ATTEMPTS
     assert tracker.output_tokens == 17 * generate_prose.MAX_ATTEMPTS
+
+
+def _openai_status_error(status_code: int, body: dict | None) -> openai.APIStatusError:
+    request = httpx.Request("POST", "https://generativelanguage.googleapis.com/v1beta/openai/")
+    response = httpx.Response(status_code=status_code, request=request)
+    return openai.APIStatusError("error", response=response, body=body)
+
+
+def test_safe_gemini_error_summary_extracts_whitelisted_fields() -> None:
+    exc = _openai_status_error(
+        429,
+        {"error": {"code": 429, "message": "quota exceeded", "status": "RESOURCE_EXHAUSTED"}},
+    )
+    summary = generate_prose._safe_gemini_error_summary(exc)
+    assert "RESOURCE_EXHAUSTED" in summary
+    assert "429" in summary
+    assert "quota exceeded" in summary
+
+
+def test_safe_gemini_error_summary_ignores_unknown_fields() -> None:
+    exc = _openai_status_error(429, {"error": {"status": "RESOURCE_EXHAUSTED", "auth": "SECRET"}})
+    summary = generate_prose._safe_gemini_error_summary(exc)
+    assert "SECRET" not in summary
+
+
+def test_safe_gemini_error_summary_handles_missing_body() -> None:
+    exc = _openai_status_error(503, None)
+    assert generate_prose._safe_gemini_error_summary(exc) == "gövde yok/okunamadı"
+
+
+def test_generate_one_gemini_logs_error_body_without_key_on_429(
+    monkeypatch, capsys, tmp_path
+) -> None:
+    """Adım 6 düzeltmesi: 429'da hata gövdesi print'e eklenir, retry/backoff değişmez,
+    anahtar (FAKE_KEY) hiçbir çıktıda görünmez."""
+    monkeypatch.setenv("LLM_API_KEY", FAKE_KEY)
+    monkeypatch.setattr(generate_prose, "PROSE_DIR", tmp_path)
+    monkeypatch.setattr(generate_prose.time, "sleep", lambda s: None)
+
+    calls = {"n": 0}
+
+    def fake_call_llm(client, model, system, user):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise _openai_status_error(
+                429, {"error": {"code": 429, "status": "RESOURCE_EXHAUSTED"}}
+            )
+        return {"sections": []}
+
+    monkeypatch.setattr(generate_prose, "_call_llm", fake_call_llm)
+    monkeypatch.setattr(generate_prose, "check_prose_document", lambda *a, **k: [])
+
+    errors = generate_prose._generate_one_gemini(
+        object(), "gemini-3.5-flash", "DOC-X", "sys", "usr", set()
+    )
+
+    assert errors == []
+    assert calls["n"] == 2  # 1 başarısız (429) + 1 başarılı — retry/backoff davranışı aynı
+    captured = capsys.readouterr()
+    assert "RESOURCE_EXHAUSTED" in captured.out
+    assert FAKE_KEY not in captured.out
+    assert FAKE_KEY not in captured.err

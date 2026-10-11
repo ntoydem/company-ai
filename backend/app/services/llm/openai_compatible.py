@@ -23,6 +23,31 @@ from app.services.llm.base import (
 log = logging.getLogger(__name__)
 
 
+def _safe_error_summary(exc: openai.APIStatusError) -> str:
+    """429/503 hata gövdesinden GÜVENLİ, bilinen alanları çıkarır (code/status/message/
+    retryDelay) — API anahtarı, header veya istek içeriği ASLA okunmaz; ham gövde de
+    basılmaz (bilinmeyen bir alanın yanlışlıkla hassas veri taşıma riskine karşı, yalnız
+    whitelist'teki alan adları okunur). Adım 6 kota teşhisinde (11.10.2026) bu gövdenin
+    hiçbir yerde loglanmadığı, bu yüzden hata türünün ("RESOURCE_EXHAUSTED" gibi) hiçbir
+    yerde kayıtlı olmadığı görülmüştü — bu düzeltme o boşluğu kapatıyor. Retry/backoff
+    mantığına dokunmuyor (SDK'nın kendi `max_retries`'ı), yalnız log ekliyor."""
+    body = getattr(exc, "body", None)
+    nested = body.get("error") if isinstance(body, dict) else None
+    error = nested if isinstance(nested, dict) else body
+    if not isinstance(error, dict):
+        return "gövde yok/okunamadı"
+    parts = []
+    for key in ("code", "status", "message", "retryDelay", "retry_delay"):
+        value = error.get(key)
+        if value is None:
+            continue
+        text = str(value)
+        if len(text) > 160:
+            text = text[:160] + "…"
+        parts.append(f"{key}={text}")
+    return "; ".join(parts) if parts else "tanımlı alan yok"
+
+
 class OpenAICompatibleClient:
     def __init__(
         self,
@@ -64,10 +89,15 @@ class OpenAICompatibleClient:
         except (openai.AuthenticationError, openai.PermissionDeniedError) as exc:
             raise LLMAuthError(str(exc)) from exc
         except openai.RateLimitError as exc:
+            log.warning("llm rate limited (429)", extra={"error_body": _safe_error_summary(exc)})
             raise LLMRateLimitError(str(exc)) from exc
         except openai.APITimeoutError as exc:
             raise LLMTimeoutError(str(exc)) from exc
-        except (openai.APIConnectionError, openai.APIStatusError) as exc:
+        except openai.APIStatusError as exc:
+            if exc.status_code == 503:
+                log.warning("llm unavailable (503)", extra={"error_body": _safe_error_summary(exc)})
+            raise LLMUnavailableError(str(exc)) from exc
+        except openai.APIConnectionError as exc:
             raise LLMUnavailableError(str(exc)) from exc
         except openai.OpenAIError as exc:
             raise LLMError(str(exc)) from exc

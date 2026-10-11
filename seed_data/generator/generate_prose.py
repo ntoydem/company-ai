@@ -217,17 +217,44 @@ def _write_rejected(doc_id: str, errors: list[str]) -> None:
     )
 
 
+def _safe_gemini_error_summary(exc: APIStatusError) -> str:
+    """429/503 hata gövdesinden GÜVENLİ, bilinen alanları çıkarır (code/status/message/
+    retryDelay) — anahtar/header/istek içeriği asla okunmaz; ham gövde de basılmaz (bilinmeyen
+    bir alanda yanlışlıkla hassas veri olma riskine karşı, yalnız whitelist'teki adlar okunur).
+    Adım 6 kota teşhisinde gövdenin hiç loglanmadığı, bu yüzden hata türünün ("RESOURCE_EXHAUSTED"
+    gibi) hiçbir yerde kayıtlı olmadığı görülmüştü — bu düzeltme o boşluğu kapatıyor."""
+    body = getattr(exc, "body", None)
+    nested = body.get("error") if isinstance(body, dict) else None
+    error = nested if isinstance(nested, dict) else body
+    if not isinstance(error, dict):
+        return "gövde yok/okunamadı"
+    parts = []
+    for key in ("code", "status", "message", "retryDelay", "retry_delay"):
+        value = error.get(key)
+        if value is None:
+            continue
+        text = str(value)
+        if len(text) > 160:
+            text = text[:160] + "…"
+        parts.append(f"{key}={text}")
+    return "; ".join(parts) if parts else "tanımlı alan yok"
+
+
 def _generate_one_gemini(
     client: OpenAI, model: str, doc_id: str, system: str, user: str, known: set[str]
 ) -> list[str]:
-    """Gemini path — byte-identical to the pre-Adım-5 `generate_one` body."""
+    """Gemini path — retry/backoff mantığı Adım 5'ten beri değişmedi; Adım 6 düzeltmesi
+    (11.10.2026) yalnız 429/503'te güvenli bir hata-gövdesi özeti log'a ekledi."""
     last_errors: list[str] = ["no attempt made"]
     for attempt in range(1, MAX_ATTEMPTS + 1):
         try:
             sections = _call_llm(client, model, system, user).get("sections", [])
         except APIStatusError as exc:
             if exc.status_code in (429, 503):
-                print(f"  {doc_id}: {exc.status_code}, {RATE_LIMIT_WAIT_S}s bekleniyor...")
+                print(
+                    f"  {doc_id}: {exc.status_code} ({_safe_gemini_error_summary(exc)}), "
+                    f"{RATE_LIMIT_WAIT_S}s bekleniyor..."
+                )
                 time.sleep(RATE_LIMIT_WAIT_S)
                 continue
             raise

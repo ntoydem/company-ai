@@ -21,7 +21,7 @@ from app.services.llm import (
     LLMUnavailableError,
     build_llm_client,
 )
-from app.services.llm.openai_compatible import OpenAICompatibleClient
+from app.services.llm.openai_compatible import OpenAICompatibleClient, _safe_error_summary
 
 REQUEST = LLMRequest(
     system="sistem", user="soru", model="gemini-test", max_output_tokens=64, reasoning_effort="low"
@@ -151,3 +151,70 @@ def test_factory_anthropic_is_deferred(settings: Settings) -> None:
 def test_factory_builds_openai_compatible_client(settings: Settings) -> None:
     client = build_llm_client(settings.model_copy(update={"llm_api_key": SecretStr("k")}))
     assert isinstance(client, OpenAICompatibleClient)
+
+
+def test_rate_limit_logs_safe_error_body_without_key(caplog: pytest.LogCaptureFixture) -> None:
+    """Adım 6 düzeltmesi (11.10.2026): 429'da hata gövdesi (RESOURCE_EXHAUSTED vb.) güvenli
+    alanlarla loglanır; anahtar ("test-key") hiçbir kayıtta görünmez."""
+
+    def handler(_: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(
+            429,
+            json={
+                "error": {
+                    "code": 429,
+                    "message": "You exceeded your current quota.",
+                    "status": "RESOURCE_EXHAUSTED",
+                }
+            },
+        )
+
+    with (
+        caplog.at_level(logging.WARNING, logger="app.services.llm"),
+        pytest.raises(LLMRateLimitError),
+    ):
+        _client(handler).complete(REQUEST)
+
+    record = next(r for r in caplog.records if r.getMessage() == "llm rate limited (429)")
+    assert "RESOURCE_EXHAUSTED" in record.error_body  # type: ignore[attr-defined]
+    assert "429" in record.error_body  # type: ignore[attr-defined]
+    for r in caplog.records:
+        assert "test-key" not in r.getMessage()
+        assert "test-key" not in str(getattr(r, "error_body", ""))
+
+
+def test_503_logs_safe_error_body_without_key(caplog: pytest.LogCaptureFixture) -> None:
+    def handler(_: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(
+            503, json={"error": {"code": 503, "message": "overloaded", "status": "UNAVAILABLE"}}
+        )
+
+    with (
+        caplog.at_level(logging.WARNING, logger="app.services.llm"),
+        pytest.raises(LLMUnavailableError),
+    ):
+        _client(handler).complete(REQUEST)
+
+    record = next(r for r in caplog.records if r.getMessage() == "llm unavailable (503)")
+    assert "UNAVAILABLE" in record.error_body  # type: ignore[attr-defined]
+    for r in caplog.records:
+        assert "test-key" not in r.getMessage()
+        assert "test-key" not in str(getattr(r, "error_body", ""))
+
+
+def test_safe_error_summary_ignores_unknown_fields() -> None:
+    """Whitelist dışı alanlar (örn. hayali bir 'request_headers' alanı) hiç okunmaz."""
+
+    class _FakeExc:
+        body = {"error": {"code": 429, "status": "RESOURCE_EXHAUSTED", "request_headers": "SECRET"}}
+
+    summary = _safe_error_summary(_FakeExc())  # type: ignore[arg-type]
+    assert "SECRET" not in summary
+    assert "RESOURCE_EXHAUSTED" in summary
+
+
+def test_safe_error_summary_handles_missing_body() -> None:
+    class _FakeExc:
+        body = None
+
+    assert _safe_error_summary(_FakeExc()) == "gövde yok/okunamadı"  # type: ignore[arg-type]
