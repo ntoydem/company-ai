@@ -1,22 +1,29 @@
 doc_id: DOC-CO-ADM-005
-model: gemini-3.5-flash-lite
+model: claude-sonnet-5-5
 tag: AI_ASSUMPTION
 sections:
 - heading: Genel Değerlendirme
   paragraphs:
-  - '[[spv_name]] bünyesinde hazırlanan bu [[title]], [[document_date]] tarihinde
-    [[status_label]] statüsüyle resmiyet kazanmıştır. Şirketimiz, [[version_label]]
-    sürümü kapsamında belirlenen hedefler doğrultusunda faaliyetlerini [[effective_date]]
-    itibarıyla başarıyla sürdürmektedir.'
-  - Raporlama döneminde [[counterparty]] ile gerçekleştirilen stratejik ortaklıklar,
-    [[parties_list]] çerçevesinde titizlikle yürütülmüştür. Operasyonel verimliliğin
-    artırılması amacıyla [[document_no]] referanslı denetim süreçleri eksiksiz olarak
-    tamamlanmıştır.
+  - Bu belge, [[title]] başlığı altında hazırlanmış olup [[document_no]] numarasıyla
+    kayıt altına alınmıştır. Belge, [[document_date]] tarihli olarak düzenlenmiş ve
+    [[version_label]] sürümü olarak yönetim arşivine alınmıştır. Mevcut durumu [[status_label]]
+    olarak belirtilmektedir.
+  - Rapor, [[spv_name]] bünyesinde yürütülen faaliyetlerin genel çerçevesini kurumsal
+    bir bakışla ortaya koymaktadır. Değerlendirmeler, ilgili taraflar arasındaki mevcut
+    düzen ve işbirliği esas alınarak hazırlanmıştır. Raporda yer alan taraflar [[parties_list]]
+    ifadesiyle belirtilmiştir.
+  - Yönetim, faaliyet dönemi boyunca kurumsal yönetişim ilkelerine uygun hareket etmeyi,
+    şeffaflığı ve hesap verebilirliği temel ölçüt olarak benimsemiştir. Bu rapor,
+    söz konusu yaklaşımın bir özeti niteliğindedir. Belgede yer alan değerlendirmeler
+    genel nitelikte olup ayrıntılı bilgiler ilgili iç kayıtlarda tutulmaktadır.
 - heading: Sonuç
   paragraphs:
-  - Elde edilen kurumsal veriler, [[spv_name]] yönetiminin [[effective_date]] dönemindeki
-    stratejik başarılarını net bir şekilde ortaya koymaktadır. [[counterparty]] katılımıyla
-    şekillenen projeler, gelecekteki [[title]] hedefleri için sağlam bir temel oluşturmuştur.
-  - İşbu [[document_no]] sayılı rapor, [[document_date]] tarihinde [[status_label]]
-    olarak onaylanmış olup tüm paydaşların bilgisine sunulmuştur. Gelecek dönem planlamaları,
-    [[version_label]] ilkeleri doğrultusunda kesintisiz olarak devam edecektir.
+  - Yönetim, [[spv_name]] adına yürütülen çalışmaların kurumsal hedeflerle uyumlu
+    biçimde ilerlediğini değerlendirmektedir. Bu sonuç, [[document_no]] numaralı belgede
+    yer alan genel çerçeve doğrultusunda ortaya konmuştur.
+  - Rapor, [[document_date]] itibarıyla geçerli olan [[version_label]] sürümü olarak
+    ilgili taraflarla paylaşılmak üzere hazırlanmıştır. Belgenin [[status_label]]
+    durumu, sonraki gözden geçirmelerde güncellenebilir.
+  - Bu belge kurgusal bir demo çalışmasıdır ve gerçek bir kuruluşa ya da işleme ilişkin
+    bağlayıcı bir değerlendirme içermemektedir. İlgili taraflara yönelik tüm bilgilendirmeler,
+    kurumsal iletişim süreçleri çerçevesinde ayrıca yapılacaktır.

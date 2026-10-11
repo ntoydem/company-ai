@@ -1,24 +1,28 @@
 doc_id: DOC-ANK-OPS-008
-model: gemini-3.5-flash-lite
+model: claude-sonnet-5-5
 tag: AI_ASSUMPTION
 sections:
 - heading: Genel Değerlendirme
   paragraphs:
-  - İşbu [[document_no]] numaralı resmi belge, [[spv_name]] tarafından yürütülen operasyonel
-    süreçlerin kapsamlı bir incelemesini içermektedir. Belirtilen dönem boyunca [[project_name]]
-    projesinin hedefleri doğrultusunda kaydedilen ilerlemeler [[status_label]] statüsüne
-    uygun olarak detaylıca incelenmiştir.
-  - Değerlendirme sürecinde [[counterparty]] ile gerçekleştirilen iş birliği faaliyetleri
-    ve [[parties_list]] unsurları titizlikle ele alınmıştır. Elde edilen bulgular,
-    [[effective_date]] tarihinde yürürlüğe giren politikaların başarıyla uygulandığını
-    ve [[version_label]] standartlarının korunduğunu göstermektedir.
+  - Bu not, [[title]] kapsamında hazırlanmış olup [[document_no]] numaralı belge olarak
+    [[document_date]] tarihi itibarıyla düzenlenmiştir. Belge, [[project_name]] kapsamındaki
+    operasyonel faaliyetlerin ilgili dönem boyunca genel seyrini özetlemeyi amaçlamaktadır.
+    Mevcut sürüm [[version_label]] olup belgenin durumu [[status_label]] olarak belirtilmiştir.
+  - Değerlendirme, [[spv_name]] bünyesinde yürütülen faaliyetlerin planlanan hedefler
+    doğrultusunda ilerleyip ilerlemediğine dair genel bir çerçeve sunmaktadır. Operasyonel
+    süreçlerin sürekliliği, raporlama disiplini ve paydaşlar arası koordinasyon ana
+    değerlendirme başlıkları olarak ele alınmıştır. Bu çerçevede somut göstergeler
+    ayrıca ilgili destekleyici raporlarda izlenmektedir.
+  - Dönem boyunca ilgili taraflar, yani [[parties_list]], faaliyetlerin yürütülmesinde
+    karşılıklı bilgilendirme ve iş birliği esaslarına uygun hareket etmiştir. İyileştirmeye
+    açık alanlar belirlenmiş ve bunların izlenmesine devam edilmesi uygun görülmüştür.
+    Bu demo belge kapsamındaki tespitler genel nitelik taşımaktadır.
 - heading: Sonuç
   paragraphs:
-  - '[[document_date]] tarihinde finalize edilen bu değerlendirme notu, gelecekteki
-    stratejik adımlar için sağlam bir altyapı sunmaktadır. İlgili tarafların [[title]]
-    sorumluluklarını eksiksiz yerine getirmesi, operasyonel sürdürülebilirlik açısından
-    kritik önem taşımaktadır.'
-  - Mevcut performans seviyesinin korunması ve sürekli iyileştirme prensiplerinin
-    benimsenmesi amacıyla denetim süreçleri periyodik olarak tekrarlanacaktır. Kurumsal
-    hedeflere ulaşılması yolunda gösterilen uyum, tüm paydaşlar için memnuniyet verici
-    düzeydedir.
+  - Genel olarak, [[project_name]] kapsamındaki operasyonel performansın ilgili dönem
+    için kurumsal beklentilerle uyumlu bir çizgide seyrettiği değerlendirilmiştir.
+    Belirlenen gelişim alanları, bir sonraki değerlendirme döneminde öncelikli izleme
+    konuları arasında yer alacaktır.
+  - Bu not, [[document_no]] numaralı belge olarak [[spv_name]] ve ilgili taraflarca
+    bilgi amacıyla kullanılacaktır. Belgenin güncel durumu [[status_label]] olup,
+    sonraki sürümlerde gerekli görülen güncellemeler yapılabilecektir.

@@ -1,22 +1,30 @@
 doc_id: DOC-IZM-ADM-002
-model: gemini-3.5-flash-lite
+model: claude-sonnet-5-5
 tag: AI_ASSUMPTION
 sections:
 - heading: Düzenleme Kapsamı
   paragraphs:
-  - İşbu belgenin temel amacı, [[project_name]] projesi kapsamında yürütülecek saha
-    güvenlik prosedürlerini ve idari düzenlemeleri resmi olarak belirlemektir. İlgili
-    tüm paydaşlar, [[spv_name]] tarafından belirlenen kurallara eksiksiz bir şekilde
-    uymakla yükümlüdür.
-  - '[[counterparty]] ile imzalanan mutabakat metni çerçevesinde, [[document_no]]
-    numaralı bu doküman [[document_date]] tarihinde yürürlüğe girmiştir. Belirtilen
-    standartlar, [[version_label]] sürümü ile güncellenmiş olup saha güvenliğinin
-    artırılmasını hedeflemektedir.'
+  - Bu not, [[project_name]] kapsamında yürütülen faaliyetlere ilişkin saha güvenliği
+    ve idari düzenlemeleri genel hatlarıyla ortaya koymak amacıyla hazırlanmıştır.
+    Belge, [[document_no]] numarası ve [[version_label]] sürümü ile [[document_date]]
+    tarihinde düzenlenmiş olup mevcut durumu [[status_label]] olarak belirtilmiştir.
+  - Düzenlemeler, [[spv_name]] tarafından yürütülen saha çalışmalarını ve bu çalışmalara
+    katılan tüm ilgili tarafları kapsar. İlgili taraflar [[parties_list]] ifadesiyle
+    belirtilmiştir ve her biri kendi sorumluluk alanında bu nottaki esaslara uymakla
+    yükümlüdür.
+  - Saha güvenliğine ilişkin temel ilkeler; iş sağlığı ve güvenliği gerekliliklerine
+    uyum, saha giriş ve çıkış düzeninin korunması, ekipman ve personel kullanımında
+    dikkat yükümlülüğü ile olağan dışı durumların zamanında bildirilmesini içerir.
+    İdari düzenlemeler ise yazışma, kayıt tutma ve onay süreçlerinin düzenli biçimde
+    yürütülmesini amaçlar.
 - heading: Değerlendirme
   paragraphs:
-  - Saha genelinde gerçekleştirilen denetimler sonucunda, [[status_label]] statüsünde
-    bulunan idari süreçlerin gözden geçirilmesi gerekmiştir. Alınan önlemlerin etkinliği,
-    [[parties_list]] temsilcilerinin katılımıyla düzenli olarak raporlanmaktadır.
-  - '[[effective_date]] itibarıyla uygulanmaya başlanan yeni tedbirler sayesinde operasyonel
-    verimlilik artırılmıştır. Gelecek dönemde yapılacak denetimlerde, [[title]] pozisyonundaki
-    yetkililerin yönlendirmeleri esas alınacaktır.'
+  - '[[title]] başlıklı bu not, taraflar arasındaki koordinasyonu güçlendirmeyi ve
+    saha faaliyetlerinin güvenli ve düzenli biçimde sürdürülmesini desteklemeyi hedefler.
+    Belgede yer alan esaslar genel nitelikte olup uygulamada ilgili mevzuat ve taraflar
+    arasındaki mutabakat çerçevesinde yorumlanır.'
+  - Belirtilen düzenlemelerin yeterliliği, saha faaliyetlerinin seyrine göre periyodik
+    olarak gözden geçirilebilir. Gerekli görülen değişiklikler, ilgili tarafların
+    bilgisine sunularak belgenin yeni bir sürümü aracılığıyla kayda geçirilir.
+  - Bu not demo amaçlı hazırlanmış kurgusal bir belgedir ve gerçek bir hukuki veya
+    operasyonel bağlayıcılık taşımaz.

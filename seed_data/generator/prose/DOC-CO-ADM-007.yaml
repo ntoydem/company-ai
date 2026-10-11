@@ -1,26 +1,26 @@
 doc_id: DOC-CO-ADM-007
-model: gemini-3.5-flash-lite
+model: claude-sonnet-5-5
 tag: AI_ASSUMPTION
 sections:
 - heading: Politika Kapsamı
   paragraphs:
-  - Bu kurumsal yönetim ve uyum politikası belgesi, [[spv_name]] bünyesindeki tüm
-    operasyonel süreçleri ve idari faaliyetleri kapsamaktadır. Belirtilen standartlar,
-    [[counterparty]] ve ilgili tüm paydaşların katılımıyla [[document_date]] tarihinde
-    güncellenmiştir. [[document_no]] numaralı bu metin, şirket içi tüm birimlerin
-    yasal düzenlemelere tam uyum sağlamasını hedefler.
-  - Uygulama alanı içerisinde [[parties_list]] tarafından yürütülen tüm projeler ve
-    ticari ilişkiler yer almaktadır. [[version_label]] sürümü ile birlikte, iç denetim
-    mekanizmaları daha sıkı bir şekilde yapılandırılmıştır. [[status_label]] statüsündeki
-    bu politika, tüm çalışanların erişimine açık bir şekilde muhafaza edilmektedir.
+  - Bu politika, [[title]] başlığıyla [[document_no]] numaralı belge olarak hazırlanmıştır
+    ve [[document_date]] tarihlidir. Belge, [[version_label]] sürümü olarak düzenlenmiş
+    olup mevcut durumu [[status_label]] şeklindedir.
+  - Politika, [[spv_name]] bünyesindeki tüm kurumsal yönetim ve uyum faaliyetlerini
+    kapsar. Taraflar olarak [[parties_list]] bu politikanın ilgili hükümlerine uygun
+    hareket etmeyi kabul eder.
+  - Politikanın amacı; şeffaflık, hesap verebilirlik, dürüstlük ve mevzuata uygunluk
+    ilkelerinin kurumsal faaliyetlerin tamamında gözetilmesini sağlamaktır. Bu çerçeve,
+    ilgili tüm birimler ve çalışanlar için bağlayıcı bir referans niteliği taşır.
 - heading: Uygulama
   paragraphs:
-  - Politika hükümlerinin hayata geçirilmesi sürecinde, [[effective_date]] tarihi
-    itibarıyla tüm departmanlar sorumlu hareket etmekle yükümlüdür. [[spv_name]] yönetim
-    kurulu, uyum süreçlerinin etkinliğini düzenli olarak denetlemektedir. [[counterparty]]
-    ile yürütülen ortak çalışmalarda bu kuralların ihlal edilmemesi için gerekli tedbirler
-    alınmıştır.
-  - Olası uyumsuzluk durumlarında [[document_no]] kapsamında belirtilen disiplin ve
-    düzeltme prosedürleri derhal devreye sokulur. [[parties_list]] üyeleri, bu süreçlerin
-    yürütülmesinde aktif rol oynamaktadır. Tüm bu adımlar, şirketin kurumsal itibarını
-    ve yasal güvencesini korumak amacıyla titizlikle uygulanır.
+  - Bu politika, [[effective_date]] tarihinde yürürlüğe girer ve aksi yazılı olarak
+    belirtilmedikçe yürürlükte kalır. Politikanın uygulanmasından ilgili yönetim organları
+    ve uyum sorumluları birlikte sorumludur.
+  - Taraflar, politikanın gereklerini yerine getirmek için makul ve uygun tüm tedbirleri
+    alır. Politikaya aykırılık şüphesi doğduğunda ilgili durum gecikmeden yetkili
+    birimlere bildirilir ve gerekli inceleme usulüne uygun biçimde yürütülür.
+  - Politikada yapılacak değişiklikler yazılı olarak hazırlanır ve ilgili onay süreçlerinden
+    geçirilir. Güncel sürüm, [[document_no]] numaralı belge kaydı üzerinden takip
+    edilir ve ilgili taraflarla paylaşılır.

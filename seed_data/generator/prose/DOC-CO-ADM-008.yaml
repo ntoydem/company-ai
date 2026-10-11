@@ -1,21 +1,31 @@
 doc_id: DOC-CO-ADM-008
-model: gemini-3.5-flash-lite
+model: claude-sonnet-5-5
 tag: AI_ASSUMPTION
 sections:
 - heading: Karar Gerekçesi
   paragraphs:
-  - Şirketimiz bünyesinde kurumsal yönetim ilkelerinin etkinliğinin artırılması ve
-    iç kontrol mekanizmalarının güçlendirilmesi amacıyla yeni bir denetim komitesi
-    oluşturulması [[counterparty]] tarafından talep edilmiştir. İlgili düzenlemeler
-    çerçevesinde, [[spv_name]] bünyesindeki finansal raporlama süreçlerinin şeffaflığı
-    ve güvenilirliği [[document_date]] tarihinde detaylıca değerlendirilmiştir. Yapılan
-    ön incelemeler sonucunda, [[status_label]] statüsündeki denetim faaliyetlerinin
-    kesintisiz yürütülmesi için atama yapılmasının zaruri olduğu kanaatine varılmıştır.
+  - İşbu karar, [[spv_name]] bünyesinde kurumsal yönetim ilkelerinin etkin biçimde
+    uygulanmasını ve iç kontrol mekanizmalarının güçlendirilmesini amaçlamaktadır.
+    Yönetim Kurulu, finansal raporlama süreçlerinin güvenilirliğinin, risk yönetiminin
+    ve mevzuata uyumun bağımsız ve sistematik bir gözetime tabi tutulmasının gerekli
+    olduğu kanaatine varmıştır.
+  - Bu doğrultuda, [[document_no]] numaralı ve [[title]] başlıklı belge kapsamında
+    bir Denetim Komitesi oluşturulması ve komite üyelerinin atanması uygun görülmüştür.
+    Karar, [[document_date]] tarihinde yapılan değerlendirmeler esas alınarak hazırlanmış
+    olup [[version_label]] sürümü olarak düzenlenmiştir.
+  - Karar sürecinde, ilgili taraflar olan [[parties_list]] bakımından şeffaflığın,
+    hesap verebilirliğin ve çıkar çatışmalarının önlenmesinin gözetilmesi esas alınmıştır.
+    Komitenin görevlerini bağımsız ve tarafsız biçimde yürütebilmesi için gerekli
+    yetki ve kaynakların sağlanması hedeflenmektedir.
 - heading: Alınan Karar
   paragraphs:
-  - Yönetim kurulu, [[document_no]] sayılı karar metni doğrultusunda, [[effective_date]]
-    itibarıyla geçerli olmak üzere denetim komitesi üyelerinin atanmasına oy birliğiyle
-    karar vermiştir. Komite üyelerinin görev ve sorumlulukları [[version_label]] numaralı
-    dokümanda belirtilen esaslara göre yürütülecek olup, ilgili [[parties_list]] bilgilendirilecektir.
-    Alınan bu kararın tüm kurumsal paydaşlarımıza ve [[title]] makamına tebliğ edilmesi
-    hususunda gerekli işlemler başlatılmıştır.
+  - Yönetim Kurulu, [[spv_name]] bünyesinde bir Denetim Komitesi kurulmasına ve komite
+    üyelerinin görevlendirilmesine oybirliği ile karar vermiştir. Komite; iç kontrol,
+    finansal raporlama, bağımsız denetim ve uyum süreçlerini izlemek ve bu konularda
+    Yönetim Kuruluna düzenli olarak bilgi sunmakla yükümlü olacaktır.
+  - İşbu karar [[effective_date]] tarihinde yürürlüğe girer. Kararın mevcut durumu
+    [[status_label]] olarak kayıtlara geçirilmiştir.
+  - Yönetim Kurulu, kararın uygulanması için gerekli idari işlemlerin yürütülmesini
+    ilgili birimlere bırakmıştır. Komitenin çalışma usul ve esasları ile görev tanımlarına
+    ilişkin ayrıntılar, Yönetim Kurulunca ayrıca belirlenecek ve ilgili taraflara
+    bildirilecektir.

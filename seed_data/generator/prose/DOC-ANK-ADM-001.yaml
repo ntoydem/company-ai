@@ -1,23 +1,24 @@
 doc_id: DOC-ANK-ADM-001
-model: gemini-3.5-flash-lite
+model: claude-sonnet-5-5
 tag: AI_ASSUMPTION
 sections:
 - heading: Bütçe Kapsamı
   paragraphs:
-  - İşbu belge, [[project_name]] bünyesinde yürütülen tüm operasyonel faaliyetleri
-    ve mali planlamaları kapsamaktadır. [[spv_name]] tarafından hazırlanan yıllık
-    mali projeksiyonlar, ilgili tarafların ortak mutabakatı ile şekillendirilmiştir.
-  - Planlanan harcamalar ve gelir akışları, [[document_date]] tarihinde güncellenen
-    ekonomik varsayımlara dayanmaktadır. [[counterparty]] ile yapılan anlaşmalar çerçevesinde,
-    bütçekalemlerinin tamamı şeffaf bir şekilde sınıflandırılmıştır.
-  - Belirtilen [[version_label]] sürümü, tüm operasyonel birimlerin yıl boyunca takip
-    edeceği temel finansal rehber niteliğindedir. [[status_label]] statüsündeki bu
-    mali plan, şirket içi denetim standartlarına tam uyum sağlamaktadır.
+  - Bu belge, [[spv_name]] tarafından yürütülen [[project_name]] kapsamındaki yıllık
+    işletme bütçesinin onayına ilişkindir. Belge, [[document_no]] numarası ve [[version_label]]
+    sürüm bilgisiyle kayıt altına alınmış olup [[document_date]] tarihini taşımaktadır.
+  - Bütçe, projenin olağan işletme faaliyetlerinden doğan gider kalemlerini ve bu
+    faaliyetlerin sürdürülebilmesi için öngörülen kaynak ihtiyaçlarını kapsar. Kapsama
+    dahil olmayan kalemler, ilgili taraflarca ayrıca değerlendirilir ve gerektiğinde
+    ek onaya sunulur.
+  - Bu bütçe, [[parties_list]] tarafından mutabık kalınan esaslar çerçevesinde hazırlanmıştır.
+    Bütçenin uygulanmasında şeffaflık, hesap verebilirlik ve kaynakların amacına uygun
+    kullanımı ilkeleri esas alınır.
 - heading: Onay
   paragraphs:
-  - Yukarıda detayları verilen yıllık bütçe, yetkili kurullar tarafından incelenmiş
-    ve [[effective_date]] itibarıyla yürürlüğe girmiştir. [[parties_list]] temsilcilerinin
-    imzaları ile resmiyet kazanan bu karar, ilgili tüm departmanlar için bağlayıcıdır.
-  - İşbu [[document_no]] referanslı onay belgesi, şirketin sürdürülebilir büyüme hedefleri
-    doğrultusunda hazırlanmıştır. [[title]] unvanına sahip yetkililer, bütçenin etkin
-    bir şekilde uygulanmasından müteselsilen sorumludur.
+  - Bu bütçe, [[title]] başlıklı belge kapsamında taraflarca incelenmiş ve belgenin
+    güncel durumu [[status_label]] olarak kayıtlara geçirilmiştir. Bütçe, [[effective_date]]
+    tarihinden itibaren yürürlüğe girer.
+  - Onaylanan bütçede yapılacak esaslı değişiklikler, ilgili tarafların mutabakatına
+    tabidir ve yazılı olarak belgelendirilir. Bu belge, ilgili sözleşmesel düzenlemelerle
+    birlikte değerlendirilir ve söz konusu düzenlemelere aykırı bir hüküm doğurmaz.

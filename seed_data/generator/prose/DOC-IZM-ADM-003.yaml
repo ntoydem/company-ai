@@ -1,24 +1,27 @@
 doc_id: DOC-IZM-ADM-003
-model: gemini-3.5-flash-lite
+model: claude-sonnet-5-5
 tag: AI_ASSUMPTION
 sections:
 - heading: Maliyet Kapsamı
   paragraphs:
-  - '[[project_name]] projesi kapsamında yürütülen [[title]] çalışmaları, [[spv_name]]
-    tarafından titizlikle takip edilmektedir. İlgili harcamalar ve bütçe kalemleri,
-    [[counterparty]] ile yapılan mutabakatlar çerçevesinde sınıflandırılmıştır.'
-  - Geliştirme aşamasındaki finansal operasyonlar, [[document_no]] referans numarasıyla
-    kayıt altına alınmıştır. [[document_date]] tarihinde güncellenen maliyet planı,
-    projenin sürdürülebilirliği açısından kritik önem taşımaktadır.
-  - '[[parties_list]] tarafından sağlanan girdiler doğrultusunda, [[effective_date]]
-    itibarıyla bütçe revizyonları tamamlanmıştır. [[status_label]] durumu göz önüne
-    alınarak, olası sapmalar önceden tespit edilmektedir.'
+  - Bu not, [[project_name]] kapsamında geliştirme aşamasında oluşan maliyetlerin
+    takibine ilişkin genel çerçeveyi ortaya koymaktadır. Belge, [[document_no]] numarası
+    ve [[version_label]] sürümü ile [[document_date]] tarihinde hazırlanmış olup güncel
+    durumu [[status_label]] olarak belirtilmiştir.
+  - Takip edilen maliyet kalemleri, proje şirketi [[spv_name]] adına yürütülen geliştirme
+    faaliyetleriyle sınırlıdır. Bu kalemler; etüt, izin ve ruhsat süreçleri, danışmanlık
+    hizmetleri ile idari giderler gibi geliştirme aşamasına özgü harcamaları kapsayacak
+    şekilde ele alınmaktadır.
+  - Maliyetlere ilişkin sorumluluk dağılımı ve ilgili hususlar, [[parties_list]] arasında
+    yürütülen mutabakat çerçevesinde izlenmektedir. Her bir kalemin kapsamı, ilgili
+    belgelerde yer alan esaslara uygun biçimde değerlendirilmektedir.
 - heading: Değerlendirme
   paragraphs:
-  - Mevcut harcama trendleri, [[version_label]] revizyonuna uygun olarak ilerlemektedir.
-    [[spv_name]] denetim ekibi, maliyetlerin kontrol altında tutulması için düzenli
-    raporlama yapmaktadır.
-  - '[[counterparty]] ile yürütülen süreçlerin mali etkileri detaylıca incelenmiştir.
-    [[project_name]] için öngörülen hedeflere ulaşılması adına ek tedbirler değerlendirilmektedir.'
-  - Sonuç olarak, [[document_no]] kapsamındaki finansal veriler beklentileri karşılamaktadır.
-    [[effective_date]] tarihinden sonraki dönem için yeni stratejiler belirlenecektir.
+  - '[[title]] başlıklı bu not, geliştirme aşamasındaki maliyet gelişimine ilişkin
+    genel bir değerlendirme sunmak amacıyla hazırlanmıştır. Maliyet kalemlerinin izlenmesi,
+    proje ilerledikçe düzenli olarak gözden geçirilecek ve gerekli görüldüğünde güncellenecektir.'
+  - Belgede yer alan bilgiler, mevcut verilere dayanmakta olup ilgili taraflarca yapılacak
+    ek inceleme ve onay süreçlerine tabidir. Maliyet takibinde tespit edilen sapmalar
+    veya belirsizlikler, ilgili taraflara bildirilerek uygun yöntemlerle ele alınacaktır.
+  - Bu doküman yalnızca bilgilendirme amacıyla düzenlenmiş kurgusal bir demo belgesidir.
+    Sonraki sürümlerde, proje ilerlemesine bağlı olarak kapsam ve içerik yeniden değerlendirilebilir.

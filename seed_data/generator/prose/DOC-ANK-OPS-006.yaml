@@ -1,32 +1,25 @@
 doc_id: DOC-ANK-OPS-006
-model: gemini-3.5-flash-lite
+model: claude-sonnet-5-5
 tag: AI_ASSUMPTION
 sections:
 - heading: Genel Değerlendirme
   paragraphs:
-  - '[[project_name]] projesi kapsamında yürütülen [[version_label]] dönemi faaliyetleri,
-    belirlenen stratejik hedefler doğrultusunda başarıyla tamamlanmıştır. Rapor dönemi
-    içerisinde [[spv_name]] tarafından gerçekleştirilen operasyonel çalışmalar, ilgili
-    mevzuat ve [[document_no]] numaralı iç yönerge hükümlerine tam uyum içinde sürdürülmüştür.'
-  - Sahada görev yapan [[parties_list]] unsurları ile koordine bir şekilde yürütülen
-    süreçler, [[document_date]] tarihinde güncellenen [[status_label]] statüsüne uygun
-    olarak denetlenmiştir. Karşı taraf [[counterparty]] ile sürdürülen kurumsal iş
-    birliği, operasyonların verimliliğine doğrudan katkı sağlamıştır.
-  - İlgili döneme ait teknik ve idari süreçler [[effective_date]] itibarıyla resmi
-    kayıt altına alınmış olup, tüm aşamalarda sürdürülebilirlik ilkeleri önceliklendirilmiştir.
-    Yapılan değerlendirmeler sonucunda, kurumsal standartların korunması adına gerekli
-    görülen iyileştirme adımlarının atılması planlanmaktadır.
+  - Bu belge, [[project_name]] kapsamında işletilen tesisin ilgili dönemdeki üretim
+    faaliyetlerini özetlemek amacıyla hazırlanmıştır. Rapor, [[spv_name]] adına düzenlenmiş
+    olup [[document_no]] numaralı belge olarak kayıt altına alınmıştır.
+  - Belge, [[title]] başlığı altında [[version_label]] sürümü olarak yayımlanmıştır.
+    Belgenin güncel durumu [[status_label]] olarak belirtilmiş, düzenleme tarihi ise
+    [[document_date]] olarak kaydedilmiştir.
+  - Rapor, ilgili tarafların bilgilendirilmesi amacıyla hazırlanmıştır. Bilgilendirme
+    kapsamındaki taraflar [[parties_list]] ifadesiyle belirtilmiştir.
 - heading: Performans Özeti
   paragraphs:
-  - İlgili dönem zarfında elde edilen üretim çıktıları, [[mwh]] cinsinden toplam hacim
-    baz alınarak detaylı bir şekilde analiz edilmiştir. Gerçekleşen performans değerleri,
-    [[title]] tarafından belirlenen operasyonel eşiklerin üzerinde seyretmiş ve planlanan
-    hedeflere ulaşılmıştır.
-  - Sistem verimliliğini artırmaya yönelik olarak hayata geçirilen iyileştirme projeleri,
-    [[project_name]] bünyesindeki enerji akışının kesintisiz sürmesini sağlamıştır.
-    [[spv_name]] teknik ekipleri tarafından yürütülen periyodik bakım faaliyetleri,
-    olası aksaklıkların önlenmesinde kritik rol oynamıştır.
-  - Gelecek döneme ilişkin performans öngörüleri, [[parties_list]] tarafından hazırlanan
-    [[version_label]] raporunda detaylandırılmıştır. Süreçlerin daha etkin yönetilmesi
-    amacıyla [[counterparty]] ile koordinasyonun artırılması ve [[document_no]] standartlarının
-    titizlikle uygulanması kararlaştırılmıştır.
+  - Raporlama dönemi boyunca tesisin toplam üretim miktarı [[mwh]] olarak kayda geçmiştir.
+    Bu değer, işletme kayıtları esas alınarak derlenmiş olup dönem içi üretim performansının
+    temel göstergesini oluşturmaktadır.
+  - Üretim sonuçları, tesisin işletme koşulları ve dönem içindeki genel çalışma düzeni
+    çerçevesinde değerlendirilmelidir. Ayrıntılı teknik analizler ve karşılaştırmalar
+    gerekli görüldüğünde ayrı belgelerle sunulacaktır.
+  - Bu rapor kurgusal bir demo belgesi niteliğindedir ve yalnızca gösterim amacıyla
+    hazırlanmıştır. İçerdiği bilgiler gerçek bir işletmeye veya gerçek verilere ilişkin
+    değildir.
