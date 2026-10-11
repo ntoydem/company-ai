@@ -456,7 +456,6 @@ def _build_yesilova_repayment_schedule(raws: dict[str, Any], snapshot_date: date
         4,
         ["Taksit No", "Vade", "Anapara (USD)", "Faiz (USD)", "Durum (bu anlık görüntüye göre)"],
     )
-    interest_rows: list[int] = []
     for i, r in enumerate(rows, start=1):
         row = 4 + i
         ws.cell(row=row, column=1, value=i)
@@ -465,18 +464,16 @@ def _build_yesilova_repayment_schedule(raws: dict[str, Any], snapshot_date: date
         interest = r.get("interest")
         if interest is not None:
             ws.cell(row=row, column=4, value=interest["value"])
-            interest_rows.append(row)
         status = "Ödendi" if r["date"] <= snapshot_date else "Bekliyor"
         ws.cell(row=row, column=5, value=status)
     last = 4 + len(rows)
     _name(wb, "Schedule_LastRow", "Schedule", f"A{last}")
     total_row = last + 2
     ws.cell(row=total_row, column=3, value="Faiz toplamı (yalnız ledger'da verilen satırlar):")
-    if interest_rows:
-        refs = ",".join(f"D{r}" for r in interest_rows)
-        ws.cell(row=total_row, column=4, value=f"=SUM({refs})")
-    else:
-        ws.cell(row=total_row, column=4, value=0)
+    # Düzeltme (11.10.2026, Naci): toplam hücresi kasıtlı BOŞ — ledger'da bağımsız bir
+    # "toplam faiz" alanı yok, karşılaştırılacak bir referans değer olmadığı için hiçbir
+    # toplam (SUM formülü dahil) gösterilmiyor; önceki sürümün SUM formülü ve
+    # Interest_Total defined name'i kaldırıldı.
     ws.cell(row=total_row + 1, column=3, value="Not")
     ws.cell(row=total_row + 1, column=4).alignment = Alignment(wrap_text=True)
     ws.cell(
@@ -488,7 +485,6 @@ def _build_yesilova_repayment_schedule(raws: dict[str, Any], snapshot_date: date
             "verilmiş; diğer taksitler boş, türetilmedi."
         ),
     )
-    _name(wb, "Interest_Total", "Schedule", f"D{total_row}")
     for col in range(1, 6):
         ws.column_dimensions[get_column_letter(col)].width = 24
     ws.column_dimensions["D"].width = 28
