@@ -37,6 +37,9 @@ dev = [
     "weasyprint>=62",
     "pymupdf>=1.24",
     "jinja2>=3.1",
+    # Adım 5 (11.10.2026): generate_prose.py'nin opsiyonel Claude sağlayıcısı — app/'den import
+    # edilmez (ADR-013), app/'nin kendi (deferred) LLM_PROVIDER=anthropic'inden bağımsız.
+    "anthropic>=1.13,<2",
 ]
 
 [tool.ruff]
