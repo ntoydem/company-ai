@@ -38,7 +38,18 @@ _SCAN_DPI = 200
 # the original "3.1"); "4.2" (Excel workbooks) and "never" are never rendered here.
 GENERATED_PHASES = ("3.1", "5.1")
 
-_PROJECT_CODE = {"ANK": "ANK_RES", "IZM": "IZM_RES", "CO": None, "YSV": "YSV_RES"}
+_PROJECT_CODE = {
+    "ANK": "ANK_RES",
+    "IZM": "IZM_RES",
+    "CO": None,
+    "YSV": "YSV_RES",
+    # Adım 5 (11.10.2026, Hukuk partisi + Boztepe PF-2 ön koşulu, plan §9.5): bu üç
+    # proje henüz hiç belge üretmedi, kodları bu yüzden şimdiye kadar eksikti.
+    "BOZ": "BOZ_RES",
+    "DMR": "DMR_RES",
+    "AKY": "AKY_GES",
+    "GNS": "GNS_GES",
+}
 
 _FOOTER_TEXT = {
     "tr": "DEMO — sentetik demo belgesi — sayfa",
