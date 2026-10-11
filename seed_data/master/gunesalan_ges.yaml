@@ -16,9 +16,12 @@ project:
   capacity_mw:
     current: {value: 18, tag: USER_FACT, note: "MWp (güneş)."}
   # Güneş (GES) — türbin kavramı yok (NACI_CEVAP §3.1).
-  timeline: {}
+  # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §3.8).
+  timeline:
+    cod_actual: {date: 2017-07-01, doc: null, tag: USER_FACT}
 
-  finance: null
+  finance:
+    yekdem: {start: 2017-07-01, end: 2027-06-30, price_usd_mwh: 133, tag: USER_FACT}
 
   operations:
     om_contractor: {value: "Solaris GES İşletme Hizmetleri Ltd. Şti.", tag: USER_FACT}
