@@ -19,14 +19,16 @@ project:
     target: {value: 42, tag: USER_FACT, source_doc: DOC-IZM-DEV-001}
   turbines: null
 
+  # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §3.3): geliştirme
+  # takvimi eski İzmir RES verisinde kalmıştı, canvas'a (§C.6.2) çekildi.
   timeline:
-    development_start:       {date: 2023-02-01, doc: null,            tag: USER_FACT}
-    pre_licence_application: {date: 2023-05-10, doc: DOC-IZM-DEV-001, tag: USER_FACT}
-    pre_licence:             {date: 2024-01-18, doc: DOC-IZM-DEV-001, tag: USER_FACT}
+    development_start:       {date: 2022-06-01, doc: null,            tag: USER_FACT, note: "Rüzgar ölçümü bu tarihte başladı."}
+    pre_licence_application: {date: 2023-10-04, doc: DOC-IZM-DEV-001, tag: USER_FACT, note: "Ekim RES penceresi (04-18.10.2023)."}
+    pre_licence:             {date: 2025-01-15, doc: DOC-IZM-DEV-001, tag: USER_FACT, note: "ÖL/13085-3."}
     # Adım 5 (Tansu §3.1): önlisans bitiş tarihi.
     pre_licence_expiry:      {date: 2027-01-15, doc: DOC-IZM-DEV-001, tag: USER_FACT}
-    land_acquisition_start:  {date: 2024-04-02, doc: DOC-IZM-DEV-002, tag: USER_FACT}
-    ced_application:         {date: 2025-03-05, doc: DOC-IZM-DEV-003, tag: USER_FACT}
+    land_acquisition_start:  {date: 2025-01-20, doc: DOC-IZM-DEV-002, tag: USER_FACT, note: "Satış vaadi 20.01.2025; tapu devri 15.02.2025. ENH güzergâhındaki 3 parselin kira sözleşmesi imzalı, şerh bekliyor."}
+    ced_application:         {date: 2025-04-10, doc: DOC-IZM-DEV-003, tag: USER_FACT, note: "Önlisans + 90 gün sınırı (15.04.2025) içinde."}
     # --- post-licence: null by design ---
     licence: null
     financing_signed: null
@@ -44,21 +46,32 @@ project:
   operations: null
 
   development:
-    ced_status: {value: ongoing, tag: USER_FACT, source_doc: DOC-IZM-DEV-003, note: "İDK toplantısı yapıldı, ek bilgi istendi"}
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §3.3): İDK toplantısı
+    # henüz YAPILMADI (eski "27.08.2026 toplantı yapıldı" notu geçersiz) — yalnız ek bilgi
+    # talebi ve kurum görüş yazısı var, İDK bekleniyor (ÇED-2026-057).
+    # Not: Jeoteknik (20.05.2025), Kurum Görüşleri (10.12.2025), Bağlantı Çağrısı
+    # (14.07.2025, BA-2025-042) tamamlandı — `step`'in sabit sözlüğünde (SPEC_03 §2,
+    # PreLicenceStep) karşılığı yok, bu yüzden yeni bir permits_completed satırı değil,
+    # bu not olarak kaydedildi (SPEC değişikliği bu planın kapsamı dışında).
+    ced_status: {value: ongoing, tag: USER_FACT, source_doc: DOC-IZM-DEV-003, note: "Ek bilgi talebi (18.07.2026) + kurum görüş yazısı (12.09.2026); İDK toplantısı bekleniyor (ÇED-2026-057). Jeoteknik/kurum görüşleri/bağlantı çağrısı tamamlandı (bkz. yukarı)."}
     # Ortak onayı alındı (SORU 6)
     permits_completed:
-      - {step: "Önlisans", date: 2024-01-18, doc: DOC-IZM-DEV-001, tag: USER_FACT}
-      - {step: "Arazi Edinimi", date: 2024-09-30, doc: DOC-IZM-DEV-002, tag: USER_FACT, note: "Kısmi — parsellerin çoğunluğu edinildi, kalanlar için süreç devam ediyor"}
+      - {step: "Önlisans", date: 2025-01-15, doc: DOC-IZM-DEV-001, tag: USER_FACT}
+      - {step: "Arazi Edinimi", date: 2025-02-15, doc: DOC-IZM-DEV-002, tag: USER_FACT, note: "Tapu devri; kısmi — ENH güzergâhındaki 3 parsel kiralı/şerh bekliyor"}
+      - {step: "Askeri Yasak Yazısı", date: 2025-08-30, doc: null, tag: USER_FACT}
+      - {step: "TEA Yazısı", date: 2025-10-25, doc: null, tag: USER_FACT, note: "Olumlu, TEA-2025-301."}
+    # Not: Orman Ön İzni (devam, 30.06.2026 itibarıyla) ve Mera Tahsis Değişikliği
+    # (talep 21.08.2026, komisyon sonraki toplantısı 12.11.2026) — ikisi de sabit
+    # sözlükte (PreLicenceStep) yok, bu yüzden ayrı bir pending_steps satırı değil,
+    # ÇED'in note alanına eklendi.
     pending_steps:
-      - {step: "ÇED", expected: "İDK ek bilgi talebi sonrası nihai karar", tag: USER_FACT}
+      - {step: "ÇED", expected: "İDK toplantısı bekleniyor (ÇED-2026-057). Ayrıca Orman Ön İzni devam (30.06.2026 itibarıyla); Mera Tahsis Değişikliği talebi 21.08.2026, komisyon sonraki toplantısı 12.11.2026.", tag: USER_FACT}
       - {step: "İmar Kesinleşme", expected: null, tag: USER_FACT}
       - {step: "Kat'i Proje Onayı", expected: null, tag: USER_FACT}
       - {step: "Bağlantı Anlaşması", expected: null, tag: USER_FACT}
-      - {step: "Askeri Yasak Yazısı", expected: null, tag: USER_FACT}
-      - {step: "TEA Yazısı", expected: null, tag: USER_FACT}
       - {step: "Yapı Ruhsatı", expected: null, tag: USER_FACT}
       - {step: "Üretim Lisansı", expected: null, tag: USER_FACT}
-    latest_event: {date: 2026-08-27, doc: DOC-IZM-DEV-003, tag: USER_FACT, note: "ÇED İnceleme Değerlendirme Komisyonu toplantısı; ek bilgi/belge talebi"}
+    latest_event: {date: 2026-09-12, doc: DOC-IZM-DEV-003, tag: USER_FACT, note: "Kurum görüş yazısı (ek bilgi talebi 18.07.2026'ydı; İDK toplantısı henüz yapılmadı, ÇED-2026-057)."}
 
   # Adım 5 Aşama C (10.10.2026, NACI_CEVAP §3.2/§3.3) — imzalı ama kullandırılmamış/
   # başlamamış: kullandırım talebi, inşaat sigortası (CAR/EAR) ve inşaat ilerleme raporu
