@@ -1,30 +1,31 @@
 doc_id: DOC-ANK-DEV-002
-model: gemini-3.5-flash-lite
+model: gemini-3.5-flash
 tag: AI_ASSUMPTION
 sections:
 - heading: Tadil Gerekçesi
   paragraphs:
-  - İşbu [[title]] belgesi, [[project_name]] kapsamında gerçekleştirilen teknik revizyonlar
-    neticesinde hazırlanmıştır. Taraflar arasında yapılan mutabakat doğrultusunda,
-    [[counterparty]] ile [[spv_name]] arasında yürütülen süreçlerin güncel koşullara
-    uyarlanması amaçlanmıştır.
-  - '[[document_date]] tarihinde imzalanan ve [[version_label]] statüsünde bulunan
-    ana sözleşme hükümlerinde bazı değişikliklerin yapılması zaruri hale gelmiştir.
-    Bu kapsamda, [[status_label]] seviyesindeki işlemlerin kesintisiz devam etmesi
-    için gerekli idari adımlar atılmıştır.'
-- heading: Güncellenen Kapasite Bilgisi
+  - '[[project_name]] projesi kapsamında [[parties_list]] tarafından yürütülen lisans
+    süreçlerinde güncelleme ihtiyacı doğmuştur. [[spv_name]] ile [[counterparty]]
+    arasında mutabık kalınan teknik değerlendirmeler sonucunda mevcut kapasitenin
+    revize edilmesi uygun görülmüştür.'
+  - Saha koşulları ve güncel teknik değerlendirmeler ışığında projenin verimliliğini
+    artırmak amacıyla işbu [[document_no]] numaralı belgenin hazırlanması gerekmiştir.
+    Yapılan düzenlemeler ilgili mevzuata ve tarafların ortak kararlarına uygun şekilde
+    tasarlanmıştır.
+- heading: Kapasite ve Türbin Sayısı Değişikliği
   paragraphs:
-  - Yapılan teknik değerlendirmeler sonucunda, üretim tesisinin azami gücü [[capacity_mw]]
-    olarak resmiyet kazanmıştır. İlgili yetkili kurumların onay verdiği bu yeni değer,
-    sistemin operasyonel verimliliğini doğrudan artıracaktır.
-  - '[[parties_list]] tarafından ortaklaşa yürütülen denetimler sonucunda, belirlenen
-    yeni sınırların teknik şartnamelere tam uyumlu olduğu tescil edilmiştir. Bu doğrultuda
-    tesis altyapısı, [[capacity_mw]] kapasiteyle çalışacak şekilde yeniden yapılandırılmıştır.'
+  - Proje başlangıcında [[capacity_mw_initial]] olan toplam kurulu güç kapasitesi,
+    gerçekleştirilen tadil sonrasında [[capacity_mw]] seviyesine güncellenmiştir.
+    Bu kapsamda başlangıçta planlanan [[turbine_count_initial]] adet türbin sayısı
+    da [[turbine_count]] adet olarak yeniden düzenlenmiştir.
+  - Yapılan teknik güncellemeler, projenin genel işletme düzenine ve ilgili lisans
+    şartlarına entegre edilmiştir. Belirtilen parametre değişiklikleri [[title]] düzenlemesi
+    altında kayıt altına alınarak [[version_label]] sürümü ile geçerlik kazanmıştır.
 - heading: Yürürlük
   paragraphs:
-  - İşbu tadil metni, [[effective_date]] tarihi itibarıyla hukuki geçerlilik kazanacak
-    ve taraflar için bağlayıcı olacaktır. Önceki maddelerde yer alıp işbu belgede
-    değiştirilmeyen tüm hükümler aynen yürürlükte kalmaya devam edecektir.
-  - '[[amendment_date]] tarihinde son şekli verilen bu belge, [[document_no]] referans
-    numarası ile kayıt altına alınmıştır. İlgili taraflar, metin içerisinde yer alan
-    tüm yükümlülükleri eksiksiz olarak yerine getirmeyi kabul ve taahhüt eder.'
+  - İşbu lisans tadil metni [[amendment_date]] tarihinde düzenlenmiş olup [[effective_date]]
+    itibarıyla yürürlüğe girecektir. Belge [[document_date]] tarihi itibarıyla imzalanarak
+    taraflar arasında hukuki geçerlilik kazanmıştır.
+  - Metin, genel sözleşme hükümleri çerçevesinde [[status_label]] statüsünde yürürlükte
+    kalacak ve tarafların hak ile yükümlülüklerini belirlemeye devam edecektir. Önceki
+    lisans koşullarının bu tadil ile çelişen hükümleri yürürlükten kaldırılmıştır.
