@@ -142,10 +142,10 @@ SPECS: dict[str, DocumentSpec] = {
             "both refer to 2025) — do not mention any other instalment, payment, or "
             "event dated in 2026. Never invent a specific substantive provision not "
             "backed by a token. Write all numbers in English format (comma thousands "
-            "separator). In the compliance summary, note that the Yeşilova TEİAŞ "
-            "connection-agreement guarantee letter is still outstanding/not yet "
-            "provided — do not describe its amount, bank, or any other detail, only "
-            "that it has not been submitted."
+            "separator). In the compliance summary, state by its exact name using the "
+            "token [[missing_guarantee_letter_name]] that this document is still "
+            "outstanding/not yet provided — do not describe its amount, bank, or any "
+            "other detail, only that it has not been submitted."
         ),
     ),
 }

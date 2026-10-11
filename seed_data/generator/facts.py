@@ -75,6 +75,7 @@ _FIELD_KIND: dict[str, tuple[str, str]] = {
     "mwh": ("mwh", ""),
     "operating_year": ("ordinal", ""),
     "repayment_profile": ("text", ""),
+    "missing_guarantee_letter_name": ("text", ""),
     "approved_spv": ("text", ""),
     "ced_status": ("ced_status", ""),
     # Phase 5.1

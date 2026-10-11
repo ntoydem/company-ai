@@ -397,6 +397,10 @@ class Finance(_Strict):
     annex_f_request_date: date | None = None
     annex_f_deadline: date | None = None
     annex_f_reporting_year: int | None = None
+    # İş Emri 2026-10-11 Adım 2: Annex F'in kasıtlı eksik belge listesindeki tek madde —
+    # belgenin KENDİSİ üretilmez, yalnız ADI metinde geçer (constitution kuralı: LLM
+    # şirket/kurum adı yazmaz, bu yüzden ad ledger'dan token olarak sağlanır).
+    annex_f_missing_guarantee_letter_name: Fact | None = None
     # Adım 5 T-11 (11.10.2026): project-generic — a year's total interest paid (not every
     # SPV reports this; Yeşilova's 2025 total is the first use, for its Annex F report).
     interest_paid_by_year: list[AnnualInterestPaid] = Field(default_factory=list)

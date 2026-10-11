@@ -105,6 +105,9 @@ project:
     annex_f_request_date: 2026-09-14
     annex_f_deadline: 2026-10-14
     annex_f_reporting_year: 2025
+    # İş Emri 2026-10-11 Adım 2 (NACI_CEVAP_2026-10-11.md §2): kasıtlı eksik belge —
+    # kendisi üretilmez, yalnız adı Annex F metninde geçer.
+    annex_f_missing_guarantee_letter_name: {value: "Yeşilova TEİAŞ bağlantı anlaşması teminat mektubu", tag: USER_FACT}
     # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11 LLM üretim planı SORU 2): 2025'te
     # ödenen #4-#7 taksitlerinin toplam faizi (NACI_CEVAP §3.2) — Annex F 2025 raporu
     # için, daha önce ayrı bir alan açılmamıştı.
@@ -348,7 +351,7 @@ documents:
     version: "2025"
     status: draft
     parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
-    key_facts: {dscr: "project.finance.covenant_tests[1].dscr", covenant_result: "project.finance.covenant_tests[1].result", interest_paid: "project.finance.interest_paid_by_year[0].amount.value", annex_f_reporting_year: "project.finance.annex_f_reporting_year"}
+    key_facts: {dscr: "project.finance.covenant_tests[1].dscr", covenant_result: "project.finance.covenant_tests[1].result", interest_paid: "project.finance.interest_paid_by_year[0].amount.value", annex_f_reporting_year: "project.finance.annex_f_reporting_year", missing_guarantee_letter_name: "project.finance.annex_f_missing_guarantee_letter_name.value"}
     supersedes: null
     superseded_by: null
     related: [DOC-YSV-FIN-002]

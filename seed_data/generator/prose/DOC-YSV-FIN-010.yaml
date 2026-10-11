@@ -4,23 +4,22 @@ tag: AI_ASSUMPTION
 sections:
 - heading: 1. Purpose and Scope
   paragraphs:
-  - This report, referenced as [[document_no]] and titled [[title]], sets out the
-    Annex F reporting position of [[spv_name]] in respect of [[project_name]]. It
-    is dated [[document_date]] and covers the reporting year [[annex_f_reporting_year]]
-    only.
-  - The report is prepared for the benefit of [[counterparty]] and the other parties
-    identified as [[parties_list]]. It is currently in [[status_label]] status and
-    has not yet been sent to any recipient.
-  - The scope is limited to the financial covenant and interest information for the
-    reporting year. Matters falling outside that period are not addressed in this
-    document.
+  - This report, [[title]] (reference [[document_no]]), sets out the Annex F reporting
+    position of [[spv_name]] for the [[project_name]] project. It covers the reporting
+    year [[annex_f_reporting_year]] only. The document is dated [[document_date]]
+    and is currently marked [[status_label]] ([[version_label]]).
+  - The report is a draft prepared for internal review. It has not yet been sent to
+    any party, and its contents remain subject to confirmation before any onward submission.
+  - The parties connected with this reporting obligation are [[parties_list]]. The
+    relevant counterparties for the purposes of this report are [[counterparty_list]].
 - heading: 2. Compliance Summary
   paragraphs:
   - For the reporting year [[annex_f_reporting_year]], the debt service coverage ratio
-    is stated as [[dscr]]. Interest paid during the same period amounts to [[interest_paid]].
-    On this basis, the covenant result is recorded as [[covenant_result]].
-  - The guarantee letter required under the grid connection agreement for the project
-    remains outstanding. It has not yet been submitted, and this report is to be read
-    subject to that open item.
-  - This summary is a draft and remains subject to review and confirmation before
-    it is finalised.
+    is recorded as [[dscr]]. Interest paid during the period amounts to [[interest_paid]].
+    The covenant test result is recorded as [[covenant_result]].
+  - The position with respect to [[counterparty]] is reflected in the figures above
+    and is presented on the basis of the information available at the date of this
+    draft.
+  - The document [[missing_guarantee_letter_name]] is still outstanding and has not
+    yet been submitted. Until it is provided, the compliance position in this draft
+    should be regarded as incomplete.
