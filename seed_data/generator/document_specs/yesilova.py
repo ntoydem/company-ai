@@ -124,5 +124,20 @@ SPECS: dict[str, DocumentSpec] = {
             ledger_key="yesilova_res",
         ),
         signature_roles_en=["Prepared by: Finance Officer", "Reviewed by: Lender's Agent"],
+        # Düzeltme (11.10.2026, Naci onaylı): belge `status: draft` (henüz gönderilmedi,
+        # yesilova_res.yaml:337 notu) ama önceki üretim "Released under version
+        # [[version_label]]" ve "disclosures have been delivered to [[counterparty]]"
+        # yazmıştı — taslak bir belgenin kendi gönderildiğini söylemesi çelişki.
+        prose_guidance_en=(
+            "This report is a DRAFT — it has not yet been sent, delivered, released, or "
+            "disclosed to anyone. Never use the words 'delivered', 'released', or "
+            "'disclosed', and never write the phrase 'version 2025' as a narrative "
+            "statement (the version/status are already shown in the header). The "
+            "reporting period is the 2025 year only ([[annex_f_reporting_year]]/[[dscr]] "
+            "both refer to 2025) — do not mention any other instalment, payment, or "
+            "event dated in 2026. Never invent a specific substantive provision not "
+            "backed by a token. Write all numbers in English format (comma thousands "
+            "separator)."
+        ),
     ),
 }

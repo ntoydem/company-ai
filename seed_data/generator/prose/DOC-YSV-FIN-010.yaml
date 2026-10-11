@@ -1,29 +1,27 @@
 doc_id: DOC-YSV-FIN-010
-model: gemini-3.5-flash
+model: claude-sonnet-5-5
 tag: AI_ASSUMPTION
 sections:
 - heading: 1. Purpose and Scope
   paragraphs:
-  - This document sets out the annual Annex F reporting requirements for [[project_name]]
-    as managed by [[spv_name]]. It provides a formal evaluation of the financial standing
-    and covenant compliance for the period ending in [[annex_f_reporting_year]]. The
-    information presented is prepared for review by [[counterparty]] and the broader
-    group outlined in [[parties_list]].
-  - The scope of this submission encompasses all relevant financial records and covenant
-    calculations governed by reference document [[document_no]]. Released under version
-    [[version_label]] on [[document_date]], this report reflects an official status
-    of [[status_label]]. The primary objective remains ensuring total operational
-    transparency and fulfillment of technical reporting covenants.
+  - This document, [[title]] (reference [[document_no]]), sets out the Annex F reporting
+    of [[spv_name]] in connection with the [[project_name]] financing for the reporting
+    year [[annex_f_reporting_year]]. It is dated [[document_date]] and is currently
+    marked as [[status_label]], as shown in the document header together with [[version_label]].
+  - The report is addressed to [[counterparty]] and concerns the parties identified
+    as [[parties_list]]. It remains in draft form and has not yet been sent to any
+    recipient.
+  - The scope is limited to the reporting year [[annex_f_reporting_year]]. Matters
+    outside that period are not addressed here, and the content stays subject to review
+    before any onward submission.
 - heading: 2. Compliance Summary
   paragraphs:
-  - Throughout the relevant monitoring timeframe, [[spv_name]] tracked core financial
-    indicators to ensure full alignment with project finance documents for [[project_name]].
-    The calculations established a historic debt service coverage ratio of [[dscr]],
-    taking into account total interest payments of [[interest_paid]] made during the
-    reporting year. These operational figures confirm the stable financial posture
-    of the project.
-  - Following the thorough review of operational obligations, the formal outcome is
-    recorded as [[covenant_result]]. All necessary disclosures have been delivered
-    to [[counterparty]] in compliance with established monitoring procedures. Ongoing
-    operational updates will continue to be shared across the finance parties referenced
-    in [[parties_list]].
+  - For the reporting year [[annex_f_reporting_year]], the debt service coverage ratio
+    of the project is stated as [[dscr]]. Interest paid during the same period amounts
+    to [[interest_paid]].
+  - 'On the basis of these figures, the covenant assessment is recorded as follows:
+    [[covenant_result]]. This conclusion rests only on the data presented in this
+    draft and the underlying financing arrangements.'
+  - Any further detail on the calculation approach or the applicable thresholds is
+    to be read together with the relevant financing documentation. The figures remain
+    provisional while the report is in draft status.
