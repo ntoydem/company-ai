@@ -276,6 +276,16 @@ class BaseRate(_Strict):
     tag: Tag
 
 
+class AnnualInterestPaid(_Strict):
+    """Adım 5 T-11 (11.10.2026): a year's total interest paid — project-generic name
+    (not Yeşilova-specific) since any SPV could report this the same way. Yeşilova's
+    2025 total (104.500 USD, Annex F reporting year) was the first real use."""
+
+    year: int
+    amount: Money
+    tag: Tag
+
+
 class Instalment(_Strict):
     date: date
     principal: Money
@@ -366,6 +376,13 @@ class Finance(_Strict):
     annex_f_request_date: date | None = None
     annex_f_deadline: date | None = None
     annex_f_reporting_year: int | None = None
+    # Adım 5 T-11 (11.10.2026): project-generic — a year's total interest paid (not every
+    # SPV reports this; Yeşilova's 2025 total is the first use, for its Annex F report).
+    interest_paid_by_year: list[AnnualInterestPaid] = Field(default_factory=list)
+    # Adım 5 T-11 (11.10.2026): credit signing date, generic (Karatepe uses its own
+    # `timeline.financing_signed` instead; this is for SPVs without a dedicated timeline
+    # financing field — Boztepe's first use).
+    signed_date: date | None = None
 
 
 class ChangeOrder(_Strict):

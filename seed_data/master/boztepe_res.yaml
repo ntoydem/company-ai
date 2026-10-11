@@ -24,6 +24,12 @@ project:
 
   finance:
     lender: {value: "PQR Bank", tag: USER_FACT, note: "2024-BZ, USD kredi — Garanti BBVA'nın kurgusal karşılığı (Ç-12 bekliyor). ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026): imza Mayıs 2024 (T-11.7 cevabı)."}
+    # AI_ASSUMPTION (Naci, 11.10.2026, SORU 3): tam gün Tansu'dan gelmedi, Mayıs 2024
+    # içinde seçildi — ödeme günleri ayın 1'i/2'si ile uyumlu (repayment_schedule: 01.10,
+    # 02.11 — 01.11 pazara denk geldiği için kaymış) ve "ilk 3 yıl yalnız faiz" süresi
+    # tam olarak Mayıs 2027'de bitecek şekilde (2024-05-02 + 3 yıl = 2027-05-02). Ayrı bir
+    # Tansu sorusu açılmadı — ADIM5_HUKUK_PARTISI_PLAN'ın T-12 tablosuna eklenecek.
+    signed_date: 2024-05-02
     total_debt: {value: 15000000, currency: USD, tag: USER_FACT, note: "ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026): T-11.6 cevabı."}
     # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11.7): faiz swap ile sabitlenmiş, %3,894
     # (swap) + %2,85 (marj) = %6,744 sabit. 15.000.000 x %6,744 / 12 = 84.300,00 USD —

@@ -29,6 +29,10 @@ project:
 
   finance:
     lender: {value: "LMN Bank", tag: USER_FACT}
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11 LLM üretim planı SORU 1): imza tarihi
+    # NACI_CEVAP_2026-10-08.md §3.2'den ("Sözleşme 03.06.2023") — o round'da ledger'a hiç
+    # işlenmemişti (OperatingTimeline finansman alanı taşımıyor, Finance.signed_date yeni).
+    signed_date: 2023-06-03
     interest: {base: {value: "Term SOFR 3,89378%", tag: USER_FACT}, margin_pct: {value: 1.50, tag: USER_FACT}}
     total_debt: {value: 2352000, currency: USD, tag: USER_FACT}
     # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11.11/T-11.12): kurgu — santral özkaynakla
@@ -82,6 +86,11 @@ project:
     annex_f_request_date: 2026-09-14
     annex_f_deadline: 2026-10-14
     annex_f_reporting_year: 2025
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11 LLM üretim planı SORU 2): 2025'te
+    # ödenen #4-#7 taksitlerinin toplam faizi (NACI_CEVAP §3.2) — Annex F 2025 raporu
+    # için, daha önce ayrı bir alan açılmamıştı.
+    interest_paid_by_year:
+      - {year: 2025, amount: {value: 104500, currency: USD, tag: USER_FACT}, tag: USER_FACT}
 
   operations:
     om_contractor: {value: "Vestas Bakım Hizmetleri", tag: USER_FACT, source_doc: null, note: "Sözleşme S-24-009."}
