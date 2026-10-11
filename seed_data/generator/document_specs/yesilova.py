@@ -79,6 +79,13 @@ SPECS: dict[str, DocumentSpec] = {
         # arka plan cümlesinde (kredinin sonradan gelen kısmi finansman olduğu, inşaatı
         # finanse eden ana kaynağın özkaynak olduğu) geçmesini, "2. The Facility"nin
         # kredinin capex'i finanse ettiği gibi yanlış bir ilişki kurmasını önlemek için.
+        # 1. deneme capex/equity'yi yine 2. bölüme kaydırmıştı (yanlış bölüm + "özkaynak
+        # katkısı harcamaların finansmanı amacıyla" ilişkisi). Başlıklar 11.10.2026'da
+        # güçlendirilip tek yeniden deneme hakkı kullanıldı, ancak Gemini ~10 dk boyunca
+        # (3 ayrı çağrı denemesi) sürekli 429 döndürdüğü için üretim TAMAMLANAMADI — bu
+        # bir içerik reddi değil, altyapı/kota sorunu; prose elle düzeltilmedi, başlıklar
+        # mevcut (ilk denemeden kalan) prose ile eşleşmesi için eski haline döndürüldü.
+        # Açık kalan iş: docs/reports/ADIM5_PF1_URETIM_RAPORU.md.
         section_headings_en=[
             "1. Recitals and Definitions",
             "2. The Facility (Supplementary Financing)",
