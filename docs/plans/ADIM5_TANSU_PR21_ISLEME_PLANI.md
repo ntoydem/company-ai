@@ -286,3 +286,29 @@ Ledger'a eklenecek (USER_FACT, not "ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026)")
 | DSCR/covenant test geçmişi (tablo, kod) | 0 LLM (kodla tablo) | $0 |
 
 **Tahmini toplam: 5-7 belge, ~$0,10 Claude maliyeti.** `_PROJECT_CODE`'a "BOZ" eklenmesi ön koşuldur (§9.5, bu round'da yapılıyor). **Uygulama bu round'da YOK.**
+
+---
+
+## 10. Durum tablosu (11.10.2026, round sonu)
+
+| Adım | Durum | Commit |
+|---|---|---|
+| T-14.1 (Yeşilova türbin/MW) | **BEKLİYOR** — Tansu'ya soruldu (PR #22, `SORULAR_NACIDEN_6`) | — |
+| T-14.2 (Kategori B kanonik kaynak) | ✅ Bulundu, §9.8'de eşleştirme çıkarıldı | `dbdbeb3` |
+| T-14.3 (Karatepe YEKDEM) | ✅ İşlendi (A) | `dc1472f` |
+| (a) Boztepe ledger | ✅ | `33910f4` |
+| (a) Karatepe ledger (ECA hariç banka adı) | ✅ | `dc1472f` |
+| (a) Kızılova ledger | ✅ | `871bbc1` |
+| (a) Yeşilova ledger | ✅ (T-14.1 pending, faz MW yazılmadı) | `1722626` |
+| (a) Güneşalan ledger | ✅ | `f538dae` |
+| (a) fx_rates | ✅ | `f482b84` |
+| (b) `_PROJECT_CODE` (BOZ/DMR/AKY/GNS) | ✅ | `215bd4b` |
+| (c) T-13.2 ledger (DEV-006/LEG-002 karşı taraf) | ✅ | `6cdd090` |
+| (d) 4 Claude regenerasyonu (DEV-006/LEG-002/FIN-009/FIN-010) | ✅ ($0,0572/$0,6 bütçe) | `ba47d4c` |
+| (e) Solo `make test` | ✅ (round sonunda bir kez) | — |
+| SORULAR_NACIDEN_6 (T-14.1) | ✅ PR #22 açıldı + company-ai kopyası | `8010f05` |
+| Banka adları (Ç-12) | **BEKLİYOR** — PR #15/#16 henüz birleşmedi | — |
+| Hukuk partisi (18 belge, §9.4) | **BEKLİYOR** — bu round'da yok | — |
+| Boztepe PF-2 (§9.9) | **BEKLİYOR** — bu round'da yok | — |
+| Kategori B yeniden üretimi (20 belge, §9.8) | **BEKLİYOR** — kök neden önerisi güncellendi, uygulama yok | — |
+| Karatepe guarantee_letters amount/lehtar belge metnine ekleme | **BEKLİYOR** — ledger'a girdi, key_facts/prose'a henüz eklenmedi (küçük, ayrı bir round) | — |
