@@ -25,10 +25,19 @@ project:
   turbines:
     model_generic: {value: "Vestas V136", tag: USER_FACT}
     count: {value: 5, tag: USER_FACT, note: "ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026): T-11.13 cevabı — 4,4 MW modda, 5 x 4,4 = 22 MW (capacity_mw.current ile tutarlı)."}
-  timeline: {}
+  # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §2): santral iki
+  # fazlı. T-14.1 (faz bazlı MW/türbin adedi) CEVAPLANMADAN faz bazlı kapasite/türbin
+  # sayısı YAZILMIYOR (Naci kararı, 11.10.2026) — yalnız COD tarihleri giriliyor.
+  # cod_actual, GÜNCEL (22 MW/5 türbin) yapılandırmanın tarihi; ilk fazın COD'si notta.
+  timeline:
+    cod_actual: {date: 2022-11-15, doc: null, tag: USER_FACT, note: "Faz 2 (güncel 22 MW/5 türbin yapılandırması). Faz 1'in kendi COD'si 28.12.2016 (T-14.1 cevabı gelmeden faz bazlı MW/türbin sayısı ayrılmıyor)."}
 
   finance:
     lender: {value: "LMN Bank", tag: USER_FACT}
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §2): Faz 1'in YEKDEM
+    # satışı (2021-öncesi mekanizma). Faz 2 YEKDEM DIŞI (PTF) — T-14.1 cevabı gelmeden
+    # hangi türbinlerin/MW'ın bu kapsamda olduğu belirtilmiyor, yalnız satış koşulu girildi.
+    yekdem: {start: 2017-01-01, end: 2026-12-31, price_usd_mwh: 73, tag: USER_FACT, note: "Faz 2 YEKDEM dışı (PTF) — faz bazlı MW/türbin ayrımı T-14.1 cevabına kadar yazılmıyor."}
     # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11 LLM üretim planı SORU 1): imza tarihi
     # NACI_CEVAP_2026-10-08.md §3.2'den ("Sözleşme 03.06.2023") — o round'da ledger'a hiç
     # işlenmemişti (OperatingTimeline finansman alanı taşımıyor, Finance.signed_date yeni).
@@ -51,8 +60,10 @@ project:
     covenant_tests:
       - {period: Q4_2024, dscr: 3.9, result: pass, doc: null, tag: USER_FACT}
       - {period: Q4_2025, dscr: 3.6, result: pass, doc: null, tag: USER_FACT}
-    dsra_balance: {value: 702000, currency: USD, tag: USER_FACT}
-    debt_service_account_balance: {value: 84500, currency: USD, tag: USER_FACT}
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §2): açıklayıcı not
+    # eklendi, rakam değişmedi.
+    dsra_balance: {value: 702000, currency: USD, tag: USER_FACT, note: "Kredi sözleşmesinde '6 dönemlik borç servisi karşılığı, sabit tutar' olarak tanımlanır."}
+    debt_service_account_balance: {value: 84500, currency: USD, tag: USER_FACT, note: "06.10.2026; 14.10.2026 taksitinden (#11) küçük — eksik kısım vade öncesinde işletme hesabından aktarılır (plansız bir 'yetersiz bakiye' bulgusu değil)."}
     # Düzeltme C (11.10.2026, Naci): değer DOC-YSV-FIN-009'un (language: en) tek kullanıcısı
     # — "98.000" TR biçimiydi, EN belgede "98,000" olmalı (kök neden: bu alan `("text", "")`
     # kind'inde, facts.py'nin dil-duyarlı _format_money'sinden GEÇMİYOR — capex/equity/
