@@ -4,51 +4,43 @@ tag: AI_ASSUMPTION
 sections:
 - heading: 1. Definitions and Interpretation
   paragraphs:
-  - This credit facility agreement with reference number [[document_no]] is formally
-    executed on [[document_date]] by and between [[parties_list]]. The primary purpose
-    of this document is to establish the financing terms for [[project_name]] managed
-    by [[spv_name]]. The current administrative status of this agreement is recorded
-    as [[status_label]] under version [[version_label]].
-  - Unless the context otherwise requires, capitalized terms defined herein shall
-    bear the same meaning throughout this document. Headings and section references
-    are inserted solely for convenience of reference and shall not affect the construction
-    of any provision. References to any party shall include its respective legal successors
-    and permitted assigns.
+  - This facility agreement, bearing document reference [[document_no]] and titled
+    [[title]], is entered into as of [[document_date]] and becomes effective on [[effective_date]].
+    It establishes the core financial terms and obligations between the entities listed
+    under [[parties_list]], including [[spv_name]] and [[counterparty]].
+  - The agreement governs the overall framework for [[project_name]] with current
+    status designated as [[status_label]]. All terms and interpretation principles
+    set forth in this text shall be applied in accordance with document version [[version_label]].
 - heading: 2. The Facility
   paragraphs:
-  - Subject to the terms and conditions established in this agreement, the lenders
-    agree to make available to [[spv_name]] a total commitment amounting to [[total_debt]].
-    This credit facility is dedicated exclusively to funding the capital expenditure
-    and development requirements of [[project_name]] as agreed with [[counterparty]].
-  - The facility shall become available for utilization on [[effective_date]], provided
-    that all conditions precedent have been fully satisfied or waived. The total committed
-    amount must be utilized strictly in accordance with the drawdown schedule approved
-    by the relevant finance parties.
+  - Under the terms of this agreement, the lenders make available to [[spv_name]]
+    a facility in an aggregate limit of [[total_debt]]. The facility is established
+    exclusively to support the financing objectives of [[project_name]].
+  - The financial commitments supplied by [[counterparty]] and the participants under
+    [[parties_list]] shall be utilized solely for permitted corporate purposes. The
+    allocation and administration of funds remain governed by document reference [[document_no]].
 - heading: 3. Conditions Precedent to Drawdown
   paragraphs:
-  - The obligation of the lenders to disburse any portion of the facility is subject
-    to the satisfaction of [[drawdown_condition]]. The borrower, represented by [[spv_name]],
-    shall submit all necessary corporate resolutions, constitutional documents, and
-    legal opinions required by [[counterparty]].
-  - No drawdown request shall be processed if a default or an event of default has
-    occurred and remains outstanding. Furthermore, all representations and warranties
-    provided by [[spv_name]] must remain true and correct in all material respects
-    on the date of each utilization.
+  - The right of [[spv_name]] to issue a utilization request is subject to the prior
+    satisfaction of all prerequisite conditions. A primary requirement for any disbursement
+    is the full satisfaction of [[drawdown_condition]].
+  - Upon verification that all conditions precedent have been met to the satisfaction
+    of [[counterparty]], funds may be drawn. Failure to satisfy these requirements
+    may prevent utilization under version [[version_label]].
 - heading: 4. Commitment Fee
   paragraphs:
-  - The borrower shall pay to [[counterparty]] a commitment fee computed at the rate
-    of [[commitment_fee]] on the unutilized and uncanceled portion of the facility.
-    This fee begins accruing from the effective date and continues through the expiration
-    of the availability period.
-  - Accrued commitment fees shall be due and payable in arrears on [[commitment_fee_date]].
-    All payments must be made in immediately available funds without any set-off,
-    counterclaim, or deduction for taxes, directly to the account designated by [[counterparty]].
+  - The borrower shall pay a commitment fee calculated by applying [[commitment_fee_rate]]
+    to the unutilized portion of the commitments. The resulting fee amount is set
+    as [[commitment_fee]].
+  - The commitment fee shall accrue starting from [[effective_date]] and shall be
+    payable on [[commitment_fee_date]]. Payments shall be processed by [[spv_name]]
+    to the designated accounts of [[counterparty]].
 - heading: 5. Governing Law
   paragraphs:
   - This agreement, identified as [[document_no]], and any non-contractual obligations
-    arising out of or in connection with it shall be governed by and construed in
-    accordance with the governing law agreed upon by [[parties_list]].
-  - Any dispute or legal claim arising from the execution or performance of this agreement
-    shall be subject to the exclusive jurisdiction of the competent courts. Both [[spv_name]]
-    and [[counterparty]] hereby submit to such jurisdiction and waive any defense
-    based on improper venue or inconvenient forum.
+    arising out of it shall be governed by applicable legal standards. The relationship
+    between [[spv_name]] and [[counterparty]] shall be interpreted under these governing
+    principles.
+  - The entities named in [[parties_list]] agree that any dispute arising under [[title]]
+    shall be referred to the competent judicial forums. This clause remains effective
+    for all matters concerning document version [[version_label]] and status [[status_label]].
