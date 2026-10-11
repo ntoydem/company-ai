@@ -234,7 +234,10 @@ class AnkaraTimeline(_Strict):
 
 class Lenders(_Strict):
     local_bank: Fact
-    eca: Fact
+    # Adım 5 (11.10.2026, NACI_CEVAP_2026-10-11.md §3.2): Karatepe'de ECA tarafı YOK —
+    # 2022-KT yalnız local_bank'ın (Garanti BBVA, Ç-12 bekliyor) tek kredisi. Optional
+    # (önceden zorunlu `Fact`, `eca_debt: 0` ile "biçimsel" bir ECA tarafı taşıyordu).
+    eca: Fact | None = None
 
 
 class Interest(_Strict):
@@ -317,6 +320,18 @@ class QuarterCfads(_Strict):
     tag: Tag
 
 
+class Yekdem(_Strict):
+    """Adım 5 (11.10.2026, NACI_CEVAP_2026-10-11.md §3): YEKDEM (feed-in tariff) katılımı —
+    başlangıç/bitiş tarihi ve USD/MWh sabit fiyatı. Yalnız işletmedeki SPV'lerde (Karatepe/
+    Boztepe/Güneşalan); Yeşilova'nın faz-bazlı YEKDEM'i T-14.1 cevabı gelmeden eklenmiyor."""
+
+    start: date | None = None
+    end: date | None = None
+    price_usd_mwh: float | None = None
+    tag: Tag
+    note: str | None = None
+
+
 class GuaranteeLetter(_Strict):
     """Adım 5 İş 4a/4b (10.10.2026, NACI_CEVAP §3.2): Karatepe's forest-permit guarantee
     letter, due for renewal January 2027 — only the purpose and renewal month are given
@@ -375,6 +390,8 @@ class Finance(_Strict):
     bank_interest_notices: list[BankInterestNotice] = Field(default_factory=list)
     # Adım 5 İş 4a: Karatepe's forest-permit guarantee letter (not every SPV has one).
     guarantee_letters: list[GuaranteeLetter] = Field(default_factory=list)
+    # Adım 5 (11.10.2026, NACI_CEVAP_2026-10-11.md §3): feed-in tariff participation.
+    yekdem: Yekdem | None = None
     # Adım 5 İş 4b: Yeşilova's Annex F reporting request (NACI_CEVAP §3.2) — request
     # e-mail date, deadline, and the reporting year the request covers.
     annex_f_request_date: date | None = None
