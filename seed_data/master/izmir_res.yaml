@@ -68,6 +68,9 @@ project:
   signed_undrawn_facility:
     lender: {value: "PQR Bank", tag: USER_FACT, note: "2026-KZ, Garanti BBVA'nın kurgusal karşılığı (Ç-12 bekliyor)."}
     contract_amount: {value: 30000000, currency: USD, tag: USER_FACT}
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11.5): tam imza tarihi. 05.01.2027
+    # komisyon tarihine tam 92 gün — bkz. commitment_fee notu (ADIM5_T11_ETKI_RAPORU §2.3).
+    signed_date: 2026-10-05
     drawdown_condition: {value: "Üretim lisansının alınması", tag: USER_FACT}
     commitment_fee: {value: 61333, currency: USD, tag: USER_FACT, note: "30.000.000 × %0,80 × 92/360 (NACI_CEVAP §3.2)."}
     commitment_fee_date: 2027-01-05

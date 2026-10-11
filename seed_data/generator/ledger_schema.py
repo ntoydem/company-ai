@@ -500,8 +500,9 @@ class SignedUndrawnFacility(_Strict):
 
     lender: Fact
     contract_amount: Money
-    # Tansu confirms only the signing *year* (the "2026-KZ" code itself, §3.2's "kod yılı
-    # = imza yılı"), not an exact day — stays unset rather than a guessed date.
+    # Adım 5 T-11 (11.10.2026, ürün sahibi onaylı): 05.10.2026 — only the signing *year*
+    # (the "2026-KZ" code itself) was known until then; stays Optional for any future SPV
+    # that only gives the year.
     signed_date: date | None = None
     drawdown_condition: Fact | None = None
     commitment_fee: Money | None = None
