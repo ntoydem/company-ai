@@ -16,6 +16,11 @@ dependencies = [
     "pgvector>=0.3",
     "python-multipart>=0.0.9",
     "openai>=3.17,<4",
+    # İş Emri 2026-10-11-C: `LLM_PROVIDER=anthropic` (app/services/llm/anthropic_client.py)
+    # — artık app/'nin kendi runtime bağımlılığı, dev-only DEĞİL (seed_data/generator'ın
+    # `generate_prose.py --provider anthropic`'i de aynı paketi ayrıca kullanır, ADR-013
+    # sınırı ihlal edilmiyor çünkü app/ seed_data/'yı import etmiyor, tersi de doğru).
+    "anthropic>=1.13,<2",
     # Phase 4.2 Excel engine (ADR-011): inspection, calculation, sheet -> table bridge.
     "openpyxl>=3.1",
     "duckdb>=1.1",
@@ -37,9 +42,6 @@ dev = [
     "weasyprint>=62",
     "pymupdf>=1.24",
     "jinja2>=3.1",
-    # Adım 5 (11.10.2026): generate_prose.py'nin opsiyonel Claude sağlayıcısı — app/'den import
-    # edilmez (ADR-013), app/'nin kendi (deferred) LLM_PROVIDER=anthropic'inden bağımsız.
-    "anthropic>=1.13,<2",
 ]
 
 [tool.ruff]

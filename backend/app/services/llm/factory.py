@@ -3,14 +3,26 @@
 from __future__ import annotations
 
 from app.core.config import Settings
+from app.services.llm.anthropic_client import AnthropicClient
 from app.services.llm.base import LLMClient, LLMNotConfiguredError
 from app.services.llm.openai_compatible import OpenAICompatibleClient
 
 
 def build_llm_client(settings: Settings) -> LLMClient:
     if settings.llm_provider == "anthropic":
-        # Deferred (Phase 0.3 decision): revisit at the Phase 4.3 model decision point.
-        raise LLMNotConfiguredError("LLM_PROVIDER=anthropic is not available in V0 yet")
+        # İş Emri 2026-10-11-C: Phase 0.3's "Deferred" artık dolduruldu. Anahtar her
+        # zaman `PROSE_ANTHROPIC_API_KEY`'den gelir (ayar alanının kendi alias'ı
+        # üzerinden) — `ANTHROPIC_API_KEY` adı burada hiç görünmez.
+        api_key = (
+            settings.anthropic_api_key.get_secret_value() if settings.anthropic_api_key else ""
+        )
+        if not api_key:
+            raise LLMNotConfiguredError("PROSE_ANTHROPIC_API_KEY is not set")
+        return AnthropicClient(
+            api_key=api_key,
+            timeout_s=settings.llm_timeout_s,
+            max_retries=settings.anthropic_max_retries,
+        )
     api_key = settings.llm_api_key.get_secret_value() if settings.llm_api_key else ""
     if not api_key:
         raise LLMNotConfiguredError("LLM_API_KEY is not set")

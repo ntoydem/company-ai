@@ -54,7 +54,14 @@ class Settings(BaseSettings):
     llm_max_output_tokens: int = 2048
     # Thinking budget stays low (SPEC_01 §5); Gemini maps this to `thinking_level`.
     llm_reasoning_effort: Literal["minimal", "low", "medium", "high"] = "low"
-    anthropic_api_key: SecretStr | None = None
+    # İş Emri 2026-10-11-C: `LLM_PROVIDER=anthropic`'in anahtarı. Env adı BİLEREK
+    # `PROSE_ANTHROPIC_API_KEY` — `ANTHROPIC_API_KEY` (seed_data/generator'ın henüz
+    # kullanmadığı, .env'de duran ayrı bir değer) hiç okunmaz; `anthropic` SDK'sı api_key
+    # verilmezse kendiliğinden `ANTHROPIC_API_KEY`'e düşer, bu yüzden alias ile engellendi.
+    anthropic_api_key: SecretStr | None = Field(
+        default=None, validation_alias=AliasChoices("PROSE_ANTHROPIC_API_KEY")
+    )
+    anthropic_max_retries: int = 2
 
     # ADR-027 (Tansu Not 2): when a question cannot be answered, add a code-generated
     # `assist` block (what is available, which terms did not match, one bounded clarifying

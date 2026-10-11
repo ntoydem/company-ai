@@ -141,13 +141,6 @@ def test_factory_without_key_is_not_configured(settings: Settings) -> None:
         build_llm_client(settings.model_copy(update={"llm_api_key": SecretStr("")}))
 
 
-def test_factory_anthropic_is_deferred(settings: Settings) -> None:
-    with pytest.raises(LLMNotConfiguredError):
-        build_llm_client(
-            settings.model_copy(update={"llm_provider": "anthropic", "llm_api_key": SecretStr("k")})
-        )
-
-
 def test_factory_builds_openai_compatible_client(settings: Settings) -> None:
     client = build_llm_client(settings.model_copy(update={"llm_api_key": SecretStr("k")}))
     assert isinstance(client, OpenAICompatibleClient)
