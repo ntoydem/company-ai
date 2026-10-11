@@ -28,7 +28,9 @@ project:
     # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11.1): kapasite tadiliyle (21->24 MW)
     # birlikte 7->8 türbine çıkış — DOC-ANK-DEV-002'nin anlatısı için.
     count_initial: {value: 7, tag: USER_FACT, source_doc: DOC-ANK-DEV-001}
-    model_generic: {value: "3,0 MW sınıfı kara tipi türbin", tag: USER_FACT}
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-9): gerçek üretici adı — hiçbir belgenin
+    # key_facts'inde kullanılmıyor (grep doğrulandı), bu yüzden 0 belge/LLM etkisi var.
+    model_generic: {value: "Enercon E-82 3,0 MW", tag: USER_FACT}
 
   timeline:
     development_start:   {date: 2018-03-01, doc: null,            tag: USER_FACT}
@@ -71,10 +73,12 @@ project:
     contract_amount: {value: 14000000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-004, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", conflict_kind: genuine_conflict, note: "Sözleşmede yazan tesis tutarı; fiilen kullandırılan 13.600.000 USD'dir."}
     total_debt: {value: 13600000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", conflict_kind: genuine_conflict, note: "Fiilen kullandırılan/ödeme planındaki tutar; sözleşme tutarı (contract_amount) 14.000.000 USD'dir."}
     local_debt: {value: 13600000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007}
-    eca_debt:   {value: 0, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-004, note: "ECA tarafı kullandırılmadı (Tansu §3.2); taraf listesinde biçimsel olarak kalıyor."}
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §3.2): ECA tarafı
+    # KALDIRILDI — 2022-KT yalnız Garanti BBVA'nın (Ç-12 bekliyor, şimdilik PQR Bank)
+    # tek proje kredisi, hiçbir ECA tranşı yok (eca_debt/lenders.eca önceden "biçimsel"
+    # 0'lık bir ECA tarafı taşıyordu — bu artık yanlış, tamamen çıkarıldı).
     lenders:
-      local_bank: {value: "PQR Bank", tag: USER_FACT}
-      eca:        {value: "VWX Export Credit Agency", tag: USER_FACT}
+      local_bank: {value: "PQR Bank", tag: USER_FACT, note: "Garanti BBVA'nın kurgusal karşılığı (Ç-12 bekliyor, PR #15/#16 birleşene kadar BEKLE)."}
     interest:
       base:       {value: "Term SOFR 6M", tag: USER_FACT}
       margin_pct:
@@ -175,13 +179,18 @@ project:
       - {period: Q4_2025, cfads: {value: 537300, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
       - {period: Q1_2026, cfads: {value: 515800, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
       - {period: Q2_2026, cfads: {value: 527300, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
-    # Adım 5 İş 4b (10.10.2026, NACI_CEVAP §3.2): yalnız amaç ve yenileme AYI verildi
-    # ("Ocak 2027'de yenilenecek teminat mektubu, orman izni teminatıdır") — gün, banka,
-    # tutar verilmedi; icat edilmedi, lender/amount pending (None).
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §3.2): tam vade,
+    # banka (Ç-12 bekliyor, şimdilik PQR Bank) ve tutar geldi — önceden yalnız amaç ve
+    # yenileme AYI vardı ("Ocak 2027'de yenilenecek teminat mektubu").
     guarantee_letters:
       - purpose: {value: "Orman izni teminatı", tag: USER_FACT}
-        renewal_date: {value: "Ocak 2027", tag: USER_FACT}
+        renewal_date: {value: "15.01.2027", tag: USER_FACT}
+        lender: {value: "PQR Bank", tag: USER_FACT, note: "Garanti BBVA'nın kurgusal karşılığı (Ç-12 bekliyor)."}
+        amount: {value: 1150000, currency: TRY, tag: USER_FACT}
         tag: USER_FACT
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §2/§3.2 — T-14.3=A):
+    # 24 MW'ın tamamı, 2021-sonrası mekanizma, COD (15.10.2023) ile aynı gün başlıyor.
+    yekdem: {start: 2023-10-15, end: 2033-10-14, price_usd_mwh: 51, tag: USER_FACT}
 
   construction:
     epc_contractor:   {value: "JKL İnşaat A.Ş.", tag: USER_FACT}
@@ -308,7 +317,7 @@ documents:
     expiration_date: null
     version: DRAFT
     status: draft
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
     key_facts: {dscr_covenant: project.finance.dscr_covenant.initial.value, tenor_years: project.finance.tenor_years.initial.value}
     supersedes: null
     superseded_by: DOC-ANK-FIN-002
@@ -330,7 +339,7 @@ documents:
     expiration_date: null
     version: V01
     status: superseded
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
     key_facts: {dscr_covenant: project.finance.dscr_covenant.initial.value, tenor_years: project.finance.tenor_years.initial.value}
     supersedes: DOC-ANK-FIN-001
     superseded_by: DOC-ANK-FIN-003
@@ -352,7 +361,7 @@ documents:
     expiration_date: null
     version: V02
     status: superseded
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
     key_facts: {dscr_covenant: project.finance.dscr_covenant.initial.value, tenor_years: project.finance.tenor_years.initial.value}
     supersedes: DOC-ANK-FIN-002
     superseded_by: DOC-ANK-FIN-004
@@ -374,7 +383,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: superseded
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
     # Adım 5 Aşama C (10.10.2026, C5 kararı): local_debt/eca_debt rakamları kaldırıldı —
     # fiilen kullandırılan 13,6M tutarı yalnız DOC-ANK-FIN-007 ve ödeme planında kalır;
     # bu belge yalnız sözleşme tutarını (contract_amount) ve ECA tranşının olmadığını
@@ -409,7 +418,7 @@ documents:
     expiration_date: null
     version: AMD01
     status: superseded
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
     key_facts: {repayment_profile: project.finance.repayment_profile.value}
     supersedes: DOC-ANK-FIN-004
     superseded_by: DOC-ANK-FIN-006
@@ -434,7 +443,7 @@ documents:
     expiration_date: null
     version: AMD02
     status: executed
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
     # Adım 5 Aşama C (10.10.2026, C5 kararı): tenor_years kaldırıldı — tenor fiilen
     # değişmedi, "uzatıldı" cümlesi tutarsızdı (bkz. prose). margin_pct eklendi —
     # bu tadilin gerçekten değiştirdiği ikinci alan (DSCR'ın yanında).
@@ -667,7 +676,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
     key_facts: {total_debt: project.finance.contract_amount.value}
     supersedes: null
     superseded_by: null
@@ -777,7 +786,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank", "VWX Export Credit Agency"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
     key_facts: {dscr: "project.finance.covenant_tests[4].dscr"}
     supersedes: null
     superseded_by: null

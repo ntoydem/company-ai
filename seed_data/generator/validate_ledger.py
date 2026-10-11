@@ -516,13 +516,17 @@ def check_finance(ankara: ls.AnkaraLedger, report: Report) -> None:
         "equity": fin.equity,
         "total_debt": fin.total_debt,
         "local_debt": fin.local_debt,
-        "eca_debt": fin.eca_debt,
         "outstanding_debt_as_of_demo_today": fin.outstanding_debt_as_of_demo_today,
     }
+    # Adım 5 (11.10.2026, NACI_CEVAP_2026-10-11.md §3.2): eca_debt kaldırıldı (Karatepe'de
+    # ECA tarafı yok) — artık Optional, varsa yine para birimi/toplam kontrolüne dahil.
+    if fin.eca_debt is not None:
+        monies["eca_debt"] = fin.eca_debt
     currencies = {m.currency for m in monies.values()}
     if len(currencies) != 1:
         report.error(f, "project.finance", f"F1/F2: mixed currencies {sorted(currencies)}")
-    if fin.local_debt.value + fin.eca_debt.value != fin.total_debt.value:
+    eca_value = fin.eca_debt.value if fin.eca_debt is not None else 0
+    if fin.local_debt.value + eca_value != fin.total_debt.value:
         report.error(
             f, "project.finance.total_debt.value", "F1: local_debt + eca_debt != total_debt"
         )
