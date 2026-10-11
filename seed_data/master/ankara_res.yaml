@@ -34,14 +34,18 @@ project:
     development_start:   {date: 2018-03-01, doc: null,            tag: USER_FACT}
     pre_licence:         {date: 2018-11-20, doc: null,            tag: USER_FACT}
     licence:             {date: 2020-06-15, doc: DOC-ANK-DEV-001, tag: USER_FACT}
-    licence_amendment:   {date: 2021-02-10, doc: DOC-ANK-DEV-002, tag: USER_FACT, note: "Kapasite 22 -> 24 MW"}
-    # AI_ASSUMPTION: construction_start (2022-01-10, değişmedi) ile tutarlı olması için signed/close
-    # tarihleri construction_start'tan ÖNCEye alındı (C1 kuralı); Tansu §3.2 yalnız taksit/DSCR/marj
-    # verdi, bir imza/close tarihi vermedi.
-    financing_signed:    {date: 2021-11-20, doc: DOC-ANK-FIN-004, tag: AI_ASSUMPTION}
-    financial_close:     {date: 2021-11-25, doc: null,            tag: AI_ASSUMPTION}
+    licence_amendment:   {date: 2021-02-10, doc: DOC-ANK-DEV-002, tag: USER_FACT, note: "Kapasite 21 -> 24 MW (T-11.1 düzeltmesi, 11.10.2026 — adım 5'te gözden kaçmıştı)."}
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11.2): imza 20.06.2022, financial close
+    # 08.07.2022 — eski 2021 AI_ASSUMPTION'ı kredinin kendi koduyla (2022-KT, "kod yılı =
+    # imza yılı") ve grace_months notuyla (zaten 2022-06-20 varsayıyordu) çelişiyordu.
+    # construction_start (Naci'nin seçimi, AI_ASSUMPTION — Tansu vermedi): C1 kuralı
+    # financial_close'dan SONRA olmasını zorunlu kılıyor; eski 2022-01-10 artık financial
+    # close'dan (2022-07-08) önce kalıyor — ileri alındı, ilk kullanımdan (2022-07-15)
+    # önce kalacak şekilde (inşaat başlar, sonra ilk çekimle finanse edilir).
+    financing_signed:    {date: 2022-06-20, doc: DOC-ANK-FIN-004, tag: USER_FACT}
+    financial_close:     {date: 2022-07-08, doc: null,            tag: USER_FACT}
     epc_signed:          {date: 2021-10-20, doc: DOC-ANK-EPC-001, tag: USER_FACT}
-    construction_start:  {date: 2022-01-10, doc: null,            tag: USER_FACT}
+    construction_start:  {date: 2022-07-10, doc: null,            tag: AI_ASSUMPTION, note: "Tansu vermedi; C1 kuralı (financial_close'dan sonra) ve ilk kullanımdan (2022-07-15) önce olacak şekilde seçildi."}
     construction_end:    {date: 2023-08-31, doc: null,            tag: USER_FACT}
     commissioning:       {date: 2023-09-20, doc: null,            tag: USER_FACT}
     cod_expected_initial: {date: 2023-06-30, doc: DOC-ANK-EPC-001, tag: USER_FACT}
@@ -295,7 +299,7 @@ documents:
     folder: finance
     type: Facility Agreement
     name: {value: "Facility Agreement — Draft", tag: USER_FACT}
-    document_date: {value: 2021-06-15, tag: USER_FACT}
+    document_date: {value: 2022-03-15, tag: USER_FACT}
     effective_date: null
     expiration_date: null
     version: DRAFT
@@ -317,7 +321,7 @@ documents:
     folder: finance
     type: Facility Agreement
     name: {value: "Facility Agreement — V01", tag: USER_FACT}
-    document_date: {value: 2021-07-20, tag: USER_FACT}
+    document_date: {value: 2022-04-15, tag: USER_FACT}
     effective_date: null
     expiration_date: null
     version: V01
@@ -339,7 +343,7 @@ documents:
     folder: finance
     type: Facility Agreement
     name: {value: "Facility Agreement — V02", tag: USER_FACT}
-    document_date: {value: 2021-08-25, tag: USER_FACT}
+    document_date: {value: 2022-05-15, tag: USER_FACT}
     effective_date: null
     expiration_date: null
     version: V02
@@ -361,8 +365,8 @@ documents:
     folder: finance
     type: Facility Agreement
     name: {value: "Facility Agreement", tag: USER_FACT}
-    document_date: {value: 2021-11-20, tag: USER_FACT}
-    effective_date: {value: 2021-11-20, tag: USER_FACT}
+    document_date: {value: 2022-06-20, tag: USER_FACT}
+    effective_date: {value: 2022-06-20, tag: USER_FACT}
     expiration_date: null
     version: EXECUTED
     status: superseded
@@ -651,8 +655,11 @@ documents:
     folder: finance
     type: Common Terms Agreement
     name: {value: "Karatepe RES Common Terms Agreement", tag: AI_ASSUMPTION}
-    document_date: {value: 2021-11-20, tag: AI_ASSUMPTION}
-    effective_date: {value: 2021-11-20, tag: AI_ASSUMPTION}
+    # Düzeltme (11.10.2026): FIN-004 ile aynı kapanış günü (financial close yan belgesi) —
+    # T-11.2'nin yeni imza tarihiyle (20.06.2022) tutarlı kalsın diye kaydırıldı; bu belge
+    # Tansu'nun yapılacaklar listesinde ayrıca anılmadı, grep taramasında bulundu.
+    document_date: {value: 2022-06-20, tag: AI_ASSUMPTION}
+    effective_date: {value: 2022-06-20, tag: AI_ASSUMPTION}
     expiration_date: null
     version: EXECUTED
     status: executed
