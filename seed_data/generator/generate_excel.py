@@ -9,6 +9,7 @@ are the contract, cell addresses are an implementation detail behind them.
 
 from __future__ import annotations
 
+import calendar
 import json
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
@@ -34,6 +35,8 @@ BUDGET_VS_ACTUAL = "Budget_vs_Actual_2026.xlsx"
 MONTHLY_PRODUCTION = "Monthly_Production_2026.xlsx"
 YESILOVA_SCHEDULE_CURRENT = "Yesilova_Repayment_Schedule_2026-09.xlsx"
 YESILOVA_SCHEDULE_OLD = "Yesilova_Repayment_Schedule_2026-03.xlsx"
+# İş Emri 2026-10-11 Adım 4 (Boztepe PF-2).
+BOZTEPE_REPAYMENT_SCHEDULE = "Boztepe_Repayment_Schedule_84_Instalments.xlsx"
 
 # Fixed cell positions in each quarter sheet of the Covenant Report (SPEC_04 §5's example
 # `Covenant_Report.xlsx Q2_2026!D14` is literally the DSCR cell).
@@ -139,7 +142,10 @@ def build_financial_model(raws: dict[str, Any]) -> Workbook:
     ws["A3"], ws["B3"] = "Equity (USD)", fin["equity"]["value"]
     ws["A4"], ws["B4"] = "Total debt (USD)", fin["total_debt"]["value"]
     ws["A5"], ws["B5"] = "Local bank debt (USD)", fin["local_debt"]["value"]
-    ws["A6"], ws["B6"] = "ECA debt (USD)", fin["eca_debt"]["value"]
+    # Tansu 6. tur: Karatepe'nin ECA dilimi ledger'dan kaldırıldı (eca_debt artık
+    # Optional) — validate_ledger.py::check_finance'teki aynı "yoksa 0" davranışı.
+    eca_debt = fin["eca_debt"]["value"] if fin.get("eca_debt") is not None else 0
+    ws["A6"], ws["B6"] = "ECA debt (USD)", eca_debt
     margin_current = fin["interest"]["margin_pct"]["current"]["value"]
     ws["A7"], ws["B7"] = "Margin over base, current (%)", margin_current
     ws["A8"], ws["B8"] = "Grace (months)", fin["grace_months"]["value"]
@@ -500,6 +506,100 @@ def build_yesilova_repayment_schedule_old(raws: dict[str, Any]) -> Workbook:
     return _build_yesilova_repayment_schedule(raws, date(2026, 3, 15))
 
 
+def _add_months(day: date, n: int) -> date:
+    month = day.month - 1 + n
+    year = day.year + month // 12
+    month = month % 12 + 1
+    last_day = calendar.monthrange(year, month)[1]
+    return date(year, month, min(day.day, last_day))
+
+
+def build_boztepe_repayment_schedule(raws: dict[str, Any]) -> Workbook:
+    """İş Emri 2026-10-11 Adım 4: 84 eşit anapara taksiti, 01.03.2027 - 01.02.2034.
+    `instalment_count`'un son taksiti kasıtlı bir formülle (opening balance) hesaplanır,
+    sabit 178.571,43 DEĞİL — böylece 83 x 178.571,43 + son taksit tam 15.000.000'a
+    kapanır (son taksit yuvarlama farkını emer, bkz. iş emri). Tamamı canlı Excel
+    formülü (openpyxl yalnız formül yazar; `recalc.sh` cache'ler, SPEC_04 §6)."""
+    fin = raws["boztepe_res"]["project"]["finance"]
+    total_debt = float(fin["total_debt"]["value"])
+    margin_pct = float(fin["interest"]["margin_pct"]["value"])
+    # Swap sabit oranın kendisi metin ("Swap sabit %3,894") — sayısal toplam oran
+    # (%6,744) ayrıca `effective_rate_pct_en` olarak saklı; burada kendi ondalık
+    # sayısını (0.06744) doğrudan ledger'ın onaylı aritmetiğinden (3.894 + 2.85) alıyoruz.
+    base_rate_pct = 3.894
+    annual_rate = round((base_rate_pct + margin_pct) / 100, 5)
+    instalment_count = 84
+    first_date = date(2027, 3, 1)
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Schedule"
+    ws["A1"] = "Boztepe RES — Anapara Geri Ödeme Planı (84 Taksit)"
+    ws["A1"].font = _BOLD
+    ws["A2"], ws["B2"] = "Toplam Kredi (USD)", total_debt
+    ws["A3"], ws["B3"] = "Taksit Sayısı", instalment_count
+    ws["A4"], ws["B4"] = "Yıllık Faiz Oranı (swap + marj)", annual_rate
+    ws["B4"].number_format = "0.000%"
+    ws["A5"], ws["B5"] = "İlk Anapara Vade Tarihi", first_date
+    ws["B5"].number_format = "DD.MM.YYYY"
+    _name(wb, "Total_Debt", "Schedule", "B2")
+    _name(wb, "Instalment_Count", "Schedule", "B3")
+    _name(wb, "Annual_Rate_Pct", "Schedule", "B4")
+    _name(wb, "First_Principal_Date", "Schedule", "B5")
+
+    header_row = 7
+    _header(
+        ws,
+        header_row,
+        [
+            "Taksit No",
+            "Vade",
+            "Açılış Bakiyesi (USD)",
+            "Anapara (USD)",
+            "Faiz (USD)",
+            "Toplam Ödeme (USD)",
+            "Kapanış Bakiyesi (USD)",
+        ],
+    )
+    first_row = header_row + 1
+    last_row = first_row + instalment_count - 1
+    for i in range(instalment_count):
+        row = first_row + i
+        taksit_no = i + 1
+        ws.cell(row=row, column=1, value=taksit_no)
+        ws.cell(row=row, column=2, value=_add_months(first_date, i)).number_format = "DD.MM.YYYY"
+        opening = "=Total_Debt" if row == first_row else f"=G{row - 1}"
+        ws.cell(row=row, column=3, value=opening)
+        principal = (
+            f"=C{row}" if taksit_no == instalment_count else "=ROUND(Total_Debt/Instalment_Count,2)"
+        )
+        ws.cell(row=row, column=4, value=principal)
+        ws.cell(row=row, column=5, value=f"=ROUND(C{row}*Annual_Rate_Pct/12,2)")
+        ws.cell(row=row, column=6, value=f"=D{row}+E{row}")
+        ws.cell(row=row, column=7, value=f"=ROUND(C{row}-D{row},2)")
+    _name(wb, "Schedule_Final_Closing", "Schedule", f"G{last_row}")
+
+    note_row = last_row + 2
+    ws.cell(row=note_row, column=1, value="Kontrol: Son Kapanış Bakiyesi (0 olmalı)")
+    ws.cell(row=note_row, column=2, value=f"=G{last_row}")
+    ws.cell(row=note_row + 1, column=1, value="Not")
+    ws.cell(row=note_row + 1, column=2).alignment = Alignment(wrap_text=True)
+    ws.cell(
+        row=note_row + 1,
+        column=2,
+        value=(
+            "Son taksit (84) sabit 178.571,43 USD değil, o satırın açılış bakiyesine "
+            "eşit — ilk 83 taksit (ROUND(15.000.000/84,2)=178.571,43) tam 15.000.000'a "
+            "ulaşmadığı için (yuvarlama farkı 0,12 USD) son taksit bu farkı emer."
+        ),
+    )
+    for col in range(1, 8):
+        ws.column_dimensions[get_column_letter(col)].width = 22
+    ws.column_dimensions["B"].width = 26
+    _meta(wb, raws)
+    return wb
+
+
 # ---------------------------------------------------------------- manifest + entrypoint
 
 SPECS: tuple[WorkbookSpec, ...] = (
@@ -579,6 +679,20 @@ SPECS: tuple[WorkbookSpec, ...] = (
         ledger_key="yesilova_res",
         project_code="YSV_RES",
     ),
+    WorkbookSpec(
+        BOZTEPE_REPAYMENT_SCHEDULE,
+        "DOC-BOZ-FIN-004",
+        "Anapara Geri Ödeme Planı (84 Taksit)",
+        "Repayment Schedule",
+        "finans",
+        None,
+        "en",
+        "2026-10-01",
+        "2026-10",
+        ("Schedule", META_SHEET),
+        ledger_key="boztepe_res",
+        project_code="BOZ_RES",
+    ),
 )
 
 BUILDERS = {
@@ -588,6 +702,7 @@ BUILDERS = {
     MONTHLY_PRODUCTION: build_monthly_production,
     YESILOVA_SCHEDULE_CURRENT: build_yesilova_repayment_schedule_current,
     YESILOVA_SCHEDULE_OLD: build_yesilova_repayment_schedule_old,
+    BOZTEPE_REPAYMENT_SCHEDULE: build_boztepe_repayment_schedule,
 }
 
 
