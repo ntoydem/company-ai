@@ -146,3 +146,15 @@ Hedef: **≥3 tür**, her biri **≥2 projede**, her proje **≥2 belge**. Bu pl
 | T-12.4 | Kızılova | Yüklenici ihtilafı: ihtarname tarihi, ihtilafın konusu/tutarı, taraf (ABC İnşaat mı?) | Hiç yok | |
 | T-12.5 | Demirci | TEA itirazı: TEA'nın olumsuz görüş tarihi, itiraz tarihi, mercii, gerekçe | Hiç yok | |
 | T-12.6 | Boztepe | Kredi (2024-BZ) imza günü | AI_ASSUMPTION: 2024-05-02 (zaten ledger'a işlendi) | |
+
+---
+
+## 11. Naci cevapları (11.10.2026)
+
+§10'daki SORU listesine cevaplar — işlenmiş, uygulanacak kararlar:
+
+1. **LegalCase şeması ne zaman eklensin (SORU 2):** Önerilen seçenek (cevaplar gelince) onaylandı. T-12.1-6 cevapları Tansu'dan gelmeden `LegalCase`-şekilli yeni bir yapı eklenmiyor — hangi alanların gerçekten gerektiği (örn. "duruşma sonucu") cevaplar gelmeden icat riski taşır.
+2. **Akyar/Güneşalan'ın ilk belgeleri hangi partiden gelsin (SORU 3):** Enerji partisinden — önerilen seçenek onaylandı (ikisi de aktif/geliştirme aşamasında teknik projeler, en doğal ilk belgeleri bağlantı görüşü/teknik rapor).
+3. **Kızılova ihtarnamesinin EPC ile çakışmaması (SORU 4):** Önerilen sınır onaylandı — ihtarname YALNIZ "sözleşme ihlali iddiası" düzeyinde kalır (hangi madde, ne zamandan beri); somut hakediş/ödeme tutarına GİRMEZ, bu zaten PF/Enerji partisinin kapsamında.
+
+Bu üç karar, Hukuk partisinin bir sonraki üretim turunda (T-12 cevapları geldikten sonra) doğrudan uygulanacak; bu turda production yapılmadı (plan-only).
