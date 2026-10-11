@@ -17,10 +17,14 @@ project:
       # GHI Yatırım A.Ş.'s historical 20% was bought out before the demo's present day.
       - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
   capacity_mw:
-    # Adım 5 (Tansu §3.1): current capacity 24 MW. Tansu's note doesn't mention a Karatepe
-    # capacity amendment; `initial` (22) is an AI_ASSUMPTION small delta kept only so the
-    # existing DOC-ANK-DEV-002 licence-amendment document still narrates a real change.
-    initial: {value: 22, tag: AI_ASSUMPTION, source_doc: DOC-ANK-DEV-001}
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11.1): 21 MW (22'nin türbin aritmetiğiyle
+    # tutmadığı gerekçesiyle) — tadil 7 türbinden 8 türbine çıkış olarak kurgulandı (7x3,0=21,
+    # 8x3,0=24). "7->8 türbin" anlatısı HİÇBİR belgede şu an metin olarak yok (yalnız
+    # [[capacity_mw]] token'ı var, turbines.count'ın kendisi initial/current ayrımı
+    # taşımıyor) — DOC-ANK-DEV-001/002'ye bu anlatıyı eklemek yeni şema + yeni prose
+    # cümlesi gerektirir, bu round'da UYGULANMADI (raporlandı, bkz. ADIM5_T11_ETKI_RAPORU
+    # ve bu adımın commit mesajı).
+    initial: {value: 21, tag: USER_FACT, source_doc: DOC-ANK-DEV-001}
     current: {value: 24, tag: USER_FACT, source_doc: DOC-ANK-DEV-002}
   turbines:
     count: {value: 8, tag: USER_FACT}

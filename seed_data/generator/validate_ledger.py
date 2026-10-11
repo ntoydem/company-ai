@@ -830,18 +830,24 @@ def check_version_links(ledgers: dict[str, LedgerModel], report: Report) -> None
 
 def check_technical(ankara: ls.AnkaraLedger, report: Report) -> None:
     """SPEC_05 §11 "Technical": a coarse sanity check — declared turbine count times the
-    ledger's own "5 MW sınıfı" description should land near the declared current
-    capacity. A soft WARNING (the class description is free text, not a machine fact) that
-    catches the obvious slip of changing one without the other."""
+    ledger's own "3,0 MW sınıfı" description (`turbines.model_generic`) should land near
+    the declared current capacity. A soft WARNING (the class description is free text,
+    not a machine fact) that catches the obvious slip of changing one without the other.
+
+    DÜZELTME (Adım 5 T-11, 11.10.2026): bu kontrol `model_generic`'i hiç OKUMUYOR — başta
+    bir "5 MW sınıfı" varsayımıyla hardcoded yazılmıştı; `model_generic` sonradan
+    "3,0 MW sınıfı" oldu (Tansu'nun verdiği gerçek değer) ama bu sabit hiç güncellenmemişti,
+    uyarı yanlışlıkla her zaman tetikleniyordu (8×5=40 ≠ 24). `model_generic` serbest metin
+    olduğu için güvenilir parse edilemez — sabit, metinle eşleşecek şekilde 3,0'a çekildi."""
     f = "ankara_res.yaml"
     turbines = ankara.project.turbines
-    implied = float(turbines.count.value) * 5.0  # type: ignore[arg-type]
+    implied = float(turbines.count.value) * 3.0  # type: ignore[arg-type]
     current = float(ankara.project.capacity_mw.current.value)  # type: ignore[arg-type]
     if abs(implied - current) > 5.0:
         report.warning(
             f,
             "project.turbines.count.value",
-            f"T1: {turbines.count.value} türbin × ~5 MW ≈ {implied:.0f} MW, "
+            f"T1: {turbines.count.value} türbin × ~3,0 MW ≈ {implied:.0f} MW, "
             f"declared capacity_mw.current is {current:.0f} MW",
         )
 
