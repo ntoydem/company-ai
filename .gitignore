@@ -5,6 +5,8 @@
 
 # Runtime data (DATA_ROOT default)
 data/
+# İş Emri 2026-10-11-D: ayrı değerlendirme ortamının DATA_ROOT (infra/.env.eval).
+data-eval/
 
 # Python
 __pycache__/
