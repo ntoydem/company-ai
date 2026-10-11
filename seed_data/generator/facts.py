@@ -291,6 +291,12 @@ def build_facts(doc: dict[str, Any], raws: dict[str, Any]) -> dict[str, str]:
         "counterparty": other_parties[0] if other_parties else spv_name,
         "parties_list": ", ".join(doc["parties"]),
     }
+    # İş Emri 2026-10-11 Adım 1: `parties_list` SPV'yi de içeriyor (örn. bir malikler
+    # listesinde SPV kendisi "malik" gibi görünür). `counterparty_list` yalnız SPV
+    # DIŞINDAKİ tarafları verir; tek taraflı belgede hiç üretilmez (facts dict'ine
+    # eklenmez) — LLM'e hiç önerilmez, kullanılırsa "bilinmeyen token" olarak reddedilir.
+    if other_parties:
+        facts["counterparty_list"] = ", ".join(other_parties)
     project_name = _project_name(doc_id)
     if project_name:
         facts["project_name"] = project_name

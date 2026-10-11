@@ -109,19 +109,23 @@ SPECS: dict[str, DocumentSpec] = {
         section_headings_en=[],
         # Düzeltme (11.10.2026, Naci onaylı): eski üretim [[counterparty]]'yi SPV'ye
         # düşürüp "... ile ... arasında akdedilmiştir" yazmıştı, HEM belge draft olduğu
-        # halde kesinleşmiş dil kullanmıştı. T-13.2 (Tansu, 11.10.2026) 3 malik verdi —
-        # [[counterparty]] bunlardan yalnız BİRİNİ seçerdi (ilk other_party); 3 malikin
-        # hepsi için [[parties_list]] kullanılıyor, [[counterparty]] suppress edildi.
+        # halde kesinleşmiş dil kullanmıştı. T-13.2 (Tansu, 11.10.2026) 3 malik verdi.
+        # İş Emri 2026-10-11 Adım 1: [[parties_list]] SPV'yi DE içerir ("malikler =
+        # parties_list" demek SPV'yi de malik gösterirdi) — yeni [[counterparty_list]]
+        # (SPV HARİÇ) kullanılıyor; [[counterparty]] hâlâ suppress (3 malikten yalnız
+        # birini seçer).
         signature_roles_tr=["İmza: [[spv_name]] Yetkilisi"],
-        prose_suppress_facts=frozenset({"counterparty"}),
+        prose_suppress_facts=frozenset({"counterparty", "parties_list"}),
         prose_guidance_tr=(
             "Bu belge TASLAKTIR, henüz imzalanmamıştır — 'akdedilmiştir', 'bağlayıcı "
             "nitelik kazanacaktır', 'yürürlüğe girmiştir' gibi KESİNLEŞMİŞ/tamamlanmış "
             "ifadeler YASAK; 'taslak', 'imzalanacak', 'imza için hazırlanmıştır' gibi "
             "taslak/ileri-zaman dili kullan. Karşı taraf 3 parsel malikidir — bunlardan "
-            "söz ederken [[parties_list]] kullan (hepsini listeler), [[counterparty]] "
-            "KULLANMA (yalnız birini seçer, diğer ikisini dışlar). Token'la verilmeyen "
-            "somut bir hüküm icat etme."
+            "söz ederken SADECE [[counterparty_list]] kullan (yalnız malikleri listeler, "
+            "SPV'yi dahil etmez), örn. '[[spv_name]] ile [[counterparty_list]] arasında'. "
+            "[[parties_list]] ve [[counterparty]] KULLANMA (ikisi de SPV'yi malik gibi "
+            "gösterir veya yalnız birini seçer). Token'la verilmeyen somut bir hüküm "
+            "icat etme."
         ),
     ),
     "DOC-IZM-LEG-003": DocumentSpec(

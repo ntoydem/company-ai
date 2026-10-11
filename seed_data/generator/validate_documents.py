@@ -24,7 +24,7 @@ import yaml
 
 from seed_data.generator import facts as facts_mod
 from seed_data.generator.document_specs import SPECS
-from seed_data.generator.generate_documents import _TOKEN_RE, DEFAULT_OUT, PROSE_DIR
+from seed_data.generator.generate_documents import _FOOTER_TEXT, _TOKEN_RE, DEFAULT_OUT, PROSE_DIR
 from seed_data.generator.validate_ledger import _NAME_PATTERN
 
 NUMBER_PATTERN = re.compile(r"\d{3,}")
@@ -124,6 +124,43 @@ def check_language_consistency(doc_id: str, language: str, text: str) -> list[st
             f"{ratio:.2f} (eşik {MAX_WRONG_LANGUAGE_RATIO})"
         ]
     return []
+
+
+# İş Emri 2026-10-11 Adım 1: aynı cümlede SPV adı 2 kez + bir bağlaç kelimesi geçerse
+# (örn. "X ile X arasında" / "between X and X") kendiyle-sözleşme cümlesi şüphesi — bu
+# ikili binary bir koşul (eşik yok, her ikisi de sağlanmalı); "A.Ş."/"Ltd." gibi
+# kısaltmalardan sonraki noktada BÖLME YAPILMAZ (lookbehind korumalı).
+_SENTENCE_SPLIT_PATTERN = re.compile(r"(?<!Ş)(?<!Ltd)(?<=[.!?])\s+(?=[A-ZÇĞİÖŞÜ0-9])")
+_SELF_REFERENCE_CONNECTORS = {"ile", "ve", "arasında", "between", "and", "with"}
+
+
+def _body_only(text: str, language: str) -> str:
+    """Kapak sayfası (başlık/alt başlık/banner/Taraflar tablosu) atlanır — SPV adının
+    orada normal şekilde 1-2 kez geçmesi kendiyle-sözleşme anlamına gelmez; bu kapı
+    yalnız GÖVDE metnindeki (sayfa 2+) cümleleri tarar."""
+    marker = _FOOTER_TEXT.get(language)
+    if marker is None:
+        return text
+    first_footer_end = text.find(marker)
+    if first_footer_end == -1:
+        return text
+    newline = text.find("\n", first_footer_end)
+    return text[newline + 1 :] if newline != -1 else ""
+
+
+def check_self_referential_sentences(doc_id: str, spv_name: str, text: str) -> list[str]:
+    errors: list[str] = []
+    for sentence in _SENTENCE_SPLIT_PATTERN.split(text):
+        if sentence.count(spv_name) < 2:
+            continue
+        words = set(_WORD_PATTERN.findall(sentence.lower()))
+        hit = words & _SELF_REFERENCE_CONNECTORS
+        if hit:
+            snippet = sentence.strip().replace("\n", " ")[:150]
+            errors.append(
+                f"{doc_id}: aynı cümlede '{spv_name}' 2 kez + bağlaç {sorted(hit)}: {snippet!r}"
+            )
+    return errors
 
 
 @dataclass
@@ -280,6 +317,9 @@ def validate_generated(manifest_path: Path) -> Report:
         for error in check_number_format_consistency(doc_id, entry["language"], text):
             report.error(error)
         for error in check_language_consistency(doc_id, entry["language"], text):
+            report.error(error)
+        body_text = _body_only(text, entry["language"])
+        for error in check_self_referential_sentences(doc_id, entry["parties"][0], body_text):
             report.error(error)
 
         if banners["all"] not in text:
