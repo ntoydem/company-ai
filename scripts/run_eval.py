@@ -9,9 +9,11 @@ Usage (inside the backend container, `postgres`+`backend` already up — see `ma
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import datetime
 import json
 import logging
+import os
 import re
 import sys
 import time
@@ -59,6 +61,42 @@ class RateLimiter:
             if remaining > 0:
                 time.sleep(remaining)
         self._last_at = time.monotonic()
+
+
+# İş Emri 2026-10-11-C Adım 3: $/MTok (input, output). Fiyat kaynağı: https://claude.com/
+# pricing (11.10.2026 doğrulandı) — Haiku 5.5 $0.10/$0.50, Sonnet 5.5 $2/$10 (≤100K bağlam).
+# Gemini: bu demo onun ücretsiz kademesini kullanıyor (CLAUDE.md, memory/gemini-free-tier) —
+# ödenen gerçek bir fiyat yok, bu yüzden $0 olarak sayılır (eval'in kendi maliyetini
+# gerçekten ödediği tutarlarla sınırlamak içindir, teorik bir liste fiyatı değil).
+_PRICING_USD_PER_MTOK: dict[str, tuple[float, float]] = {
+    "claude-haiku-5-5": (0.10, 0.50),
+    "claude-sonnet-5-5": (2.0, 10.0),
+    "gemini-3.5-flash-lite": (0.0, 0.0),
+    "gemini-3.8-flash": (0.0, 0.0),
+    "gemini-3.5-flash": (0.0, 0.0),
+}
+
+
+@dataclasses.dataclass
+class CostTracker:
+    """`EVAL_BUDGET_USD` maliyet sayacı: her `/api/ask` cevabının kendi `model`/`tokens_in`/
+    `tokens_out`'u (zaten `AskResponse`'ta var) üzerinden kümülatif $ hesaplar; aşılırsa
+    koşuyu DURDURUR (DUR kuralı — bütçe aşımı bir devam-et-ve-raporla durumu değil)."""
+
+    budget_usd: float | None
+    spent_usd: float = 0.0
+    unpriced_model_calls: int = 0
+
+    def add(self, model: str | None, tokens_in: int, tokens_out: int) -> None:
+        price = _PRICING_USD_PER_MTOK.get(model or "")
+        if price is None:
+            self.unpriced_model_calls += 1
+            return
+        in_price, out_price = price
+        self.spent_usd += (tokens_in * in_price + tokens_out * out_price) / 1_000_000
+
+    def budget_exceeded(self) -> bool:
+        return self.budget_usd is not None and self.spent_usd >= self.budget_usd
 
 
 class EvalSession:
@@ -239,6 +277,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--retry-base-delay-s", type=float, default=10.0)
     parser.add_argument("--consecutive-error-limit", type=int, default=5)
     parser.add_argument("--request-timeout-s", type=float, default=90.0)
+    # İş Emri 2026-10-11-C Adım 3: maliyet sayacı. Varsayılan env `EVAL_BUDGET_USD`'den
+    # (bu iş emrinin kendi DUR eşiği — `--budget-usd` ile tek koşu için ezilebilir).
+    parser.add_argument(
+        "--budget-usd",
+        type=float,
+        default=(lambda v: float(v) if v else None)(os.environ.get("EVAL_BUDGET_USD")),
+        help="cumulative $ across this run's /api/ask calls; the run stops once reached",
+    )
     parser.add_argument(
         "--model-label",
         default=None,
@@ -404,6 +450,7 @@ def main(argv: list[str] | None = None) -> int:
 
     rate_limiter = RateLimiter(args.min_interval_s)
     safety_index = SafetyIndex()
+    cost_tracker = CostTracker(budget_usd=args.budget_usd)
     results: list[QuestionResult] = []
     consecutive_errors = 0
     partial = False
@@ -428,6 +475,7 @@ def main(argv: list[str] | None = None) -> int:
             )
             result = eval_lib.score_question(question, expected, catalog, outcome, safety)
             results.append(result)
+            cost_tracker.add(outcome.model, outcome.tokens_in, outcome.tokens_out)
 
             if outcome.error is not None:
                 consecutive_errors += 1
@@ -440,6 +488,15 @@ def main(argv: list[str] | None = None) -> int:
                 partial_reason = (
                     f"{consecutive_errors} ardışık istek hatası ({question.id}'de durdu) — "
                     "günlük kota tükenmiş olabilir, bkz. Gemini konsolu"
+                )
+                log.error("aborting eval run: %s", partial_reason)
+                break
+
+            if cost_tracker.budget_exceeded():
+                partial = True
+                partial_reason = (
+                    f"EVAL_BUDGET_USD aşıldı (${cost_tracker.spent_usd:.4f} >= "
+                    f"${cost_tracker.budget_usd:.2f}, {question.id}'de durdu)"
                 )
                 log.error("aborting eval run: %s", partial_reason)
                 break
@@ -468,6 +525,12 @@ def main(argv: list[str] | None = None) -> int:
     (out_dir / "results.md").write_text(markdown, encoding="utf-8")
 
     print(markdown)
+    budget_note = f"/${cost_tracker.budget_usd:.2f}" if cost_tracker.budget_usd else ""
+    print(
+        f"maliyet: ${cost_tracker.spent_usd:.4f}{budget_note}"
+        f" ({cost_tracker.unpriced_model_calls} fiyatsız model çağrısı)",
+        file=sys.stderr,
+    )
     print(f"sonuçlar: {out_dir}", file=sys.stderr)
     return 0 if report.ok else 1
 
