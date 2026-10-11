@@ -653,6 +653,13 @@ def check_izmir_isolation(
             report.error(f, f"project.{key}", "I1: must be null (İzmir has no licence yet)")
     if izmir is None:
         return
+    # DÜZELTME (Adım 5 PF-1, 11.10.2026): I2 "İzmir has no finance documents" SPEC_03 §3'ün
+    # orijinal (yalnız geliştirme aşaması) tasarımıydı. Aşama C4 (10.10.2026) Kızılova'ya
+    # gerçek, Tansu onaylı bir `signed_undrawn_facility` ekledi — bu durumda bir Facility
+    # Agreement dokümanı artık GERÇEK ve beklenen (imzalı ama kullanılmamış kredi). Kural
+    # yalnız bu alan YOKSA tetiklenir (eski "hiç finansman yok" senaryosunu korur).
+    if izmir.project.signed_undrawn_facility is not None:
+        return
     for i, doc in enumerate(izmir.documents):
         if doc.type in ls.FINANCE_DOCUMENT_TYPES:
             report.error(f, f"documents[{i}].type", "I2: İzmir has no finance documents")

@@ -493,3 +493,28 @@ documents:
     generate_in_phase: "5.1"
     tag: AI_ASSUMPTION
 
+  # Adım 5 PF-1 LLM üretim planı (11.10.2026, ADIM5_PF1_LLM_URETIM_PLANI.md §1) — gerçek
+  # Gemini çağrısıyla üretilecek ilk belge (0 LLM değil). Tüm facts hazır (adım 3,
+  # signed_date dahil).
+  - id: DOC-IZM-FIN-004
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Facility Agreement
+    name: {value: "Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ)", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-10-05, tag: USER_FACT}
+    effective_date: {value: 2026-10-05, tag: USER_FACT}
+    expiration_date: null
+    version: EXECUTED
+    status: executed
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "PQR Bank"]
+    key_facts: {total_debt: "project.signed_undrawn_facility.contract_amount.value", drawdown_condition: "project.signed_undrawn_facility.drawdown_condition.value", commitment_fee: "project.signed_undrawn_facility.commitment_fee.value", commitment_fee_date: "project.signed_undrawn_facility.commitment_fee_date"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-IZM-FIN-001]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+

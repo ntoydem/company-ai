@@ -183,4 +183,23 @@ SPECS: dict[str, DocumentSpec] = {
         signature_roles_tr=["Hazırlayan: Muhasebe", "Onaylayan: Yetkili İmza"],
         subject_label_tr="Avans Faturası — [[project_name]]",
     ),
+    # Adım 5 PF-1 LLM üretim planı (11.10.2026) — LLM prose (ilk gerçek Gemini çağrısı).
+    "DOC-IZM-FIN-004": DocumentSpec(
+        doc_id="DOC-IZM-FIN-004",
+        family="agreement",
+        subtitle_tr="",
+        subtitle_en="Kızılova RES — Signed, Undrawn Term Loan Facility (2026-KZ)",
+        section_headings_tr=[],
+        section_headings_en=[
+            "1. Definitions and Interpretation",
+            "2. The Facility",
+            "3. Conditions Precedent to Drawdown",
+            "4. Commitment Fee",
+            "5. Governing Law",
+        ],
+        signature_roles_en=[
+            "For and on behalf of [[spv_name]] (Borrower) — Authorized Signatory",
+            "For and on behalf of [[counterparty]] (Lender) — Authorized Signatory",
+        ],
+    ),
 }
