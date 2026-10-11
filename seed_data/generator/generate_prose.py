@@ -115,6 +115,11 @@ verilmeyen somut bir hüküm icat etme (örn. belirli bir cezasız erken ödeme 
 belirli bir cure/düzeltme süresi, belirli bir yetkili mahkeme/hukuk sistemi, belirli \
 bir faiz hesap yöntemi). Her somut ifade yalnız sana token'larla verilen olgulara \
 dayanmalı; olmayan bir detayı tahmin etmek yerine genel/muğlak bir ifade kullan.
+KURAL 3 (düzeltme, İş Emri 2026-10-11 Adım 5): [[parties_list]] SPV'yi de içerir (tek \
+taraflı bir belgede [[parties_list]] = yalnız SPV'nin kendisi). Bu yüzden \
+[[parties_list]]'i AYNI CÜMLEDE [[spv_name]] ile asla birlikte kullanma — SPV'nin adı \
+aynı cümlede 2 kez geçer (bu kural [[counterparty_list]]/[[spv_name]] çifti için de \
+geçerli).
 Bu resmi/teknik bir demo belgesidir, gerçek değildir; ton resmi ve kurumsal olmalı."""
 
 _SYSTEM_EN = """You write prose for a FICTIONAL demo company document. Your output must be \
@@ -130,6 +135,11 @@ early-repayment-without-penalty rule, a specific cure period, a specific governi
 court/legal system, a specific interest calculation method). Every substantive \
 statement must rest only on the facts given to you via tokens; use a general/vague \
 phrasing instead of guessing a missing detail.
+RULE 3 (correction, İş Emri 2026-10-11 Adım 5): [[parties_list]] already includes the \
+SPV (for a single-party document, [[parties_list]] = the SPV itself). Never use \
+[[parties_list]] together with [[spv_name]] in the SAME sentence — the SPV's name \
+would appear twice in one sentence (the same rule applies to the \
+[[counterparty_list]]/[[spv_name]] pair).
 This is a formal/technical demo document, not a real one; keep the tone formal and corporate."""
 
 _SCHEMA_NOTE = """JSON şeması:

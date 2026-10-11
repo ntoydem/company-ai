@@ -307,7 +307,11 @@ def _build_document(
         "department": doc["department"],
         "subdepartment": doc["subdepartment"],
         "project_code": project_code,
-        "counterparty": facts["counterparty"],
+        # İş Emri 2026-10-11 Adım 5: `facts["counterparty"]` artık tek taraflı
+        # belgelerde HİÇ YOK (prose'a self-referential token sızmasın diye) — ama
+        # manifest/DB alanı (`backend/app/models/document.py` NOT NULL) her belgede bir
+        # değer ister; o ayrı amaç için spv_name'e düşmek burada hâlâ doğru davranış.
+        "counterparty": facts.get("counterparty", facts["spv_name"]),
         "document_date": doc["document_date"]["value"].isoformat(),
         "effective_date": doc["effective_date"]["value"].isoformat()
         if doc.get("effective_date")
