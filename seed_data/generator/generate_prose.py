@@ -244,12 +244,24 @@ class _AnthropicInfraError(Exception):
     """429/529 survived ANTHROPIC_BACKOFF_ATTEMPTS backoff retries — infra, not content."""
 
 
+def _strip_markdown_json_fence(text: str) -> str:
+    """Claude sık sık geçerli JSON'u ```json ... ``` içine sarar (sistem promptu yalnız JSON
+    istese de) — OpenAI'nin `response_format=json_object`'inin Anthropic'te karşılığı yok."""
+    stripped = text.strip()
+    if stripped.startswith("```"):
+        stripped = stripped.removeprefix("```json").removeprefix("```").strip()
+        stripped = stripped.removesuffix("```").strip()
+    return stripped
+
+
 def _call_anthropic_with_backoff(
     client: anthropic.Anthropic, model: str, system: str, user: str
-) -> tuple[dict[str, Any], tuple[int, int]]:
+) -> tuple[str, tuple[int, int]]:
     """One content-attempt's worth of 429/529 exponential backoff, SEPARATE from the outer
     MAX_ATTEMPTS content-validation budget (Naci'nin "içerik ihlali ile altyapı hatasını ayır"
-    talimatı — Gemini'nin 429'u content-retry bütçesini tükettiği PF-1 düzeltme olayından)."""
+    talimatı — Gemini'nin 429'u content-retry bütçesini tükettiği PF-1 düzeltme olayından).
+    Returns the RAW text + usage — JSON parsing is the caller's job, so a real (billed) call's
+    usage is recorded by the caller even when the output turns out not to be valid JSON."""
     backoff_s = ANTHROPIC_BACKOFF_BASE_S
     for infra_attempt in range(1, ANTHROPIC_BACKOFF_ATTEMPTS + 1):
         try:
@@ -277,10 +289,8 @@ def _call_anthropic_with_backoff(
             raise
         else:
             text = "".join(block.text for block in response.content if block.type == "text")
-            if not text:
-                raise ValueError("empty LLM response")
             usage = (response.usage.input_tokens, response.usage.output_tokens)
-            return dict(json.loads(text)), usage
+            return text, usage
     raise AssertionError("unreachable")  # loop always returns or raises
 
 
@@ -299,18 +309,25 @@ def _generate_one_anthropic(
             last_errors = [f"{doc_id}: bütçe aşıldı ({tracker.summary_line()}), üretim durduruldu"]
             break
         try:
-            payload, usage = _call_anthropic_with_backoff(client, model, system, user)
+            text, usage = _call_anthropic_with_backoff(client, model, system, user)
         except _AnthropicInfraError as exc:
             tracker.infra_error_count += 1
             last_errors = [f"{doc_id}: altyapı hatası — {exc}"]
             print(f"  {doc_id}: altyapı hatası, içerik reddi DEĞİL — {exc}")
             break
+
+        # Çağrı gerçekleşti (ücretlendirildi) — JSON parse edilemese bile usage kaydedilir,
+        # yoksa bütçe guard'ı başarısız denemelerin gerçek maliyetini kaçırır.
+        tracker.record_usage(*usage)
+        try:
+            payload = dict(json.loads(_strip_markdown_json_fence(text)))
         except (json.JSONDecodeError, ValueError) as exc:
             tracker.content_reject_count += 1
-            last_errors = [f"{doc_id}: LLM çıktısı JSON değil: {exc}"]
+            snippet = text[:200].replace("\n", " ")
+            last_errors = [f"{doc_id}: LLM çıktısı JSON değil: {exc} — ham çıktı: {snippet!r}"]
+            print(f"  {doc_id}: LLM çıktısı JSON değil, ham çıktı önizleme: {snippet!r}")
             continue
 
-        tracker.record_usage(*usage)
         sections = payload.get("sections", [])
         prose = {"doc_id": doc_id, "model": model, "tag": "AI_ASSUMPTION", "sections": sections}
         errors = check_prose_document(doc_id, prose, known)

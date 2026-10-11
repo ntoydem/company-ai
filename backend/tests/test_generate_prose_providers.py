@@ -128,7 +128,7 @@ def test_budget_exceeded_stops_before_next_document_no_extra_call(monkeypatch, t
 
     def fake_call(client, model, system, user):
         calls["n"] += 1
-        return {"sections": []}, (1_000_000, 500_000)  # ~$7 at sonnet-5-5 pricing, exceeds $5
+        return '{"sections": []}', (1_000_000, 500_000)  # ~$7 at sonnet-5-5, exceeds $5
 
     def fake_client(provider):
         return generate_prose._anthropic_client()
@@ -150,11 +150,11 @@ def test_anthropic_429_exponential_backoff_then_success(monkeypatch) -> None:
     monkeypatch.setattr(generate_prose.time, "sleep", sleeps.append)
     client = _FakeClient(fail_times=2)
 
-    payload, usage = generate_prose._call_anthropic_with_backoff(
+    text, usage = generate_prose._call_anthropic_with_backoff(
         client, "claude-sonnet-5-5", "sys", "usr"
     )
 
-    assert payload == {"sections": []}
+    assert text == '{"sections": []}'
     assert usage == (10, 5)
     assert client.messages.calls == 3
     assert sleeps == [2.0, 4.0]
@@ -203,7 +203,7 @@ def test_generate_one_anthropic_success_writes_real_model_and_tag(monkeypatch, t
     monkeypatch.setattr(generate_prose, "PROSE_DIR", tmp_path)
 
     def fake_call(client, model, system, user):
-        return {"sections": [{"heading": "H", "paragraphs": ["ok."]}]}, (10, 5)
+        return '{"sections": [{"heading": "H", "paragraphs": ["ok."]}]}', (10, 5)
 
     monkeypatch.setattr(generate_prose, "_call_anthropic_with_backoff", fake_call)
     monkeypatch.setattr(generate_prose, "check_prose_document", lambda *a, **k: [])
@@ -222,3 +222,40 @@ def test_generate_one_anthropic_success_writes_real_model_and_tag(monkeypatch, t
     assert tracker.call_count == 1
     assert tracker.input_tokens == 10
     assert tracker.output_tokens == 5
+
+
+def test_strips_markdown_json_fence_before_parsing() -> None:
+    fenced = '```json\n{"sections": []}\n```'
+    assert generate_prose._strip_markdown_json_fence(fenced) == '{"sections": []}'
+
+
+def test_usage_recorded_even_when_output_is_not_valid_json(monkeypatch, tmp_path) -> None:
+    """Regresyon: gerçek (ücretlendirilmiş) bir çağrının usage'ı, çıktı JSON parse edilemese
+    bile kaydedilmeli — yoksa bütçe guard'ı başarısız denemelerin maliyetini kaçırır (bu bug
+    gerçek bir Anthropic denemesinde bulundu: Claude'un çıktısı JSON değildi, 3 deneme de
+    0 token olarak kaydedilmişti)."""
+    monkeypatch.setattr(generate_prose, "PROSE_DIR", tmp_path)
+
+    def fake_call(client, model, system, user):
+        return "bu geçerli bir JSON değil", (42, 17)
+
+    monkeypatch.setattr(generate_prose, "_call_anthropic_with_backoff", fake_call)
+    checked = {"called": False}
+    monkeypatch.setattr(
+        generate_prose, "check_prose_document", lambda *a, **k: checked.update(called=True) or []
+    )
+    tracker = generate_prose.CostTracker(
+        provider="anthropic", model="claude-sonnet-5-5", budget_usd=15, max_tokens_per_run=200_000
+    )
+
+    errors = generate_prose._generate_one_anthropic(
+        object(), "claude-sonnet-5-5", "DOC-X", "sys", "usr", set(), tracker
+    )
+
+    assert errors  # içerik reddi, MAX_ATTEMPTS kadar denendi
+    assert not checked["called"]
+    assert tracker.content_reject_count == generate_prose.MAX_ATTEMPTS
+    # Her 3 deneme de gerçek (ücretlendirilmiş) çağrıydı — hepsinin usage'ı kaydedilmeli.
+    assert tracker.call_count == generate_prose.MAX_ATTEMPTS
+    assert tracker.input_tokens == 42 * generate_prose.MAX_ATTEMPTS
+    assert tracker.output_tokens == 17 * generate_prose.MAX_ATTEMPTS
