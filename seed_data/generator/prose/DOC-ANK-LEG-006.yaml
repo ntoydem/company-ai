@@ -1,0 +1,25 @@
+doc_id: DOC-ANK-LEG-006
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: İnceleme Kapsamı
+  paragraphs:
+  - Bu rapor, [[court]] önünde görülen [[case_number]] sayılı dosyada görevlendirilen
+    bilirkişi heyeti tarafından hazırlanmıştır. İnceleme konusu [[legal_subject]]
+    olup değerlendirme [[project_name]] kapsamında yapılmıştır.
+  - Rapor, [[document_no]] numaralı ve [[title]] başlıklı belge olarak [[document_date]]
+    tarihinde düzenlenmiştir. Belgenin sürümü [[version_label]], durumu ise [[status_label]]
+    olarak belirtilmiştir.
+  - Dosyadaki taraflar [[parties_list]] olarak yer almaktadır. İnceleme, dosyaya sunulan
+    belge, bilgi ve tespitlerle sınırlı tutulmuştur.
+- heading: Değerlendirme ve Sonuç
+  paragraphs:
+  - Heyet, dosya kapsamındaki bilgi ve belgeleri genel kabul gören değerleme ilkeleri
+    çerçevesinde nötr bir yaklaşımla değerlendirmiştir. Bu değerlendirme sonucunda
+    tespit edilen değer [[amount_expert]] olarak belirlenmiştir.
+  - Rapor, [[expert_report_date]] tarihinde mahkemeye sunulmuştur. Raporda yer alan
+    tespitler teknik nitelikte olup tarafların iddia ve savunmaları hakkında bir yargı
+    içermemektedir.
+  - Raporun hukuki sonuçları bakımından takdir ve karar yetkisi, görevli mahkemeye
+    aittir. Heyet, ek bilgi veya belge sunulması hâlinde değerlendirmesini yeniden
+    gözden geçirmeye hazırdır.

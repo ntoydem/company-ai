@@ -146,6 +146,46 @@ SPECS: dict[str, DocumentSpec] = {
         section_headings_en=[],
         signature_roles_tr=["Hazırlayan: İlgili Birim", "Kontrol Eden: Departman Yöneticisi"],
     ),
+    # İş Emri 2026-10-11-B (Hukuk partisi, T-12.4) — ABC İnşaat'a gönderilen ihtarname.
+    "DOC-IZM-LEG-005": DocumentSpec(
+        doc_id="DOC-IZM-LEG-005",
+        family="letter",
+        subtitle_tr="Yüklenici İhtilafı — Noter İhtarnamesi",
+        subtitle_en="",
+        section_headings_tr=["İhtar Konusu", "Talep ve Sonuç"],
+        section_headings_en=[],
+        subject_label_tr="[[contract_ref]] — Teslim Gecikmesi İhtarı",
+        signature_roles_tr=["İhtarı Gönderen: Hukuk Danışmanlığı"],
+        prose_guidance_tr=(
+            "Bu belge [[recipient]]'e noter kanalıyla gönderilen bir ihtarnamedir. "
+            "Konu: [[legal_subject]]. Paketin sözleşme iş programındaki teslim "
+            "tarihi [[original_due_date]] idi, teslim edilmedi. Talep: paketin "
+            "[[demanded_date]]'e kadar teslimi. Aksi halde sözleşmedeki gecikme "
+            "cezası (günlük sözleşme bedelinin [[penalty_rate_pct]]'i, tavan "
+            "[[penalty_cap_pct]]) işletilecek ve hakedişlerden mahsup edilecektir "
+            "— ancak ceza hakkının şu an için SAKLI TUTULDUĞUNU, bir TUTAR "
+            "TALEP EDİLMEDİĞİNİ açıkça belirt. İhtarname [[notice_sent_date]] "
+            "tarihinde gönderilmiştir. Resmi, ihtarname üslubu kullan."
+        ),
+    ),
+    # İş Emri 2026-10-11-B (T-12.4b) — yalnız talep yazısı, sonuç/karar belgesi YOK.
+    "DOC-IZM-LEG-006": DocumentSpec(
+        doc_id="DOC-IZM-LEG-006",
+        family="letter",
+        subtitle_tr="Mera Tahsis Değişikliği Talebi",
+        subtitle_en="",
+        section_headings_tr=["Talep"],
+        section_headings_en=[],
+        subject_label_tr="Mera Tahsis Değişikliği Talebi",
+        signature_roles_tr=["Hazırlayan: İlgili Birim"],
+        prose_guidance_tr=(
+            "Bu belge [[recipient]]'e hitaben yazılmış bir mera tahsis değişikliği "
+            "talep yazısıdır. Talep [[notice_sent_date]] tarihinde gönderilmiştir. "
+            "Komisyonun bu talebi görüşeceği bir sonraki toplantı tarihi "
+            "[[next_meeting]]'dir. Henüz bir karar/sonuç alınmadığını belirt — "
+            "bir sonuç icat etme. Resmi, kurumsal bir talep yazısı üslubu kullan."
+        ),
+    ),
     "DOC-IZM-ADM-001": DocumentSpec(
         doc_id="DOC-IZM-ADM-001",
         family="letter",

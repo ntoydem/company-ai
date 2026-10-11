@@ -1,0 +1,19 @@
+doc_id: DOC-ANK-LEG-008
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: E-posta İçeriği
+  paragraphs:
+  - Sayın ilgili, [[court_clerk_email_date]] tarihli bu e-posta ile [[court]] yazı
+    işleri müdürlüğü olarak [[case_number]] sayılı dosyaya ilişkin bilgilendirme yapılmaktadır.
+    Söz konusu dosya, [[project_name]] kapsamında [[spv_name]] ile [[counterparty]]
+    arasındaki davaya ilişkindir.
+  - Dosyanın bir sonraki duruşması [[next_hearing]] olarak belirlenmiştir. Bu tarih,
+    dosyanın tarafları olan [[parties_list]] bakımından bilgi için bildirilmektedir.
+  - 'Bu e-posta yalnızca duruşma tarihinin taraflara bildirilmesi amacıyla gönderilmiştir.
+    Gerekli hazırlıkların bu tarih dikkate alınarak yürütülmesi rica olunur.
+
+
+    Saygılarımızla,
+
+    [[court]] Yazı İşleri Müdürlüğü'

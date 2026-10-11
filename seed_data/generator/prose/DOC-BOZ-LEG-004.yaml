@@ -1,0 +1,26 @@
+doc_id: DOC-BOZ-LEG-004
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: Keşif Kaydı
+  paragraphs:
+  - Bu tutanak, [[court]] önünde görülen [[case_number]] sayılı dosyada [[expert_site_visit_date]]
+    tarihinde yapılan bilirkişi keşfini kayıt altına almak için düzenlenmiştir. Keşif,
+    imar planı değişikliğinin iptali talebine konu taşınmaz ve çevresinde gerçekleştirilmiştir.
+    Belge, [[document_no]] numaralı [[title]] başlıklı kayıt olup [[version_label]]
+    sürümü ve [[status_label]] durumundadır.
+  - Dava, [[parties_list]] ile [[counterparty]] arasındaki uyuşmazlığa ilişkindir.
+    Keşif, tarafların iddia ve savunmalarına konu olan alanda ve [[project_name]]
+    kapsamındaki ilgili saha unsurları üzerinde yapılmıştır.
+  - Bilirkişi, plan değişikliğine konu alanın mevcut fiziki durumunu, çevre ile ilişkisini
+    ve dosyadaki planlama belgeleriyle uyumunu yerinde gözlemlemiştir. Bu gözlemler
+    nötr bir saha tespiti niteliğindedir; hukuki değerlendirme içermez ve nihai teknik
+    görüş bilirkişi raporunda ortaya konulacaktır.
+- heading: Sonraki Süreç
+  paragraphs:
+  - Bilirkişi raporu henüz hazırlanmamıştır ve raporun mahkemeye sunulması beklenmektedir.
+    Rapor sunulduktan sonra taraflar, rapora ilişkin beyanlarını usulüne uygun biçimde
+    mahkemeye iletebilecektir.
+  - Dosyanın bir sonraki duruşması [[next_hearing]] tarihindedir. Bu tutanak [[document_date]]
+    tarihinde düzenlenmiş olup [[spv_name]] ve diğer ilgililerin bilgisi için dosyada
+    muhafaza edilecektir.

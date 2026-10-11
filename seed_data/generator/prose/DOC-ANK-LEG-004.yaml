@@ -1,0 +1,29 @@
+doc_id: DOC-ANK-LEG-004
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: Dava Konusu
+  paragraphs:
+  - İşbu dilekçe, [[court]] önünde görülmek üzere [[filed_date]] tarihinde sunulmuştur.
+    Davacı [[plaintiff]], davalı [[defendant]] aleyhine açtığı davayı [[case_number]]
+    esas numaralı dosya kapsamında takip etmektedir.
+  - Uyuşmazlık, [[project_name]] kapsamında yürütülen işlemlerden doğmuş olup konusu
+    [[legal_subject]] olarak belirlenmiştir. Davacı, bu işlemler çerçevesinde idarece
+    tespit edilen bedelin yeterli olmadığını ileri sürmektedir.
+  - İdare tarafından belirlenen bedel [[amount_offered]] olarak bildirilmiştir. Davacı,
+    bu bedeli kabul etmemekte ve talep ettiği bedeli [[amount_claimed]] olarak ortaya
+    koymaktadır.
+  - Bu dilekçe, [[document_no]] numaralı ve [[title]] başlıklı belge olup [[document_date]]
+    tarihlidir. Belgenin sürümü [[version_label]], güncel durumu ise [[status_label]]
+    olarak kayda geçmiştir.
+- heading: Talep
+  paragraphs:
+  - Yukarıda arz ve izah edilen nedenlerle, uyuşmazlık konusu bedelin Mahkemenizce
+    yeniden tespit edilmesi talep olunur. Davacı [[plaintiff]], bedelin [[amount_claimed]]
+    olarak belirlenmesini saygıyla arz ve talep eder.
+  - İdarece belirlenen [[amount_offered]] tutarındaki bedelin, davacının uğradığı
+    kaybı karşılamadığı değerlendirilmektedir. Bu nedenle Mahkemece gerekli inceleme
+    ve keşif işlemlerinin yapılması ve bedelin buna göre hükme bağlanması istenmektedir.
+  - Yargılama giderlerinin ve vekâlet ücretinin davalı [[defendant]] üzerinde bırakılması
+    da ayrıca talep edilmektedir. Davacı, yargılama sürecinde ileri sürebileceği diğer
+    hak ve taleplerini saklı tutmaktadır.

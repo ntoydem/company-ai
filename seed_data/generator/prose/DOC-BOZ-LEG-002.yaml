@@ -1,0 +1,32 @@
+doc_id: DOC-BOZ-LEG-002
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: Savunma Gerekçesi
+  paragraphs:
+  - İşbu savunma dilekçesi, [[court]] nezdinde [[case_number]] sayılı dosyada görülen
+    ve konusu [[legal_subject]] olan dava bakımından, davalı belediye adına [[defense_date]]
+    tarihinde sunulmuştur. Dava konusu imar planı değişikliği, [[project_name]] kapsamındaki
+    alanın bütüncül planlama yaklaşımı içinde değerlendirilmesi sonucunda hazırlanmıştır.
+  - Söz konusu değişiklik, üst ölçekli planlarla uyumlu olup planlama esaslarına ve
+    şehircilik ilkelerine uygundur. Plan kararları; alanın mevcut yapısı, çevresel
+    koşulları, altyapı ihtiyaçları ve kentsel hizmetlerin dengeli dağılımı gözetilerek
+    oluşturulmuştur.
+  - Değişiklikte kamu yararı ön planda tutulmuş, plan bütünlüğünü bozan veya şehircilik
+    ilkelerine aykırılık doğuran bir unsur bulunmamaktadır. İdarenin planlama alanındaki
+    takdir yetkisi, ilgili mevzuatın çizdiği çerçevede ve hizmet gereklerine uygun
+    biçimde kullanılmıştır.
+  - Davacı tarafın iddiaları, planın hazırlanma ve onaylanma sürecinde izlenen usul
+    ve esasları ortadan kaldıracak nitelikte değildir. Plan değişikliğinin dayanağını
+    oluşturan teknik etütler ve değerlendirmeler dosya kapsamında mevcuttur ve gerektiğinde
+    bilirkişi incelemesine konu edilebilir.
+- heading: Sonuç ve İstem
+  paragraphs:
+  - Yukarıda arz edilen gerekçeler çerçevesinde, dava konusu imar planı değişikliğinin
+    planlama esaslarına, şehircilik ilkelerine ve kamu yararına uygun olduğu savunulmaktadır.
+    Bu belge, [[document_no]] numaralı ve [[title]] başlıklı savunma metni olarak
+    [[document_date]] tarihli [[version_label]] sürümüyle hazırlanmıştır.
+  - Belirtilen nedenlerle, davanın reddine, yargılama giderleri ile vekâlet ücretinin
+    davacı tarafa yükletilmesine karar verilmesi saygıyla istenir. Savunma hakkımız
+    saklı olup, dosyaya sunulacak yeni bilgi ve belgelere karşı ek beyanda bulunma
+    talebimiz mahfuzdur.

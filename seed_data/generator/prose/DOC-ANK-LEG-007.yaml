@@ -1,0 +1,27 @@
+doc_id: DOC-ANK-LEG-007
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: Duruşma Kaydı
+  paragraphs:
+  - Bu tutanak, [[court]] tarafından görülen [[case_number]] sayılı dosyada [[hearing_record_date]]
+    tarihinde yapılan duruşmayı kayda geçirmek üzere düzenlenmiştir. Dava, [[project_name]]
+    kapsamındaki kamulaştırma ve irtifak bedeli tespitine ilişkindir. Tutanak, [[document_no]]
+    numaralı [[title]] belgesi olarak [[document_date]] tarihinde hazırlanmış olup
+    [[version_label]] sürümündedir ve [[status_label]] durumundadır.
+  - Duruşmaya dosyanın tarafları olan [[parties_list]] katılmıştır. Karşı taraf olarak
+    [[counterparty]] dosyada yer almaktadır. Taraflar, duruşmada usulüne uygun biçimde
+    dinlenmiş ve beyanları tutanağa geçirilmiştir.
+  - Duruşmada dosyanın mevcut durumu ve tarafların talepleri değerlendirilmiştir.
+    İdare, ek bilirkişi incelemesi yapılmasını talep etmiştir. Diğer taraf bu talebe
+    ilişkin görüşünü sunmuştur.
+- heading: Alınan Kararlar
+  paragraphs:
+  - Mahkeme, dosya kapsamını ve tarafların beyanlarını değerlendirerek idarenin ek
+    bilirkişi incelemesi talebini reddetmiştir. Bu karar, duruşma sırasında tarafların
+    huzurunda açıklanmış ve tutanağa kaydedilmiştir.
+  - Dosyanın bir sonraki duruşması, tarafların nihai beyanlarını sunmaları amacıyla
+    [[next_hearing]] tarihine bırakılmıştır. Tarafların bu tarihte hazır bulunmaları
+    gerekmektedir.
+  - Bu tutanak, duruşmada yapılan işlemlerin özetini içermektedir. Dosyadaki diğer
+    hususlar, bir sonraki duruşmada ele alınmak üzere saklı tutulmuştur.

@@ -1,0 +1,23 @@
+doc_id: DOC-YSV-LEG-001
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: E-posta İçeriği
+  paragraphs:
+  - Sayın ilgili, [[project_name]] kapsamındaki arazi tahsisi nedeniyle açılan tazminat
+    davasının güncel durumunu bilgilerinize sunmak isterim. Dava, [[court]] nezdinde
+    [[case_number]] sayılı dosya üzerinden görülmekte olup [[filed_date]] tarihinde
+    açılmıştır. Davacı arazi maliki, [[spv_name]] aleyhine tazminat talep etmektedir.
+  - Arazi malikinin talep ettiği tutar [[amount_claimed]] olarak dosyaya yansımıştır.
+    Bir sonraki duruşma [[next_hearing]] tarihindedir. Dosyanın mevcut durumu [[status_label]]
+    olarak takip edilmektedir.
+  - Kredi sözleşmesindeki önemli dava bildirim eşiği [[material_litigation_threshold]]
+    olup bu davanın tutarı söz konusu eşiğin altında kalmaktadır. Bu nedenle herhangi
+    bir bildirim ihlali bulunmamaktadır. Duruşmanın ardından gelişmeleri ayrıca ileteceğim.
+  - 'Konuyla ilgili sorularınız olursa lütfen bana ulaşabilirsiniz. Referans için:
+    [[document_no]], [[document_date]].
+
+
+    Saygılarımla,
+
+    Hukuk Danışmanı'

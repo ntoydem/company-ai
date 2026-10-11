@@ -1,0 +1,24 @@
+doc_id: DOC-DMR-LEG-001
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: İtiraz Gerekçesi
+  paragraphs:
+  - '[[spv_name]], [[project_name]] kapsamında [[recipient]] nezdinde sunulan işbu
+    dilekçe ile, [[prior_decision_date]] tarihli ve [[prior_decision_ref]] sayılı
+    TEA olumsuz görüşüne itiraz etmektedir. İtiraz, [[objection_date]] tarihinde yapılmıştır.'
+  - 'İtirazın dayanağı şu şekildedir: [[objection_reason]]. Bu hususun, söz konusu
+    olumsuz görüşün yeniden değerlendirilmesini gerektirdiği kanaatine varılmıştır.'
+  - Konunun [[project_name]] kapsamındaki ilgili taraflar olan [[counterparty_list]]
+    açısından da önem taşıdığı değerlendirilmektedir. Bu nedenle itirazın dikkatle
+    incelenmesi ve gerekçelerin bütüncül biçimde ele alınması beklenmektedir.
+- heading: Talep
+  paragraphs:
+  - '[[prior_decision_ref]] sayılı olumsuz görüşün, yukarıda açıklanan gerekçe doğrultusunda
+    yeniden incelenmesi talep olunmaktadır. Yapılacak inceleme sonucunda, gerekli
+    görülmesi halinde görüşün yeniden değerlendirilmesi arz olunur.'
+  - Kurumun cevabının [[expected_response_date]] tarihinde verilmesi beklenmektedir.
+    İşbu belgenin düzenlendiği [[document_date]] tarihi itibarıyla henüz bir cevap
+    veya sonuç alınmamıştır.
+  - Gereğinin yapılmasını saygılarımızla arz ederiz. Bu dilekçe, [[document_no]] numaralı,
+    [[version_label]] sürümlü ve [[status_label]] durumundaki [[title]] başlıklı belgedir.

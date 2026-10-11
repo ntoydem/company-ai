@@ -1,0 +1,18 @@
+doc_id: DOC-IZM-LEG-006
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: Talep
+  paragraphs:
+  - Bu yazı, [[recipient]] makamına hitaben hazırlanmış olup [[project_name]] kapsamındaki
+    mera tahsisinde değişiklik yapılmasına ilişkin talebi içermektedir. Talep, [[spv_name]]
+    tarafından [[title]] başlıklı ve [[document_no]] sayılı belge ile sunulmuştur.
+    Söz konusu değişikliğin, proje faaliyetlerinin mevzuata ve ilgili kurum görüşlerine
+    uygun biçimde yürütülmesi amacıyla talep edildiği değerlendirilmektedir.
+  - Talep, [[notice_sent_date]] tarihinde ilgili makama iletilmiştir. Komisyonun bu
+    talebi görüşeceği bir sonraki toplantı tarihi [[next_meeting]] olarak öngörülmektedir.
+    Bugüne kadar talebe ilişkin herhangi bir karar veya sonuç alınmamıştır.
+  - Belgenin güncel durumu [[status_label]], sürümü [[version_label]] ve düzenleme
+    tarihi [[document_date]] olarak kayıtlıdır. Talebin değerlendirilmesi sırasında
+    ihtiyaç duyulacak ek bilgi ve belgeler, istenmesi halinde ilgili makama sunulacaktır.
+    Talebimizin olumlu değerlendirilmesini saygılarımızla arz ederiz.

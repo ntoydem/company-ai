@@ -148,4 +148,30 @@ SPECS: dict[str, DocumentSpec] = {
             "other detail, only that it has not been submitted."
         ),
     ),
+    # İş Emri 2026-10-11-B (Hukuk partisi, T-12.2). ÖNCEDEN VERİLMİŞ KARAR 3 (.msg desteği
+    # yok): e-posta çıktısı düzeninde PDF, mevcut `letter` ailesiyle. Davacının ismi
+    # kaynakta yok ("arazi maliki (kurgusal kişi)") — ROL olarak anılır, isim icat edilmedi
+    # (ÖNCEDEN VERİLMİŞ KARAR 1); bu yüzden dava dilekçesi değil, bu iç yazışma üretildi.
+    "DOC-YSV-LEG-001": DocumentSpec(
+        doc_id="DOC-YSV-LEG-001",
+        family="letter",
+        subtitle_tr="Arazi Tahsisi Tazminat Davası — Hukuk Danışmanı Yazışması",
+        subtitle_en="",
+        section_headings_tr=["E-posta İçeriği"],
+        section_headings_en=[],
+        subject_label_tr="[[case_number]] Sayılı Dosya — Durum Güncellemesi",
+        signature_roles_tr=["Hazırlayan: Hukuk Danışmanı"],
+        prose_guidance_tr=(
+            "Bu belge bir e-postanın yazıcı çıktısıdır — gövde bir e-posta gibi "
+            "yazılmalı (kısa, doğrudan, 'Sayın ilgili,' ile başlayıp bir imza "
+            "satırıyla bitmeli; resmi bir dilekçe üslubu DEĞİL). Hukuk danışmanı, "
+            "[[court]]'nun [[case_number]] sayılı dosyasındaki arazi tahsisi "
+            "tazminat davasının durumunu bildiriyor. Davacıdan yalnız ROLÜYLE "
+            "('arazi maliki') bahset — özel bir ad İCAT ETME. Talep edilen tutar "
+            "[[amount_claimed]]. Bir sonraki duruşma [[next_hearing]] tarihindedir. "
+            "Kredi sözleşmesindeki 'önemli dava' bildirim eşiği "
+            "[[material_litigation_threshold]]'dir; bu davanın tutarı eşiğin "
+            "altında olduğu için herhangi bir bildirim ihlali bulunmadığını belirt."
+        ),
+    ),
 }

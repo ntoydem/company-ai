@@ -1,0 +1,33 @@
+doc_id: DOC-ANK-LEG-005
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: Savunma Gerekçesi
+  paragraphs:
+  - İşbu savunma dilekçesi, [[court]] nezdinde [[case_number]] sayılı dosyada görülmekte
+    olan ve konusu [[legal_subject]] olan dava kapsamında, [[defendant]] tarafından
+    [[defense_date]] tarihinde sunulmaktadır. Dava, [[project_name]] kapsamında yürütülen
+    işlemlere ilişkindir. Savunmamız, dosyada yer alan bilgi ve belgelerle sınırlı
+    olarak hazırlanmıştır.
+  - Davacı [[plaintiff]] tarafından [[amount_claimed]] tutarında bir bedel talep edilmiştir.
+    İdare tarafından belirlenen bedel ise [[amount_offered]] olup, bu bedel ilgili
+    mevzuatta öngörülen esaslar çerçevesinde tespit edilmiştir. İdare, davacının talebinin
+    dayanaklarının dosya kapsamında ayrıca ve ayrıntılı biçimde incelenmesi gerektiği
+    kanaatindedir.
+  - Bedel tespitinde taşınmazın niteliği, konumu ve kullanım durumu gibi nesnel ölçütlerin
+    esas alınması gerekmektedir. İdare, bu ölçütlerin somut verilere dayanılarak ve
+    gerekirse bilirkişi incelemesi yoluyla değerlendirilmesini talep etmektedir. Tarafların
+    iddia ve savunmalarının bu ölçütlerle uyumuna ilişkin takdir, sayın mahkemeye
+    aittir.
+- heading: Sonuç ve İstem
+  paragraphs:
+  - Yukarıda arz edilen nedenlerle, [[defendant]] tarafından belirlenen [[amount_offered]]
+    tutarındaki bedelin dosya kapsamındaki veriler ışığında değerlendirilmesi ve [[amount_claimed]]
+    tutarındaki talebin aynı çerçevede incelenmesi saygıyla talep olunur. İdare, yargılamanın
+    hukuka uygun biçimde yürütülmesi için gerekli her türlü bilgi ve belgeyi sunmaya
+    hazır olduğunu beyan eder.
+  - Yargılama giderleri ve vekâlet ücreti hususunda ilgili mevzuat hükümlerinin uygulanması
+    talep olunur. İdare, bu dilekçede yer almayan hususlarda ek beyan ve delil sunma
+    hakkını saklı tutar.
+  - İşbu dilekçe, [[document_no]] numaralı belge olarak [[document_date]] tarihinde
+    düzenlenmiştir. Saygılarımızla arz ve talep ederiz.

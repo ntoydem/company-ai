@@ -1,0 +1,22 @@
+doc_id: DOC-BOZ-LEG-003
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: Karar Gerekçesi
+  paragraphs:
+  - '[[court]], [[case_number]] sayılı dosyada [[stay_request_rejected_date]] tarihinde
+    yürütmeyi durdurma talebinin reddine karar vermiştir. Bu belge, söz konusu kararın
+    [[project_name]] bakımından özetini içermektedir.'
+  - Gerekçede, imar planı değişikliğinin yürürlükte kalmaya devam ettiği değerlendirilmiştir.
+    Mevcut santralin işletmesi ve kredi servisi şu an için bu karardan etkilenmemektedir.
+  - Bununla birlikte, planın yürürlükte kalması sahanın çevresinde ileride bir kısıt
+    riski doğurabilecektir. Bu husus, izlenmesi gereken bir risk unsuru olarak not
+    edilmiştir.
+- heading: Sonraki Süreç
+  paragraphs:
+  - Dava derdesttir ve esasa ilişkin yargılama sürmektedir. Dosyanın bir sonraki duruşması
+    [[next_hearing]] tarihindedir.
+  - '[[spv_name]], süreci yakından izleyecek ve gelişmeleri ilgili paydaşlarla paylaşacaktır.
+    Davanın karşı tarafı olarak [[counterparty]] kayıtlarda yer almaktadır.'
+  - Bu belge, [[document_date]] tarihli olup [[document_no]] numaralı [[title]] belgesinin
+    [[version_label]] sürümüdür. Belgenin güncel durumu [[status_label]] olarak kaydedilmiştir.

@@ -1,0 +1,29 @@
+doc_id: DOC-IZM-LEG-005
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: İhtar Konusu
+  paragraphs:
+  - 'Bu ihtarname, [[project_name]] kapsamındaki [[contract_ref]] sözleşmesine ilişkin
+    olarak noter kanalıyla [[recipient]] muhatabına yöneltilmiştir. İhtarın konusu
+    şudur: [[legal_subject]].'
+  - Sözleşme iş programına göre ilgili paketin teslim tarihi [[original_due_date]]
+    olarak belirlenmiştir. Bu tarih geçmiş olmasına rağmen paket teslim edilmemiştir.
+    Söz konusu durum, sözleşmeden doğan teslim yükümlülüğünün yerine getirilmediğini
+    göstermektedir.
+  - İşbu belge, [[document_date]] tarihlidir ve [[document_no]] numarası ile [[version_label]]
+    sürümü altında düzenlenmiştir. Belgenin güncel durumu [[status_label]] olarak
+    kayıtlıdır.
+- heading: Talep ve Sonuç
+  paragraphs:
+  - Muhataptan, söz konusu paketin en geç [[demanded_date]] tarihine kadar eksiksiz
+    biçimde teslim edilmesi talep olunur. Teslimin bu tarihe kadar gerçekleştirilmemesi
+    hâlinde sözleşmedeki gecikme cezası hükümleri işletilebilecektir. Bu ceza, günlük
+    sözleşme bedeli üzerinden [[penalty_rate_pct]] oranında hesaplanacak ve toplamda
+    [[penalty_cap_pct]] ile sınırlı olacaktır.
+  - Gecikme cezası, ilerleyen aşamada hakedişlerden mahsup edilmek suretiyle uygulanabilecektir.
+    Bununla birlikte ceza hakkı işbu ihtarname ile şu an için yalnızca saklı tutulmaktadır.
+    Bu ihtarname ile herhangi bir tutar talep edilmemektedir.
+  - İhtarname, [[notice_sent_date]] tarihinde gönderilmiştir. [[spv_name]], sözleşmeden
+    ve yürürlükteki mevzuattan doğan diğer tüm haklarını saklı tutar. Bu ihtarname,
+    söz konusu hakların herhangi birinden feragat anlamına gelmez.

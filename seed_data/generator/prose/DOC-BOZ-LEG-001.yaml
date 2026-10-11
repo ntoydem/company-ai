@@ -1,0 +1,25 @@
+doc_id: DOC-BOZ-LEG-001
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: Dava Konusu
+  paragraphs:
+  - İşbu dilekçe, [[court]] nezdinde [[case_number]] numaralı dosya kapsamında, [[filed_date]]
+    tarihinde açılan davaya ilişkindir. Davacı [[plaintiff]], davalı [[defendant]]
+    aleyhine bu davayı ikame etmiştir.
+  - Dava konusu [[legal_subject]] olup, [[project_name]] kapsamındaki alana ilişkin
+    imar planı değişikliğinin hukuka uygunluğuyla ilgilidir. Davacı, söz konusu işlemin
+    planlama esaslarına, şehircilik ilkelerine ve kamu yararı gereklerine aykırı olduğunu
+    ileri sürmektedir.
+  - Bu dilekçe, [[document_no]] numaralı ve [[document_date]] tarihli belge olarak
+    düzenlenmiştir. Belgenin sürümü [[version_label]], durumu ise [[status_label]]
+    olarak kayıtlıdır.
+- heading: Talep
+  paragraphs:
+  - Davacı [[plaintiff]], yukarıda açıklanan nedenlerle, [[legal_subject]] konusundaki
+    idari işlemin iptaline karar verilmesini saygıyla talep etmektedir. Talep, işlemin
+    hukuka uygunluğunun yargısal denetime tabi tutulmasını amaçlamaktadır.
+  - Yargılama sürecinde gerekli görülmesi halinde, işlemin uygulanmasına ilişkin uygun
+    görülecek geçici tedbirlerin değerlendirilmesi de talep olunur. Ayrıca yargılama
+    giderlerinin [[defendant]] üzerinde bırakılması istenmektedir.
+  - Gereğinin yapılması için konu [[court]]'nın takdirine saygıyla arz ve talep olunur.

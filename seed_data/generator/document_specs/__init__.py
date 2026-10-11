@@ -8,6 +8,7 @@ working unchanged for every caller (`generate_documents.py`, `validate_documents
 from __future__ import annotations
 
 from seed_data.generator.document_specs import (
+    akyar,
     ankara_admin,
     ankara_development,
     ankara_epc,
@@ -16,6 +17,7 @@ from seed_data.generator.document_specs import (
     ankara_operations,
     boztepe,
     company,
+    demirci,
     izmir,
     yesilova,
 )
@@ -34,6 +36,8 @@ _BUCKETS = (
     company,
     yesilova,
     boztepe,
+    demirci,
+    akyar,
 )
 
 SPECS: dict[str, DocumentSpec] = {}

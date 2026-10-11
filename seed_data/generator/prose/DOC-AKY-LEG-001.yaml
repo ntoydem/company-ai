@@ -1,0 +1,24 @@
+doc_id: DOC-AKY-LEG-001
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: Süreç Özeti
+  paragraphs:
+  - '[[title]] başlıklı bu belge, [[project_name]] kapsamında yer alan arazinin maliki
+    ile sürmekte olan kamulaştırma öncesi müzakere sürecine ilişkin iç değerlendirmeyi
+    içermektedir. Belge, [[document_no]] numaralı ve [[version_label]] sürümlü olup
+    [[document_date]] tarihlidir. Belgenin güncel durumu [[status_label]] olarak belirtilmiştir.'
+  - Arazinin değerleme raporu [[valuation_date]] tarihlidir. Malik ile [[meeting_date]]
+    tarihinde görüşme yapılmış ve malik, bu görüşmede talep ettiği bedeli artırmıştır.
+    Süreç müzakere aşamasında olup bir dava niteliği taşımamaktadır.
+  - Malik ile bir sonraki görüşme [[next_meeting]] tarihinde yapılacaktır. Bu notta
+    müzakerenin sonucuna ilişkin bir değerlendirme yapılmamaktadır.
+- heading: Değerlendirme
+  paragraphs:
+  - Malikin talep ettiği bedeli artırması, müzakere sürecinde dikkate alınması gereken
+    bir gelişme olarak kayda geçirilmiştir. Talep edilen bedel ile [[valuation_date]]
+    tarihli değerleme raporu arasındaki ilişki, ilgili birimlerce birlikte ele alınacaktır.
+  - Bu not, nötr bir iç değerlendirme niteliğindedir ve müzakerenin sonucuna dair
+    bir görüş içermemektedir. Belgede herhangi bir kamulaştırma kararı verilmemiştir.
+  - '[[spv_name]], süreci [[next_meeting]] tarihli görüşmeye kadar mevcut bilgiler
+    ışığında izlemeye devam edecektir. Yeni bir gelişme olması hâlinde bu not güncellenecektir.'
