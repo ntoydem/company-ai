@@ -14,6 +14,7 @@ from seed_data.generator.document_specs import (
     ankara_finance,
     ankara_legal,
     ankara_operations,
+    boztepe,
     company,
     izmir,
     yesilova,
@@ -32,6 +33,7 @@ _BUCKETS = (
     izmir,
     company,
     yesilova,
+    boztepe,
 )
 
 SPECS: dict[str, DocumentSpec] = {}

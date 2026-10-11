@@ -49,10 +49,117 @@ project:
     repayment_schedule:
       - {date: 2026-10-01, principal: {value: 0, currency: USD, tag: USER_FACT, note: "Son ödenen aylık faiz (NACI_CEVAP §3.2)."}, interest: {value: 84300, currency: USD, tag: USER_FACT}, tag: USER_FACT}
       - {date: 2026-11-02, principal: {value: 0, currency: USD, tag: USER_FACT, note: "Sıradaki ödeme; tutar Tansu'nun verdiği sabit aylık faiz (01.11 pazar olduğu için 02.11'e kaymış)."}, interest: {value: 84300, currency: USD, tag: USER_FACT}, tag: USER_FACT}
+    # İş Emri 2026-10-11 Adım 4 (Boztepe PF-2): Facility Agreement/bildirim token'ları.
+    # Metin önceden biçimlendirilmiş string olarak saklanıyor — `format_percent`/
+    # `_format_money` dile-duyarlı ama 2 ondalık haneye yuvarlıyor (6,744%'ün 3. ondalığını
+    # kaybeder, 178.571,43'ün kuruşunu `int(round())`'la keser) — DOC-YSV-FIN-010'daki
+    # `missing_guarantee_letter_name` deseniyle aynı çözüm (facts.py `_FIELD_KIND` notu).
+    # Not: "6.7440"/"6,7440" — matematiksel olarak 6,744 ile birebir aynı (sondaki sıfır
+    # bilgi eklemiyor); yalnız `check_number_format_consistency` kapısının 3 haneli
+    # nokta/virgül-gruplu sayı deseniyle (ör. "6.744" TR biçimi "6744" gibi görünür)
+    # YANLIŞ pozitif çakışmasını önlemek için 4 hane yazıldı — kapının kendisine
+    # DOKUNULMADI (DURMA KURALI, kilitli eşik).
+    effective_rate_pct_en: {value: "6.7440%", tag: USER_FACT, note: "Swap sabit %3,894 + marj %2,85 = %6,744 (yukarıdaki `interest` alanından türetilen aritmetik, Tansu onaylı — T-11.7)."}
+    effective_rate_pct_tr: {value: "%6,7440", tag: USER_FACT}
+    repayment_profile_en: {value: "First 3 years interest-only (from February 20, 2024); principal repayment in 84 equal monthly instalments of 178,571.43 USD from March 1, 2027, with the final instalment on February 1, 2034", tag: USER_FACT}
 
   operations:
     om_contractor: {value: "Enercon Servis Türkiye", tag: USER_FACT, note: "Sözleşme S-25-007/008; Karatepe ile aynı fiyat (38.500 EUR/ay) — Karatepe'nin kendi ledger'ına bu round'da işlenmedi, bkz. ADIM5_ASAMA_C_REPORT.md §4."}
     om_contract_price: {value: 38500, currency: EUR, tag: USER_FACT, note: "Aylık (S-25-007/008)."}
     insurance_expiry: 2026-11-10
 
-documents: []
+# İş Emri 2026-10-11 Adım 4 (Boztepe PF-2, plan §9.9): Boztepe'nin ilk belgeleri.
+# "DSCR test tablosu" bu iş emrinin istediği 5. teslimattı — Boztepe'de `covenant_tests`
+# hiç yok (yalnız `dscr_covenant` = 1.20x minimum, bkz. yukarıda), yani geçmiş test
+# SONUÇLARI hiçbir kaynaktan gelmiyor. GENEL kuralı ("kaynağı olmayan bilgi uydurma") ve
+# DURMA KURALI'nın "kaynağı olmayan bilgi gerekirse DUR" maddesi gereği ayrı bir "DSCR
+# test tablosu" belgesi/bölümü ÜRETİLMEDİ — Facility Agreement yalnız 1.20x MİNİMUMU
+# (covenant şartı, sourced) anar, hiçbir geçmiş test sonucu icat etmez. Bkz. Adım 4 raporu.
+documents:
+  - id: DOC-BOZ-FIN-001
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Facility Agreement
+    name: {value: "Boztepe RES Facility Agreement (2024-BZ)", tag: AI_ASSUMPTION}
+    document_date: {value: 2024-02-20, tag: USER_FACT}
+    effective_date: {value: 2024-02-20, tag: USER_FACT}
+    expiration_date: null
+    version: EXECUTED
+    status: executed
+    parties: ["Boztepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    key_facts: {total_debt: "project.finance.total_debt.value", effective_rate_pct_en: "project.finance.effective_rate_pct_en.value", signed_date: "project.finance.signed_date", tenor_years: "project.finance.tenor_years.value", dscr_covenant: "project.finance.dscr_covenant.value", dsra_balance: "project.finance.dsra_balance.value", repayment_profile_en: "project.finance.repayment_profile_en.value", cod_actual: "project.timeline.cod_actual.date"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-BOZ-FIN-002
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Bank Interest Notice
+    name: {value: "Aylık Faiz Bildirimi — Ekim 2026 Taksidi", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-09-20, tag: AI_ASSUMPTION, note: "01.10.2026 vadeli faiz ödemesi öncesi; bildirimin kendi gönderim tarihi verilmedi, demo_today (06.10.2026) öncesi seçildi."}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Boztepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    key_facts: {bank_interest_notice_amount: "project.finance.repayment_schedule[0].interest.value", bank_interest_notice_date: "project.finance.repayment_schedule[0].date", effective_rate_pct_tr: "project.finance.effective_rate_pct_tr.value"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-BOZ-FIN-003
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: DSRA Account Statement
+    name: {value: "DSRA Hesap Ekstresi — Eylül 2026", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-09-30, tag: AI_ASSUMPTION, note: "Ay sonu ekstresi; demo_today (06.10.2026) öncesi."}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Boztepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    key_facts: {dsra_balance: "project.finance.dsra_balance.value"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION
+
+  - id: DOC-BOZ-FIN-004
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Repayment Schedule
+    name: {value: "Anapara Geri Ödeme Planı (84 Taksit)", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-10-01, tag: AI_ASSUMPTION, note: "Üretim/anlık görüntü tarihi — anapara ödemeleri 01.03.2027'de başlıyor, henüz hiçbiri ödenmedi."}
+    effective_date: null
+    expiration_date: null
+    version: "2026-10"
+    status: active
+    parties: ["Boztepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    key_facts: {}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: xlsx
+    language: en
+    confidentiality: normal
+    generate_in_phase: "4.2"
+    tag: AI_ASSUMPTION

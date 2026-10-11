@@ -109,6 +109,15 @@ _FIELD_KIND: dict[str, tuple[str, str]] = {
     "annex_f_deadline": ("date", ""),
     "annex_f_reporting_year": ("number", ""),
     "om_contract_price": ("money", ""),
+    # İş Emri 2026-10-11 Adım 4 — Boztepe Facility Agreement/faiz bildirimi. Oran/ödeme
+    # profili, mevcut `format_percent`/`_format_money`'nin 2 ondalık hane sınırını (6,744%
+    # üçüncü ondalığı kaybeder) aşmamak için önceden biçimlendirilmiş metin olarak
+    # saklanıyor (DOC-YSV-FIN-010'daki `missing_guarantee_letter_name` deseniyle aynı).
+    "effective_rate_pct_en": ("text", ""),
+    "effective_rate_pct_tr": ("text", ""),
+    "repayment_profile_en": ("text", ""),
+    "signed_date": ("date", ""),
+    "monthly_interest_amount": ("money", ""),
 }
 
 _PREFIX_TO_LEDGER = {
@@ -118,6 +127,8 @@ _PREFIX_TO_LEDGER = {
     # Adım 5 İş 4b (10.10.2026): Yeşilova — the first of 5 new SPVs (Aşama C) to get
     # real generated documents.
     "YSV": "yesilova_res",
+    # İş Emri 2026-10-11 Adım 4: Boztepe — ikinci SPV, ilk kez gerçek belge üretiyor.
+    "BOZ": "boztepe_res",
 }
 
 
@@ -263,7 +274,14 @@ def _ledger_key_for_doc_id(doc_id: str) -> str:
 
 def _project_name(doc_id: str) -> str | None:
     prefix = doc_id.split("-")[1]
-    return {"ANK": "Karatepe RES", "IZM": "Kızılova RES", "CO": None, "YSV": "Yeşilova RES"}[prefix]
+    return {
+        "ANK": "Karatepe RES",
+        "IZM": "Kızılova RES",
+        "CO": None,
+        "YSV": "Yeşilova RES",
+        # İş Emri 2026-10-11 Adım 4: Boztepe.
+        "BOZ": "Boztepe RES",
+    }[prefix]
 
 
 def _spv_name(doc_id: str, raws: dict[str, Any]) -> str:

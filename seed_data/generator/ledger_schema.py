@@ -408,6 +408,13 @@ class Finance(_Strict):
     # `timeline.financing_signed` instead; this is for SPVs without a dedicated timeline
     # financing field — Boztepe's first use).
     signed_date: date | None = None
+    # İş Emri 2026-10-11 Adım 4 (Boztepe PF-2): pre-formatted strings, not `Fact`-wrapped
+    # numbers — `format_percent`/`_format_money` round to 2 decimals, which would drop
+    # the 3rd decimal of "6.744%" and the cents of "178,571.43" (same reasoning as
+    # `annex_f_missing_guarantee_letter_name` above).
+    effective_rate_pct_en: Fact | None = None
+    effective_rate_pct_tr: Fact | None = None
+    repayment_profile_en: Fact | None = None
 
 
 class ChangeOrder(_Strict):
