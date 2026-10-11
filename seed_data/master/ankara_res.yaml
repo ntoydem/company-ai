@@ -269,7 +269,11 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: amended
-    parties: ["Karatepe RES Enerji Üretim A.Ş."]
+    # İş Emri 2026-10-11 Adım 5 (plan §9.8, Kategori B): üretim lisansını veren kurum —
+    # karşı taraf AI_ASSUMPTION olarak eklendi. Prose hand-edited (bkz. prose/DOC-ANK-
+    # DEV-001.yaml `hand_edited:`) — buraya DOKUNULMADI, yalnız ledger `parties` listesi
+    # değişti; prose zaten [[counterparty]]'yi anlamlı kullanıyordu (satır 13).
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "EPDK"]
     key_facts: {capacity_mw: project.capacity_mw.initial.value, licence_date: project.timeline.licence.date, development_start: project.timeline.development_start.date}
     supersedes: null
     superseded_by: null
@@ -607,7 +611,9 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Karatepe RES Enerji Üretim A.Ş."]
+    # İş Emri 2026-10-11 Adım 5 (plan §9.8, Kategori B): yapı ruhsatı ilçe belediyesi
+    # tarafından verilir — karşı taraf AI_ASSUMPTION olarak eklendi.
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "İlçe Belediyesi"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -629,7 +635,9 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Karatepe RES Enerji Üretim A.Ş."]
+    # İş Emri 2026-10-11 Adım 5 (plan §9.8, Kategori B): ÇED kararını veren kurum —
+    # karşı taraf AI_ASSUMPTION olarak eklendi.
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "ÇŞİDB"]
     key_facts: {capacity_mw: project.capacity_mw.initial.value}
     supersedes: null
     superseded_by: null
@@ -1008,7 +1016,9 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Karatepe RES Enerji Üretim A.Ş."]
+    # İş Emri 2026-10-11 Adım 5 (plan §9.8, Kategori B): O&M yüklenicisi — karşı taraf
+    # AI_ASSUMPTION olarak eklendi (Boztepe'nin kendi O&M yüklenicisiyle aynı isim).
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Enercon Servis Türkiye"]
     key_facts: {incident_type: "project.operations.incidents[0].type.value", mwh: "project.operations.monthly_production[8].mwh", availability_pct: "project.operations.monthly_production[8].availability_pct"}
     supersedes: null
     superseded_by: null

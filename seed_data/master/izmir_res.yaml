@@ -118,7 +118,10 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Kızılova RES Enerji Üretim A.Ş."]
+    # İş Emri 2026-10-11 Adım 5 (plan §9.8, Kategori B): önlisans belgesini veren kurum
+    # — belgenin kendisi USER_FACT, ama karşı taraf (EPDK) burada AI_ASSUMPTION olarak
+    # eklendi (hiçbir kaynak belge EPDK'yı birebir adlandırmadı).
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "EPDK"]
     key_facts: {target_capacity_mw: project.capacity_mw.target.value, pre_licence_date: project.timeline.pre_licence.date}
     supersedes: null
     superseded_by: null
@@ -229,7 +232,14 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Kızılova RES Enerji Üretim A.Ş."]
+    # İş Emri 2026-10-11 Adım 5: iş emrinin 6'lık listesinde YOK — `counterparty`
+    # kök neden düzeltmesi sırasında generate_documents.py'nin "unknown placeholder"
+    # hatasıyla kendiliğinden ortaya çıktı (prose zaten [[counterparty]]'yi "yerel
+    # halk ve [[counterparty]] temsilcileri" olarak anlamlı kullanıyordu — aynı kök
+    # neden, DOC-ANK-FIN-013 gibi). Halkın katılımı toplantısını düzenleyen kurum —
+    # karşı taraf AI_ASSUMPTION olarak eklendi (DOC-ANK-DEV-005'teki ÇED kararı
+    # kurumuyla aynı tür).
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "ÇŞİDB"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -273,7 +283,9 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Kızılova RES Enerji Üretim A.Ş."]
+    # İş Emri 2026-10-11 Adım 5 (plan §9.8, Kategori B): askeri yasak bölge ön görüşü
+    # MSB'den istenir — karşı taraf AI_ASSUMPTION olarak eklendi.
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "MSB"]
     key_facts: {}
     supersedes: null
     superseded_by: null
