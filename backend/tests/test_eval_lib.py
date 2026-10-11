@@ -610,7 +610,7 @@ def test_resolve_expected_accepts_a_list_of_ledger_facts_one_group_each() -> Non
     expected = resolve_expected(_comparison_question(), raws)
     assert not expected.skip and len(expected.required) == 2
     assert "15.06.2020" in expected.required[0]  # Ankara licence date, TR form
-    assert value_check_passes(expected, "15.06.2020 … 18.01.2024")
+    assert value_check_passes(expected, "15.06.2020 … 15.01.2025")
     assert not value_check_passes(expected, "15.06.2020 yalnızca")
 
 
