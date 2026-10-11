@@ -4,39 +4,44 @@ tag: AI_ASSUMPTION
 sections:
 - heading: 1. Recitals
   paragraphs:
-  - This agreement, titled [[title]] and registered as [[document_no]], is dated [[document_date]]
-    and is made between [[parties_list]]. It is issued as [[version_label]] and carries
-    the status [[status_label]].
-  - '[[spv_name]] owns and operates the [[project_name]], whose total capital expenditure
-    amounts to [[capex]]. The plant was constructed and brought into operation before
-    this Facility existed.'
-  - The Facility is a subsequent, partial term loan extended by [[counterparty]] in
-    relation to the plant. It is documented on the terms set out in this Agreement.
+  - This Agreement, reference [[document_no]], is entered into among [[parties_list]]
+    and relates to [[project_name]], which is held by [[spv_name]]. The plant was
+    constructed and brought into operation before this Facility existed. Its total
+    capital expenditure was [[capex]], and the net sponsor contribution was [[equity]].
+  - The facility of [[total_debt]] was made available after completion of the plant
+    and is not a construction loan. Its purpose is to repay part of the sponsor's
+    own current-account funding. No capital reduction took place in connection with
+    it.
+  - The Parties record that [[counterparty]] participates in this Agreement on the
+    terms set out below. This version, [[version_label]], carries the status [[status_label]]
+    and is dated [[document_date]].
 - heading: 2. The Facility
   paragraphs:
-  - The Facility is a term loan made available to [[spv_name]] under this Agreement
-    with effect from [[effective_date]]. The total debt amount referred to in this
-    Agreement is [[total_debt]].
-  - Interest on the Facility accrues at the applicable reference rate plus a margin
-    of [[margin_pct]]. Further details of interest and payment mechanics are governed
-    by the operative provisions of this Agreement.
+  - The Facility is made available to [[spv_name]] in an aggregate principal amount
+    of [[total_debt]] and takes effect on [[effective_date]]. The applicable margin
+    is [[margin_pct]].
+  - A debt service reserve account is maintained in connection with the Facility.
+    Its balance is a fixed amount of [[dsra_balance]], equal to six periods of debt
+    service.
+  - All other terms of the Facility are as set out in the executed Agreement.
 - heading: 3. Repayment
   paragraphs:
-  - 'The Facility shall be repaid in accordance with the following repayment profile:
-    [[repayment_profile]]. The Borrower shall make each repayment in line with that
-    profile and the payment provisions of this Agreement.'
-  - Any matter relating to repayment that is not expressly addressed in this section
-    shall be dealt with under the general terms of this Agreement.
+  - 'The Facility is repaid in accordance with the following profile: [[repayment_profile]].
+    The Borrower shall make each repayment on the dates and in the manner provided
+    for in the executed Agreement.'
+  - Any matter relating to repayment that is not addressed by the profile above is
+    governed by the general provisions of this Agreement.
 - heading: 4. Financial Covenants
   paragraphs:
-  - The Borrower undertakes to comply with the debt service coverage covenant of [[dscr_covenant]].
-    Compliance shall be assessed in the manner provided for in this Agreement.
-  - The Borrower shall provide the financial information reasonably required to verify
-    compliance with this covenant. The consequences of any non-compliance are as set
-    out in the general provisions of this Agreement.
+  - The Borrower shall maintain a debt service coverage ratio that meets the covenant
+    level of [[dscr_covenant]]. Compliance is assessed in accordance with the reporting
+    arrangements set out in the executed Agreement.
+  - The consequences of any failure to meet this covenant are those provided for in
+    the executed Agreement.
 - heading: 5. Governing Law
   paragraphs:
-  - This Agreement and any non-contractual obligations arising from it are governed
-    by the law agreed between the parties in the executed version of the Agreement.
-  - Disputes arising in connection with this Agreement shall be resolved in accordance
-    with the dispute resolution provisions agreed between the parties.
+  - This Agreement and any non-contractual matters arising from it are governed by
+    the law specified in the executed Agreement. Disputes shall be resolved in the
+    forum designated in the executed Agreement.
+  - Document [[title]] has been prepared as a formal record of the Parties' arrangements
+    and is to be read together with the executed Agreement.

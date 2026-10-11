@@ -80,10 +80,10 @@ SPECS: dict[str, DocumentSpec] = {
         # Önceki iki deneme (Gemini: 429 kota fırtınası; Claude: capex/equity "2. The
         # Facility"ye sızdı, başlığın kendisine talimat gömülünce de 82 karaktere kadar
         # çıkan parantez PDF'e basıldı) bu ayrımın gerekliliğini gösterdi.
-        # Düzeltme D (11.10.2026, Naci onaylı): equity cümlesi bu round'da YAZDIRILMIYOR
-        # (T-13.1 — Tansu'nun cevabı bekleniyor, "özkaynakla inşa" ile "equity+2023-YS=capex"
-        # aritmetiği arasındaki çelişki netleşmeden) — `prose_suppress_facts` ile equity
-        # token'ı LLM'e hiç önerilmiyor. T-13.1 cevaplanınca bu alan kaldırılacak.
+        # Düzeltme (11.10.2026, Naci onaylı — T-13.1=A cevaplandı, NACI_CEVAP_2026-10-11.md
+        # §2): equity GERİ EKLENDİ, kurgu netleşti — sponsor fonuyla inşa edildi, 2023-YS
+        # sonradan alınmış KISMİ kredi (inşaat kredisi değil), amacı sponsor fonunun
+        # (ortak cari hesabı) geri ödenmesi, sermaye azaltımı YAPILMADI.
         section_headings_en=[
             "1. Recitals",
             "2. The Facility",
@@ -92,19 +92,24 @@ SPECS: dict[str, DocumentSpec] = {
             "5. Governing Law",
         ],
         prose_guidance_en=(
-            "Section 1 (Recitals): state the project's total capex figure using "
-            "[[capex]], and state that the plant was constructed and brought into "
-            "operation BEFORE this Facility existed (past tense for construction and "
-            "operation). Do not use the words 'entirely', 'solely', 'only', or the "
-            "phrase 'no third-party debt' anywhere. Do not mention equity or any "
-            "sponsor capital contribution at all in this generation. Do not describe "
-            "how, why, or by whom this financing was initiated — no application, "
-            "request, or negotiation language; state only that the Facility is a "
-            "subsequent, partial term loan. Section 2 (The Facility): never mention "
-            "capex here. Never invent a specific substantive provision not backed by "
-            "a token."
+            "Section 1 (Recitals): the plant was constructed and brought into "
+            "operation BEFORE this Facility existed, funded by sponsor equity — state "
+            "the total capex using [[capex]] and the net sponsor contribution using "
+            "[[equity]]. The 2023-YS facility ([[total_debt]]) was raised AFTER "
+            "completion and is NOT a construction loan — its purpose was to repay "
+            "part of the sponsor's own current-account funding; no capital reduction "
+            "took place. Do not use the words 'entirely', 'solely', 'only', or the "
+            "phrase 'no third-party debt'. Do not describe how, why, or by whom this "
+            "financing was initiated — no application, request, or negotiation "
+            "language. Do not mention any construction-period condition precedent "
+            "(EPC, environmental approval, equity contribution, construction "
+            "insurance) — the facility agreement has none of these. Do not state any "
+            "phase-specific MW or turbine count. Section 2 (The Facility): never "
+            "mention capex or equity here. You may optionally mention the DSRA "
+            "([[dsra_balance]]) as a fixed amount equal to six periods of debt "
+            "service. Never invent a specific substantive provision not backed by a "
+            "token."
         ),
-        prose_suppress_facts=frozenset({"equity"}),
         signature_roles_en=[
             "For and on behalf of [[spv_name]] (Borrower) — Authorized Signatory",
             "For and on behalf of [[counterparty]] (Lender) — Authorized Signatory",
@@ -137,7 +142,10 @@ SPECS: dict[str, DocumentSpec] = {
             "both refer to 2025) — do not mention any other instalment, payment, or "
             "event dated in 2026. Never invent a specific substantive provision not "
             "backed by a token. Write all numbers in English format (comma thousands "
-            "separator)."
+            "separator). In the compliance summary, note that the Yeşilova TEİAŞ "
+            "connection-agreement guarantee letter is still outstanding/not yet "
+            "provided — do not describe its amount, bank, or any other detail, only "
+            "that it has not been submitted."
         ),
     ),
 }

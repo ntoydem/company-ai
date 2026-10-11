@@ -321,12 +321,9 @@ documents:
     version: EXECUTED
     status: executed
     parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
-    # Düzeltme D (11.10.2026, Naci onaylı): `equity` key_facts'ten ÇIKARILDI — prose bu
-    # round'da equity cümlesi yazmıyor (prose_suppress_facts, T-13.1 cevabı bekleniyor),
-    # G4 ("her key_facts değeri PDF metninde olmalı") equity burada deklare edilip
-    # kullanılmazsa patlar. T-13.1 cevaplanınca equity hem prose_suppress_facts'ten hem
-    # buradan geri eklenecek.
-    key_facts: {total_debt: "project.finance.total_debt.value", margin_pct: "project.finance.interest.margin_pct.value", repayment_profile: "project.finance.repayment_profile.value", dscr_covenant: "project.finance.dscr_covenant.value", capex: "project.finance.capex.value"}
+    # Düzeltme (11.10.2026, Naci onaylı): T-13.1=A cevaplandı — `equity` GERİ EKLENDİ
+    # (bkz. plan §9.1). `dsra_balance` de eklendi (opsiyonel, Tansu 6. tur §2).
+    key_facts: {total_debt: "project.finance.total_debt.value", margin_pct: "project.finance.interest.margin_pct.value", repayment_profile: "project.finance.repayment_profile.value", dscr_covenant: "project.finance.dscr_covenant.value", capex: "project.finance.capex.value", equity: "project.finance.equity.value", dsra_balance: "project.finance.dsra_balance.value"}
     supersedes: null
     superseded_by: null
     related: [DOC-YSV-FIN-007]

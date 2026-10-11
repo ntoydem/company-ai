@@ -4,24 +4,23 @@ tag: AI_ASSUMPTION
 sections:
 - heading: 1. Purpose and Scope
   paragraphs:
-  - This document, [[title]] (reference [[document_no]]), sets out the Annex F reporting
-    of [[spv_name]] in connection with the [[project_name]] financing for the reporting
-    year [[annex_f_reporting_year]]. It is dated [[document_date]] and is currently
-    marked as [[status_label]], as shown in the document header together with [[version_label]].
-  - The report is addressed to [[counterparty]] and concerns the parties identified
-    as [[parties_list]]. It remains in draft form and has not yet been sent to any
-    recipient.
-  - The scope is limited to the reporting year [[annex_f_reporting_year]]. Matters
-    outside that period are not addressed here, and the content stays subject to review
-    before any onward submission.
+  - This report, referenced as [[document_no]] and titled [[title]], sets out the
+    Annex F reporting position of [[spv_name]] in respect of [[project_name]]. It
+    is dated [[document_date]] and covers the reporting year [[annex_f_reporting_year]]
+    only.
+  - The report is prepared for the benefit of [[counterparty]] and the other parties
+    identified as [[parties_list]]. It is currently in [[status_label]] status and
+    has not yet been sent to any recipient.
+  - The scope is limited to the financial covenant and interest information for the
+    reporting year. Matters falling outside that period are not addressed in this
+    document.
 - heading: 2. Compliance Summary
   paragraphs:
   - For the reporting year [[annex_f_reporting_year]], the debt service coverage ratio
-    of the project is stated as [[dscr]]. Interest paid during the same period amounts
-    to [[interest_paid]].
-  - 'On the basis of these figures, the covenant assessment is recorded as follows:
-    [[covenant_result]]. This conclusion rests only on the data presented in this
-    draft and the underlying financing arrangements.'
-  - Any further detail on the calculation approach or the applicable thresholds is
-    to be read together with the relevant financing documentation. The figures remain
-    provisional while the report is in draft status.
+    is stated as [[dscr]]. Interest paid during the same period amounts to [[interest_paid]].
+    On this basis, the covenant result is recorded as [[covenant_result]].
+  - The guarantee letter required under the grid connection agreement for the project
+    remains outstanding. It has not yet been submitted, and this report is to be read
+    subject to that open item.
+  - This summary is a draft and remains subject to review and confirmation before
+    it is finalised.

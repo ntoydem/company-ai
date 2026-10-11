@@ -4,20 +4,23 @@ tag: AI_ASSUMPTION
 sections:
 - heading: 1. Kullanım Hakkının Kapsamı
   paragraphs:
-  - İşbu [[title]], [[document_no]] numaralı ve [[version_label]] sürümlü belge olarak,
-    [[project_name]] kapsamındaki saha üzerindeki kullanım hakkının kapsamını düzenlemektedir.
-    Kullanım hakkı, [[spv_name]] için tesis edilmiştir.
-  - Tesis edilen hak; projenin geliştirilmesi, inşası, işletilmesi ve bakımı için
-    gerekli faaliyetlerle sınırlıdır. Bu amaçların dışındaki kullanımlar hakkın kapsamına
-    dahil edilmemiştir.
-  - Kapsamda açıkça düzenlenmeyen hususlar, yürürlükteki mevzuat ve genel hukuk ilkeleri
-    çerçevesinde değerlendirilir.
+  - İşbu sözleşme, [[title]] başlığıyla [[document_no]] numaralı belge olarak düzenlenmiş
+    olup [[version_label]] sürümü ile [[status_label]] statüsündedir. Sözleşme, [[project_name]]
+    kapsamında kullanılacak sahaya ilişkin kullanım hakkının esaslarını belirlemektedir.
+  - Söz konusu kullanım hakkı, [[spv_name]] lehine [[counterparty]] tarafından tesis
+    edilmiştir. Hak, proje faaliyetlerinin yürütülmesi amacıyla sınırlı olup yalnızca
+    bu amaç doğrultusunda kullanılabilir.
+  - Kullanım hakkının kapsamı ve usulü, taraflarca karşılıklı olarak kabul edilmiş
+    ve sözleşme metninde yer alan hükümlerle belirlenmiştir. Sözleşmenin tarafları
+    [[parties_list]] olarak kayıt altına alınmıştır.
 - heading: 2. Yürürlük ve Genel Hükümler
   paragraphs:
-  - İşbu belge [[document_date]] tarihlidir ve [[effective_date]] tarihinde yürürlüğe
-    girmiştir. Belgenin güncel durumu [[status_label]] olarak kayıtlıdır.
-  - Belgede yapılacak her türlü değişiklik yazılı olarak ve usulüne uygun biçimde
-    gerçekleştirilir. Hükümlerden birinin geçersiz sayılması, diğer hükümlerin geçerliliğini
-    etkilemez.
-  - Doğabilecek uyuşmazlıklar öncelikle iyi niyet çerçevesinde çözümlenmeye çalışılır.
-    Bu mümkün olmazsa yürürlükteki mevzuata uygun yollara başvurulur.
+  - Sözleşme, [[document_date]] tarihinde düzenlenmiş ve [[effective_date]] tarihinde
+    yürürlüğe girmiştir. Taraflar, sözleşmenin imzalanmasıyla birlikte bu hükümlerle
+    bağlı olduklarını kabul etmiştir.
+  - Sözleşmede yapılacak her türlü değişiklik veya ek, tarafların karşılıklı mutabakatıyla
+    ve yazılı olarak gerçekleştirilir. Sözleşmenin herhangi bir hükmünün uygulanamaz
+    hale gelmesi, diğer hükümlerin geçerliliğini etkilemez.
+  - Taraflar, sözleşmeden doğan hak ve yükümlülüklerini iyi niyet ilkelerine uygun
+    biçimde yerine getirmeyi taahhüt etmiştir. Sözleşmeden doğabilecek uyuşmazlıklar
+    öncelikle taraflar arasında çözüme kavuşturulmaya çalışılır.

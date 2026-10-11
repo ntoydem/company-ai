@@ -4,28 +4,27 @@ tag: AI_ASSUMPTION
 sections:
 - heading: 1. Hakkın Kapsamı
   paragraphs:
-  - Bu taslak, [[title]] başlığıyla hazırlanmış olup [[project_name]] kapsamında ihtiyaç
-    duyulan kira veya irtifak hakkının genel çerçevesini ortaya koymaktadır. Belge,
-    [[spv_name]] adına düzenlenmiş olup [[document_no]] numaralı belge olarak kayıt
-    altındadır. Mevcut sürüm [[version_label]] olarak, belgenin durumu ise [[status_label]]
-    olarak belirtilmiştir.
-  - Tesisin kurulumu, işletilmesi ve bakımı için gerekli kullanım hakkının kapsamı,
-    nihai metinde taraflarca ayrıntılı biçimde belirlenecektir. Hakkın konusu, sınırları
-    ve kullanım şekli bu taslakta kesinleştirilmiş sayılmamakta, imza aşamasına kadar
-    müzakereye açık kalmaktadır.
-  - Hakkın kullanımına ilişkin erişim, geçiş ve altyapı ihtiyaçları da nihai metinde
-    değerlendirilecektir. Bu hususlara ilişkin somut hükümler, taraflar arasında mutabakata
-    varıldıktan sonra sözleşmeye eklenecektir.
+  - Bu belge, [[title]] başlığını taşıyan, [[document_no]] numaralı ve [[version_label]]
+    sürümlü bir taslaktır. Belge [[document_date]] tarihini taşımakta olup mevcut
+    durumu [[status_label]] olarak belirtilmiştir. Taslak henüz imzalanmamıştır ve
+    yalnızca değerlendirme ile müzakere amacıyla hazırlanmıştır.
+  - Taslağa göre [[spv_name]] lehine, [[project_name]] kapsamında kullanılacak taşınmazlar
+    üzerinde kira veya irtifak hakkı tesis edilmesi öngörülmektedir. Söz konusu taşınmazların
+    malikleri [[parties_list]] olarak belirtilmiştir. Hakkın türü ve niteliği, taraflarca
+    yürütülecek müzakerelerin sonucunda nihai metinde belirlenecektir.
+  - Hakkın kullanımının, proje için gerekli faaliyetlerle sınırlı tutulması öngörülmektedir.
+    Kullanım alanının sınırları, geçiş ve erişim ihtiyaçları ile maliklerin taşınmazlar
+    üzerindeki diğer hakları imzalanacak nihai metinde ayrıntılı olarak düzenlenecektir.
 - heading: 2. Yürürlük ve Genel Hükümler
   paragraphs:
-  - Bu belge, [[document_date]] tarihli bir taslak olup henüz imzalanmamıştır. Sözleşme,
-    ancak taraflarca imzalanmak üzere hazırlanan nihai metnin usulüne uygun biçimde
-    imzalanmasının ardından hüküm ifade edecektir. O ana kadar bu metin yalnızca görüşme
-    ve inceleme amacını taşımaktadır.
-  - Taslakta yer alan genel hükümler, taraflara ilişkin yükümlülüklerin, bildirim
-    usullerinin, değişiklik esaslarının ve uyuşmazlıkların çözümüne dair yöntemlerin
-    nihai metinde ayrıca ve ayrıntılı olarak düzenleneceği varsayımıyla kaleme alınmıştır.
-    Bu hususlarda somut bir hüküm, taraflarca mutabık kalınmadan bu taslağa dayandırılmayacaktır.
-  - Taslak üzerinde yapılacak her değişiklik yeni bir sürüm olarak kayda geçirilecektir.
-    İmza öncesinde belgenin içeriği, ilgili tarafların onayına sunulacak ve gerekli
-    görülen düzeltmeler yapıldıktan sonra imzaya hazır hale getirilecektir.
+  - Bu taslak imzalanmadığı sürece taraflar bakımından herhangi bir hak veya yükümlülük
+    doğurmayacaktır. Sözleşmenin yürürlüğe gireceği an ve koşullar, imza aşamasında
+    taraflarca birlikte belirlenecektir. Taslakta yer alan ifadeler müzakere sürecinde
+    değiştirilebilir.
+  - Nihai metne ilişkin değişikliklerin ve bildirimlerin yazılı olarak yapılması öngörülmektedir.
+    Tarafların hak ve yükümlülüklerine ilişkin ayrıntılar, [[spv_name]] ile [[parties_list]]
+    arasında mutabık kalınacak esaslara göre düzenlenecektir.
+  - Sözleşmeden doğabilecek uyuşmazlıkların öncelikle taraflar arasında karşılıklı
+    görüşme yoluyla çözülmesi hedeflenmektedir. Uyuşmazlık çözümüne ilişkin usul ve
+    esaslar nihai metinde taraflarca kararlaştırılacaktır. Bu belge, kurgusal bir
+    demo çalışması kapsamında hazırlanmış olup gerçek bir hukuki işlem niteliği taşımamaktadır.
