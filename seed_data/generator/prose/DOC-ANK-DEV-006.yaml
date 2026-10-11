@@ -1,26 +1,23 @@
 doc_id: DOC-ANK-DEV-006
-model: gemini-3.5-flash-lite
+model: claude-sonnet-5-5
 tag: AI_ASSUMPTION
 sections:
 - heading: 1. Kullanım Hakkının Kapsamı
   paragraphs:
-  - İşbu [[title]] kapsamında, [[project_name]] projesine ait arazi tahsis ve kullanım
-    hakları [[spv_name]] lehine tesis edilmiştir. Söz konusu sahanın sınırları, ilgili
-    makamlarca onaylanan krokide belirtildiği şekliyle sınırlandırılmıştır.
-  - Taraflar, [[counterparty]] ile imzalanan [[document_no]] sayılı protokol çerçevesinde
-    belirlenen teknik usullere uymakla yükümlüdür. Sahada gerçekleştirilecek her türlü
-    altyapı ve üstyapı çalışması önceden yazılı izne tabidir.
-  - '[[status_label]] statüsündeki bu alanın güvenliği ve çevresel koruma tedbirleri
-    [[parties_list]] tarafından ortaklaşa denetlenecektir. Faaliyetler esnasında yürürlükteki
-    mevzuata tam uyum sağlanması esastır.'
+  - İşbu [[title]], [[document_no]] numaralı ve [[version_label]] sürümlü belge olarak,
+    [[project_name]] kapsamındaki saha üzerindeki kullanım hakkının kapsamını düzenlemektedir.
+    Kullanım hakkı, [[spv_name]] için tesis edilmiştir.
+  - Tesis edilen hak; projenin geliştirilmesi, inşası, işletilmesi ve bakımı için
+    gerekli faaliyetlerle sınırlıdır. Bu amaçların dışındaki kullanımlar hakkın kapsamına
+    dahil edilmemiştir.
+  - Kapsamda açıkça düzenlenmeyen hususlar, yürürlükteki mevzuat ve genel hukuk ilkeleri
+    çerçevesinde değerlendirilir.
 - heading: 2. Yürürlük ve Genel Hükümler
   paragraphs:
-  - Bu sözleşme, [[effective_date]] tarihinde taraflarca imza altına alınarak yürürlüğe
-    girmiş olup resmi geçerliliği [[document_date]] tarihli teyit ile kesinleşmiştir.
-    Belgenin [[version_label]] sürümünde yer alan tüm maddeler bağlayıcıdır.
-  - Taraflardan birinin yükümlülüklerini kısmen veya tamamen yerine getirmemesi durumunda,
-    [[counterparty]] tarafından yapılacak yazılı bildirim ile yasal süreç başlatılır.
-    Anlaşmazlıkların çözümünde ilgili yetkili merciler merîdir.
-  - İşbu metin [[parties_list]] mutabakatıyla [[document_no]] referans numarası altında
-    arşivlenmiştir. Yapılacak her türlü güncelleme yeni bir ek protokol ile taraflara
-    duyurulacaktır.
+  - İşbu belge [[document_date]] tarihlidir ve [[effective_date]] tarihinde yürürlüğe
+    girmiştir. Belgenin güncel durumu [[status_label]] olarak kayıtlıdır.
+  - Belgede yapılacak her türlü değişiklik yazılı olarak ve usulüne uygun biçimde
+    gerçekleştirilir. Hükümlerden birinin geçersiz sayılması, diğer hükümlerin geçerliliğini
+    etkilemez.
+  - Doğabilecek uyuşmazlıklar öncelikle iyi niyet çerçevesinde çözümlenmeye çalışılır.
+    Bu mümkün olmazsa yürürlükteki mevzuata uygun yollara başvurulur.
