@@ -9,7 +9,9 @@ from seed_data.generator.document_specs._base import DocumentSpec
 from seed_data.generator.validate_documents import (
     MAX_HEADING_CHARS,
     MAX_HEADING_WORDS,
+    MAX_WRONG_LANGUAGE_RATIO,
     check_heading_hygiene,
+    check_language_consistency,
     check_number_format_consistency,
     check_prose_document,
     scan_prose_text,
@@ -158,3 +160,37 @@ def test_decimal_ratios_and_percentages_do_not_false_positive() -> None:
     """1.15x / %0,80 gibi ondalık oranlar gruplu sayı sanılmamalı (3 hane şartı)."""
     assert check_number_format_consistency("DOC-X", "en", "DSCR covenant of 1.15x.") == []
     assert check_number_format_consistency("DOC-X", "tr", "Oran %0,80 olarak hesaplanır.") == []
+
+
+def test_real_corpus_passes_language_consistency_gate() -> None:
+    """Adım 4 (11.10.2026): 84 belgelik gerçek korpuda 0 yanlış-pozitif — eşik buradan
+    ölçülüp kilitlendi (gözlenen maksimum oran 0.0, eşik 0.15)."""
+    generated = validate_generated(MANIFEST_PATH)
+    assert not any("dil tutarsızlığı" in e for e in generated.errors)
+
+
+def test_en_document_with_tr_connectors_is_rejected() -> None:
+    text = "This Agreement shall be governed " + "ve ile için gibi olan " * 3
+    errors = check_language_consistency("DOC-X", "en", text)
+    assert any("dil tutarsızlığı" in e for e in errors)
+
+
+def test_tr_document_with_en_connectors_is_rejected() -> None:
+    text = "Bu sözleşme ve ile için " + "the and this that shall will " * 3
+    errors = check_language_consistency("DOC-X", "tr", text)
+    assert any("dil tutarsızlığı" in e for e in errors)
+
+
+def test_sparse_signal_is_skipped_not_flagged() -> None:
+    """MIN_SIGNAL_WORDS=3 altındaki belgeler (korpusta 1-2 hit'lik örnekler var) atlanır —
+    gürültülü, güvenilmez bir oranla yanlış-pozitif üretilmesin."""
+    assert check_language_consistency("DOC-X", "en", "A single stray ve here.") == []
+
+
+def test_ratio_at_threshold_boundary_is_not_flagged() -> None:
+    """Eşiğin KENDİSİ (0.15) reddedilmemeli — yalnız üstü (>)."""
+    # 1 TR / (1 TR + 6 EN) = 0.1428... < 0.15
+    text = "ve " + "the " * 6
+    errors = check_language_consistency("DOC-X", "en", text)
+    assert errors == []
+    assert MAX_WRONG_LANGUAGE_RATIO == 0.15

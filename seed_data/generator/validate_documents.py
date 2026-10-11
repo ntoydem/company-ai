@@ -62,6 +62,70 @@ def check_number_format_consistency(doc_id: str, language: str, text: str) -> li
     return errors
 
 
+# Dil tutarlılık kapısı (11.10.2026, Naci onaylı): belgenin dili (spec/ledger `language`)
+# ile render edilmiş metnin bağlaç/stopword dağılımı uyumlu mu. Yalnız kısa, dile özgü ve
+# kısaltmalarla ÇARPIŞMAYAN bağlaçlar seçildi — "a"/"in"/"to"/"da"/"de" gibi 1-2 harfli
+# kelimeler "A.Ş." gibi kısaltmalardan ("a" + "ş" olarak ayrışır) yanlış pozitif üretiyordu
+# (ilk ölçümde TR belgelerde %75'e kadar çıktı). Eşik gerçek 84 belgelik korpustan ölçüldü:
+# her iki yönde de gözlenen maksimum "yanlış dil" oranı 0.0 — 0.15 olarak kilitlendi (çok
+# üstünde headroom). MIN_SIGNAL_WORDS: toplam bağlaç sayısı 3'ten azsa (gürültülü örnek,
+# korpusta 1-2 hit'lik belgeler var) kapı atlanır.
+TR_CONNECTOR_WORDS = {
+    "ve",
+    "ile",
+    "için",
+    "gibi",
+    "olan",
+    "olarak",
+    "veya",
+    "ancak",
+    "üzere",
+    "tarafından",
+}
+EN_CONNECTOR_WORDS = {
+    "the",
+    "and",
+    "this",
+    "that",
+    "shall",
+    "will",
+    "agreement",
+    "pursuant",
+    "hereby",
+}
+_WORD_PATTERN = re.compile(r"[A-Za-zÇĞİÖŞÜçğıöşü]+")
+MIN_SIGNAL_WORDS = 3
+MAX_WRONG_LANGUAGE_RATIO = 0.15
+
+
+def check_language_consistency(doc_id: str, language: str, text: str) -> list[str]:
+    words = (w.lower() for w in _WORD_PATTERN.findall(text))
+    tr_count = 0
+    en_count = 0
+    for word in words:
+        if word in TR_CONNECTOR_WORDS:
+            tr_count += 1
+        elif word in EN_CONNECTOR_WORDS:
+            en_count += 1
+    total = tr_count + en_count
+    if total < MIN_SIGNAL_WORDS:
+        return []
+    if language == "en":
+        ratio = tr_count / total
+        wrong_label = "TR"
+    elif language == "tr":
+        ratio = en_count / total
+        wrong_label = "EN"
+    else:
+        return []
+    if ratio > MAX_WRONG_LANGUAGE_RATIO:
+        return [
+            f"{doc_id}: dil tutarsızlığı — {language} belgede {wrong_label} bağlaç oranı "
+            f"{ratio:.2f} (eşik {MAX_WRONG_LANGUAGE_RATIO})"
+        ]
+    return []
+
+
 @dataclass
 class Report:
     errors: list[str] = field(default_factory=list)
@@ -214,6 +278,8 @@ def validate_generated(manifest_path: Path) -> Report:
         text = _extract_text(digital_path)
 
         for error in check_number_format_consistency(doc_id, entry["language"], text):
+            report.error(error)
+        for error in check_language_consistency(doc_id, entry["language"], text):
             report.error(error)
 
         if banners["all"] not in text:
