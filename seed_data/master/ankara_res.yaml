@@ -178,7 +178,10 @@ project:
   construction:
     epc_contractor:   {value: "JKL İnşaat A.Ş.", tag: USER_FACT}
     turbine_supplier: {value: "Enercon", tag: USER_FACT}
-    epc_contract_price: {value: 41500000, currency: EUR, tag: USER_FACT, source_doc: DOC-ANK-EPC-001}
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11.3 şartı): eski 41,5M EUR değeri Ankara
+    # RES'in eski verisinden kalmıştı, toplam yatırımdan (20M USD) büyüktü — 14,5M EUR'ya
+    # çekildi (~17,085,350 USD, 2021 kuruyla — fx_rates.yaml; 20M USD içinde kalıyor).
+    epc_contract_price: {value: 14500000, currency: EUR, tag: USER_FACT, source_doc: DOC-ANK-EPC-001}
     epc_contract_current_doc: DOC-ANK-EPC-001
     change_orders:
       - {date: 2023-05-12, subject: {value: "COD deferral: grid connection works", tag: USER_FACT}, doc: DOC-ANK-EPC-003, tag: USER_FACT}
