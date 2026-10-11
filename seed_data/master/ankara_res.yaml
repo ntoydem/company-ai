@@ -282,7 +282,11 @@ documents:
     expiration_date: null
     version: AMD01
     status: executed
-    parties: ["Karatepe RES Enerji Üretim A.Ş."]
+    # Düzeltme (11.10.2026, Naci): tek taraf ("Karatepe RES Enerji Üretim A.Ş.") varken
+    # facts.py::_build_facts, counterparty'yi SPV'nin kendisine düşürüyordu ("X ile X
+    # arasında"). Kapasite tadili EPDK'ya yapılan bir başvuru/onay süreci — karşı taraf
+    # EPDK (company.yaml:63 public_institutions'da zaten tanımlı, name-whitelist güvenli).
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "EPDK"]
     key_facts: {capacity_mw: project.capacity_mw.current.value, capacity_mw_initial: project.capacity_mw.initial.value, turbine_count: project.turbines.count.value, turbine_count_initial: project.turbines.count_initial.value, amendment_date: project.timeline.licence_amendment.date}
     supersedes: null
     superseded_by: null
