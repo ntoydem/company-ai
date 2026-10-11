@@ -1,48 +1,51 @@
 doc_id: DOC-YSV-FIN-009
-model: gemini-3.5-flash
+model: claude-sonnet-5-5
 tag: AI_ASSUMPTION
 sections:
-- heading: 1. Recitals and Definitions
+- heading: '1. Recitals (Past Tense: the Project Was Already Built and Funded by Equity
+    Alone)'
   paragraphs:
-  - İşbu tesis sözleşmesi, [[document_date]] tarihinde [[parties_list]] arasında akdedilmiştir.
-    Belge, [[title]] başlığını taşımakta olup [[document_no]] referans numarası ve
-    [[version_label]] sürümü ile kayıt altına alınmıştır.
-  - Sözleşmenin borçlu tarafı olan [[spv_name]], projenin yürütülmesinden sorumlu
-    özel amaçlı şirkettir. Finansman sağlayan taraf olarak [[counterparty]] belirlenmiş
-    olup işbu belge [[status_label]] statüsündedir.
-  - İlgili finansal yapının yürürlük tarihi [[effective_date]] olarak kabul edilmiştir.
-    Sözleşme kapsamındaki temel kavramlar ve taraf yükümlülükleri takip eden maddelerde
-    düzenlenen esaslara tabidir.
-- heading: 2. The Facility (Supplementary Financing)
+  - This Agreement, identified as [[document_no]] and titled [[title]], is dated [[document_date]]
+    and is made between the parties listed as [[parties_list]]. It is currently at
+    the status [[status_label]], version [[version_label]].
+  - '[[spv_name]] developed and constructed the [[project_name]] wind power plant.
+    The construction was completed before this Agreement was entered into, and the
+    plant had already been built.'
+  - The total investment cost of [[capex]] was funded entirely by the sponsors' own
+    contribution of [[equity]]. No third-party debt financing was used at that stage.
+  - Following completion of the plant, [[spv_name]] later approached [[counterparty]]
+    for a separate financing. This Agreement records the terms of that later financing.
+- heading: 2. The Facility (a Separate, Later, Partial Financing; Never Capex or Equity
+    Here)
   paragraphs:
-  - Sağlanan ek finansman imkanı, [[project_name]] kapsamında ihtiyaç duyulan yatırımların
-    desteklenmesini amaçlamaktadır. Kredi tesisi çerçevesinde tahsis edilen toplam
-    borç tutarı [[total_debt]] olarak belirlenmiştir.
-  - Projenin toplam sermaye harcaması [[capex]] tutarında öngörülmektedir. Söz konusu
-    harcamaların finansmanı amacıyla taahhüt edilen özkaynak katkısı [[equity]] seviyesindedir.
-  - Kredi kullanımında uygulanacak marj oranı [[margin_pct]] olarak uygulanacaktır.
-    Kullanım şartları ve ek finansman tahsis esasları genel kredi koşullarına göre
-    yürütülecektir.
+  - '[[counterparty]] makes available to [[spv_name]] a term facility in a total principal
+    amount of [[total_debt]] (the Facility). The Facility is a separate and subsequent
+    arrangement, and it covers only part of the financing position of the [[project_name]].'
+  - Interest on the Facility accrues at a margin of [[margin_pct]] over the applicable
+    reference rate. Other pricing terms are as agreed between the parties in the executed
+    documentation.
+  - The Facility takes effect on [[effective_date]]. The conditions for drawing and
+    the use of proceeds are set out in the executed documentation and are not restated
+    here.
 - heading: 3. Repayment
   paragraphs:
-  - Anapara ve faiz ödemeleri, taraflarca kararlaştırılan [[repayment_profile]] doğrultusunda
-    gerçekleştirilecektir. Borçlu, belirlenen ödeme takvimine uygun hareket etmekle
-    mükelleftir.
-  - Ödemelerin zamanında yapılması esas olup vadeler borçlanma şartlarına tabi olacaktır.
-    Erken ödemeler veya takvim değişiklikleri genel sözleşme hükümleri çerçevesinde
-    değerlendirilir.
+  - '[[spv_name]] shall repay the Facility in accordance with the following repayment
+    profile: [[repayment_profile]]. Each repayment shall be made on the dates and
+    in the manner agreed between the parties.'
+  - Any matter relating to repayment that is not expressly addressed by the repayment
+    profile shall be dealt with as provided in the executed documentation, or otherwise
+    by agreement between the parties.
 - heading: 4. Financial Covenants
   paragraphs:
-  - Borçlu, kredi süresi boyunca belirli finansal rasyoları sağlamak ve korumakla
-    yükümlüdür. Bu kapsamda uyulması gereken borç servis kapsama oranı taahhüdü [[dscr_covenant]]
-    olarak belirlenmiştir.
-  - Finansal vaatlerin takibi amacıyla borçlu tarafından düzenli raporlama yapılacaktır.
-    Taahhütlerin ihlali durumunda genel sözleşme hükümleri ve ilgili mevzuat esas
-    alınır.
+  - '[[spv_name]] undertakes to comply with the debt service coverage covenant of
+    [[dscr_covenant]]. Compliance shall be tested and reported in the manner agreed
+    between the parties.'
+  - Any failure to meet this covenant shall be dealt with in accordance with the executed
+    documentation. The parties shall cooperate in good faith to address any such failure.
 - heading: 5. Governing Law
   paragraphs:
-  - İşbu sözleşme ve sözleşmeden doğan tüm hak ve yükümlülükler genel hukuk kurallarına
-    tabidir. Taraflar, doğabilecek uyuşmazlıkların çözümünde yetkili hukukun uygulanacağını
-    kabul ederler.
-  - Sözleşme hükümlerinin uygulanmasında ve yorumlanmasında ilgili mevzuat esas alınır.
-    Sözleşmede yapılacak her türlü değişiklik tarafların yazılı mutabakatına bağlıdır.
+  - This Agreement and any non-contractual matters arising from it shall be governed
+    by the law agreed between the parties in the executed documentation. The forum
+    for resolving disputes shall likewise be as agreed there.
+  - The parties shall first seek to resolve any dispute arising in connection with
+    [[document_no]] through good-faith discussion before resorting to formal proceedings.
