@@ -68,4 +68,23 @@ SPECS: dict[str, DocumentSpec] = {
         signature_roles_tr=["Hazırlayan: Kredi Operasyonları", "Onaylayan: Yetkili İmza"],
         subject_label_tr="İşletme Bütçesi — [[project_name]]",
     ),
+    # Adım 5 PF-1 LLM üretim planı (11.10.2026) — LLM prose (gerçek Gemini çağrısı).
+    "DOC-YSV-FIN-009": DocumentSpec(
+        doc_id="DOC-YSV-FIN-009",
+        family="agreement",
+        subtitle_tr="",
+        subtitle_en="Yeşilova RES Wind Power Project — Term Loan Facility (2023-YS)",
+        section_headings_tr=[],
+        section_headings_en=[
+            "1. Definitions and Interpretation",
+            "2. The Facility",
+            "3. Repayment",
+            "4. Financial Covenants",
+            "5. Governing Law",
+        ],
+        signature_roles_en=[
+            "For and on behalf of [[spv_name]] (Borrower) — Authorized Signatory",
+            "For and on behalf of [[counterparty]] (Lender) — Authorized Signatory",
+        ],
+    ),
 }

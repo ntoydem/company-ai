@@ -1,0 +1,53 @@
+doc_id: DOC-YSV-FIN-009
+model: gemini-3.5-flash
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Definitions and Interpretation
+  paragraphs:
+  - This facility agreement, designated under reference code [[document_no]], sets
+    forth the binding financial terms for the development and execution of [[project_name]].
+    The agreement is entered into as of [[document_date]] by and among [[parties_list]],
+    with formal execution status recorded as [[status_label]].
+  - Interpretation of this document shall strictly adhere to defined terms established
+    herein and within related transaction documentation. References to the borrower
+    shall specifically denote [[spv_name]], while financing obligations remain binding
+    upon [[counterparty]] as specified in the master framework.
+- heading: 2. The Facility
+  paragraphs:
+  - Subject to the terms of this agreement, the lenders agree to make available to
+    [[spv_name]] a term loan facility in an aggregate principal amount equal to [[total_debt]].
+    This credit facility is dedicated exclusively to funding eligible capital expenditure
+    requirements designated under [[capex]] for the completion of [[project_name]].
+  - The obligation of the borrower to draw upon the facility is contingent upon the
+    contribution of required sponsor equity amounting to [[equity]]. Interest shall
+    accrue on drawn balances at the benchmark rate plus [[margin_pct]] as governed
+    by the standard calculation mechanics detailed in the schedule.
+- heading: 3. Repayment
+  paragraphs:
+  - The outstanding principal under the facility shall be repaid by [[spv_name]] in
+    accordance with [[repayment_profile]]. All scheduled payments shall be made directly
+    to the account designated by [[counterparty]] on the specified payment dates.
+  - Early prepayments shall be processed pursuant to the terms outlined in the underlying
+    finance documents without penalty, provided advance notice is delivered. This
+    facility agreement shall become effective as of [[effective_date]] and remain
+    in force under document version [[version_label]].
+- heading: 4. Financial Covenants
+  paragraphs:
+  - Throughout the term of the facility, [[spv_name]] shall maintain compliance with
+    financial undertakings to ensure capital stability. Specifically, the debt service
+    coverage ratio shall be maintained at or above [[dscr_covenant]] calculated on
+    each calculation date.
+  - Failure to satisfy the required ratio covenants shall constitute an event of default
+    subject to applicable cure periods. The borrower shall regularly deliver compliance
+    certificates signed by authorized officers to [[counterparty]] confirming adherence
+    to these metrics.
+- heading: 5. Governing Law
+  paragraphs:
+  - This agreement and any non-contractual obligations arising out of or in connection
+    with it shall be governed by and construed in accordance with the relevant national
+    laws. The legal relations between [[spv_name]] and [[counterparty]] shall be interpreted
+    exclusively under this legal framework.
+  - Any dispute, controversy, or claim arising under this facility agreement shall
+    be submitted to the exclusive jurisdiction of the competent courts. All parties
+    irrevocably waive any objection to proceedings in such courts on the grounds of
+    venue or inconvenient forum.

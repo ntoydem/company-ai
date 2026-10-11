@@ -288,3 +288,26 @@ documents:
     confidentiality: normal
     generate_in_phase: "4.2"
     tag: AI_ASSUMPTION
+
+  # Adım 5 PF-1 LLM üretim planı (11.10.2026) — LLM prose (gerçek Gemini çağrısı).
+  - id: DOC-YSV-FIN-009
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Facility Agreement
+    name: {value: "Yeşilova RES Facility Agreement (2023-YS)", tag: AI_ASSUMPTION}
+    document_date: {value: 2023-06-03, tag: USER_FACT}
+    effective_date: {value: 2023-06-03, tag: USER_FACT}
+    expiration_date: null
+    version: EXECUTED
+    status: executed
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    key_facts: {total_debt: "project.finance.total_debt.value", margin_pct: "project.finance.interest.margin_pct.value", repayment_profile: "project.finance.repayment_profile.value", dscr_covenant: "project.finance.dscr_covenant.value", capex: "project.finance.capex.value", equity: "project.finance.equity.value"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-YSV-FIN-007]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION

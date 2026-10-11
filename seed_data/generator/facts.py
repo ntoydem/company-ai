@@ -96,6 +96,10 @@ _FIELD_KIND: dict[str, tuple[str, str]] = {
     "dsra_balance": ("money", ""),
     "debt_service_account_balance": ("money", ""),
     "insurance_expiry": ("date", ""),
+    # PF-1 LLM üretim planı (11.10.2026) — Yeşilova Facility Agreement/Annex F raporu.
+    "capex": ("money", ""),
+    "equity": ("money", ""),
+    "interest_paid": ("money", ""),
     "annex_f_request_date": ("date", ""),
     "annex_f_deadline": ("date", ""),
     "annex_f_reporting_year": ("number", ""),
