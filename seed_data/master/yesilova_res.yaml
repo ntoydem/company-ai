@@ -35,9 +35,13 @@ project:
     signed_date: 2023-06-03
     interest: {base: {value: "Term SOFR 3,89378%", tag: USER_FACT}, margin_pct: {value: 1.50, tag: USER_FACT}}
     total_debt: {value: 2352000, currency: USD, tag: USER_FACT}
-    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11.11/T-11.12): kurgu — santral özkaynakla
-    # inşa edildi; 2023-YS (2.352.000 USD) sonradan alınmış kısmi kredi, ana inşaat kredisi
-    # değil. 26.400.000 - 2.352.000 = 24.048.000 (birebir, bkz. ADIM5_T11_ETKI_RAPORU §2.4).
+    # Tansu'nun T-11.11 CEVABININ BİREBİR metni (docs/SORULAR_NACIDEN_3-2026-10-10.md,
+    # PR #18, ftansu/AI-BalBal): "Kurgu: santral özkaynakla inşa edildi; 2023-YS
+    # (2.352.000 USD) sonradan alınmış kısmi kredi, ana inşaat kredisi değil." Bu cümle
+    # Tansu'dan geliyor — SONRASINDA eklenen "banka[ya] sonradan başvurdu" gibi somut
+    # başvuru/müzakere anlatısı Tansu'nun cevabında YOK, LLM'in kendi eklemesiydi
+    # (11.10.2026, Claude denemesi) — Düzeltme D'de bu ayrıntı prose'dan çıkarıldı.
+    # 26.400.000 - 2.352.000 = 24.048.000 (birebir, bkz. ADIM5_T11_ETKI_RAPORU §2.4).
     capex: {value: 26400000, currency: USD, tag: USER_FACT, note: "ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026): T-11.11 cevabı."}
     equity: {value: 24048000, currency: USD, tag: USER_FACT, note: "ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026): T-11.12 cevabı — 26.400.000 - 2.352.000."}
     dscr_covenant: {value: 1.15, tag: USER_FACT, note: "Minimum eşik; tarihsel test sonucu artık covenant_tests'te (T-11.14, 11.10.2026)."}
