@@ -24,13 +24,25 @@ project:
   # gerçek adlara geri dönüldü (URUN1_KARARLAR_VE_SIRA.md §7.3/§7.4).
   turbines:
     model_generic: {value: "Vestas V136", tag: USER_FACT}
+    count: {value: 5, tag: USER_FACT, note: "ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026): T-11.13 cevabı — 4,4 MW modda, 5 x 4,4 = 22 MW (capacity_mw.current ile tutarlı)."}
   timeline: {}
 
   finance:
     lender: {value: "LMN Bank", tag: USER_FACT}
     interest: {base: {value: "Term SOFR 3,89378%", tag: USER_FACT}, margin_pct: {value: 1.50, tag: USER_FACT}}
     total_debt: {value: 2352000, currency: USD, tag: USER_FACT}
-    dscr_covenant: {value: 1.15, tag: USER_FACT, note: "Minimum eşik; tarihsel test sonucu verilmedi."}
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11.11/T-11.12): kurgu — santral özkaynakla
+    # inşa edildi; 2023-YS (2.352.000 USD) sonradan alınmış kısmi kredi, ana inşaat kredisi
+    # değil. 26.400.000 - 2.352.000 = 24.048.000 (birebir, bkz. ADIM5_T11_ETKI_RAPORU §2.4).
+    capex: {value: 26400000, currency: USD, tag: USER_FACT, note: "ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026): T-11.11 cevabı."}
+    equity: {value: 24048000, currency: USD, tag: USER_FACT, note: "ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026): T-11.12 cevabı — 26.400.000 - 2.352.000."}
+    dscr_covenant: {value: 1.15, tag: USER_FACT, note: "Minimum eşik; tarihsel test sonucu artık covenant_tests'te (T-11.14, 11.10.2026)."}
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11.14): yıllık test (31.12), Q4 ile
+    # kodlandı (CovenantTest.period şeması çeyreklik — not alanı yok). 2025 sonucu
+    # Annex F raporlama yılıyla (annex_f_reporting_year) uyumlu.
+    covenant_tests:
+      - {period: Q4_2024, dscr: 3.9, result: pass, doc: null, tag: USER_FACT}
+      - {period: Q4_2025, dscr: 3.6, result: pass, doc: null, tag: USER_FACT}
     dsra_balance: {value: 702000, currency: USD, tag: USER_FACT}
     debt_service_account_balance: {value: 84500, currency: USD, tag: USER_FACT}
     repayment_profile: {value: "Equal principal (98.000 USD), quarterly, 24 instalments", tag: USER_FACT}
