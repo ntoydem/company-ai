@@ -20,6 +20,10 @@ class ExtraTable:
     heading_tr: str
     heading_en: str
     kind: Literal["covenant_tests", "monthly_production", "pending_steps"]
+    # Adım 5 PF-1 LLM üretim planı (11.10.2026): hangi ledger'dan okunacak — "covenant_tests"
+    # kind'i başta yalnız Karatepe (ankara_res) için yazılmıştı (hardcoded); Yeşilova'nın
+    # Annex F raporu aynı tabloyu PAYLAŞIYOR ama kendi verisiyle (SORU 4 kararı).
+    ledger_key: str = "ankara_res"
 
 
 @dataclass(frozen=True)

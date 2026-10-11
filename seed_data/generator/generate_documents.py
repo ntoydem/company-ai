@@ -82,8 +82,13 @@ def substitute_sections(
     return sections
 
 
-def _covenant_table(raws: dict[str, Any], language: str) -> dict[str, Any]:
-    tests = raws["ankara_res"]["project"]["finance"]["covenant_tests"][-4:]
+def _covenant_table(raws: dict[str, Any], language: str, ledger_key: str) -> dict[str, Any]:
+    """Adım 5 PF-1 LLM üretim planı (11.10.2026): `ledger_key` eklendi — başta yalnız
+    Karatepe (ankara_res) için yazılmıştı (hardcoded); Yeşilova'nın Annex F raporu aynı
+    tabloyu kendi `covenant_tests`'iyle paylaşıyor (SORU 4 kararı), Karatepe'nin 3 mevcut
+    Covenant Report belgesi `ExtraTable.ledger_key` default'uyla (ankara_res) değişmeden
+    çalışıyor."""
+    tests = raws[ledger_key]["project"]["finance"]["covenant_tests"][-4:]
     rows = [
         [t["period"], facts_mod.format_value("dscr", t["dscr"], language), t["result"].capitalize()]
         for t in tests
@@ -91,8 +96,8 @@ def _covenant_table(raws: dict[str, Any], language: str) -> dict[str, Any]:
     return {"columns": _COVENANT_COLUMNS[language], "rows": rows}
 
 
-def _production_table(raws: dict[str, Any], language: str) -> dict[str, Any]:
-    rows_data = raws["ankara_res"]["project"]["operations"]["monthly_production"][-6:]
+def _production_table(raws: dict[str, Any], language: str, ledger_key: str) -> dict[str, Any]:
+    rows_data = raws[ledger_key]["project"]["operations"]["monthly_production"][-6:]
     rows = [
         [
             r["month"],
@@ -105,8 +110,8 @@ def _production_table(raws: dict[str, Any], language: str) -> dict[str, Any]:
     return {"columns": _PRODUCTION_COLUMNS[language], "rows": rows}
 
 
-def _pending_steps_table(raws: dict[str, Any], language: str) -> dict[str, Any]:
-    steps = raws["izmir_res"]["project"]["development"]["pending_steps"]
+def _pending_steps_table(raws: dict[str, Any], language: str, ledger_key: str) -> dict[str, Any]:
+    steps = raws[ledger_key]["project"]["development"]["pending_steps"]
     rows = [[s["step"], s.get("expected") or "—"] for s in steps]
     return {"columns": _PENDING_COLUMNS[language], "rows": rows}
 
@@ -218,7 +223,7 @@ def _build_document(
     sections = substitute_sections(prose["sections"], facts)
 
     if spec.extra_table is not None:
-        table = _TABLE_BUILDERS[spec.extra_table.kind](raws, language)
+        table = _TABLE_BUILDERS[spec.extra_table.kind](raws, language, spec.extra_table.ledger_key)
         heading = spec.extra_table.heading_tr if language == "tr" else spec.extra_table.heading_en
         sections.append({"heading": heading, "paragraphs": [], "table": table})
 

@@ -32,7 +32,10 @@ SPECS: dict[str, DocumentSpec] = {
         section_headings_tr=["Süreç Durumu", "Bekleyen Adımlar"],
         section_headings_en=[],
         extra_table=ExtraTable(
-            heading_tr="Bekleyen Kritik Adımlar", heading_en="", kind="pending_steps"
+            heading_tr="Bekleyen Kritik Adımlar",
+            heading_en="",
+            kind="pending_steps",
+            ledger_key="izmir_res",
         ),
         signature_roles_tr=["Hazırlayan: Çevre ve İzinler Uzmanı", "Onaylayan: Proje Müdürü"],
         subject_label_tr="ÇED Süreci Durum Bilgisi — [[project_name]]",

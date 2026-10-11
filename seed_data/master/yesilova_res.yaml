@@ -311,3 +311,28 @@ documents:
     confidentiality: normal
     generate_in_phase: "5.1"
     tag: AI_ASSUMPTION
+
+  # Adım 5 PF-1 LLM üretim planı (11.10.2026) — LLM prose (3. Gemini çağrısı). 2025
+  # raporlama yılı; Annex F talep e-postasıyla (DOC-YSV-FIN-002, 14.09.2026) istendi,
+  # demo_today (06.10.2026) itibarıyla henüz teslim edilmemiş -> status: draft.
+  - id: DOC-YSV-FIN-010
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Covenant Report
+    name: {value: "Yeşilova RES Annex F Raporu (2025)", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-10-01, tag: AI_ASSUMPTION, note: "Talep (14.09.2026) ile son gün (14.10.2026) arasında, demo_today (06.10.2026) öncesi; raporun kendi hazırlanma tarihi verilmedi. Taslak, henüz gönderilmedi."}
+    effective_date: null
+    expiration_date: null
+    version: "2025"
+    status: draft
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    key_facts: {dscr: "project.finance.covenant_tests[1].dscr", covenant_result: "project.finance.covenant_tests[1].result", interest_paid: "project.finance.interest_paid_by_year[0].amount.value", annex_f_reporting_year: "project.finance.annex_f_reporting_year"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-YSV-FIN-002]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
+    tag: AI_ASSUMPTION

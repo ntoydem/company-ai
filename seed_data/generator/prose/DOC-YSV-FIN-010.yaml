@@ -1,0 +1,25 @@
+doc_id: DOC-YSV-FIN-010
+model: gemini-3.5-flash
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Purpose and Scope
+  paragraphs:
+  - This report sets forth the annual review under the designated schedule for [[project_name]]
+    as managed by [[spv_name]]. It provides the regulatory and contractual financial
+    evaluation corresponding to [[annex_f_reporting_year]]. The contents strictly
+    align with document reference [[document_no]] and reflect the terms agreed among
+    [[parties_list]].
+  - The primary objective is to verify compliance parameters established on [[effective_date]]
+    between the enterprise and [[counterparty]]. This submission represents [[version_label]]
+    of the formal compliance record. It serves as an official confirmation of financial
+    standing as of [[document_date]].
+- heading: 2. Compliance Summary
+  paragraphs:
+  - During the evaluation period, the operational entity monitored key ratio indicators,
+    specifically tracking the achieved debt service coverage ratio of [[dscr]]. Total
+    interest obligations processed were recorded as [[interest_paid]]. These figures
+    demonstrate the overall performance under [[title]].
+  - Based on the current assessments, the project maintains a formal designation of
+    [[status_label]]. The final covenant evaluation yields an outcome recorded as
+    [[covenant_result]]. All participating stakeholders listed in [[parties_list]]
+    have been notified accordingly.

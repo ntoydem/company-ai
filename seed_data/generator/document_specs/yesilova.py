@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from seed_data.generator.document_specs._base import DocumentSpec
+from seed_data.generator.document_specs._base import DocumentSpec, ExtraTable
 
 SPECS: dict[str, DocumentSpec] = {
     "DOC-YSV-FIN-001": DocumentSpec(
@@ -86,5 +86,20 @@ SPECS: dict[str, DocumentSpec] = {
             "For and on behalf of [[spv_name]] (Borrower) — Authorized Signatory",
             "For and on behalf of [[counterparty]] (Lender) — Authorized Signatory",
         ],
+    ),
+    "DOC-YSV-FIN-010": DocumentSpec(
+        doc_id="DOC-YSV-FIN-010",
+        family="report",
+        subtitle_tr="",
+        subtitle_en="Yeşilova RES — Annex F Compliance Report (Reporting Year 2025)",
+        section_headings_tr=[],
+        section_headings_en=["1. Purpose and Scope", "2. Compliance Summary"],
+        extra_table=ExtraTable(
+            heading_tr="",
+            heading_en="3. Covenant Test History",
+            kind="covenant_tests",
+            ledger_key="yesilova_res",
+        ),
+        signature_roles_en=["Prepared by: Finance Officer", "Reviewed by: Lender's Agent"],
     ),
 }
