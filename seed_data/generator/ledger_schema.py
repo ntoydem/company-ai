@@ -333,7 +333,11 @@ class Finance(_Strict):
     # Single-lender facilities (Yeşilova, Boztepe) that don't split local/ECA.
     lender: Fact | None = None
     interest: Interest | SingleLenderInterest | None = None
-    tenor_years: ChangedFact | None = None
+    # Adım 5 T-11 (11.10.2026): Boztepe's tenor never changed (single value, no amendment
+    # history) — loosened to accept a plain `Fact` too, same reasoning as `dscr_covenant`
+    # below (forcing a never-changed value into `ChangedFact` would need a fabricated
+    # `changed_by` document reference).
+    tenor_years: ChangedFact | Fact | None = None
     grace_months: Fact | None = None
     repayment_profile: Fact | None = None
     dscr_covenant: ChangedFact | Fact | None = None

@@ -1,6 +1,7 @@
 # Boztepe RES — truth ledger (Adım 5 Aşama C, 10.10.2026, NACI_CEVAP_2026-10-08.md §3)
-# Tansu çok az veri verdi (yalnız aylık faiz tutarı + iki tarih) — total_debt, DSCR, DSRA,
-# tenor hiçbiri verilmedi; hiçbiri icat edilmedi, hepsi unset/pending (bkz. §4 raporu).
+# Aşama C'de Tansu yalnız aylık faiz tutarı + iki tarih vermişti; total_debt/DSCR/DSRA/
+# tenor/faiz oranı T-11.6-10 ile 11.10.2026'da (ÜRÜN SAHİBİ ONAYLI) işlendi — bkz.
+# docs/reports/ADIM5_T11_ETKI_RAPORU.md.
 meta:
   schema_version: 1
   demo_today: 2026-10-06
@@ -22,10 +23,16 @@ project:
   timeline: {}
 
   finance:
-    lender: {value: "PQR Bank", tag: USER_FACT, note: "2024-BZ, USD kredi — Garanti BBVA'nın kurgusal karşılığı (Ç-12 bekliyor)."}
-    # Tansu yalnız aylık faiz TUTARINI verdi (84.300 USD), ne toplam kredi tutarını ne de
-    # faiz oranını — ikisi de uydurulmadı, bkz. ADIM5_ASAMA_C_REPORT.md §4.
-    repayment_profile: {value: "Interest-only (monthly); principal amount not given", tag: USER_FACT}
+    lender: {value: "PQR Bank", tag: USER_FACT, note: "2024-BZ, USD kredi — Garanti BBVA'nın kurgusal karşılığı (Ç-12 bekliyor). ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026): imza Mayıs 2024 (T-11.7 cevabı)."}
+    total_debt: {value: 15000000, currency: USD, tag: USER_FACT, note: "ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026): T-11.6 cevabı."}
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11.7): faiz swap ile sabitlenmiş, %3,894
+    # (swap) + %2,85 (marj) = %6,744 sabit. 15.000.000 x %6,744 / 12 = 84.300,00 USD —
+    # mevcut repayment_schedule'daki aylık faiz tutarıyla (aşağıda) birebir tutuyor.
+    interest: {base: {value: "Swap sabit %3,894", tag: USER_FACT}, margin_pct: {value: 2.85, tag: USER_FACT}}
+    tenor_years: {value: 10, tag: USER_FACT, note: "ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026): T-11.8 cevabı. Tenor hiç değişmedi (tek değer, ChangedFact değil)."}
+    dscr_covenant: {value: 1.20, tag: USER_FACT, note: "ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026): T-11.9 cevabı — Karatepe ile aynı banka, aynı politika."}
+    dsra_balance: {value: 505800, currency: USD, tag: USER_FACT, note: "ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026): T-11.10 cevabı — 6 aylık borç servisi = 6 x 84.300."}
+    repayment_profile: {value: "ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026): ilk 3 yıl yalnız faiz (imza Mayıs 2024'ten); anapara Mayıs 2027'den itibaren aylık eşit taksitlerle.", tag: USER_FACT}
     repayment_schedule:
       - {date: 2026-10-01, principal: {value: 0, currency: USD, tag: USER_FACT, note: "Son ödenen aylık faiz (NACI_CEVAP §3.2)."}, interest: {value: 84300, currency: USD, tag: USER_FACT}, tag: USER_FACT}
       - {date: 2026-11-02, principal: {value: 0, currency: USD, tag: USER_FACT, note: "Sıradaki ödeme; tutar Tansu'nun verdiği sabit aylık faiz (01.11 pazar olduğu için 02.11'e kaymış)."}, interest: {value: 84300, currency: USD, tag: USER_FACT}, tag: USER_FACT}
