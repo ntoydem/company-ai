@@ -121,11 +121,26 @@ def test_izmir_post_licence_fields_must_be_null(tmp_path: Path) -> None:
     assert _has(_run(_mutated(tmp_path, "izmir_res.yaml", fill_licence)), "I1")
 
 
-def test_izmir_cannot_carry_finance_documents(tmp_path: Path) -> None:
+def test_izmir_cannot_carry_finance_documents_without_a_signed_facility(tmp_path: Path) -> None:
+    def add_finance_doc(data: dict[str, Any]) -> None:
+        data["documents"][0]["type"] = "Facility Agreement"
+        del data["project"]["signed_undrawn_facility"]
+
+    assert _has(_run(_mutated(tmp_path, "izmir_res.yaml", add_finance_doc)), "I2")
+
+
+def test_izmir_with_a_signed_facility_may_carry_a_facility_agreement_document(
+    tmp_path: Path,
+) -> None:
+    """Düzeltme (Adım 5 PF-1 LLM üretim planı, 11.10.2026): I2 artık yalnız
+    `signed_undrawn_facility` YOKSA tetikleniyor — Kızılova'nın gerçek, Tansu onaylı
+    imzalı-kullanılmamış kredisi (Aşama C4) varken bir Facility Agreement belgesi
+    (DOC-IZM-FIN-004, bu turda üretildi) artık hata değil."""
+
     def add_finance_doc(data: dict[str, Any]) -> None:
         data["documents"][0]["type"] = "Facility Agreement"
 
-    assert _has(_run(_mutated(tmp_path, "izmir_res.yaml", add_finance_doc)), "I2")
+    assert not _has(_run(_mutated(tmp_path, "izmir_res.yaml", add_finance_doc)), "I2")
 
 
 # --- kabul kriteri: her tutarda para birimi ------------------------------------------
