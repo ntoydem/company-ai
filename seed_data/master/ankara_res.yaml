@@ -651,7 +651,9 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["Karatepe RES Enerji Üretim A.Ş."]
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-13.2): karşı taraf — Karatepe Köyü tüzel
+    # kişiliği (köy muhtarlığı adına muhtar temsil eder).
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Karatepe Köyü tüzel kişiliği"]
     key_facts: {}
     supersedes: null
     superseded_by: null

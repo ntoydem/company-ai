@@ -317,7 +317,9 @@ documents:
     expiration_date: null
     version: DRAFT
     status: draft
-    parties: ["Kızılova RES Enerji Üretim A.Ş."]
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-13.2): 3 parsel maliki — kira imzalı/tapu
+    # şerhi bekliyor, taslak.
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "Hasan Yücel", "Mehmet Karadağ", "Ayten Sarı"]
     key_facts: {}
     supersedes: null
     superseded_by: null

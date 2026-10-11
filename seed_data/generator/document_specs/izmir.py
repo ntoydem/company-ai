@@ -107,20 +107,21 @@ SPECS: dict[str, DocumentSpec] = {
         subtitle_en="",
         section_headings_tr=["1. Hakkın Kapsamı", "2. Yürürlük ve Genel Hükümler"],
         section_headings_en=[],
-        # Düzeltme (11.10.2026, Naci onaylı — T-13.2 sorulacak): ledger'da tek taraf var
-        # (gerçek karşı taraf bilinmiyor) — eski üretim [[counterparty]]'yi SPV'ye düşürüp
-        # "... ile ... arasında akdedilmiştir" yazmıştı, HEM belge draft olduğu halde
-        # kesinleşmiş dil ("akdedilmiştir") kullanmıştı. İki sorun birlikte düzeltildi.
+        # Düzeltme (11.10.2026, Naci onaylı): eski üretim [[counterparty]]'yi SPV'ye
+        # düşürüp "... ile ... arasında akdedilmiştir" yazmıştı, HEM belge draft olduğu
+        # halde kesinleşmiş dil kullanmıştı. T-13.2 (Tansu, 11.10.2026) 3 malik verdi —
+        # [[counterparty]] bunlardan yalnız BİRİNİ seçerdi (ilk other_party); 3 malikin
+        # hepsi için [[parties_list]] kullanılıyor, [[counterparty]] suppress edildi.
         signature_roles_tr=["İmza: [[spv_name]] Yetkilisi"],
         prose_suppress_facts=frozenset({"counterparty"}),
         prose_guidance_tr=(
             "Bu belge TASLAKTIR, henüz imzalanmamıştır — 'akdedilmiştir', 'bağlayıcı "
             "nitelik kazanacaktır', 'yürürlüğe girmiştir' gibi KESİNLEŞMİŞ/tamamlanmış "
             "ifadeler YASAK; 'taslak', 'imzalanacak', 'imza için hazırlanmıştır' gibi "
-            "taslak/ileri-zaman dili kullan. Karşı tarafın kimliği ledger'da yok — "
-            "[[counterparty]] token'ı hiç kullanılmayacak, karşı tarafın adı veya "
-            "kimliği hiçbir cümlede belirtilmeyecek. Token'la verilmeyen somut bir "
-            "hüküm icat etme."
+            "taslak/ileri-zaman dili kullan. Karşı taraf 3 parsel malikidir — bunlardan "
+            "söz ederken [[parties_list]] kullan (hepsini listeler), [[counterparty]] "
+            "KULLANMA (yalnız birini seçer, diğer ikisini dışlar). Token'la verilmeyen "
+            "somut bir hüküm icat etme."
         ),
     ),
     "DOC-IZM-LEG-003": DocumentSpec(

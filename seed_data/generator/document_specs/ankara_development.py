@@ -67,21 +67,15 @@ SPECS: dict[str, DocumentSpec] = {
         subtitle_en="",
         section_headings_tr=["1. Kullanım Hakkının Kapsamı", "2. Yürürlük ve Genel Hükümler"],
         section_headings_en=[],
-        # Düzeltme (11.10.2026, Naci onaylı — T-13.2 sorulacak): ledger'da tek taraf var
-        # (gerçek karşı taraf bilinmiyor) — eski üretim [[counterparty]] token'ını SPV'nin
-        # kendisine düşürüp "Karatepe RES Enerji Üretim A.Ş. ile ... imzalanan" gibi
-        # kendiyle-sözleşme cümleleri yazmıştı; imza sayfası da aynı şirketi iki kez
-        # imzalatıyordu. Karşı taraf adı UYDURULMADAN: token suppress edildi, tek imza
-        # satırı bırakıldı.
-        signature_roles_tr=["İmza: [[spv_name]] Yetkilisi"],
-        prose_suppress_facts=frozenset({"counterparty"}),
+        # Düzeltme (11.10.2026, Naci onaylı): eski üretim [[counterparty]] token'ını
+        # SPV'nin kendisine düşürüp kendiyle-sözleşme cümleleri yazmıştı (imza sayfası
+        # da aynı şirketi iki kez imzalatıyordu). T-13.2 (Tansu, 11.10.2026) karşı
+        # tarafı verdi — Karatepe Köyü tüzel kişiliği — artık gerçek bir isim var.
+        signature_roles_tr=["İmza: [[spv_name]] Yetkilisi", "İmza: [[counterparty]] Muhtarı"],
         prose_guidance_tr=(
-            "Bu belgenin karşı tarafının kimliği ledger'da yok — [[counterparty]] "
-            "token'ı hiç kullanılmayacak, karşı tarafın adı veya kimliği hiçbir cümlede "
-            "belirtilmeyecek. Belge yürürlükte/imzalanmış statüsünde; kullanım hakkının "
-            "[[spv_name]] için tesis edildiğini geçmiş zamanla anlat, ama 'taraflar' veya "
-            "belirli bir karşı taraf ima eden bir ifade kullanma. Token'la verilmeyen "
-            "somut bir hüküm icat etme."
+            "Belge yürürlükte/imzalanmış statüsünde; kullanım hakkının [[spv_name]] "
+            "için [[counterparty]] tarafından tesis edildiğini geçmiş zamanla anlat. "
+            "Token'la verilmeyen somut bir hüküm icat etme."
         ),
     ),
 }
