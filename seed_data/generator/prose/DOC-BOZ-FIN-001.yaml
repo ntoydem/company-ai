@@ -1,0 +1,41 @@
+doc_id: DOC-BOZ-FIN-001
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Recitals
+  paragraphs:
+  - 'This document, [[title]] (reference [[document_no]], [[version_label]]), is made
+    between the parties listed as follows: [[parties_list]]. The borrowing entity
+    is [[spv_name]], which holds the [[project_name]] project, and the lending side
+    is represented by [[counterparty_list]].'
+  - The [[project_name]] plant reached commercial operation on [[cod_actual]], before
+    this Facility came into existence. The Facility in the amount of [[total_debt]]
+    was signed on [[signed_date]] and takes effect on [[effective_date]].
+  - The Parties record that the document currently carries the status [[status_label]]
+    and is dated [[document_date]].
+- heading: 2. The Facility
+  paragraphs:
+  - The total amount of the Facility is [[total_debt]], made available to [[spv_name]]
+    by [[counterparty]] on the terms of this Agreement. The tenor of the Facility
+    is [[tenor_years]].
+  - The interest rate applicable to the Facility is [[effective_rate_pct_en]].
+  - A debt service reserve account is maintained for the Facility. Its balance of
+    [[dsra_balance]] is a fixed amount equal to six periods of debt service.
+- heading: 3. Repayment
+  paragraphs:
+  - 'The Facility shall be repaid in accordance with the following repayment structure:
+    [[repayment_profile_en]].'
+  - The Borrower shall make each payment in accordance with this structure and the
+    other provisions of this Agreement.
+- heading: 4. Financial Covenants
+  paragraphs:
+  - 'The Borrower shall comply with the following minimum debt service coverage requirement
+    throughout the life of the Facility: [[dscr_covenant]].'
+  - This requirement is a minimum standard to be observed by the Borrower. Its measurement
+    and reporting shall follow the provisions of the Facility documentation.
+- heading: 5. Governing Law
+  paragraphs:
+  - This Agreement, and any matter arising out of or in connection with it, shall
+    be governed by the law designated by the Parties in the Facility documentation.
+  - Any dispute shall be resolved in the manner provided for in the Facility documentation
+    and agreed between the Parties.

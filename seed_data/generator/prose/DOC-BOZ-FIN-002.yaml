@@ -1,0 +1,28 @@
+doc_id: DOC-BOZ-FIN-002
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: Faiz Tutarı
+  paragraphs:
+  - Bu bildirim, [[project_name]] kapsamında [[spv_name]] tarafından [[counterparty]]
+    lehine ödenecek aylık faiz tutarını göstermek amacıyla hazırlanmıştır. Bildirime
+    konu faiz tutarı [[bank_interest_notice_amount]] olarak belirlenmiş olup bildirim
+    tarihi [[bank_interest_notice_date]] şeklindedir.
+  - Uygulanan efektif faiz oranı [[effective_rate_pct_tr]] olarak esas alınmıştır.
+    Söz konusu tutar, ilgili finansman düzenlemesinde yer alan hükümler çerçevesinde
+    ve ilgili taksit dönemi için hesaplanmıştır.
+  - Bu belge, [[document_no]] numaralı kayıt olarak [[document_date]] tarihinde düzenlenmiş
+    olup [[version_label]] sürümündedir. Belgenin güncel durumu [[status_label]] olarak
+    kayıtlara geçirilmiştir.
+- heading: Bilgilendirme
+  paragraphs:
+  - Bu bildirim, [[title]] başlığı altında ilgili taraflara bilgi verilmesi amacıyla
+    hazırlanmıştır. Taraflar [[parties_list]] olarak kayıtlıdır; finansman tarafındaki
+    ilgili kuruluşlar ise [[counterparty_list]] şeklindedir.
+  - Bildirimde yer alan tutar ve oran, ilgili sözleşme hükümleri ile uygulanabilir
+    mevzuat çerçevesinde değerlendirilmelidir. Herhangi bir uyuşmazlık veya düzeltme
+    ihtiyacı bulunması hâlinde, ilgili taraflar durumu makul bir süre içinde ve yazılı
+    olarak karşı tarafa iletmelidir.
+  - Bu belge demo amaçlıdır ve gerçek bir ödeme yükümlülüğü ya da hukuki taahhüt oluşturmaz.
+    Belgeye ilişkin her türlü bilgi talebi, belge numarası belirtilerek ilgili taraflara
+    yöneltilebilir.

@@ -1,0 +1,25 @@
+doc_id: DOC-BOZ-FIN-003
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: Hesap Bakiyesi
+  paragraphs:
+  - Bu ekstre, [[project_name]] kapsamında [[spv_name]] adına tutulan borç servis
+    rezerv hesabının (DSRA) ilgili dönem itibarıyla durumunu göstermek üzere hazırlanmıştır.
+    Belge, [[document_no]] numarası ve [[version_label]] sürümü ile [[document_date]]
+    tarihinde düzenlenmiştir.
+  - Hesabın ilgili dönem sonu itibarıyla kayıtlı bakiyesi [[dsra_balance]] olarak
+    belirtilmiştir. Bu tutar, finansman belgelerinde öngörülen rezerv yükümlülüğünün
+    izlenmesi amacıyla esas alınmaktadır.
+  - Belgenin mevcut durumu [[status_label]] olarak kaydedilmiştir. Taraflar arasındaki
+    ilgili hesap hareketleri bu bakiye çerçevesinde değerlendirilir.
+- heading: Bilgilendirme
+  paragraphs:
+  - Bu ekstre, [[title]] başlığı altında yalnızca bilgilendirme amacıyla hazırlanmış
+    kurgusal bir demo belgedir. Gerçek bir hesap hareketini veya hukuki bir taahhüdü
+    temsil etmez.
+  - Belgede yer alan bilgiler, [[parties_list]] arasındaki ilişkiler bakımından genel
+    bir çerçeve sunmaktadır. Karşı taraf olarak [[counterparty]] ile birlikte ilgili
+    diğer taraflar ([[counterparty_list]]) bu belgeyi bilgi için inceleyebilir.
+  - Belgeye ilişkin her türlü soru veya düzeltme talebi, yürürlükteki finansman belgelerinde
+    öngörülen usullere uygun olarak ilgili taraflara iletilmelidir.
