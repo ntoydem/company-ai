@@ -2,50 +2,41 @@ doc_id: DOC-YSV-FIN-009
 model: claude-sonnet-5-5
 tag: AI_ASSUMPTION
 sections:
-- heading: '1. Recitals (Past Tense: the Project Was Already Built and Funded by Equity
-    Alone)'
+- heading: 1. Recitals
   paragraphs:
-  - This Agreement, identified as [[document_no]] and titled [[title]], is dated [[document_date]]
-    and is made between the parties listed as [[parties_list]]. It is currently at
-    the status [[status_label]], version [[version_label]].
-  - '[[spv_name]] developed and constructed the [[project_name]] wind power plant.
-    The construction was completed before this Agreement was entered into, and the
-    plant had already been built.'
-  - The total investment cost of [[capex]] was funded entirely by the sponsors' own
-    contribution of [[equity]]. No third-party debt financing was used at that stage.
-  - Following completion of the plant, [[spv_name]] later approached [[counterparty]]
-    for a separate financing. This Agreement records the terms of that later financing.
-- heading: 2. The Facility (a Separate, Later, Partial Financing; Never Capex or Equity
-    Here)
+  - This agreement, titled [[title]] and registered as [[document_no]], is dated [[document_date]]
+    and is made between [[parties_list]]. It is issued as [[version_label]] and carries
+    the status [[status_label]].
+  - '[[spv_name]] owns and operates the [[project_name]], whose total capital expenditure
+    amounts to [[capex]]. The plant was constructed and brought into operation before
+    this Facility existed.'
+  - The Facility is a subsequent, partial term loan extended by [[counterparty]] in
+    relation to the plant. It is documented on the terms set out in this Agreement.
+- heading: 2. The Facility
   paragraphs:
-  - '[[counterparty]] makes available to [[spv_name]] a term facility in a total principal
-    amount of [[total_debt]] (the Facility). The Facility is a separate and subsequent
-    arrangement, and it covers only part of the financing position of the [[project_name]].'
-  - Interest on the Facility accrues at a margin of [[margin_pct]] over the applicable
-    reference rate. Other pricing terms are as agreed between the parties in the executed
-    documentation.
-  - The Facility takes effect on [[effective_date]]. The conditions for drawing and
-    the use of proceeds are set out in the executed documentation and are not restated
-    here.
+  - The Facility is a term loan made available to [[spv_name]] under this Agreement
+    with effect from [[effective_date]]. The total debt amount referred to in this
+    Agreement is [[total_debt]].
+  - Interest on the Facility accrues at the applicable reference rate plus a margin
+    of [[margin_pct]]. Further details of interest and payment mechanics are governed
+    by the operative provisions of this Agreement.
 - heading: 3. Repayment
   paragraphs:
-  - '[[spv_name]] shall repay the Facility in accordance with the following repayment
-    profile: [[repayment_profile]]. Each repayment shall be made on the dates and
-    in the manner agreed between the parties.'
-  - Any matter relating to repayment that is not expressly addressed by the repayment
-    profile shall be dealt with as provided in the executed documentation, or otherwise
-    by agreement between the parties.
+  - 'The Facility shall be repaid in accordance with the following repayment profile:
+    [[repayment_profile]]. The Borrower shall make each repayment in line with that
+    profile and the payment provisions of this Agreement.'
+  - Any matter relating to repayment that is not expressly addressed in this section
+    shall be dealt with under the general terms of this Agreement.
 - heading: 4. Financial Covenants
   paragraphs:
-  - '[[spv_name]] undertakes to comply with the debt service coverage covenant of
-    [[dscr_covenant]]. Compliance shall be tested and reported in the manner agreed
-    between the parties.'
-  - Any failure to meet this covenant shall be dealt with in accordance with the executed
-    documentation. The parties shall cooperate in good faith to address any such failure.
+  - The Borrower undertakes to comply with the debt service coverage covenant of [[dscr_covenant]].
+    Compliance shall be assessed in the manner provided for in this Agreement.
+  - The Borrower shall provide the financial information reasonably required to verify
+    compliance with this covenant. The consequences of any non-compliance are as set
+    out in the general provisions of this Agreement.
 - heading: 5. Governing Law
   paragraphs:
-  - This Agreement and any non-contractual matters arising from it shall be governed
-    by the law agreed between the parties in the executed documentation. The forum
-    for resolving disputes shall likewise be as agreed there.
-  - The parties shall first seek to resolve any dispute arising in connection with
-    [[document_no]] through good-faith discussion before resorting to formal proceedings.
+  - This Agreement and any non-contractual obligations arising from it are governed
+    by the law agreed between the parties in the executed version of the Agreement.
+  - Disputes arising in connection with this Agreement shall be resolved in accordance
+    with the dispute resolution provisions agreed between the parties.

@@ -53,7 +53,11 @@ project:
       - {period: Q4_2025, dscr: 3.6, result: pass, doc: null, tag: USER_FACT}
     dsra_balance: {value: 702000, currency: USD, tag: USER_FACT}
     debt_service_account_balance: {value: 84500, currency: USD, tag: USER_FACT}
-    repayment_profile: {value: "Equal principal (98.000 USD), quarterly, 24 instalments", tag: USER_FACT}
+    # Düzeltme C (11.10.2026, Naci): değer DOC-YSV-FIN-009'un (language: en) tek kullanıcısı
+    # — "98.000" TR biçimiydi, EN belgede "98,000" olmalı (kök neden: bu alan `("text", "")`
+    # kind'inde, facts.py'nin dil-duyarlı _format_money'sinden GEÇMİYOR — capex/equity/
+    # total_debt gibi money-kind alanlar doğru biçimlendi, bu serbest metin yanlış yazılmıştı).
+    repayment_profile: {value: "Equal principal (98,000 USD), quarterly, 24 instalments", tag: USER_FACT}
     # 24 taksit, eşit anapara 98.000 USD, 14.04.2024'ten 14.01.2030'a 3 aylık — tarihler
     # mekanik olarak türetildi; Tansu'nun 3 çapa noktası tam örtüşüyor (#11 öncesi
     # 1.372.000 = 2.352.000 - 10×98.000; 2025 yıl sonu 1.666.000 = 2.352.000 - 7×98.000;
@@ -306,7 +310,12 @@ documents:
     version: EXECUTED
     status: executed
     parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
-    key_facts: {total_debt: "project.finance.total_debt.value", margin_pct: "project.finance.interest.margin_pct.value", repayment_profile: "project.finance.repayment_profile.value", dscr_covenant: "project.finance.dscr_covenant.value", capex: "project.finance.capex.value", equity: "project.finance.equity.value"}
+    # Düzeltme D (11.10.2026, Naci onaylı): `equity` key_facts'ten ÇIKARILDI — prose bu
+    # round'da equity cümlesi yazmıyor (prose_suppress_facts, T-13.1 cevabı bekleniyor),
+    # G4 ("her key_facts değeri PDF metninde olmalı") equity burada deklare edilip
+    # kullanılmazsa patlar. T-13.1 cevaplanınca equity hem prose_suppress_facts'ten hem
+    # buradan geri eklenecek.
+    key_facts: {total_debt: "project.finance.total_debt.value", margin_pct: "project.finance.interest.margin_pct.value", repayment_profile: "project.finance.repayment_profile.value", dscr_covenant: "project.finance.dscr_covenant.value", capex: "project.finance.capex.value"}
     supersedes: null
     superseded_by: null
     related: [DOC-YSV-FIN-007]
