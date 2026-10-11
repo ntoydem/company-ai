@@ -17,17 +17,17 @@ project:
       # GHI Yatırım A.Ş.'s historical 20% was bought out before the demo's present day.
       - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT}, share_pct: {value: 100, tag: USER_FACT}}
   capacity_mw:
-    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11.1): 21 MW (22'nin türbin aritmetiğiyle
-    # tutmadığı gerekçesiyle) — tadil 7 türbinden 8 türbine çıkış olarak kurgulandı (7x3,0=21,
-    # 8x3,0=24). "7->8 türbin" anlatısı HİÇBİR belgede şu an metin olarak yok (yalnız
-    # [[capacity_mw]] token'ı var, turbines.count'ın kendisi initial/current ayrımı
-    # taşımıyor) — DOC-ANK-DEV-001/002'ye bu anlatıyı eklemek yeni şema + yeni prose
-    # cümlesi gerektirir, bu round'da UYGULANMADI (raporlandı, bkz. ADIM5_T11_ETKI_RAPORU
-    # ve bu adımın commit mesajı).
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11.1): 21 MW — tadil 7 türbinden 8 türbine
+    # çıkış olarak kurgulandı (7x3,0=21, 8x3,0=24). Düzeltme (aynı gün, 2. tur): "7->8
+    # türbin" anlatısı artık turbines.count_initial/count üzerinden token olarak var —
+    # DOC-ANK-DEV-002'nin anlatısına eklendi.
     initial: {value: 21, tag: USER_FACT, source_doc: DOC-ANK-DEV-001}
     current: {value: 24, tag: USER_FACT, source_doc: DOC-ANK-DEV-002}
   turbines:
     count: {value: 8, tag: USER_FACT}
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11.1): kapasite tadiliyle (21->24 MW)
+    # birlikte 7->8 türbine çıkış — DOC-ANK-DEV-002'nin anlatısı için.
+    count_initial: {value: 7, tag: USER_FACT, source_doc: DOC-ANK-DEV-001}
     model_generic: {value: "3,0 MW sınıfı kara tipi türbin", tag: USER_FACT}
 
   timeline:
@@ -283,7 +283,7 @@ documents:
     version: AMD01
     status: executed
     parties: ["Karatepe RES Enerji Üretim A.Ş."]
-    key_facts: {capacity_mw: project.capacity_mw.current.value, amendment_date: project.timeline.licence_amendment.date}
+    key_facts: {capacity_mw: project.capacity_mw.current.value, capacity_mw_initial: project.capacity_mw.initial.value, turbine_count: project.turbines.count.value, turbine_count_initial: project.turbines.count_initial.value, amendment_date: project.timeline.licence_amendment.date}
     supersedes: null
     superseded_by: null
     related: [DOC-ANK-DEV-001]

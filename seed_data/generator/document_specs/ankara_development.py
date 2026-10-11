@@ -20,7 +20,13 @@ SPECS: dict[str, DocumentSpec] = {
         family="letter",
         subtitle_tr="Karatepe RES Üretim Lisansı Tadili",
         subtitle_en="",
-        section_headings_tr=["Tadil Gerekçesi", "Güncellenen Kapasite Bilgisi", "Yürürlük"],
+        # Düzeltme (11.10.2026, Naci): başlık, ilk/güncel değer ikisini de anlatacak
+        # şekilde genişletildi — 7->8 türbin, 21->24 MW (yeni token'lar).
+        section_headings_tr=[
+            "Tadil Gerekçesi",
+            "Kapasite ve Türbin Sayısı Değişikliği",
+            "Yürürlük",
+        ],
         section_headings_en=[],
         signature_roles_tr=["Hazırlayan: Lisanslama Uzmanı", "Onaylayan: Kurum Yetkilisi"],
         subject_label_tr="Üretim Lisansı Tadili — [[project_name]]",

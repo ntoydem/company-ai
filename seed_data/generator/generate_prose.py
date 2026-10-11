@@ -38,6 +38,11 @@ Böyle bir bilgiye ihtiyaç duyduğunda YALNIZCA sana verilen [[token]] placehol
 birini kullan (örn. "kapasite [[capacity_mw]] olarak belirlenmiştir"). Listede olmayan bir \
 placeholder uydurma. Madde/bölüm numaraları başlıklarda zaten var, metin içinde tekrar \
 numara icat etme.
+KURAL 2 (düzeltme, 11.10.2026): Sözleşme boilerplate'ini GENEL tut — token ile \
+verilmeyen somut bir hüküm icat etme (örn. belirli bir cezasız erken ödeme kuralı, \
+belirli bir cure/düzeltme süresi, belirli bir yetkili mahkeme/hukuk sistemi, belirli \
+bir faiz hesap yöntemi). Her somut ifade yalnız sana token'larla verilen olgulara \
+dayanmalı; olmayan bir detayı tahmin etmek yerine genel/muğlak bir ifade kullan.
 Bu resmi/teknik bir demo belgesidir, gerçek değildir; ton resmi ve kurumsal olmalı."""
 
 _SYSTEM_EN = """You write prose for a FICTIONAL demo company document. Your output must be \
@@ -47,6 +52,12 @@ company/person name. Whenever such a value is needed, use ONLY one of the [[toke
 placeholders given to you (e.g. "the tenor of the Facility is [[tenor_years]]"). Never \
 invent a placeholder that is not in the list. Section numbers are already in the headings;
 do not invent additional numbering inside the prose.
+RULE 2 (correction, 11.10.2026): Keep contractual boilerplate GENERIC — never invent a \
+specific substantive provision that is not backed by a given token (e.g. a specific \
+early-repayment-without-penalty rule, a specific cure period, a specific governing \
+court/legal system, a specific interest calculation method). Every substantive \
+statement must rest only on the facts given to you via tokens; use a general/vague \
+phrasing instead of guessing a missing detail.
 This is a formal/technical demo document, not a real one; keep the tone formal and corporate."""
 
 _SCHEMA_NOTE = """JSON şeması:
@@ -66,10 +77,18 @@ def _client() -> OpenAI:
 
 
 def _build_prompt(
-    doc_id: str, spec: DocumentSpec, facts: dict[str, str], language: str
+    doc_id: str,
+    spec: DocumentSpec,
+    facts: dict[str, str],
+    language: str,
+    suppressed_placeholders: frozenset[str] = frozenset(),
 ) -> tuple[str, str]:
+    """Düzeltme (11.10.2026): `suppressed_placeholders` — bir facts anahtarı (`language`
+    dışında) teknik olarak orada ama "tanımsız" bir not metnine çözülüyorsa (örn. taslak
+    bir belgenin `effective_date`'i "henüz belirlenmedi" döner) LLM'e hiç ÖNERİLMEZ;
+    `known_placeholders` (check_prose_document) hâlâ kabul eder, yalnız teşvik edilmez."""
     headings = spec.section_headings_tr if language == "tr" else spec.section_headings_en
-    placeholders = sorted(k for k in facts if k != "language")
+    placeholders = sorted(k for k in facts if k != "language" and k not in suppressed_placeholders)
     system = _SYSTEM_TR if language == "tr" else _SYSTEM_EN
     user = (
         f"Belge: {facts['title']} ({doc_id})\n"
@@ -101,7 +120,11 @@ def generate_one(client: OpenAI, model: str, doc_id: str, raws: dict[str, Any]) 
     language = doc["language"]
     facts = facts_mod.build_facts(doc, raws)
     known = set(facts) - {"language"}
-    system, user = _build_prompt(doc_id, spec, facts, language)
+    # Düzeltme (11.10.2026): taslak (effective_date yok) belgelerde "effective_date"
+    # placeholder'ı LLM'e önerilmez — değeri gerçek bir olgu değil, "henüz belirlenmedi"
+    # notu (DOC-YSV-FIN-010 bulgusu).
+    suppressed = {"effective_date"} if doc.get("effective_date") is None else frozenset()
+    system, user = _build_prompt(doc_id, spec, facts, language, suppressed)
 
     last_errors: list[str] = ["no attempt made"]
     for attempt in range(1, MAX_ATTEMPTS + 1):

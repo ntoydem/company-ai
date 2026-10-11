@@ -209,6 +209,10 @@ class Turbines(_Strict):
     # Adım 5 Aşama C (10.10.2026): `count` optional — Yeşilova's turbine model (Vestas V136)
     # is given but its count is not; Karatepe/Boztepe always give both, unaffected.
     count: Fact | None = None
+    # Adım 5 T-11 düzeltmesi (11.10.2026, ürün sahibi onaylı): the turbine count *before*
+    # a capacity amendment — Karatepe's only use (7 -> 8, with capacity_mw's 21 -> 24 MW).
+    # `count` itself stays the CURRENT value (unchanged meaning for every other SPV).
+    count_initial: Fact | None = None
     model_generic: Fact
 
 
@@ -522,6 +526,9 @@ class SignedUndrawnFacility(_Strict):
     # that only gives the year.
     signed_date: date | None = None
     drawdown_condition: Fact | None = None
+    # Adım 5 düzeltme (11.10.2026): komisyon oranının kendisi — önceden yalnız
+    # commitment_fee'nin notunda metin olarak duruyordu, prose'a token olarak verilemiyordu.
+    commitment_fee_rate: Fact | None = None
     commitment_fee: Money | None = None
     commitment_fee_date: date | None = None
 

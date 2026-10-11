@@ -48,6 +48,9 @@ STATUS_LABELS = {
 # key_facts name -> (kind, unit). "kind" picks the formatter below.
 _FIELD_KIND: dict[str, tuple[str, str]] = {
     "capacity_mw": ("number", "MW"),
+    "capacity_mw_initial": ("number", "MW"),
+    "turbine_count": ("number", ""),
+    "turbine_count_initial": ("number", ""),
     "target_capacity_mw": ("number", "MW"),
     "licence_date": ("date", ""),
     "amendment_date": ("date", ""),
@@ -82,6 +85,7 @@ _FIELD_KIND: dict[str, tuple[str, str]] = {
     "availability_pct": ("percent", ""),
     "ghi_share_pct": ("percent", ""),
     # Adım 5 İş 4b (PF-1 kodla belgeleri)
+    "commitment_fee_rate": ("percent", ""),
     "commitment_fee": ("money", ""),
     "commitment_fee_date": ("date", ""),
     "advance_amount": ("money", ""),

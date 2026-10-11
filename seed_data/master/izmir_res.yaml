@@ -72,6 +72,7 @@ project:
     # komisyon tarihine tam 92 gün — bkz. commitment_fee notu (ADIM5_T11_ETKI_RAPORU §2.3).
     signed_date: 2026-10-05
     drawdown_condition: {value: "Üretim lisansının alınması", tag: USER_FACT}
+    commitment_fee_rate: {value: 0.80, tag: USER_FACT, note: "ÜRÜN SAHİBİ ONAYLI, kaynak: NACI_CEVAP §3.2 — 30.000.000 × oran × 92/360 = 61.333."}
     commitment_fee: {value: 61333, currency: USD, tag: USER_FACT, note: "30.000.000 × %0,80 × 92/360 (NACI_CEVAP §3.2)."}
     commitment_fee_date: 2027-01-05
 
@@ -508,7 +509,7 @@ documents:
     version: EXECUTED
     status: executed
     parties: ["Kızılova RES Enerji Üretim A.Ş.", "PQR Bank"]
-    key_facts: {total_debt: "project.signed_undrawn_facility.contract_amount.value", drawdown_condition: "project.signed_undrawn_facility.drawdown_condition.value", commitment_fee: "project.signed_undrawn_facility.commitment_fee.value", commitment_fee_date: "project.signed_undrawn_facility.commitment_fee_date"}
+    key_facts: {total_debt: "project.signed_undrawn_facility.contract_amount.value", drawdown_condition: "project.signed_undrawn_facility.drawdown_condition.value", commitment_fee_rate: "project.signed_undrawn_facility.commitment_fee_rate.value", commitment_fee: "project.signed_undrawn_facility.commitment_fee.value", commitment_fee_date: "project.signed_undrawn_facility.commitment_fee_date"}
     supersedes: null
     superseded_by: null
     related: [DOC-IZM-FIN-001]

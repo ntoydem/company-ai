@@ -75,9 +75,13 @@ SPECS: dict[str, DocumentSpec] = {
         subtitle_tr="",
         subtitle_en="Yeşilova RES Wind Power Project — Term Loan Facility (2023-YS)",
         section_headings_tr=[],
+        # Düzeltme (11.10.2026, Naci): başlık 1 "Recitals" oldu — capex/equity'nin yalnız
+        # arka plan cümlesinde (kredinin sonradan gelen kısmi finansman olduğu, inşaatı
+        # finanse eden ana kaynağın özkaynak olduğu) geçmesini, "2. The Facility"nin
+        # kredinin capex'i finanse ettiği gibi yanlış bir ilişki kurmasını önlemek için.
         section_headings_en=[
-            "1. Definitions and Interpretation",
-            "2. The Facility",
+            "1. Recitals and Definitions",
+            "2. The Facility (Supplementary Financing)",
             "3. Repayment",
             "4. Financial Covenants",
             "5. Governing Law",
