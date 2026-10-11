@@ -187,3 +187,102 @@ Bu planın **hiçbir adımı** §5'in iki listesinden birini (kasıtlı tuzaklar
 8. Kategori B'nin 20 belgesi için Tansu'nun "kanonik karşı taraf tablosu" **bulunamadı** (`§D.1.3` yok) — hepsi açık kaldı, T-14.2'ye taşındı.
 9. Önerilen sıra: 0-LLM ledger/kod adımları önce, Claude prose adımları sonra, Hukuk partisi AYRI bir round'da; toplam ~19 commit bu round + 15 Hukuk round'unda.
 10. **3 soru T-14 olarak hazırlandı** (türbin MW, Kategori B karşı taraf kaynağı, YEKDEM geçiş kuralı) — cevap bekleniyor, bu round'da hiçbir ledger/kod/belge değiştirilmedi.
+
+---
+
+## 9. Naci'nin onayı ve düzeltmeleri (11.10.2026) — T-14 cevapları + plan güncellemeleri
+
+### 9.1 T-14 cevapları
+
+- **T-14.1:** Tansu'ya yeniden soruldu (`docs/SORULAR_NACIDEN_6-2026-10-11.md`). Cevap gelene kadar Yeşilova ledger'ına **faz bazlı MW/türbin adedi YAZILMIYOR** — yalnız COD tarihleri (28.12.2016/15.11.2022), YEKDEM satış koşulları (Faz 1: 01.01.2017–31.12.2026 @ 73 USD/MWh; Faz 2: PTF) ve toplam 22 MW/5 türbin (T-11.13, değişmedi) giriliyor.
+- **T-14.2:** Kanonik kaynak **bulundu** — `ftansu/ai-balbal`, dal `docs/naci-notlari`, dosya `docs/NACI_NOTU_URUN1.md` §D.1.2 (personel, 36 kişi) ve §D.1.3 (karşı taraflar). Eşleştirme tablosu §10'da.
+- **T-14.3:** **A** — Karatepe YEKDEM 24 MW / 51 USD/MWh / 15.10.2023–14.10.2033 (PR #21'in yeni değerleri) uygulanıyor.
+
+### 9.2 Hand-edited belgeler (madde 1)
+
+5 Karatepe facility-chain belgesi (`DOC-ANK-FIN-001..005`) tek tek kontrol edildi:
+
+| doc_id | hand_edited? | ECA/VWX referansı? |
+|---|---|---|
+| DOC-ANK-FIN-001 | **VAR** | yok |
+| DOC-ANK-FIN-002 | yok | yok |
+| DOC-ANK-FIN-003 | yok | yok |
+| DOC-ANK-FIN-004 | **VAR** | **VAR** — "no separate export credit agency (ECA) tranche forms part of this structure." |
+| DOC-ANK-FIN-005 | yok | yok |
+
+**Sonuç: DOC-ANK-FIN-004'teki cümle zaten DOĞRU** — ECA'nın OLMADIĞINI söylüyor (eski ledger'da da `eca_debt: 0` idi, ECA tarafı zaten "kullandırılmadı" durumundaydı). Ledger'dan `lenders.eca`/`eca_debt`/`parties`'teki "VWX Export Credit Agency" kaldırılsa bile bu cümle **hâlâ doğru** kalıyor — **prose'a hiçbir dokunuş gerekmiyor**, hand_edited işareti bozulmadı. DOC-ANK-FIN-001'de ECA hiç geçmiyor, o da dokunulmadı.
+
+**Ek bulgu:** `turbines.model_generic` (→ Enercon E-82 3,0 MW) **hiçbir belgenin `key_facts`'inde kullanılmıyor** (`grep` doğrulandı) — bu alanın değişimi **0 belge etkisi** yaratıyor, hiçbir prose regenerate gerektirmiyor.
+
+**Karatepe zinciri için bu round'da Claude çağrısı GEREKMİYOR** (§2'deki ~$0,16 tahmini gereksiz çıktı — gerçek maliyet $0).
+
+### 9.3 Çift üretim riski (madde 2)
+
+`grep -rlE "PQR Bank|LMN Bank|DEF Bank|VWX Export Credit Agency" seed_data/generator/prose/*.yaml` → **0 sonuç**. Hiçbir prose dosyasında düz metin banka adı yok — hepsi `[[counterparty]]`/`[[lender]]` gibi token'larla geliyor. **Bekletilecek belge yok** — Karatepe zinciri (ECA hariç) şimdi güvenle işlenebilir; banka adı değişikliği geldiğinde (Ç-12, PR #15 birleşince) yalnız ledger değişikliği + 0-LLM `generate_documents.py` çalıştırması yeterli olacak.
+
+### 9.4 Hukuk listesi güncellemesi (madde 3, uygulama SONRA)
+
+- **Mera talep yazısı:** `DOC-IZM-LEG-006`, 21.08.2026, kaynak dosya adı `Kizilova_Mera_Tahsis_Degisikligi_Talebi` — **talep yazısının kendisi üretilir** (sonuç/karar belgesi YOK, komisyon henüz toplanmadı). Önceki plandaki "T-12.4b: belge yok" **düzeltildi** → 1 belge.
+- **Karatepe 2 e-posta:** `DOC-ANK-LEG-006` (mahkeme kalemi, 15.09.2026, `Kamulaştırma_Itiraz_Sureci.eml`), `DOC-ANK-LEG-007` (karşı taraf avukatı, 10.09.2026, `Dava_Dosyasi_Guncelleme.eml`).
+- **`.eml`/`.msg` kaynak türü desteklenmiyor** — `ledger_schema.py:600`: `source_type: Literal["digital_pdf", "scanned_pdf", "xlsx"]`. Öneri: e-postalar `family: "letter"` PDF olarak üretilsin (DOC-YSV-FIN-002'nin "Annex F Talep E-postası" zaten bu desende — emsal var), `source_type: digital_pdf`.
+
+**Güncel Hukuk toplamı: 15 + 1 (Mera) + 2 (e-posta) = 18 belge.**
+
+### 9.5 `_PROJECT_CODE` (madde 4)
+
+`generate_documents.py:41` kontrol edildi — Güneşalan'ın da kodu **yok** (yalnız `project.code: GNS_GES` ledger'da var, ama `_PROJECT_CODE` dict'inde "GNS" anahtarı yok). Ledger'daki `project.code` alanlarından doğrulandı: `BOZ_RES`, `DMR_RES`, `AKY_GES`, `GNS_GES`. Eklenecek: `"BOZ": "BOZ_RES", "DMR": "DMR_RES", "AKY": "AKY_GES", "GNS": "GNS_GES"`.
+
+### 9.6 450 üst sınırı (madde 5)
+
+Sabit bulundu: `seed_data/generator/validate_ledger.py:869`, `_DISTRIBUTION_CAP = 450` (yorum satırı 862-868: Adım 5 İş 4b'de 80'den 450'ye çıkarıldı, ADIM5_PLAN.md'nin ~380 hedefine headroom bırakmak için).
+
+| | Belge sayısı |
+|---|---|
+| Güncel (bugün, `manifest.json`) | **84** |
+| Bu round (T-13.1/T-13.2/Kızılova DEV/Annex F) | **+0 net yeni** (hepsi mevcut belgelerin yeniden üretimi) |
+| Hukuk partisi (§9.4, ayrı round) | **+18** |
+| Boztepe PF-2 (§9.9, ayrı round, kaba tahmin) | **+8 ile +12 arası** |
+| **Tahmini toplam** | **~110–114** |
+| Cap | **450** |
+
+**Bolca headroom var (~336-340 belge), risk yok.**
+
+### 9.7 T-13.2 (madde 6)
+
+Ledger'a eklenecek (USER_FACT, not "ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026)"):
+- `DOC-ANK-DEV-006` → `parties` listesine **"Karatepe Köyü tüzel kişiliği"** eklenir (muhtar temsilcisi notuyla).
+- `DOC-IZM-LEG-002` → `parties` listesine **3 malik** eklenir: Hasan Yücel, Mehmet Karadağ, Ayten Sarı (not: "kira imzalı/tapu şerhi bekliyor, taslak").
+
+**İsim beyaz listesi kontrolü — EKLEME GEREKMİYOR.** `validate_ledger.py:104-107`'deki `_NAME_PATTERN` yalnızca kurumsal sonek taşıyan adları yakalıyor (`A.Ş./Ltd.(Şti.)/Bank/Sigorta/GmbH/S.A./Inc.`) — "Hasan Yücel", "Mehmet Karadağ", "Ayten Sarı", "Karatepe Köyü tüzel kişiliği" bu deseni **hiç tetiklemiyor**, zaten güvenli. `name_whitelist`'e eklenmesi gereken bir şey yok.
+
+İki belge (`DOC-ANK-DEV-006`, `DOC-IZM-LEG-002`) Claude ile 1'er çağrı yeniden üretilecek — artık gerçek `counterparty` token'ı mevcut (`prose_suppress_facts` kaldırılabilir).
+
+### 9.8 Kategori B eşleştirme (madde 10, kodlama YOK, uygulama BEKLE)
+
+§D.1.3 + belge türünden çıkarılan eşleştirme:
+
+| doc_id | Belge türü | Önerilen karşı taraf | Kaynak |
+|---|---|---|---|
+| DOC-ANK-DEV-001 | Üretim Lisansı | **EPDK** | §D.1.3 Kamu |
+| DOC-ANK-DEV-004 | Yapı Ruhsatı | **İlçe Belediyesi** (genel) | §D.1.3 Kamu (belediyeler) |
+| DOC-ANK-DEV-005 | ÇED Olumlu Kararı | **ÇŞİDB** | §D.1.3 Kamu |
+| DOC-ANK-OPS-005 | Bakım Raporu (Türbin arızası) | **Enercon Servis Türkiye** | §D.1.3 Türbin servisi |
+| DOC-IZM-DEV-001 | Önlisans Belgesi | **EPDK** | §D.1.3 Kamu |
+| DOC-IZM-DEV-008 | Askeri Yasak Bölgeler Ön Görüş | **MSB** | §D.1.3 Kamu |
+| DOC-IZM-DEV-006 | Kamu Duyurusu/Toplantı Tutanağı | **Zaten doğru** — "yerel halk" generic, fix gerekmiyor | — |
+| DOC-ANK-ADM-001, DOC-ANK-OPS-001/006/007/008, DOC-CO-ADM-005/007/008/009/010, DOC-IZM-ADM-001/002/003 (13 belge) | Bütçe onayı, aylık üretim raporu, yönetim kurulu kararı, risk raporu, pay sahipleri kararı, maliyet takip notu — **tamamı İÇ belge** | **Karşı taraf YOK** — bunlar şirketin kendi iç yönetişim belgeleri, bilateral bir ilişki hiç yok | §D.1.3'te karşılığı yok (D.1.3 yalnız DIŞ cari listesi) |
+
+**Güncellenen kök neden önerisi:** Önceki raporda "20 belgenin tamamı `[[counterparty]]` kullanıyor, hepsi düzeltme gerektiriyor" denmişti — **daha net hâli:** 13 belge için düzeltme **gerçek isim bulmak değil**, `[[counterparty]]`'yi **hiç kullanmamak** (gerçek kök neden önerisi — `facts.py`: tek taraflı `parties`'te `counterparty` hiç sağlanmasın — zaten tam olarak bunu çözer); yalnız 6 belge için gerçek bir kamu/servis kurumu adı ekleniyor. **Bu round'da uygulanmıyor, BEKLE.**
+
+### 9.9 Boztepe PF-2 — üretilecek belge listesi (uygulama BEKLE)
+
+| Belge | Tür | Maliyet |
+|---|---|---|
+| Facility Agreement (2024-BZ) | Claude prose, 1 çağrı | ~$0,02 |
+| Geri ödeme planı (84 taksit, ilk 36 ay yalnız faiz) | Excel/xlsx, 0 LLM (DuckDB/Python hesap) | $0 |
+| Aylık faiz bildirimi (örnek, 1-2 ay) | Claude prose | ~$0,02–0,04 |
+| DSRA hesap ekstresi | Claude prose | ~$0,02 |
+| Borç servis hesabı ekstresi | Claude prose | ~$0,02 |
+| DSCR/covenant test geçmişi (tablo, kod) | 0 LLM (kodla tablo) | $0 |
+
+**Tahmini toplam: 5-7 belge, ~$0,10 Claude maliyeti.** `_PROJECT_CODE`'a "BOZ" eklenmesi ön koşuldur (§9.5, bu round'da yapılıyor). **Uygulama bu round'da YOK.**
