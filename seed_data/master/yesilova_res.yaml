@@ -22,22 +22,26 @@ project:
   # Vestas V136 verildi; adet verilmedi (NACI_CEVAP §3.1). Adım 5'te kurgusallaştırılmıştı
   # (Ç-12 netleşmeden önce temkinli taraf seçimi); Tansu'nun T-9 cevabıyla (10.10.2026)
   # gerçek adlara geri dönüldü (URUN1_KARARLAR_VE_SIRA.md §7.3/§7.4).
+  # İş Emri 2026-10-12-G Adım 1 (T-14.1=B, NACI_CEVAP_2026-10-12.md §5): Faz 1 = 3 ×
+  # Vestas V136 (4,0 MW modu) = 12 MWe (YEKDEM). Faz 2 = 2 türbin, "Vestas, 5,0 MW sınıfı"
+  # (model adı uydurulmaz) = +10 MWe (PTF). Toplam 5 türbin, 22 MWe (12+10=22 ✅,
+  # capacity_mw.current ile tutarlı). T-11.13'ün "5 × 4,4 MW" cevabı İPTAL — model_generic
+  # "Vestas V136" artık yalnız Faz 1'in 3 türbinini tanımlar; `count` toplam kalır (5).
   turbines:
-    model_generic: {value: "Vestas V136", tag: USER_FACT}
-    count: {value: 5, tag: USER_FACT, note: "ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026): T-11.13 cevabı — 4,4 MW modda, 5 x 4,4 = 22 MW (capacity_mw.current ile tutarlı)."}
-  # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §2): santral iki
-  # fazlı. T-14.1 (faz bazlı MW/türbin adedi) CEVAPLANMADAN faz bazlı kapasite/türbin
-  # sayısı YAZILMIYOR (Naci kararı, 11.10.2026) — yalnız COD tarihleri giriliyor.
+    model_generic: {value: "Vestas V136", tag: USER_FACT, note: "Yalnız Faz 1 (3 türbin, 4,0 MW modu). Faz 2'nin 2 türbini farklı bir model — belgelerde yalnız \"Vestas, 5,0 MW sınıfı\" yazılır, model adı uydurulmaz (T-14.1=B)."}
+    count: {value: 5, tag: USER_FACT, note: "ÜRÜN SAHİBİ ONAYLI (Tansu, 12.10.2026, T-14.1=B): Faz 1 3 türbin (4,0 MW) + Faz 2 2 türbin (5,0 MW sınıfı) = 5 türbin, 12+10=22 MWe (capacity_mw.current ile tutarlı)."}
+  # ÜRÜN SAHİBİ ONAYLI (Tansu, 12.10.2026, NACI_CEVAP_2026-10-12.md §5, T-14.1=B): Faz 1 =
+  # 3 × 4,0 MW = 12 MWe, Faz 2 = 2 × 5,0 MW = +10 MWe, toplam 22 MWe.
   # cod_actual, GÜNCEL (22 MW/5 türbin) yapılandırmanın tarihi; ilk fazın COD'si notta.
   timeline:
-    cod_actual: {date: 2022-11-15, doc: null, tag: USER_FACT, note: "Faz 2 (güncel 22 MW/5 türbin yapılandırması). Faz 1'in kendi COD'si 28.12.2016 (T-14.1 cevabı gelmeden faz bazlı MW/türbin sayısı ayrılmıyor)."}
+    cod_actual: {date: 2022-11-15, doc: null, tag: USER_FACT, note: "Faz 2 (güncel 22 MW/5 türbin yapılandırması, 12+10). Faz 1'in kendi COD'si 28.12.2016 (3 türbin, 12 MWe)."}
 
   finance:
     lender: {value: "LMN Bank", tag: USER_FACT}
-    # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §2): Faz 1'in YEKDEM
-    # satışı (2021-öncesi mekanizma). Faz 2 YEKDEM DIŞI (PTF) — T-14.1 cevabı gelmeden
-    # hangi türbinlerin/MW'ın bu kapsamda olduğu belirtilmiyor, yalnız satış koşulu girildi.
-    yekdem: {start: 2017-01-01, end: 2026-12-31, price_usd_mwh: 73, tag: USER_FACT, note: "Faz 2 YEKDEM dışı (PTF) — faz bazlı MW/türbin ayrımı T-14.1 cevabına kadar yazılmıyor."}
+    # ÜRÜN SAHİBİ ONAYLI (Tansu, 12.10.2026, NACI_CEVAP_2026-10-12.md §5, T-14.1=B): Faz
+    # 1'in 12 MWe'si YEKDEM satışında (2021-öncesi mekanizma). Faz 2'nin 10 MWe'si YEKDEM
+    # DIŞI (PTF).
+    yekdem: {start: 2017-01-01, end: 2026-12-31, price_usd_mwh: 73, tag: USER_FACT, note: "Yalnız Faz 1'in 12 MWe'si (3 türbin). Faz 2'nin 10 MWe'si (2 türbin) YEKDEM dışı (PTF)."}
     # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11 LLM üretim planı SORU 1): imza tarihi
     # NACI_CEVAP_2026-10-08.md §3.2'den ("Sözleşme 03.06.2023") — o round'da ledger'a hiç
     # işlenmemişti (OperatingTimeline finansman alanı taşımıyor, Finance.signed_date yeni).
