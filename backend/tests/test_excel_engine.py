@@ -38,6 +38,17 @@ def workbooks(engine: CachedValueEngine) -> list[LoadedWorkbook]:
     return [engine.load(EXCEL_DIR / f) for f in FILES]
 
 
+def test_all_committed_workbooks_load_without_error(engine: CachedValueEngine) -> None:
+    """İş Emri 2026-10-12-F Adım 1: `FILES` (üstteki sabit) yalnız ilk 4 Karatepe
+    workbook'unu kapsıyordu — Yeşilova/Boztepe eklendiğinde bu teste hiç dahil
+    edilmemişlerdi, bu yüzden `_frame()`'in Yeşilova'nın "Schedule" sayfasındaki
+    düzensiz önsöz satırıyla (başlık + anlık görüntü tarihi, gerçek tablo başlığından
+    önce) çöktüğü (`polars.exceptions.ComputeError`) hiç yakalanmamıştı. Artık
+    `seed_data/excel/`'deki HER workbook burada yükleniyor."""
+    for path in sorted(EXCEL_DIR.glob("*.xlsx")):
+        engine.load(path)  # exception fırlatmamalı
+
+
 def test_generated_workbooks_have_no_uncached_formula_and_a_hidden_meta_sheet() -> None:
     """PHASES.md 4.2 kabul kriteri 1: cached değerler dolu (`data_only` boş hücre yok)."""
     for file in FILES:
@@ -181,6 +192,37 @@ def test_workbook_without_cached_values_is_refused(
     wb.save(path)
     with pytest.raises(NeedsRecalculationError):
         engine.load(path)
+
+
+def test_a_column_starting_with_dates_then_text_does_not_crash(
+    tmp_path: Path, engine: CachedValueEngine
+) -> None:
+    """İş Emri 2026-10-12-F Adım 1 kök nedeni: Yeşilova'nın "Schedule" sayfası, gerçek
+    tablo başlığından (`ws[4]`) önce bir başlık + anlık görüntü tarihi satırı taşıyordu;
+    `CachedValueEngine.load()` her zaman `ws[1]`'i başlık sayıp 2. satırdan veri okuduğu
+    için bu önsöz, A sütununda `datetime` (satır 2: anlık görüntü tarihi) → `str`
+    (satır 4: "Taksit No" metni, veri gibi okunmuş) sırasıyla karışık bir tip üretiyor —
+    polars `strict=False`'a rağmen `ComputeError('expected duration or datetime, got
+    str')` fırlatıyordu. `/api/ask`'ta `finans`/`yonetim` kullanıcısının HER veri sorusu
+    erişebildiği TÜM workbook'ları yüklediği için bu, LLM sağlayıcısından bağımsız,
+    deterministik bir HTTP 500'dü (bkz. rapor)."""
+    from datetime import datetime
+
+    from openpyxl import Workbook
+
+    wb = Workbook()
+    ws = wb.active
+    ws["A1"] = "Başlık"
+    ws["A2"] = datetime(2026, 3, 15)
+    ws["A3"] = "Taksit No"
+    ws["A4"] = 1
+    ws["B1"], ws["B2"], ws["B3"], ws["B4"] = "x", "x", "x", "x"
+    path = tmp_path / "mixed.xlsx"
+    wb.save(path)
+    loaded = engine.load(path)  # exception fırlatmamalı
+    (table_name_,) = loaded.tables
+    result = engine.run_sql([loaded], f"SELECT COUNT(*) FROM {table_name_}")
+    assert result.rows[0][0] == 3  # satır 2, 3, 4 (başlık sayılan satır 1 hariç)
 
 
 def test_csv_is_loaded_as_a_single_table(tmp_path: Path, engine: CachedValueEngine) -> None:

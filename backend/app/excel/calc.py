@@ -125,7 +125,23 @@ def _frame(header: list[Any], rows: list[tuple[int, list[Any]]]) -> pl.DataFrame
     data: dict[str, list[Any]] = {ROW_COLUMN: [r for r, _ in rows]}
     for j, name in enumerate(columns):
         data[name] = [(values[j] if j < len(values) else None) for _, values in rows]
-    return pl.DataFrame(data, strict=False)
+    try:
+        return pl.DataFrame(data, strict=False)
+    except pl.exceptions.ComputeError:
+        # İş Emri 2026-10-12-F Adım 1: bir sütunun ilk hücreleri tarih/sayı sanılıp
+        # sonraki bir satırda metin (örn. düzensiz bir önsöz satırı — başlık/anlık
+        # görüntü tarihi — veri gibi okunduğunda) görülünce polars `strict=False`'a
+        # rağmen hâlâ `ComputeError` fırlatıyor (ham Excel hücre değerleri, LLM çıktısı
+        # gibi, biçimine güvenilmeyen bir girdi — aynı "ham metni varsay, istisna
+        # fırlatma" ilkesi burada da geçerli). Tüm hücreler metne çevrilip tekrar
+        # denenir; hiçbir veri kaybolmaz, yalnız o sütunun tipi sayısal/tarih değil
+        # metin olur (SQL sorguları üzerinde CAST gerekebilir, ama 500 yerine kullanılabilir
+        # bir tablo döner).
+        coerced: dict[str, list[Any]] = {
+            key: values if key == ROW_COLUMN else [None if v is None else str(v) for v in values]
+            for key, values in data.items()
+        }
+        return pl.DataFrame(coerced, strict=False)
 
 
 class CachedValueEngine:
