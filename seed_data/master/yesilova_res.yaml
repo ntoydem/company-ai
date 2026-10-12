@@ -37,7 +37,7 @@ project:
     cod_actual: {date: 2022-11-15, doc: null, tag: USER_FACT, note: "Faz 2 (güncel 22 MW/5 türbin yapılandırması, 12+10). Faz 1'in kendi COD'si 28.12.2016 (3 türbin, 12 MWe)."}
 
   finance:
-    lender: {value: "LMN Bank", tag: USER_FACT}
+    lender: {value: "Commerzbank AG", tag: USER_FACT}
     # ÜRÜN SAHİBİ ONAYLI (Tansu, 12.10.2026, NACI_CEVAP_2026-10-12.md §5, T-14.1=B): Faz
     # 1'in 12 MWe'si YEKDEM satışında (2021-öncesi mekanizma). Faz 2'nin 10 MWe'si YEKDEM
     # DIŞI (PTF).
@@ -157,7 +157,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "Commerzbank AG"]
     key_facts: {bank_interest_notice_amount: "project.finance.bank_interest_notices[0].amount.value", bank_interest_notice_date: "project.finance.bank_interest_notices[0].instalment_date"}
     supersedes: null
     superseded_by: null
@@ -179,7 +179,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "Commerzbank AG"]
     key_facts: {annex_f_deadline: "project.finance.annex_f_deadline", annex_f_reporting_year: "project.finance.annex_f_reporting_year"}
     supersedes: null
     superseded_by: null
@@ -201,7 +201,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "Commerzbank AG"]
     key_facts: {dsra_balance: "project.finance.dsra_balance.value"}
     supersedes: null
     superseded_by: null
@@ -226,7 +226,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "Commerzbank AG"]
     key_facts: {debt_service_account_balance: "project.finance.debt_service_account_balance.value"}
     supersedes: null
     superseded_by: null
@@ -272,7 +272,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "Commerzbank AG"]
     key_facts: {om_contract_price: "project.operations.om_contract_price.value"}
     supersedes: null
     superseded_by: null
@@ -298,7 +298,7 @@ documents:
     expiration_date: null
     version: "2026-03"
     status: superseded
-    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "Commerzbank AG"]
     key_facts: {}
     supersedes: null
     superseded_by: DOC-YSV-FIN-007
@@ -320,7 +320,7 @@ documents:
     expiration_date: null
     version: "2026-09"
     status: active
-    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "Commerzbank AG"]
     key_facts: {}
     supersedes: DOC-YSV-FIN-008
     superseded_by: null
@@ -343,7 +343,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "Commerzbank AG"]
     # Düzeltme (11.10.2026, Naci onaylı): T-13.1=A cevaplandı — `equity` GERİ EKLENDİ
     # (bkz. plan §9.1). `dsra_balance` de eklendi (opsiyonel, Tansu 6. tur §2).
     key_facts: {total_debt: "project.finance.total_debt.value", margin_pct: "project.finance.interest.margin_pct.value", repayment_profile: "project.finance.repayment_profile.value", dscr_covenant: "project.finance.dscr_covenant.value", capex: "project.finance.capex.value", equity: "project.finance.equity.value", dsra_balance: "project.finance.dsra_balance.value"}
@@ -370,7 +370,7 @@ documents:
     expiration_date: null
     version: "2025"
     status: draft
-    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "LMN Bank"]
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "Commerzbank AG"]
     key_facts: {dscr: "project.finance.covenant_tests[1].dscr", covenant_result: "project.finance.covenant_tests[1].result", interest_paid: "project.finance.interest_paid_by_year[0].amount.value", annex_f_reporting_year: "project.finance.annex_f_reporting_year", missing_guarantee_letter_name: "project.finance.annex_f_missing_guarantee_letter_name.value"}
     supersedes: null
     superseded_by: null

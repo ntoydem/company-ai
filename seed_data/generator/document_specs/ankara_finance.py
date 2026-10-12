@@ -174,7 +174,7 @@ SPECS: dict[str, DocumentSpec] = {
     # [[parties_list]] and [[spv_name]]" yazmıştı — `parties_list` zaten SPV'yi içeriyor,
     # "and [[spv_name]]" eklenince SPV adı aynı cümlede 2 kez geçiyordu (Adım 1'in
     # DOC-IZM-LEG-002'de bulduğu KÖK NEDENİN AYNISI). Çözüm aynı: `counterparty_list`
-    # (SPV hariç karşı taraflar — bu belgede STU Sigorta + PQR Bank).
+    # (SPV hariç karşı taraflar — bu belgede STU Sigorta + Garanti BBVA).
     "DOC-ANK-FIN-013": DocumentSpec(
         doc_id="DOC-ANK-FIN-013",
         family="agreement",

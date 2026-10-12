@@ -87,7 +87,7 @@ project:
   # mühendislik/tasarım) tutarları "canvas'taki gibi" deniyor ama bu depoya aktarılmadı —
   # modellenmedi, bkz. ADIM5_ASAMA_C_REPORT.md §4.
   signed_undrawn_facility:
-    lender: {value: "PQR Bank", tag: USER_FACT, note: "2026-KZ, Garanti BBVA'nın kurgusal karşılığı (Ç-12 bekliyor)."}
+    lender: {value: "Garanti BBVA", tag: USER_FACT, note: "2026-KZ. Gerçek ad (Ç-12, İş Emri 2026-10-12-G Adım 2)."}
     contract_amount: {value: 30000000, currency: USD, tag: USER_FACT}
     # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, T-11.5): tam imza tarihi. 05.01.2027
     # komisyon tarihine tam 92 gün — bkz. commitment_fee notu (ADIM5_T11_ETKI_RAPORU §2.3).
@@ -110,7 +110,7 @@ project:
     advance_invoice_dispute_deadline: 2026-10-14
     advance_invoice_due_date: 2026-10-15
     advance_invoice_paid_date: 2026-10-12
-    advance_guarantee: {value: "DEF Bank", tag: USER_FACT, note: "Akbank'ın kurgusal karşılığı (Ç-12 bekliyor)."}
+    advance_guarantee: {value: "Akbank", tag: USER_FACT, note: "Gerçek ad (Ç-12, İş Emri 2026-10-12-G Adım 2)."}
     advance_guarantee_amount: {value: 2000000, currency: USD, tag: USER_FACT}
     advance_guarantee_expiry: 2028-03-15
 
@@ -540,7 +540,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Kızılova RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {commitment_fee: "project.signed_undrawn_facility.commitment_fee.value", commitment_fee_date: "project.signed_undrawn_facility.commitment_fee_date"}
     supersedes: null
     superseded_by: null
@@ -562,7 +562,7 @@ documents:
     expiration_date: {value: 2028-03-15, tag: USER_FACT}
     version: EXECUTED
     status: active
-    parties: ["Kızılova RES Enerji Üretim A.Ş.", "DEF Bank"]
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "Akbank"]
     key_facts: {advance_guarantee_amount: "project.signed_unstarted_epc.advance_guarantee_amount.value", advance_guarantee_expiry: "project.signed_unstarted_epc.advance_guarantee_expiry"}
     supersedes: null
     superseded_by: null
@@ -609,7 +609,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["Kızılova RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Kızılova RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {total_debt: "project.signed_undrawn_facility.contract_amount.value", drawdown_condition: "project.signed_undrawn_facility.drawdown_condition.value", commitment_fee_rate: "project.signed_undrawn_facility.commitment_fee_rate.value", commitment_fee: "project.signed_undrawn_facility.commitment_fee.value", commitment_fee_date: "project.signed_undrawn_facility.commitment_fee_date"}
     supersedes: null
     superseded_by: null

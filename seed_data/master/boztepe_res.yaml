@@ -30,7 +30,7 @@ project:
     # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §3.1): 2021-öncesi
     # mekanizma, yerli katkı dahil.
     yekdem: {start: 2021-01-01, end: 2030-12-31, price_usd_mwh: 85, tag: USER_FACT}
-    lender: {value: "PQR Bank", tag: USER_FACT, note: "2024-BZ, USD kredi — Garanti BBVA'nın kurgusal karşılığı (Ç-12 bekliyor, PR #15/#16 birleşene kadar BEKLE)."}
+    lender: {value: "Garanti BBVA", tag: USER_FACT, note: "2024-BZ, USD kredi. Gerçek ad (Anayasa v2.1 Ç-12, İş Emri 2026-10-12-G Adım 2 — PR #15/#16 12.10.2026'da birleşti); sözleşme koşulları/oranlar/tutarlar kurgusal kalır."}
     # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §3.1): 20.02.2024 —
     # önceki AI_ASSUMPTION (2024-05-02, SORU 3) ve 3. turdaki "imza Mayıs 2024" ifadesi
     # GEÇERSİZ. Repayment_profile ve 3-yıl-yalnız-faiz süresi buna göre güncellendi.
@@ -102,7 +102,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["Boztepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Boztepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {total_debt: "project.finance.total_debt.value", effective_rate_pct_en: "project.finance.effective_rate_pct_en.value", signed_date: "project.finance.signed_date", tenor_years: "project.finance.tenor_years.value", dscr_covenant: "project.finance.dscr_covenant.value", dsra_balance: "project.finance.dsra_balance.value", repayment_profile_en: "project.finance.repayment_profile_en.value", cod_actual: "project.timeline.cod_actual.date"}
     supersedes: null
     superseded_by: null
@@ -124,7 +124,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Boztepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Boztepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {bank_interest_notice_amount: "project.finance.repayment_schedule[0].interest.value", bank_interest_notice_date: "project.finance.repayment_schedule[0].date", effective_rate_pct_tr: "project.finance.effective_rate_pct_tr.value"}
     supersedes: null
     superseded_by: null
@@ -146,7 +146,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Boztepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Boztepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {dsra_balance: "project.finance.dsra_balance.value"}
     supersedes: null
     superseded_by: null
@@ -168,7 +168,7 @@ documents:
     expiration_date: null
     version: "2026-10"
     status: active
-    parties: ["Boztepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Boztepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {}
     supersedes: null
     superseded_by: null

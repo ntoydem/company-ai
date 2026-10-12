@@ -130,12 +130,14 @@ FINANCE_DOCUMENT_TYPES = frozenset(
 # shared "DEF Enerji Üretim A.Ş." SPV name no longer applies (7 SPVs, each with its own
 # name, all listed in company.yaml's name_whitelist) — docs/SPEC_05_*.md §4 needs the same
 # update (flagged, not applied here; out of scope for Aşama A).
+# İş Emri 2026-10-12-G Adım 2 (Ç-12, PR #15/#16 birleşti): "PQR Bank" retired — bankalar
+# artık gerçek adlarıyla (Garanti BBVA/Commerzbank AG/Akbank), bu yüzden bu tuple'dan
+# çıkarıldı (artık "kurgusal" değil; name_whitelist'te hâlâ kayıtlı, bkz. company.yaml).
 SPEC_FICTIONAL_NAMES = (
     "XYZ Enerji A.Ş.",
     "GHI Yatırım A.Ş.",
     "JKL İnşaat A.Ş.",
     "MNO Teknik Danışmanlık Ltd.",
-    "PQR Bank",
     "STU Sigorta",
 )
 

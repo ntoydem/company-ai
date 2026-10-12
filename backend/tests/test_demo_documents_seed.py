@@ -135,9 +135,10 @@ def test_seed_records_ledger_parties_as_extra_field(
     docs = _seeded_documents(db_session)
     facility = docs["DOC-ANK-FIN-001"]
     assert facility.extra_fields["parties"]["source"] == "user"
-    assert "PQR Bank" in facility.extra_fields["parties"]["value"]
+    # İş Emri 2026-10-12-G Adım 2 (Ç-12): "PQR Bank" -> gerçek ad "Garanti BBVA".
+    assert "Garanti BBVA" in facility.extra_fields["parties"]["value"]
     workbook = docs["DOC-ANK-FIN-009"]
-    assert "PQR Bank" in workbook.extra_fields["parties"]["value"]
+    assert "Garanti BBVA" in workbook.extra_fields["parties"]["value"]
     assert set(facility.extra_fields) == {"parties"}
 
 

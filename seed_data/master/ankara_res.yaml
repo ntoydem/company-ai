@@ -74,11 +74,11 @@ project:
     total_debt: {value: 13600000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", conflict_kind: genuine_conflict, note: "Fiilen kullandırılan/ödeme planındaki tutar; sözleşme tutarı (contract_amount) 14.000.000 USD'dir."}
     local_debt: {value: 13600000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007}
     # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §3.2): ECA tarafı
-    # KALDIRILDI — 2022-KT yalnız Garanti BBVA'nın (Ç-12 bekliyor, şimdilik PQR Bank)
-    # tek proje kredisi, hiçbir ECA tranşı yok (eca_debt/lenders.eca önceden "biçimsel"
-    # 0'lık bir ECA tarafı taşıyordu — bu artık yanlış, tamamen çıkarıldı).
+    # KALDIRILDI — 2022-KT yalnız Garanti BBVA'nın tek proje kredisi, hiçbir ECA tranşı
+    # yok (eca_debt/lenders.eca önceden "biçimsel" 0'lık bir ECA tarafı taşıyordu — bu
+    # artık yanlış, tamamen çıkarıldı).
     lenders:
-      local_bank: {value: "PQR Bank", tag: USER_FACT, note: "Garanti BBVA'nın kurgusal karşılığı (Ç-12 bekliyor, PR #15/#16 birleşene kadar BEKLE)."}
+      local_bank: {value: "Garanti BBVA", tag: USER_FACT, note: "Gerçek ad (Anayasa v2.1 Ç-12, İş Emri 2026-10-12-G Adım 2 — PR #15/#16 12.10.2026'da birleşti); sözleşme koşulları/oranlar/tutarlar kurgusal kalır."}
     interest:
       base:       {value: "Term SOFR 6M", tag: USER_FACT}
       margin_pct:
@@ -180,12 +180,12 @@ project:
       - {period: Q1_2026, cfads: {value: 515800, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
       - {period: Q2_2026, cfads: {value: 527300, currency: USD, tag: AI_ASSUMPTION}, tag: AI_ASSUMPTION}
     # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §3.2): tam vade,
-    # banka (Ç-12 bekliyor, şimdilik PQR Bank) ve tutar geldi — önceden yalnız amaç ve
-    # yenileme AYI vardı ("Ocak 2027'de yenilenecek teminat mektubu").
+    # banka ve tutar geldi — önceden yalnız amaç ve yenileme AYI vardı ("Ocak 2027'de
+    # yenilenecek teminat mektubu").
     guarantee_letters:
       - purpose: {value: "Orman izni teminatı", tag: USER_FACT}
         renewal_date: {value: "15.01.2027", tag: USER_FACT}
-        lender: {value: "PQR Bank", tag: USER_FACT, note: "Garanti BBVA'nın kurgusal karşılığı (Ç-12 bekliyor)."}
+        lender: {value: "Garanti BBVA", tag: USER_FACT, note: "Gerçek ad (Ç-12, İş Emri 2026-10-12-G Adım 2)."}
         amount: {value: 1150000, currency: TRY, tag: USER_FACT}
         tag: USER_FACT
     # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §2/§3.2 — T-14.3=A):
@@ -341,7 +341,7 @@ documents:
     expiration_date: null
     version: DRAFT
     status: draft
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {dscr_covenant: project.finance.dscr_covenant.initial.value, tenor_years: project.finance.tenor_years.initial.value}
     supersedes: null
     superseded_by: DOC-ANK-FIN-002
@@ -363,7 +363,7 @@ documents:
     expiration_date: null
     version: V01
     status: superseded
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {dscr_covenant: project.finance.dscr_covenant.initial.value, tenor_years: project.finance.tenor_years.initial.value}
     supersedes: DOC-ANK-FIN-001
     superseded_by: DOC-ANK-FIN-003
@@ -385,7 +385,7 @@ documents:
     expiration_date: null
     version: V02
     status: superseded
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {dscr_covenant: project.finance.dscr_covenant.initial.value, tenor_years: project.finance.tenor_years.initial.value}
     supersedes: DOC-ANK-FIN-002
     superseded_by: DOC-ANK-FIN-004
@@ -407,7 +407,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: superseded
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     # Adım 5 Aşama C (10.10.2026, C5 kararı): local_debt/eca_debt rakamları kaldırıldı —
     # fiilen kullandırılan 13,6M tutarı yalnız DOC-ANK-FIN-007 ve ödeme planında kalır;
     # bu belge yalnız sözleşme tutarını (contract_amount) ve ECA tranşının olmadığını
@@ -442,7 +442,7 @@ documents:
     expiration_date: null
     version: AMD01
     status: superseded
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {repayment_profile: project.finance.repayment_profile.value}
     supersedes: DOC-ANK-FIN-004
     superseded_by: DOC-ANK-FIN-006
@@ -467,7 +467,7 @@ documents:
     expiration_date: null
     version: AMD02
     status: executed
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     # Adım 5 Aşama C (10.10.2026, C5 kararı): tenor_years kaldırıldı — tenor fiilen
     # değişmedi, "uzatıldı" cümlesi tutarsızdı (bkz. prose). margin_pct eklendi —
     # bu tadilin gerçekten değiştirdiği ikinci alan (DSCR'ın yanında).
@@ -495,7 +495,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts:
       dscr: "project.finance.covenant_tests[10].dscr"
       outstanding_debt: project.finance.outstanding_debt_as_of_demo_today.value
@@ -706,7 +706,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {total_debt: project.finance.contract_amount.value}
     supersedes: null
     superseded_by: null
@@ -728,7 +728,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "XYZ Enerji A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "XYZ Enerji A.Ş.", "Garanti BBVA"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -750,7 +750,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -772,7 +772,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "STU Sigorta", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "STU Sigorta", "Garanti BBVA"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -794,7 +794,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {drawdown_amount: "project.finance.drawdowns[0].amount.value", drawdown_date: "project.finance.drawdowns[0].date"}
     supersedes: null
     superseded_by: null
@@ -816,7 +816,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: executed
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {dscr: "project.finance.covenant_tests[4].dscr"}
     supersedes: null
     superseded_by: null
@@ -838,7 +838,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {dscr: "project.finance.covenant_tests[4].dscr", covenant_result: "project.finance.covenant_tests[4].result"}
     supersedes: null
     superseded_by: null
@@ -1491,7 +1491,7 @@ documents:
     expiration_date: null
     version: Q2_2026
     status: active
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {}
     supersedes: null
     superseded_by: null
@@ -1559,7 +1559,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {margin_pct: "project.finance.interest.margin_pct.current.value"}
     supersedes: null
     superseded_by: null
@@ -1581,7 +1581,7 @@ documents:
     expiration_date: null
     version: EXECUTED
     status: active
-    parties: ["Karatepe RES Enerji Üretim A.Ş.", "PQR Bank"]
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
     key_facts: {guarantee_purpose: "project.finance.guarantee_letters[0].purpose.value", guarantee_renewal_date: "project.finance.guarantee_letters[0].renewal_date.value"}
     supersedes: null
     superseded_by: null

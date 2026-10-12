@@ -15,7 +15,7 @@ parties:
   - {name: {value: "XYZ Enerji A.Ş.", tag: USER_FACT},              role: sponsor,           kind: company}
   - {name: {value: "Karatepe RES Enerji Üretim A.Ş.", tag: USER_FACT}, role: spv,            kind: company}
   - {name: {value: "Kızılova RES Enerji Üretim A.Ş.", tag: USER_FACT}, role: spv,            kind: company}
-  - {name: {value: "PQR Bank", tag: USER_FACT},                    role: local_bank,        kind: bank}
+  - {name: {value: "Garanti BBVA", tag: USER_FACT},                    role: local_bank,        kind: bank}
   - {name: {value: "VWX Export Credit Agency", tag: USER_FACT},    role: eca,               kind: agency}
   - {name: {value: "JKL İnşaat A.Ş.", tag: USER_FACT},             role: epc_contractor,    kind: company}
   # Adım 5 Aşama C (10.10.2026): Tansu's T-9 answer (Ç-12/Ek-E-8) says keep producing with
@@ -73,21 +73,21 @@ name_whitelist:
   - "Akyar GES Enerji Üretim A.Ş."
   - "Demirci RES Enerji Üretim A.Ş."
   - "Enercon"
-  # Adım 5 Aşama C (10.10.2026, NACI_CEVAP §3.7): Boztepe/Yeşilova's real lenders
-  # (Garanti BBVA, Commerzbank AG) still conflict with Ç-12 (no real company in the demo)
-  # — fictional stand-ins, same single-table convention as PQR Bank, pending the product
-  # owner's merge decision. Turbine OEM names (Enercon, Vestas) are a *separate* decision
-  # (Ç-12/Ek-E-8, T-9): Tansu said keep producing with the real names until ADT-3 —
-  # reverted from the temporary fictional "QRS Turbines A/S" back to Vestas
-  # (URUN1_KARARLAR_VE_SIRA §7.4).
-  - "LMN Bank"  # Commerzbank AG stand-in (Yeşilova's 2023-YS credit)
+  # İş Emri 2026-10-12-G Adım 2 (NACI_CEVAP_2026-10-12.md §4, Anayasa v2.1 Ç-12 — PR
+  # #15/#16 12.10.2026'da birleşti): bankalar artık GERÇEK adlarıyla (sektörde yaygın
+  # çalışılan bankalar, kurgusal şirketlerle kurgusal ilişkiler içinde — Ç-12'nin
+  # istisnası). Gerçek bankaya ait gerçek sözleşme koşulu/tutar/oran/kişi/belge
+  # kullanılmaz (bu listedeki değerler hep kurgusal kalır). Önceki kurgusal
+  # karşılıklar (PQR Bank/LMN Bank/DEF Bank) retired. Türbin OEM adları (Enercon,
+  # Vestas) ayrı bir karardır (Ç-12/Ek-E-8, T-9).
+  - "Commerzbank AG"  # Yeşilova'nın 2023-YS kredisi
   - "Vestas"
   - "Solaris GES İşletme Hizmetleri Ltd. Şti."  # already fictional in NACI_CEVAP (Güneşalan O&M)
   - "ABC İnşaat A.Ş."  # already fictional in NACI_CEVAP (Kızılova EPC contractor, S-26-001)
-  - "DEF Bank"  # Akbank stand-in (Kızılova's EPC advance guarantee letter) — Ç-12 bekliyor
+  - "Akbank"  # Kızılova'nın EPC avans teminat mektubu bankası
   - "JKL İnşaat A.Ş."
   - "MNO Teknik Danışmanlık Ltd."
-  - "PQR Bank"
+  - "Garanti BBVA"
   - "STU Sigorta"
   - "VWX Export Credit Agency"
   - "GHI Yatırım A.Ş."  # historical only (DOC-CO-ADM-003/010, bought out — Adım 5)
