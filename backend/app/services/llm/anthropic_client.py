@@ -6,9 +6,15 @@ provider answered them.
 Anthropic has no `response_format=json_object` equivalent — when the caller asks for
 JSON, the system prompt gets one extra sentence demanding it, and a markdown code fence
 around the reply (Claude's own habit) is stripped before parsing. `reasoning_effort` is
-not mapped to Claude's "extended thinking" (that is a different, opt-in feature, not a
-graded effort dial) — every call here runs as a plain, non-thinking completion, which
-already matches the "low effort" classify/answer workload these callers need.
+not mapped to Claude's "extended thinking".
+
+Thinking (İş Emri 2026-10-12K-B1F): on Haiku 5.5, omitting the `thinking` parameter runs
+*adaptive* thinking by default, and the (hidden, empty-text) thinking block is billed as
+output tokens — with the router's `max_tokens=300` it ate the whole budget 3/3 times and
+the reply had no text block at all (`output_config={"effort": "low"}` did NOT help, also
+3/3). So every call sends `thinking={"type": "disabled"}` unless `ANTHROPIC_THINKING=true`
+(then `{"type": "adaptive"}`; see infra/.env.example). Measurement table in
+docs/reports/IS_EMRI_2026-10-12K_B1F.md.
 """
 
 from __future__ import annotations
@@ -18,6 +24,7 @@ import time
 
 import anthropic
 import httpx2
+from anthropic.types import ThinkingConfigParam
 
 from app.services.llm.base import (
     LLMAuthError,
@@ -75,7 +82,14 @@ class AnthropicClient:
         timeout_s: float,
         max_retries: int = 2,
         http_client: httpx2.Client | None = None,
+        thinking: bool = False,
     ) -> None:
+        # `thinking`: False (default) sends `{"type": "disabled"}` on every call — see the
+        # module docstring; True opts into adaptive thinking (callers must then budget
+        # `max_output_tokens` for it, the router's 300 is not enough).
+        self._thinking: ThinkingConfigParam = (
+            {"type": "adaptive"} if thinking else {"type": "disabled"}
+        )
         # `max_retries`: the SDK's own backoff for 429/5xx (İş Emri 2026-10-11-C Adım 1 —
         # bu hesapta dakikada 1000 istek/2.400.000 token, agresif bir dış pacing'e gerek
         # yok; SDK'nın yerleşik üstel geri-çekilmesi yeterli).
@@ -101,6 +115,7 @@ class AnthropicClient:
                 max_tokens=request.max_output_tokens,
                 system=system,
                 messages=[{"role": "user", "content": request.user}],
+                thinking=self._thinking,
             )
         except (anthropic.AuthenticationError, anthropic.PermissionDeniedError) as exc:
             raise LLMAuthError(str(exc)) from exc
@@ -122,6 +137,9 @@ class AnthropicClient:
             raise LLMError(str(exc)) from exc
         latency_ms = round((time.perf_counter() - started) * 1000)
 
+        # Only `text` blocks are the answer; `thinking` blocks (if the operator enabled
+        # thinking, or a model ignores "disabled") are never surfaced.
+        block_types = [block.type for block in message.content]
         text = "".join(block.text for block in message.content if block.type == "text")
         if request.response_format == "json_object":
             text = _strip_markdown_json_fence(text)
@@ -142,7 +160,15 @@ class AnthropicClient:
             },
         )
         if not text.strip():
-            raise LLMResponseError(f"empty completion (finish_reason={finish_reason!r})")
+            detail = f"empty completion (finish_reason={finish_reason!r}, blocks={block_types})"
+            if finish_reason == "max_tokens" and "thinking" in block_types:
+                # K-B1 §4a: the whole output budget went to a thinking block — raise
+                # `max_output_tokens` or keep thinking disabled (ANTHROPIC_THINKING).
+                detail += (
+                    "; thinking block consumed the output budget before any text was "
+                    f"written (thinking={self._thinking['type']})"
+                )
+            raise LLMResponseError(detail)
         return LLMResponse(
             text=text,
             model=message.model or request.model,

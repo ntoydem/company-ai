@@ -62,6 +62,10 @@ class Settings(BaseSettings):
         default=None, validation_alias=AliasChoices("PROSE_ANTHROPIC_API_KEY")
     )
     anthropic_max_retries: int = 2
+    # İş Emri 2026-10-12K-B1F: False → every Claude call sends thinking "disabled" (Haiku
+    # 5.5's default adaptive thinking ate the router's 300-token budget, K-B1 §4a). True →
+    # adaptive thinking; then LLM_MAX_OUTPUT_TOKENS / router budget must grow with it.
+    anthropic_thinking: bool = False
 
     # ADR-027 (Tansu Not 2): when a question cannot be answered, add a code-generated
     # `assist` block (what is available, which terms did not match, one bounded clarifying

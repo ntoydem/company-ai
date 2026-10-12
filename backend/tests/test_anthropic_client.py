@@ -26,16 +26,28 @@ from app.services.llm.anthropic_client import AnthropicClient, _safe_error_summa
 REQUEST = LLMRequest(system="sistem", user="soru", model="claude-haiku-5-5", max_output_tokens=64)
 
 
-def _message(text: str | None, usage: dict[str, Any] | None = None) -> dict[str, Any]:
+def _message(
+    text: str | None,
+    usage: dict[str, Any] | None = None,
+    *,
+    content: list[dict[str, Any]] | None = None,
+    stop_reason: str = "end_turn",
+) -> dict[str, Any]:
+    if content is None:
+        content = [{"type": "text", "text": text}] if text is not None else []
     return {
         "id": "msg_x",
         "type": "message",
         "role": "assistant",
         "model": "claude-haiku-5-5",
-        "stop_reason": "end_turn",
-        "content": [{"type": "text", "text": text}] if text is not None else [],
+        "stop_reason": stop_reason,
+        "content": content,
         "usage": usage or {"input_tokens": 10, "output_tokens": 5},
     }
+
+
+# K-B1 §4a'daki gerçek şekil: Haiku 5.5 düşünme bloğunu boş metinle döndürür.
+_THINKING_BLOCK = {"type": "thinking", "thinking": "", "signature": "sig"}
 
 
 def _client(handler: Any) -> AnthropicClient:
@@ -69,6 +81,8 @@ def test_request_shape_and_usage_parsed(caplog: pytest.LogCaptureFixture) -> Non
     assert body["messages"] == [{"role": "user", "content": "soru"}]
     assert body["max_tokens"] == 64
     assert "temperature" not in body  # SDK bu sürümde desteklemiyor (bkz. anthropic_client.py)
+    # K-B1F: varsayılan düşünme KAPALI — Haiku 5.5 parametre yokken adaptif düşünür (§4a)
+    assert body["thinking"] == {"type": "disabled"}
 
     assert response.text == "Merhaba [K1]."
     assert response.model == "claude-haiku-5-5"
@@ -144,6 +158,82 @@ def test_empty_completion_is_response_error() -> None:
 
     with pytest.raises(LLMResponseError):
         _client(handler).complete(REQUEST)
+
+
+def test_thinking_opt_in_sends_adaptive() -> None:
+    seen: dict[str, Any] = {}
+
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        import json
+
+        seen["body"] = json.loads(request.content)
+        return httpx2.Response(200, json=_message("ok"))
+
+    client = AnthropicClient(
+        api_key="test-key",
+        timeout_s=5,
+        max_retries=0,
+        http_client=httpx2.Client(transport=httpx2.MockTransport(handler)),
+        thinking=True,
+    )
+    assert client.complete(REQUEST).text == "ok"
+    assert seen["body"]["thinking"] == {"type": "adaptive"}
+
+
+def test_thinking_only_reply_is_response_error_naming_thinking() -> None:
+    """K-B1 §4a: `stop_reason=max_tokens`, content=[thinking], metin yok → LLMResponseError;
+    mesaj düşünme ihtimalini açıkça yazar (log için; anahtar/prompt içermez)."""
+
+    def handler(_: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(
+            200,
+            json=_message(
+                None,
+                {"input_tokens": 1331, "output_tokens": 300},
+                content=[_THINKING_BLOCK],
+                stop_reason="max_tokens",
+            ),
+        )
+
+    with pytest.raises(LLMResponseError) as info:
+        _client(handler).complete(REQUEST)
+    message = str(info.value)
+    assert "empty completion" in message
+    assert "max_tokens" in message
+    assert "thinking block consumed the output budget" in message
+    assert "test-key" not in message
+
+
+def test_thinking_and_text_blocks_join_text_only() -> None:
+    def handler(_: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(
+            200,
+            json=_message(
+                None,
+                content=[
+                    _THINKING_BLOCK,
+                    {"type": "text", "text": "Merhaba "},
+                    {"type": "text", "text": "[K1]."},
+                ],
+            ),
+        )
+
+    assert _client(handler).complete(REQUEST).text == "Merhaba [K1]."
+
+
+def test_factory_passes_thinking_setting(settings: Settings) -> None:
+    client = build_llm_client(
+        settings.model_copy(
+            update={
+                "llm_provider": "anthropic",
+                "anthropic_api_key": SecretStr("k"),
+                "anthropic_thinking": True,
+            }
+        )
+    )
+    assert isinstance(client, AnthropicClient)
+    assert client._thinking == {"type": "adaptive"}
+    assert settings.anthropic_thinking is False  # varsayılan kapalı
 
 
 def test_factory_builds_anthropic_client(settings: Settings) -> None:

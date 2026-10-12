@@ -22,6 +22,7 @@ def build_llm_client(settings: Settings) -> LLMClient:
             api_key=api_key,
             timeout_s=settings.llm_timeout_s,
             max_retries=settings.anthropic_max_retries,
+            thinking=settings.anthropic_thinking,
         )
     api_key = settings.llm_api_key.get_secret_value() if settings.llm_api_key else ""
     if not api_key:
