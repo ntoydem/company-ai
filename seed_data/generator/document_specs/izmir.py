@@ -137,6 +137,9 @@ SPECS: dict[str, DocumentSpec] = {
         section_headings_en=[],
         signature_roles_tr=["Hazırlayan: İlgili Birim", "Kontrol Eden: Departman Yöneticisi"],
     ),
+    # İş Emri 2026-10-12-F Adım 2: [[pre_licence_date]] zaten facts'te vardı ama yönerge
+    # olmadan LLM tarihi dolaylı anıyordu ("15.01.2025 tarihli idari kararlar") — "önlisans
+    # tarihi" ifadesiyle AÇIKÇA eşlemiyordu (IZM-DEV-011). Değer metni, sadece bağlama yazılış.
     "DOC-IZM-LEG-004": DocumentSpec(
         doc_id="DOC-IZM-LEG-004",
         family="report",
@@ -145,6 +148,11 @@ SPECS: dict[str, DocumentSpec] = {
         section_headings_tr=["Değerlendirme Kapsamı", "Sonuç"],
         section_headings_en=[],
         signature_roles_tr=["Hazırlayan: İlgili Birim", "Kontrol Eden: Departman Yöneticisi"],
+        prose_guidance_tr=(
+            "Değerlendirme Kapsamı bölümünde önlisans tarihini açıkça belirt: "
+            '"önlisans tarihi [[pre_licence_date]]\'dir" gibi bir cümleyle, yalnızca '
+            "dolaylı bir idari karar referansı olarak değil."
+        ),
     ),
     # İş Emri 2026-10-11-B (Hukuk partisi, T-12.4) — ABC İnşaat'a gönderilen ihtarname.
     "DOC-IZM-LEG-005": DocumentSpec(
