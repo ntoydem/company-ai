@@ -174,4 +174,44 @@ SPECS: dict[str, DocumentSpec] = {
             "altında olduğu için herhangi bir bildirim ihlali bulunmadığını belirt."
         ),
     ),
+    # İş Emri 2026-10-12-G Adım 3 (T-12.2, NACI_CEVAP_2026-10-12.md §6) — davacının adı
+    # artık verildi (DOC-YSV-LEG-001'in aksine, bu belge davacıyı isimle anar).
+    "DOC-YSV-LEG-002": DocumentSpec(
+        doc_id="DOC-YSV-LEG-002",
+        family="letter",
+        subtitle_tr="Arazi Tahsisi Tazminat Davası — Dava Dilekçesi",
+        subtitle_en="",
+        section_headings_tr=["Dava Konusu", "Talep"],
+        section_headings_en=[],
+        subject_label_tr="Arazi Tahsisi Tazminatı — [[case_number]]",
+        signature_roles_tr=["Davacı Vekili"],
+        prose_guidance_tr=(
+            "Bu belge [[court]]'na hitaben yazılmış bir dava dilekçesidir. Davacı "
+            "[[plaintiff]], davalı [[defendant]]. Dava konusu [[legal_subject]]. "
+            "Davacının talebi [[amount_claimed]]. Dava [[filed_date]] tarihinde "
+            "açılmıştır. Resmi, hukuki bir dilekçe üslubu kullan. Davanın sonucu "
+            "veya güçlü/zayıf yönleri hakkında yorum yapma — yalnız talebi ve "
+            "gerekçesini aktar."
+        ),
+    ),
+    # İş Emri 2026-10-12-G Adım 3 (T-12.2b, NACI_CEVAP_2026-10-12.md §6) — önceden İş Emri
+    # 2026-10-11-B Adım A'da davacı isimsiz olduğu için ATLANMIŞTI.
+    "DOC-YSV-LEG-003": DocumentSpec(
+        doc_id="DOC-YSV-LEG-003",
+        family="letter",
+        subtitle_tr="Sınır İhlali Davası — Dava Dilekçesi",
+        subtitle_en="",
+        section_headings_tr=["Dava Konusu", "Talep"],
+        section_headings_en=[],
+        subject_label_tr="Sınır İhlali — [[case_number]]",
+        signature_roles_tr=["Davacı Vekili"],
+        prose_guidance_tr=(
+            "Bu belge [[court]]'na hitaben yazılmış bir dava dilekçesidir. Davacı "
+            "[[plaintiff]], davalı [[defendant]]. Dava konusu [[legal_subject]]. "
+            "Davacının talebi (ecrimisil) [[amount_claimed]]. Dava [[filed_date]] "
+            "tarihinde açılmıştır. Resmi, hukuki bir dilekçe üslubu kullan. Davanın "
+            "sonucu veya güçlü/zayıf yönleri hakkında yorum yapma — yalnız talebi ve "
+            "gerekçesini aktar."
+        ),
+    ),
 }

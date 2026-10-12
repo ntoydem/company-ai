@@ -1,0 +1,22 @@
+doc_id: DOC-YSV-LEG-003
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: Dava Konusu
+  paragraphs:
+  - İşbu dilekçe, [[court]] nezdinde [[case_number]] sayılı dosya ile görülmekte olan
+    davaya ilişkindir. Dava, [[filed_date]] tarihinde davacı [[plaintiff]] tarafından
+    davalı [[defendant]] aleyhine açılmıştır.
+  - Dava konusu, [[project_name]] kapsamında ortaya çıkan [[legal_subject]] hususudur.
+    Davacı, davalının eylemlerinin sınır ihlali niteliği taşıdığını ileri sürmektedir.
+  - İşbu belge, [[title]] başlığını taşımakta olup [[document_no]] numarasıyla [[document_date]]
+    tarihinde düzenlenmiştir. Belgenin durumu [[status_label]], sürümü [[version_label]]
+    olarak kayıtlıdır.
+- heading: Talep
+  paragraphs:
+  - Davacı [[plaintiff]], dava konusu ihlal nedeniyle ecrimisil olarak [[amount_claimed]]
+    tutarının davalıdan tahsilini talep etmektedir. Talep, yukarıda açıklanan olgulara
+    ve davacının ileri sürdüğü gerekçelere dayanmaktadır.
+  - Davacı, yargılama sürecinde ileri sürülebilecek hususlar bakımından haklarını
+    saklı tutmaktadır. Yukarıda arz edilen sebeplerle, [[court]] huzurunda talebin
+    kabulüne karar verilmesi saygıyla arz ve talep olunur.

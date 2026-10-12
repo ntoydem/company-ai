@@ -522,6 +522,10 @@ class AnkaraProject(_Strict):
     construction: Construction
     operations: Operations
     legal_case: LegalCase | None = None
+    # İş Emri 2026-10-12-G Adım 3 (T-12.1b, NACI_CEVAP_2026-10-12.md §6): Karatepe'nin
+    # İKİNCİ, bağımsız davası (elektrik direği ihlali) — `legal_case`in zaten T-12.1
+    # (kamulaştırma) tarafından kullanılması nedeniyle ayrı alan.
+    legal_case_2: LegalCase | None = None
 
 
 # ---------------------------------------------------------------- İzmir
@@ -747,6 +751,10 @@ class OperatingProject(_Strict):
     # İş Emri 2026-10-11-B: Boztepe (T-12.3) ve Yeşilova (T-12.2) — Güneşalan'ın davası yok
     # (NACI_CEVAP §1 son satır), bu yüzden Güneşalan'ın kendi yaml'ı bu alanı hiç kullanmaz.
     legal_case: LegalCase | None = None
+    # İş Emri 2026-10-12-G Adım 3 (T-12.2b, NACI_CEVAP_2026-10-12.md §6): Yeşilova'nın
+    # İKİNCİ, bağımsız davası (sınır ihlali) — `legal_case`in zaten T-12.2 (arazi tahsis
+    # tazminatı) tarafından kullanılması nedeniyle ayrı alan.
+    legal_case_2: LegalCase | None = None
 
 
 class RegulatoryObjection(_Strict):

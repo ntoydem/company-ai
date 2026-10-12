@@ -1,0 +1,22 @@
+doc_id: DOC-YSV-LEG-002
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: Dava Konusu
+  paragraphs:
+  - Bu dilekçe, [[court]] önünde [[filed_date]] tarihinde açılan ve [[case_number]]
+    referansıyla kayda alınan davaya ilişkindir. Davacı [[plaintiff]], davalı [[defendant]]
+    aleyhine işbu davayı ikame etmiştir.
+  - Dava konusu [[legal_subject]] olup uyuşmazlık, [[project_name]] kapsamındaki arazi
+    tahsisi sürecinden kaynaklanmaktadır. Davacı, bu süreçte uğradığını ileri sürdüğü
+    zararın tazmin edilmesini istemektedir.
+  - Dilekçe, [[title]] başlığı altında [[document_no]] numaralı belge olarak, [[document_date]]
+    tarihli [[version_label]] ile hazırlanmıştır. Belgenin güncel durumu [[status_label]]
+    olarak belirtilmiştir.
+- heading: Talep
+  paragraphs:
+  - Davacı [[plaintiff]], yukarıda açıklanan gerekçelerle [[amount_claimed]] tutarındaki
+    tazminatın davalı [[defendant]] tarafından ödenmesini talep etmektedir. Bu talep,
+    dava konusu arazi tahsisinden doğan zararın giderilmesine yöneliktir.
+  - Davacı ayrıca yargılama giderlerinin davalıya yükletilmesini ve uyuşmazlığın hakkaniyete
+    uygun biçimde sonuçlandırılmasını saygıyla arz ve talep eder.

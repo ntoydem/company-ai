@@ -1,0 +1,21 @@
+doc_id: DOC-ANK-LEG-010
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: Dava Konusu
+  paragraphs:
+  - İşbu dilekçe, [[court]] huzurunda [[case_number]] sayılı dosya kapsamında görülmekte
+    olan davaya ilişkindir. Davacı [[plaintiff]], davalı [[defendant]] aleyhine [[filed_date]]
+    tarihinde dava açmıştır.
+  - Dava konusu uyuşmazlık, [[legal_subject]] hususuna ilişkindir. Uyuşmazlık, [[project_name]]
+    kapsamında yer alan elektrik direğine yönelik ihlal iddiasından doğmuştur.
+  - Bu dilekçe, [[document_no]] numaralı belge olarak [[document_date]] tarihinde
+    düzenlenmiş olup [[version_label]] sürümünü taşımaktadır.
+- heading: Talep
+  paragraphs:
+  - Davacı, dava konusu ihlal nedeniyle davalıdan ecrimisil olarak [[amount_claimed]]
+    tutarının tahsilini talep etmektedir. Talep, ihlalin davacının haklarına aykırı
+    olduğu iddiasına dayanmaktadır.
+  - Davacı ayrıca yargılama giderlerinin davalıya yükletilmesini istemektedir. Gerekli
+    incelemenin yapılarak yukarıda açıklanan talebin kabulüne karar verilmesi saygıyla
+    arz ve talep olunur.

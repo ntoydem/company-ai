@@ -125,19 +125,33 @@ project:
     insurance_policy_no: {value: "YS-2026-04471", tag: USER_FACT, note: "STU Sigorta (NACI_CEVAP §3.7, kurgusal)."}
 
   # İş Emri 2026-10-11-B (T-12.2, NACI_CEVAP_2026-10-11.md §1 — ürün sahibi onaylı).
-  # `plaintiff` kaynakta özel ad DEĞİL — "arazi maliki (kurgusal kişi)" rol tanımı; bir isim
-  # İCAT EDİLMEDİ (ÖNCEDEN VERİLMİŞ KARAR 1). Bu yüzden dava dilekçesinin KENDİSİ (davacının
-  # ismiyle anılması gereken tek belge türü) ÜRETİLMEDİ — bkz. Adım A raporu §3.
+  # Düzeltme (İş Emri 2026-10-12-G Adım 3, NACI_CEVAP_2026-10-12.md §6): davacının adı
+  # (kurgusal) artık verildi — önceden "arazi maliki (kurgusal kişi)" rol tanımıydı, isim
+  # İCAT EDİLMEMİŞTİ (ÖNCEDEN VERİLMİŞ KARAR 1); bu yüzden dava dilekçesi ÜRETİLMEMİŞTİ
+  # (bkz. Adım A raporu §3) — artık üretiliyor (DOC-YSV-LEG-002).
   legal_case:
     court: {value: "Çanakkale 1. Asliye Hukuk Mahkemesi", tag: USER_FACT}
     case_number: {value: "2025/208 E.", tag: USER_FACT}
-    plaintiff: {value: "Arazi Maliki (kurgusal kişi, ismi henüz verilmedi)", tag: USER_FACT}
+    plaintiff: {value: "Hasan Çelik (arazi maliki)", tag: USER_FACT}
     defendant: {value: "Yeşilova RES Enerji Üretim A.Ş.", tag: USER_FACT}
     subject: {value: "Arazi tahsisine ilişkin tazminat talebi", tag: USER_FACT}
     filed_date: 2025-06-11
     next_hearing: 2026-11-05
     amount_claimed: {value: 1350000, currency: TRY, tag: USER_FACT, note: "Yaklaşık 27.700 USD (NACI_CEVAP §1)."}
     material_litigation_threshold: {value: 250000, currency: USD, tag: USER_FACT, note: "Kredi sözleşmesindeki 'önemli dava' bildirim eşiği; bu dava eşiğin altında, bildirim ihlali yok."}
+    tag: USER_FACT
+
+  # İş Emri 2026-10-12-G Adım 3 (T-12.2b, NACI_CEVAP_2026-10-12.md §6 — ürün sahibi
+  # onaylı). Durum "Bekliyor": ön inceleme henüz yapılmadı.
+  legal_case_2:
+    court: {value: "Çanakkale 2. Asliye Hukuk Mahkemesi", tag: USER_FACT}
+    case_number: {value: "2026/511 E.", tag: USER_FACT}
+    plaintiff: {value: "Ayşe Doğan (komşu parsel maliki)", tag: USER_FACT}
+    defendant: {value: "Yeşilova RES Enerji Üretim A.Ş.", tag: USER_FACT}
+    subject: {value: "Santral servis yolunun yaklaşık 1,2 dönüm davacının parseline taşması — el atmanın önlenmesi ve ecrimisil talebi", tag: USER_FACT}
+    filed_date: 2026-09-02
+    next_hearing: 2026-12-18
+    amount_claimed: {value: 85000, currency: TRY, tag: USER_FACT, note: "Ecrimisil talebi."}
     tag: USER_FACT
 
 documents:
@@ -398,6 +412,54 @@ documents:
     status: active
     parties: ["Yeşilova RES Enerji Üretim A.Ş."]
     key_facts: {court: "project.legal_case.court.value", case_number: "project.legal_case.case_number.value", amount_claimed: "project.legal_case.amount_claimed.value", filed_date: "project.legal_case.filed_date", next_hearing: "project.legal_case.next_hearing", material_litigation_threshold: "project.legal_case.material_litigation_threshold.value"}
+    supersedes: null
+    superseded_by: null
+    related: []
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT
+
+  # İş Emri 2026-10-12-G Adım 3 (T-12.2, NACI_CEVAP_2026-10-12.md §6) — önceden İş Emri
+  # 2026-10-11-B Adım A'da davacı isimsiz olduğu için ATLANMIŞTI, şimdi üretiliyor.
+  - id: DOC-YSV-LEG-002
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Lawsuit Petition
+    name: {value: "Arazi Tahsisi Tazminat Davası — Dava Dilekçesi", tag: USER_FACT}
+    document_date: {value: 2025-06-11, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "Hasan Çelik"]
+    key_facts: {court: "project.legal_case.court.value", case_number: "project.legal_case.case_number.value", plaintiff: "project.legal_case.plaintiff.value", defendant: "project.legal_case.defendant.value", legal_subject: "project.legal_case.subject.value", filed_date: "project.legal_case.filed_date", amount_claimed: "project.legal_case.amount_claimed.value"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-YSV-LEG-001]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT
+
+  # İş Emri 2026-10-12-G Adım 3 (T-12.2b, NACI_CEVAP_2026-10-12.md §6) — önceden İş Emri
+  # 2026-10-11-B Adım A'da davacı isimsiz olduğu için ATLANMIŞTI, şimdi üretiliyor.
+  - id: DOC-YSV-LEG-003
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Lawsuit Petition
+    name: {value: "Sınır İhlali Davası — Dava Dilekçesi", tag: USER_FACT}
+    document_date: {value: 2026-09-02, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Yeşilova RES Enerji Üretim A.Ş.", "Ayşe Doğan"]
+    key_facts: {court: "project.legal_case_2.court.value", case_number: "project.legal_case_2.case_number.value", plaintiff: "project.legal_case_2.plaintiff.value", defendant: "project.legal_case_2.defendant.value", legal_subject: "project.legal_case_2.subject.value", filed_date: "project.legal_case_2.filed_date", amount_claimed: "project.legal_case_2.amount_claimed.value"}
     supersedes: null
     superseded_by: null
     related: []

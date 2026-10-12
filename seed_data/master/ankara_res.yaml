@@ -276,6 +276,21 @@ project:
     opposing_counsel_email_date: 2026-09-10
     tag: USER_FACT
 
+  # İş Emri 2026-10-12-G Adım 3 (T-12.1b, NACI_CEVAP_2026-10-12.md §6 — ürün sahibi
+  # onaylı): davacının adı (kurgusal) artık verildi, önceden "komşu parsel maliki
+  # (kurgusal kişi)" rolüyle anılıyordu, isim icat edilmemişti (İş Emri 2026-10-11-B
+  # Adım A). Durum "Bekliyor": ön inceleme henüz yapılmadı.
+  legal_case_2:
+    court: {value: "Ankara 1. Asliye Hukuk Mahkemesi", tag: USER_FACT}
+    case_number: {value: "2026/356 E.", tag: USER_FACT}
+    plaintiff: {value: "Ramazan Öztürk (komşu parsel maliki)", tag: USER_FACT}
+    defendant: {value: "Karatepe RES Enerji Üretim A.Ş.", tag: USER_FACT}
+    subject: {value: "Santral iç saha OG hattının bir direğinin izinsiz olarak davacının parseline dikilmesi — el atmanın önlenmesi ve ecrimisil talebi", tag: USER_FACT}
+    filed_date: 2026-06-18
+    next_hearing: 2026-11-20
+    amount_claimed: {value: 240000, currency: TRY, tag: USER_FACT, note: "Ecrimisil talebi."}
+    tag: USER_FACT
+
 # Master document inventory. generate_in_phase: 3.1 -> Phase 3.1 produces the file; 5.1 -> inventory-only until then.
 documents:
   - id: DOC-ANK-DEV-001
@@ -1406,6 +1421,30 @@ documents:
     supersedes: null
     superseded_by: null
     related: [DOC-ANK-LEG-004]
+    source_type: digital_pdf
+    language: tr
+    confidentiality: restricted
+    generate_in_phase: "5.1"
+    tag: USER_FACT
+
+  # İş Emri 2026-10-12-G Adım 3 (T-12.1b, NACI_CEVAP_2026-10-12.md §6) — önceden İş Emri
+  # 2026-10-11-B Adım A'da davacı isimsiz olduğu için ATLANMIŞTI, şimdi üretiliyor.
+  - id: DOC-ANK-LEG-010
+    department: hukuk
+    subdepartment: null
+    folder: legal
+    type: Lawsuit Petition
+    name: {value: "Elektrik Direği İhlali Davası — Dava Dilekçesi", tag: USER_FACT}
+    document_date: {value: 2026-06-18, tag: USER_FACT}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Karatepe RES Enerji Üretim A.Ş.", "Ramazan Öztürk"]
+    key_facts: {court: "project.legal_case_2.court.value", case_number: "project.legal_case_2.case_number.value", plaintiff: "project.legal_case_2.plaintiff.value", defendant: "project.legal_case_2.defendant.value", legal_subject: "project.legal_case_2.subject.value", filed_date: "project.legal_case_2.filed_date", amount_claimed: "project.legal_case_2.amount_claimed.value"}
+    supersedes: null
+    superseded_by: null
+    related: []
     source_type: digital_pdf
     language: tr
     confidentiality: restricted
