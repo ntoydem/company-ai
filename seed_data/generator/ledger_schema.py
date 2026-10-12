@@ -65,6 +65,9 @@ DepartmentSlug = Literal[
 ]
 
 # SPEC_03 §2 pre-licence steps (fixed vocabulary for İzmir).
+# İş Emri 2026-10-12-G Adım 0b: "İnşaat Başlangıcı" eklendi (construction_start=None ile
+# tutarlı bir pending_steps satırı yazılabilsin diye) — inşaat bir "önlisans adımı" değil,
+# ama bu sözlük fiilen "bekleyen kritik adımlar" tablosunun satır kümesi, inşaat da buna dahil.
 PRE_LICENCE_STEPS = (
     "Önlisans",
     "Süre Uzatımı Başvurusu",
@@ -77,6 +80,7 @@ PRE_LICENCE_STEPS = (
     "ÇED",
     "Yapı Ruhsatı",
     "Üretim Lisansı",
+    "İnşaat Başlangıcı",
 )
 PreLicenceStep = Literal[
     "Önlisans",
@@ -90,6 +94,7 @@ PreLicenceStep = Literal[
     "ÇED",
     "Yapı Ruhsatı",
     "Üretim Lisansı",
+    "İnşaat Başlangıcı",
 ]
 
 FACILITY_CHAIN_VERSIONS = ("DRAFT", "V01", "V02", "EXECUTED", "AMD01", "AMD02")

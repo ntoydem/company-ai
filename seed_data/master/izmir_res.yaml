@@ -69,12 +69,16 @@ project:
       - {step: "İmar Kesinleşme", expected: null, tag: USER_FACT}
       - {step: "Kat'i Proje Onayı", expected: null, tag: USER_FACT}
       - {step: "Bağlantı Anlaşması", expected: null, tag: USER_FACT}
-      # İş Emri 2026-10-12-F Adım 2: boş hücre yerine açık cümle — ledger'daki
-      # timeline.licence=null'dan türetildi (önceki adımlar — ÇED/imar/proje onayı/
-      # bağlantı anlaşması — tamamlanmadan başvurulamayacağı, pending_steps'in kendi
-      # sırasından çıkıyor, icat değil).
-      - {step: "Yapı Ruhsatı", expected: "Henüz alınmamıştır — ÇED, imar kesinleşmesi, kat'i proje onayı ve bağlantı anlaşması tamamlanmadan başvurulamaz.", tag: USER_FACT}
-      - {step: "Üretim Lisansı", expected: "Henüz alınmamıştır — bugüne kadar yalnızca önlisans (15.01.2025) alınmıştır.", tag: USER_FACT}
+      # İş Emri 2026-10-12-F Adım 2 (düzeltme: İş Emri 2026-10-12-G Adım 0a, Naci onaylı):
+      # boş hücre yerine açık cümle — ledger'da sabit bir USER_FACT değeri değil, "önceki
+      # adımlar tamamlanmadan bu ikisi de alınmamıştır" çıkarımı, bu yüzden AI_ASSUMPTION.
+      # Gerekçe cümlesi ("ÇED, imar kesinleşmesi... tamamlanmadan başvurulamaz") kaldırıldı
+      # — yalnız durum bilgisi yazılır, idari sıralama iddiası yazılmaz.
+      - {step: "Yapı Ruhsatı", expected: "Henüz alınmamıştır.", tag: AI_ASSUMPTION}
+      - {step: "Üretim Lisansı", expected: "Henüz alınmamıştır — bugüne kadar yalnızca önlisans (15.01.2025) alınmıştır.", tag: AI_ASSUMPTION}
+      # İş Emri 2026-10-12-G Adım 0b: project.timeline.construction_start=null (satır 37)
+      # ile tutarlı.
+      - {step: "İnşaat Başlangıcı", expected: "Henüz başlanmamıştır.", tag: AI_ASSUMPTION}
     latest_event: {date: 2026-09-12, doc: DOC-IZM-DEV-003, tag: USER_FACT, note: "Kurum görüş yazısı (ek bilgi talebi 18.07.2026'ydı; İDK toplantısı henüz yapılmadı, ÇED-2026-057)."}
 
   # Adım 5 Aşama C (10.10.2026, NACI_CEVAP §3.2/§3.3) — imzalı ama kullandırılmamış/
