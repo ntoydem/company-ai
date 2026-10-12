@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from seed_data.generator.document_specs._base import DocumentSpec
+from seed_data.generator.document_specs._base import DocumentSpec, ExtraTable
 
 SPECS: dict[str, DocumentSpec] = {
     "DOC-BOZ-FIN-001": DocumentSpec(
@@ -37,16 +37,42 @@ SPECS: dict[str, DocumentSpec] = {
             "amounts it already contains in your own words elsewhere in this "
             "document. Section 4 (Financial Covenants): state the covenant using "
             "[[dscr_covenant]] as a MINIMUM REQUIREMENT ONLY — do not state or imply "
-            "any historical test result, pass/fail outcome, or test date; no DSCR "
-            "test history exists for this facility and none may be invented. "
-            "Section 5 (Governing Law): a standard governing-law clause, no new "
-            "facts. Never invent a specific substantive provision not backed by a "
-            "token."
+            "any historical test result, pass/fail outcome, or test date (that "
+            "history is a separate document, not this one). "
+            "Section 5 (Governing Law): state that this Agreement is governed by "
+            "[[governing_law]] — do not elaborate further or invent jurisdiction/"
+            "court details beyond that. Never invent a specific substantive "
+            "provision not backed by a token."
         ),
         signature_roles_en=[
             "For and on behalf of [[spv_name]] (Borrower) — Authorized Signatory",
             "For and on behalf of [[counterparty]] (Lender) — Authorized Signatory",
         ],
+    ),
+    # İş Emri 2026-10-12-G Adım 4 (veri dondurma kuralı): Karatepe'nin DOC-ANK-FIN-007'si
+    # ve Yeşilova'nın DOC-YSV-FIN-010'uyla aynı desen — covenant_tests extra_table'ı,
+    # Facility Agreement'ın kendisinden AYRI bir rapor belgesinde.
+    "DOC-BOZ-FIN-005": DocumentSpec(
+        doc_id="DOC-BOZ-FIN-005",
+        family="report",
+        subtitle_tr="",
+        subtitle_en="Boztepe RES — Quarterly Covenant Compliance Report",
+        section_headings_tr=[],
+        section_headings_en=["1. Purpose and Scope", "2. Compliance Summary"],
+        extra_table=ExtraTable(
+            heading_tr="",
+            heading_en="3. Covenant Test History",
+            kind="covenant_tests",
+            ledger_key="boztepe_res",
+        ),
+        signature_roles_en=["Prepared by: Finance Officer", "Reviewed by: Lender's Agent"],
+        prose_guidance_en=(
+            "In the Compliance Summary, state the minimum covenant requirement "
+            "using [[dscr_covenant]] only — do not restate or summarize individual "
+            "historical test results here (they appear in the table below, not in "
+            "prose). Never invent a specific substantive provision not backed by a "
+            "token."
+        ),
     ),
     "DOC-BOZ-FIN-002": DocumentSpec(
         doc_id="DOC-BOZ-FIN-002",

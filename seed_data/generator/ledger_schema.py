@@ -422,6 +422,11 @@ class Finance(_Strict):
     effective_rate_pct_en: Fact | None = None
     effective_rate_pct_tr: Fact | None = None
     repayment_profile_en: Fact | None = None
+    # İş Emri 2026-10-12-G Adım 4 (veri dondurma kuralı — NACI_CEVAP_2026-10-12.md §8):
+    # project-generic, optional — a facility's named governing law (not every SPV's
+    # facility spells this out; Boztepe's first use, previously a vague circular
+    # placeholder in prose with no actual jurisdiction named).
+    governing_law: Fact | None = None
 
 
 class ChangeOrder(_Strict):

@@ -1,0 +1,22 @@
+doc_id: DOC-BOZ-FIN-005
+model: claude-sonnet-5-5
+tag: AI_ASSUMPTION
+sections:
+- heading: 1. Purpose and Scope
+  paragraphs:
+  - This report, [[title]] (reference [[document_no]]), is issued as of [[document_date]]
+    in respect of [[project_name]]. It is presented as version [[version_label]] and
+    carries the status [[status_label]].
+  - The report is prepared by [[spv_name]] as a periodic confirmation of its financial
+    covenant position. It is made available to [[counterparty_list]] for information
+    and review.
+  - The scope is limited to the financial covenant testing for the reporting period.
+    The report does not amend, waive or interpret any term of the underlying financing
+    arrangements.
+- heading: 2. Compliance Summary
+  paragraphs:
+  - The minimum debt service coverage requirement applicable to the project is [[dscr_covenant]].
+    Compliance is assessed by comparing the calculated coverage against this threshold.
+  - The individual test results for the relevant periods are presented in the table
+    that follows. This section does not restate them and records only the applicable
+    requirement.

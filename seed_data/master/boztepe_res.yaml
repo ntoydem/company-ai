@@ -62,6 +62,14 @@ project:
     effective_rate_pct_en: {value: "6.7440%", tag: USER_FACT, note: "Swap sabit %3,894 + marj %2,85 = %6,744 (yukarıdaki `interest` alanından türetilen aritmetik, Tansu onaylı — T-11.7)."}
     effective_rate_pct_tr: {value: "%6,7440", tag: USER_FACT}
     repayment_profile_en: {value: "First 3 years interest-only (from February 20, 2024); principal repayment in 84 equal monthly instalments of 178,571.43 USD from March 1, 2027, with the final instalment on February 1, 2034", tag: USER_FACT}
+    # İş Emri 2026-10-12-G Adım 4 (veri dondurma kuralı — NACI_CEVAP_2026-10-12.md §8):
+    # önceden (İş Emri 2026-10-11 Adım 4) kaynağı olmadığı için hiç üretilmemişti (bkz.
+    # dokümandaki üstteki not). Artık tutarlı bir değer seçilip AI_ASSUMPTION ile
+    # işaretlendi — `dscr_covenant` (1,20x minimum) ile tutarlı, ikisi de geçti.
+    governing_law: {value: "Türkiye Cumhuriyeti kanunları", tag: AI_ASSUMPTION, note: "Veri dondurma kuralı (NACI_CEVAP_2026-10-12.md §8): borçlu ve kreditör ikisi de Türkiye'de kurulu/yerleşik, tutarlı bir seçim — önceden belirtilmemişti."}
+    covenant_tests:
+      - {period: Q4_2024, dscr: 1.28, result: pass, doc: null, tag: AI_ASSUMPTION}
+      - {period: Q4_2025, dscr: 1.31, result: pass, doc: null, tag: AI_ASSUMPTION}
 
   operations:
     om_contractor: {value: "Enercon Servis Türkiye", tag: USER_FACT, note: "Sözleşme S-25-007/008; Karatepe ile aynı fiyat (38.500 EUR/ay) — Karatepe'nin kendi ledger'ına bu round'da işlenmedi, bkz. ADIM5_ASAMA_C_REPORT.md §4."}
@@ -84,12 +92,13 @@ project:
     tag: USER_FACT
 
 # İş Emri 2026-10-11 Adım 4 (Boztepe PF-2, plan §9.9): Boztepe'nin ilk belgeleri.
-# "DSCR test tablosu" bu iş emrinin istediği 5. teslimattı — Boztepe'de `covenant_tests`
-# hiç yok (yalnız `dscr_covenant` = 1.20x minimum, bkz. yukarıda), yani geçmiş test
-# SONUÇLARI hiçbir kaynaktan gelmiyor. GENEL kuralı ("kaynağı olmayan bilgi uydurma") ve
-# DURMA KURALI'nın "kaynağı olmayan bilgi gerekirse DUR" maddesi gereği ayrı bir "DSCR
-# test tablosu" belgesi/bölümü ÜRETİLMEDİ — Facility Agreement yalnız 1.20x MİNİMUMU
-# (covenant şartı, sourced) anar, hiçbir geçmiş test sonucu icat etmez. Bkz. Adım 4 raporu.
+# Düzeltme (İş Emri 2026-10-12-G Adım 4, veri dondurma kuralı — NACI_CEVAP_2026-10-12.md
+# §8): o zaman `covenant_tests` hiç yoktu (yalnız `dscr_covenant` = 1.20x minimum) ve
+# DURMA KURALI gereği geçmiş test sonucu icat edilmemişti — Facility Agreement (DOC-BOZ-
+# FIN-001) yalnız minimumu anıyordu. Artık yeni politika (eksik değer -> tutarlı seçim +
+# AI_ASSUMPTION) altında `covenant_tests` eklendi (yukarıda) ve ayrı bir Covenant Report
+# (DOC-BOZ-FIN-005) üretildi — Karatepe/Yeşilova'nın deseniyle aynı (ayrı belge, Facility
+# Agreement'ın kendisi hâlâ yalnız minimumu anar).
 documents:
   - id: DOC-BOZ-FIN-001
     department: finans
@@ -103,7 +112,7 @@ documents:
     version: EXECUTED
     status: executed
     parties: ["Boztepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
-    key_facts: {total_debt: "project.finance.total_debt.value", effective_rate_pct_en: "project.finance.effective_rate_pct_en.value", signed_date: "project.finance.signed_date", tenor_years: "project.finance.tenor_years.value", dscr_covenant: "project.finance.dscr_covenant.value", dsra_balance: "project.finance.dsra_balance.value", repayment_profile_en: "project.finance.repayment_profile_en.value", cod_actual: "project.timeline.cod_actual.date"}
+    key_facts: {total_debt: "project.finance.total_debt.value", effective_rate_pct_en: "project.finance.effective_rate_pct_en.value", signed_date: "project.finance.signed_date", tenor_years: "project.finance.tenor_years.value", dscr_covenant: "project.finance.dscr_covenant.value", dsra_balance: "project.finance.dsra_balance.value", repayment_profile_en: "project.finance.repayment_profile_en.value", cod_actual: "project.timeline.cod_actual.date", governing_law: "project.finance.governing_law.value"}
     supersedes: null
     superseded_by: null
     related: []
@@ -140,8 +149,8 @@ documents:
     subdepartment: null
     folder: finance
     type: DSRA Account Statement
-    name: {value: "DSRA Hesap Ekstresi — Eylül 2026", tag: AI_ASSUMPTION}
-    document_date: {value: 2026-09-30, tag: AI_ASSUMPTION, note: "Ay sonu ekstresi; demo_today (06.10.2026) öncesi."}
+    name: {value: "DSRA Hesap Ekstresi — Ekim 2026", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-10-06, tag: AI_ASSUMPTION, note: "İş Emri 2026-10-12-G Adım 4 (veri dondurma kuralı): önceden gevşek bir 'ay sonu' tarihiydi (30.09.2026) — demo_today'in (06.10.2026) kendisiyle, tutarlı tek bir anlık görüntü tarihiyle değiştirildi."}
     effective_date: null
     expiration_date: null
     version: EXECUTED
@@ -177,6 +186,32 @@ documents:
     language: en
     confidentiality: normal
     generate_in_phase: "4.2"
+    tag: AI_ASSUMPTION
+
+  # İş Emri 2026-10-12-G Adım 4 (veri dondurma kuralı — NACI_CEVAP_2026-10-12.md §8):
+  # Karatepe'nin DOC-ANK-FIN-007'si ve Yeşilova'nın DOC-YSV-FIN-010'uyla aynı desen
+  # (covenant_tests extra_table) — önceki üretim Facility Agreement'a (DOC-BOZ-FIN-001)
+  # geçmiş test sonucu YAZDIRMAMIŞTI (kaynak yoktu); şimdi ayrı bir Covenant Report ile.
+  - id: DOC-BOZ-FIN-005
+    department: finans
+    subdepartment: null
+    folder: finance
+    type: Covenant Report
+    name: {value: "Boztepe RES — Covenant Compliance Report Q3 2026", tag: AI_ASSUMPTION}
+    document_date: {value: 2026-10-06, tag: AI_ASSUMPTION, note: "demo_today (06.10.2026) ile tutarlı."}
+    effective_date: null
+    expiration_date: null
+    version: EXECUTED
+    status: active
+    parties: ["Boztepe RES Enerji Üretim A.Ş.", "Garanti BBVA"]
+    key_facts: {dscr_covenant: "project.finance.dscr_covenant.value"}
+    supersedes: null
+    superseded_by: null
+    related: [DOC-BOZ-FIN-001]
+    source_type: digital_pdf
+    language: en
+    confidentiality: normal
+    generate_in_phase: "5.1"
     tag: AI_ASSUMPTION
 
   # İş Emri 2026-10-11-B (Hukuk partisi, T-12.3) — ürün sahibi onaylı, tag USER_FACT.
