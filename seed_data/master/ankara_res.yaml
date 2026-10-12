@@ -514,6 +514,11 @@ documents:
     key_facts:
       dscr: "project.finance.covenant_tests[10].dscr"
       outstanding_debt: project.finance.outstanding_debt_as_of_demo_today.value
+      # İş Emri 2026-10-12H Adım 3 (Tansu 8. tur): ledger `total_debt.source_doc` zaten bu
+      # belgeyi gösteriyordu ama rakam (13.600.000 USD, fiilen kullandırılan) metinde hiç
+      # geçmiyordu (F-Adım2 bulgusu, ANK-FIN-002/003). DOC-ANK-FIN-004'teki 14.000.000 USD
+      # sözleşme tutarıyla çakışma BİLİNÇLİ, korunur (contract_amount notu).
+      total_debt: project.finance.total_debt.value
     supersedes: null
     superseded_by: null
     related: [DOC-ANK-FIN-006]

@@ -116,6 +116,7 @@ _FIELD_KIND: dict[str, tuple[str, str]] = {
     "effective_rate_pct_en": ("text", ""),
     "effective_rate_pct_tr": ("text", ""),
     "repayment_profile_en": ("text", ""),
+    "governing_law": ("governing_law", ""),
     "signed_date": ("date", ""),
     "monthly_interest_amount": ("money", ""),
     # İş Emri 2026-10-11-B — Hukuk partisi (dava/itiraz/ihtarname/değerlendirme belgeleri).
@@ -240,6 +241,20 @@ def _ordinal_suffix_en(n: int) -> str:
     return {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
 
 
+# İş Emri 2026-10-12H Adım 4: the ledger keeps `governing_law` in Turkish; an English
+# document must not read "governed by Türkiye Cumhuriyeti kanunları" (mixed language,
+# DOC-BOZ-FIN-001). Known values are translated here; anything else passes through.
+_GOVERNING_LAW_EN: dict[str, str] = {
+    "Türkiye Cumhuriyeti kanunları": "the laws of the Republic of Türkiye",
+}
+
+
+def _format_governing_law(value: str, language: str) -> str:
+    if language == "tr":
+        return value
+    return _GOVERNING_LAW_EN.get(value, value)
+
+
 def _format_ced_status(value: str, language: str) -> str:
     if value == "ongoing":
         return "devam ediyor" if language == "tr" else "ongoing"
@@ -280,6 +295,8 @@ def format_value(
         return _format_ordinal(float(value), language)
     if kind == "ced_status":
         return _format_ced_status(str(value), language)
+    if kind == "governing_law":
+        return _format_governing_law(str(value), language)
     return str(value)
 
 

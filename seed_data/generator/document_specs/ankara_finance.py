@@ -132,6 +132,17 @@ SPECS: dict[str, DocumentSpec] = {
             heading_tr="", heading_en="4. Covenant Test History", kind="covenant_tests"
         ),
         signature_roles_en=["Prepared by: Finance Officer", "Reviewed by: Lender's Agent"],
+        # İş Emri 2026-10-12H Adım 3: the drawn facility total ([[total_debt]]) is now a
+        # token and must be stated explicitly, kept distinct from the outstanding balance.
+        prose_guidance_en=(
+            "Section 3 (Outstanding Debt Position): state BOTH figures explicitly and "
+            "distinctly — the total facility amount drawn (utilised) under the loan is "
+            "[[total_debt]], provided entirely by [[counterparty]] as the local bank; the "
+            "outstanding balance as of the reporting date is [[outstanding_debt]]. Do not "
+            "net, derive, or compare them beyond stating each with its own label. "
+            "Section 2 (Compliance Summary): the DSCR for the period is [[dscr]]. Never "
+            "invent a specific substantive provision not backed by a token."
+        ),
     ),
     "DOC-ANK-FIN-010": DocumentSpec(
         doc_id="DOC-ANK-FIN-010",

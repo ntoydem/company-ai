@@ -516,14 +516,24 @@ def available_from_metadata(
     # Adım 2 D2/D4: the question's own terms (≥ 4 chars or an acronym) plus the concept
     # glossary's title-side words ("finansal model" → "Financial Model"), so English-titled
     # workbooks and Turkish questions meet. Still only `allowed` (G3), still ≤ MAX_AVAILABLE.
-    probes = [t for t in terms if _metadata_probe_ok(t)]
-    probes += [t for t in metadata_terms([turkish_lower(t) for t in terms]) if t not in probes]
-    for term in probes:
+    raw_probes = [t for t in terms if _metadata_probe_ok(t)]
+    curated_probes = [
+        t for t in metadata_terms([turkish_lower(t) for t in terms]) if t not in raw_probes
+    ]
+    for term in raw_probes:
         hits = document_repo.search_metadata(session, allowed, term, limit=common_threshold + 1)
         if len(hits) > common_threshold:
             continue  # too common to point anywhere (e.g. a project code carried by every tag)
         for document in hits:
             by_id.setdefault(document.id, document)
+    # İş Emri 2026-10-12H Adım 1 (Tansu 8. tur): CONCEPT_GLOSSARY expansions are curated
+    # by hand, so "found in many documents" is not noise for them — "Facility Agreement"
+    # legitimately names 9 documents (every project's chain) and was dropped as "too common"
+    # (GEN-DSC-002/009/011). No `common_threshold` for these; `limit` still caps the list.
+    for term in curated_probes:
+        for document in document_repo.search_metadata(session, allowed, term, limit=limit):
+            by_id.setdefault(document.id, document)
+    probes = raw_probes + curated_probes
     lowered_probes = [turkish_lower(t) for t in probes]
 
     def title_hit(document: Document) -> int:
@@ -535,14 +545,19 @@ def available_from_metadata(
 
 
 _EXISTENCE_RE = re.compile(
-    r"\b(var m[ıi]|yüklü m[üu]|mevcut m[uü]|nerede|neler|hangi dosya|hangisi|hangileri)\b",
+    r"\b(var m[ıi]|yüklü m[üu]|mevcut m[uü]|nerede|neler|hangi dosya|hangisi|hangileri"
+    # İş Emri 2026-10-12H Adım 2 (GEN-DSC-013, Ç-3): a term-definition question ("amendment
+    # ne demek biliyor musun?") is answered the same way — the documents that carry the
+    # term are listed and a question asked; no definition sentence is composed.
+    r"|ne demek(tir)?|biliyor mu[sş]un|tan[ıi]m[ıi] ne(dir)?|anlam[ıi] ne(dir)?)\b",
     re.IGNORECASE,
 )
 
 
 def is_existence_question(text: str) -> bool:
     """Adım 2 D5: "X var mı / yüklü mü / nerede / neler" asks *whether and where* something
-    exists — the answer is a list of the user's own documents, never a value."""
+    exists — the answer is a list of the user's own documents, never a value. Term-definition
+    phrasings ("ne demek", "tanımı ne") take the same path (İş Emri 2026-10-12H)."""
     return bool(_EXISTENCE_RE.search(turkish_lower(text)))
 
 

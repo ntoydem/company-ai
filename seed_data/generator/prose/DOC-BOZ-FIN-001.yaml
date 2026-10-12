@@ -4,35 +4,33 @@ tag: AI_ASSUMPTION
 sections:
 - heading: 1. Recitals
   paragraphs:
-  - This Facility Agreement, identified as [[document_no]] and titled [[title]], is
-    dated [[document_date]] and is made in respect of the [[project_name]]. It is
-    entered into by [[parties_list]] and forms part of the financing documentation
-    for the project.
-  - The plant reached commercial operation on [[cod_actual]], before this Facility
-    came into existence. The Facility, in a total amount of [[total_debt]], was signed
-    on [[signed_date]] and is not a construction loan.
-  - This Agreement takes effect on [[effective_date]]. The current version is [[version_label]]
-    and its status is [[status_label]].
+  - This Agreement, identified as [[document_no]] and titled [[title]], is made between
+    [[parties_list]]. It relates to the [[project_name]] and is issued as [[version_label]]
+    with the status [[status_label]].
+  - The [[project_name]] reached commercial operation on [[cod_actual]], before this
+    Facility came into existence. The Facility, in the total amount of [[total_debt]],
+    was signed on [[signed_date]], after the plant had been completed.
+  - This Agreement takes effect on [[effective_date]] and is dated [[document_date]].
 - heading: 2. The Facility
   paragraphs:
-  - The Facility is made available in a total amount of [[total_debt]] to [[spv_name]]
-    by [[counterparty_list]]. Its tenor is [[tenor_years]] years from the effective
-    date.
-  - Interest accrues on the Facility at an effective rate of [[effective_rate_pct_en]].
+  - Under this Agreement, the lenders make available to [[spv_name]] a term facility
+    in the total amount of [[total_debt]]. The tenor of the Facility is [[tenor_years]]
+    years.
+  - The interest rate applicable to the Facility is [[effective_rate_pct_en]]. Interest
+    is payable in accordance with the terms of this Agreement.
   - A debt service reserve account is maintained with a balance of [[dsra_balance]],
     a fixed amount equal to six periods of debt service.
 - heading: 3. Repayment
   paragraphs:
-  - 'The Facility shall be repaid in accordance with the following repayment structure:
-    [[repayment_profile_en]].'
-  - Repayment is made in line with that structure and the other terms of this Agreement.
+  - 'The Facility shall be repaid in accordance with the following structure: [[repayment_profile_en]].'
+  - Each repayment is due on the terms and in the manner set out in this Agreement.
+    The repayment structure above applies throughout the tenor of the Facility.
 - heading: 4. Financial Covenants
   paragraphs:
-  - The Borrower undertakes to maintain a debt service coverage ratio of not less
-    than [[dscr_covenant]]. This is a minimum requirement applicable throughout the
-    life of the Facility.
-  - Compliance with this covenant is to be assessed in the manner contemplated by
-    the financing documentation.
+  - 'The borrower shall maintain a debt service coverage ratio of not less than the
+    minimum requirement set out as follows: [[dscr_covenant]].'
+  - Compliance with this covenant is assessed in accordance with the testing provisions
+    of this Agreement. This section sets out the minimum requirement only.
 - heading: 5. Governing Law
   paragraphs:
   - This Agreement is governed by [[governing_law]].

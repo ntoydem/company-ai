@@ -19,6 +19,7 @@ from app.services import retrieval as retrieval_module
 from app.services.answer_prompt import NO_ANSWER_TEXT
 from app.services.assist import (
     GENERIC_TERMS,
+    MAX_AVAILABLE,
     available_from_metadata,
     is_existence_question,
     mismatch_terms,
@@ -79,6 +80,26 @@ def test_existence_question_patterns() -> None:
     assert not is_existence_question("Kredi sözleşmesinin vadesi kaç yıl?")
 
 
+def test_definition_question_patterns_are_existence_questions() -> None:
+    """İş Emri 2026-10-12H Adım 2 (GEN-DSC-013): term-definition phrasings list documents."""
+    for question in (
+        "amendment ne demek biliyor musun?",
+        "Amendment ne demektir?",
+        "Covenant biliyor musun?",
+        "DSCR tanımı ne?",
+        "DSCR TANIMI NEDİR?",
+        "tadil anlamı ne?",
+        "Tadil anlami nedir?",
+    ):
+        assert is_existence_question(question), question
+    for question in (
+        "Kredi sözleşmesinin vadesi kaç yıl?",
+        "DSCR covenant kaç?",
+        "Karatepe RES'in kapasitesi nedir?",
+    ):
+        assert not is_existence_question(question), question
+
+
 # ---------------------------------------------------------------- metadata lookups (DB)
 
 
@@ -107,6 +128,37 @@ def test_metadata_acronym_probe_reaches_short_turkish_acronyms(
     _document(db_session, title="Facility Agreement", department=None, text="loan")
     cards = available_from_metadata(db_session, {ced.id}, ["ÇED", "raporu", "nerede"])
     assert [c.document_id for c in cards] == [ced.id]
+
+
+def test_curated_glossary_probe_is_exempt_from_common_threshold(
+    db_session: Session, admin_user: User
+) -> None:
+    """İş Emri 2026-10-12H Adım 1: "sözleşme" → CONCEPT_GLOSSARY "Agreement" names 7 documents
+    here (> MAX_AVAILABLE) and must still surface them — capped at MAX_AVAILABLE, never all."""
+    agreements = [
+        _document(db_session, title=f"Facility Agreement V{i:02d}", department=None, text="loan")
+        for i in range(7)
+    ]
+    other = _document(db_session, title="Performance Test Report", department=None, text="MW")
+    allowed = {d.id for d in agreements} | {other.id}
+    cards = available_from_metadata(db_session, allowed, ["Sözleşme", "var"])
+    ids = {c.document_id for c in cards}
+    assert 0 < len(cards) <= MAX_AVAILABLE
+    assert ids <= {d.id for d in agreements}
+    assert other.id not in ids
+
+
+def test_raw_question_term_still_hits_common_threshold(
+    db_session: Session, admin_user: User
+) -> None:
+    """İş Emri 2026-10-12H Adım 1: a raw question word carried by > MAX_AVAILABLE documents
+    (and not in the glossary) is still a non-term — the threshold is unchanged for it."""
+    minutes = [
+        _document(db_session, title=f"Tutanak {i:02d}", department=None, text="toplantı")
+        for i in range(7)
+    ]
+    allowed = {d.id for d in minutes}
+    assert available_from_metadata(db_session, allowed, ["Tutanak", "var"]) == []
 
 
 def test_metadata_never_lists_a_document_outside_allowed(
