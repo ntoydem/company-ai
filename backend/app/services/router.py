@@ -89,6 +89,10 @@ class RoutedQuestion:
     model: str | None = None
     tokens_in: int = 0
     tokens_out: int = 0
+    # S0-a: set by `fallback()` only — the router's decision is unchanged; `ask_router`
+    # turns this into a `router_fallback` warning and an audit note (K-B1 §4a: the silent
+    # DOCUMENT_QUERY fall-through was invisible in both).
+    fallback_reason: str | None = None
 
 
 class Router(Protocol):
@@ -122,7 +126,11 @@ def _normalize(question: str, parsed: _RouterResponse) -> tuple[str | None, str 
 
 def fallback(question: str, reason: str) -> RoutedQuestion:
     return RoutedQuestion(
-        query_type="DOCUMENT_QUERY", document_question=question, data_question=None, reason=reason
+        query_type="DOCUMENT_QUERY",
+        document_question=question,
+        data_question=None,
+        reason=reason,
+        fallback_reason=reason,
     )
 
 

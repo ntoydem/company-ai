@@ -63,6 +63,7 @@ def write_audit_row(
     assist: Assist | None = None,
     pending: pending_documents.PendingOutcome | None = None,
     previous_question: str | None = None,
+    router_fallback: str | None = None,
 ) -> UUID | None:
     """SPEC_06 §1. `cost_estimate` stays `NULL` in V0 — no invented per-model pricing
     (Phase 3.2 SORU 2). Returns the new row's id (`AskResponse.audit_log_id`), or `None`
@@ -74,6 +75,13 @@ def write_audit_row(
         assist_payload = {
             **(assist_payload or {}),
             "context": {"previous_question": previous_question},
+        }
+    if router_fallback:
+        # S0-a (same "no new column" rule): why the router's own call was discarded —
+        # `warnings` holds the fixed sentence the user saw, this holds the reason.
+        assist_payload = {
+            **(assist_payload or {}),
+            "router_fallback": {"reason": router_fallback},
         }
     try:
         row = audit_log_repo.create(

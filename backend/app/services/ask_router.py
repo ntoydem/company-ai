@@ -44,6 +44,7 @@ from app.schemas.ask import (
     insufficient_data_warning,
     missing_data_warning,
     product_limit_warning,
+    router_fallback_warning,
 )
 from app.schemas.excel import NO_INTERPRETATION_NOTICE as EXCEL_NOTICE
 from app.schemas.excel import ExcelAskRequest, ExcelSourceCard
@@ -175,13 +176,20 @@ def _run(
             write_audit=False,
         )
 
-    if query_type == "DATA_QUERY" and data is not None and not data.answered:
+    if (
+        query_type == "DATA_QUERY"
+        and data is not None
+        and not data.answered
+        and data.ambiguous is None
+    ):
         # A DATA miss (no visible workbook, plan `none`, unknown period …) falls through
         # to the document pipeline with the original question: a question the router
         # mis-tagged as DATA — "yerli banka kredisi ne kadar?" is an amount *stated* in a
         # contract — then behaves exactly as before the router, instead of ending in an
         # "Excel'de bulamadım" dead end (Phase 4.3 eval finding). The audit row records
-        # the path actually taken.
+        # the path actually taken. S0-a: an *ambiguous* Excel result (both SQL attempts
+        # returned a table) is not a miss — the workbook holds candidates, so the fixed
+        # sentence, the tried ranges and the B2 hook stay; no document fall-through.
         log.info("data miss, falling back to documents", extra={"reason": data.answer})
         query_type, notice = "DOCUMENT_QUERY", NOTICE_BY_TYPE["DOCUMENT_QUERY"]
         doc = answer_question(session, user, request, llm, settings, write_audit=False)
@@ -229,11 +237,12 @@ def _run(
         elif pending.state == "B":
             no_answer = [document_unreadable_warning(pending_documents.PROCESSED_NOTE)]
         else:
-            no_answer = [
-                insufficient_data_warning()
-                if doc is not None and doc.retrieved_document_ids
-                else missing_data_warning()
-            ]
+            # S0-a: an ambiguous Excel result found data but no single value → the same
+            # "found, but not enough" label as a document the model could not use.
+            found = (doc is not None and bool(doc.retrieved_document_ids)) or (
+                data is not None and data.ambiguous is not None
+            )
+            no_answer = [insufficient_data_warning() if found else missing_data_warning()]
     else:
         no_answer = []
     if settings.ek_f_enabled:
@@ -275,6 +284,11 @@ def answer_routed_question(
     routed, warnings = degrade_for_products(
         router.route(request.question), enabled_products, request.question
     )
+    if routed.fallback_reason:
+        # S0-a: the router's own call failed and DOCUMENT_QUERY was taken by default —
+        # the decision stands (router.py unchanged); the user, the audit row and the eval
+        # now see that it happened.
+        warnings = [router_fallback_warning(), *warnings]
 
     def elapsed_ms() -> int:
         return round((time.perf_counter() - started) * 1000)
@@ -301,6 +315,7 @@ def answer_routed_question(
             error=str(exc),
             product_level=PRODUCT_LEVEL_BY_TYPE[routed.query_type],
             warnings=warnings,
+            router_fallback=routed.fallback_reason,
         )
         raise
 
@@ -343,6 +358,7 @@ def answer_routed_question(
         assist=result.assist,
         pending=result.pending,
         previous_question=request.previous_question if settings.ek_f_enabled else None,
+        router_fallback=routed.fallback_reason,
     )
     return RoutedAnswer(
         query_type=result.query_type,

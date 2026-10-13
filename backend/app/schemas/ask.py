@@ -35,6 +35,11 @@ INSUFFICIENT_DATA_WARNING = (
 PRODUCT_LIMIT_WARNING = (
     "Bu özellik şirketinizin paketinde yok; soru yalnızca belgelerden cevaplandı."
 )
+# S0-a (K-B1 §4a): the router call returned nothing usable and the question was answered
+# from documents by default — until now invisible to the user, the audit row and the eval.
+ROUTER_FALLBACK_WARNING = (
+    "Soru türü otomatik belirlenemedi; soru varsayılan olarak belgelerden cevaplandı."
+)
 
 
 class AskWarning(BaseModel):
@@ -49,6 +54,7 @@ class AskWarning(BaseModel):
         "product_limit",
         "document_processing",
         "document_unreadable",
+        "router_fallback",
     ]
     message: str
     # `request_data` = the B-11 "diğer departmandan bilgi talep et" button; the department
@@ -69,6 +75,10 @@ def insufficient_data_warning() -> AskWarning:
 
 def product_limit_warning() -> AskWarning:
     return AskWarning(kind="product_limit", message=PRODUCT_LIMIT_WARNING)
+
+
+def router_fallback_warning() -> AskWarning:
+    return AskWarning(kind="router_fallback", message=ROUTER_FALLBACK_WARNING)
 
 
 def document_processing_warning(note: str) -> AskWarning:

@@ -347,12 +347,13 @@ bilgisinden cevaplamaz, tanım soruları da belgelere bakar):
 | Tip | Ne olur | Kaynak |
 |---|---|---|
 | `DOCUMENT_QUERY` | eskisi gibi belge hattı (retrieval → prompt → `[K#]`) | `sources` (belge + sayfa) |
-| `DATA_QUERY` | `POST /api/excel/ask` ile **aynı** kod (plan → DuckDB/Python → aktarım); Excel'de bulunamazsa soru **belge hattına düşer** (cevap `DOCUMENT_QUERY` olarak döner) | `excel_sources` (dosya + sheet + aralık) |
+| `DATA_QUERY` | `POST /api/excel/ask` ile **aynı** kod (plan → DuckDB/Python → aktarım); Excel'de bulunamazsa soru **belge hattına düşer** (cevap `DOCUMENT_QUERY` olarak döner); S0-a motor koruması "tek hücre değil" demişse düşmez — `answered=false` + `insufficient_data` + denenen aralıklar | `excel_sources` (dosya + sheet + aralık) |
 | `MIXED_QUERY` | router iki alt soru üretir; belge hattı + Excel hattı **ikisi de** koşar; iki cevap "Belgelere göre: / Excel verisine göre:" başlıklarıyla **yorumsuz** birleştirilir (üçüncü LLM çağrısı yok) | ikisi birden |
 
 Belirsiz sorular ("Güncel DSCR kaç?") MIXED'dir: belge tarafı sözleşmedeki covenant'ı (1,20x, Amendment 01),
 Excel tarafı gerçekleşen değeri (1,37x, `Covenant_Report.xlsx Q2_2026!D14`) verir. Router hatası/bozuk JSON →
-`DOCUMENT_QUERY`. Bir `/api/ask` çağrısı = **bir** audit satırı (`sources` JSON'unda her kart `kind: document|excel`
+`DOCUMENT_QUERY` + `warnings[].kind=router_fallback` (S0-a; sebep `audit_log.assist.router_fallback.reason`,
+eval `results.json`'da `router_fallback`). Bir `/api/ask` çağrısı = **bir** audit satırı (`sources` JSON'unda her kart `kind: document|excel`
 taşır, `excel_files_used` dolu); satırın id'si cevapta `audit_log_id` olarak döner. `/api/excel/ask` router'sız DATA
 ucu olarak kalır (Ürün 2 kapısı, aşağıda).
 ```bash
@@ -419,7 +420,7 @@ ve cevaba `product_limit` uyarısı eklenir. Excel yükleme ve `/inspect` Ürün
 |---|---|
 | `audit_log_id` | Bu cevabın `audit_log` satırı (yalnızca admin API'siyle okunur; id'yi bilmek yetki vermez) |
 | `product_level` | Cevabın üretildiği katman: `DOCUMENT_QUERY → P1`, `DATA/MIXED → P2` (nihai tipe göre) |
-| `warnings[]` | `{kind, message, action?}` — `missing_data` (hiç kaynak bulunamadı), `insufficient_data` (kaynak bulundu ama güvenilir cevaba yetmedi — Ç-7 "Yeterli Veri Bulunmamaktadır", 01.10.2026), ikisinde de `action: request_data` (B-11 butonu); `product_limit`; `document_processing` / `document_unreadable` (Not 7, `ASSIST_MODE`; `message` = "Hazır (işlenmiş) belgelerde bu soruya ait bilgi bulunmuyor.", `action` yok — arayüz "Veri yok" yerine "Belge işleniyor" / "Belge okunamadı" gösterir). Metinler sabit, LLM üretmez |
+| `warnings[]` | `{kind, message, action?}` — `missing_data` (hiç kaynak bulunamadı), `insufficient_data` (kaynak bulundu ama güvenilir cevaba yetmedi — Ç-7 "Yeterli Veri Bulunmamaktadır", 01.10.2026), ikisinde de `action: request_data` (B-11 butonu); `product_limit`; `document_processing` / `document_unreadable` (Not 7, `ASSIST_MODE`; `message` = "Hazır (işlenmiş) belgelerde bu soruya ait bilgi bulunmuyor.", `action` yok — arayüz "Veri yok" yerine "Belge işleniyor" / "Belge okunamadı" gösterir); `router_fallback` (S0-a, 13.10.2026: yönlendirme çağrısı boş/hatalı döndü, soru varsayılan olarak belgelerden cevaplandı; `message` = "Soru türü otomatik belirlenemedi; soru varsayılan olarak belgelerden cevaplandı.", `action` yok; sebep `audit_log.assist.router_fallback.reason`'da). Metinler sabit, LLM üretmez |
 | `assist` | **ADR-027 (Tansu Not 2), yalnızca `ASSIST_MODE=true` (ya da `EK_F_MODE=true`, ADR-030) iken ve cevap verilemediğinde**; aksi halde `null`. `{kind: clarify\|term_mismatch, question, unmatched_terms[], candidate_terms[], available[], groups[]}` — `groups[]` (`{project_code, project_name, documents[]}`) yalnızca `EK_F_MODE` ile dolu, projeler ayrı (Ü-3) — sabit cümle `answer`'da **aynen kalır**, yardım bu alanda. `available` ve `candidate_terms` kodla ve yalnızca kullanıcının yetkili belgelerinden; `question` modelin tek satırı (`SORU:`) ama rakam/tarih/para içeriyorsa veya yetkisiz bir belge adı geçiyorsa düşer, sabit şablon gösterilir. Sıfır parça yolunda LLM yine çağrılmaz. Geri alma: `.env` `ASSIST_MODE=false` + `make restart-backend` |
 | **`EK_F_MODE=true` (ADR-030, Ek-F; varsayılan kapalı)** | Cevapsız yanıtta `answer` sabit cümle yerine kodla kurulan F-5 kalıbıdır: `[«terim» ifadesini … olarak anladım.] Bu konuda kesin bilgi bulamadım. Elimde konuyla ilgili şunlar var: <Proje>: <belge> (GG.AA.YYYY); … [… ve N belge daha.] İsterseniz açayım. [Aradığınız bilgi genellikle … içinde olur; yüklenirse cevaplayabilirim.] <netleştirme sorusu>` — liste ≤ 7, proje başlıklı, metadata eşleşmelerine ≥ 3 yer; `answered=false` aynen. Biçim kodla (F-8): Excel hücreleri `72.000.000 EUR`, `15.11.2021`, `%2,90`, `1,20x`; belge cevaplarında yalnızca ISO tarih ve İngiliz sayı biçimi düzeltilir, hiçbir değer yuvarlanmaz. MIXED'te yalnız Excel cevap verdiyse "Belgelere göre" bölümü gösterilmez. İstek gövdesine `previous_question` (isteğe bağlı, yalnız bağlam; `audit_log.assist.context`) eklenebilir. Geri alma: `.env` `EK_F_MODE=false` + `make restart-backend` |
 | `pending_notice`, `pending_documents[]` | **Tansu Not 7 §3 (06.10.2026), yalnızca `ASSIST_MODE=true`**; aksi halde `null` / `[]`. Cevaptan **sonra**, LLM'siz: kullanıcının `/api/documents` listesinde zaten gördüğü (aynı kapı, `include_pending`) ama Balbal'ın henüz okuyamadığı belgeler (son 7 gün kuyrukta/işleniyor, ya da okunamayan) sorunun anahtar terimleriyle **yalnızca meta veriden** (başlık/tür/muhatap/etiket; genel kelimeler ve proje adları tek başına eşleşmez) eşleştirilir, en çok 3. Durum **A** cevap yok + işlenen belge → `pending_notice` = "Bu sorunun cevabı henüz işlenmekte olan bir belgede olabilir. …", `warnings[0].kind=document_processing`; **B** cevap yok + okunamayan belge → "… okunamadığı için içeriğini kullanamıyorum.", `document_unreadable` (+ her belgede `reason`); **C** cevap var + işlenen belge → "Bu konuyla ilgili şu belge henüz işleniyor; işlendiğinde cevap değişebilir: <başlık>"; **D** eşleşme yok → bugünkü davranış. `answer` sabit cümle olarak **aynen kalır**; tüm cümleler kod sabiti; model bu belgeleri hiç görmez. Audit: `audit_log.assist` JSON'una `pending_state/notice/documents` eklenir |
@@ -465,10 +466,13 @@ açılınca doğru cevap" örneği var.
 ## Excel analizi (Phase 4.2)
 Excel doküman RAG'ıyla çözülmez (SPEC_04): `.xlsx/.xlsm/.csv` upload'da OCR'a girmeden hemen `ready` olur, chunk
 yazılmaz; sheet'ler soru anında DuckDB tablolarına (`<dosya>__<sheet>`, `_row` = Excel satır no) yüklenir.
-**LLM matematik yapmaz:** bir *plan* çağrısı (`LLM_MODEL_CLASSIFY`, JSON) predefined fonksiyonlardan birini
-(`dscr`, `outstanding_debt`, `budget_variance`, `capacity_factor`, `production`) ya da tek bir read-only `SELECT`
-seçer; hesabı DuckDB/Python yapar; ikinci çağrı sonucu Türkçe aktarır — cevapta motorun rakamı aynen yoksa
-şablon cevap döner. Her cevap **dosya + sheet + range** gösterir (`Covenant_Report.xlsx Q2_2026!D14`) ve
+**LLM matematik yapmaz:** bir *plan* çağrısı (`LLM_MODEL_EXCEL_PLAN`, boşsa `LLM_MODEL_CLASSIFY`; JSON) predefined
+fonksiyonlardan birini (`dscr`, `outstanding_debt`, `budget_variance`, `capacity_factor`, `production`) ya da tek bir
+read-only `SELECT` seçer; hesabı DuckDB/Python yapar; ikinci çağrı sonucu Türkçe aktarır — cevapta motorun rakamı
+aynen yoksa şablon cevap döner. **Motor koruması (S0-a, 13.10.2026):** SQL sonucu tek hücre (1×1) değilse tablo
+cevap modeline VERİLMEZ; plan çağrısı bir kez geri bildirimle ("sorgu N satır × M sütun döndürdü; tek değer
+gerekiyor; sütunlar: …", hücre değeri yok) tekrarlanır; ikincisi de tek hücre değilse `answered=false`, kanonik
+"yeterli bilgi" cümlesi, `warnings.kind=insufficient_data` ve denenen sayfa/aralık `excel_sources`'ta (rakam yok). Her cevap **dosya + sheet + range** gösterir (`Covenant_Report.xlsx Q2_2026!D14`) ve
 `audit_log`'a `excel_files_used` ile yazılır. Phase 4.3'ten itibaren `/api/ask` DATA sorularını da aynı koda
 yönlendirir (bkz. "Soru yönlendirme"); `/api/excel/ask` router'sız doğrudan uç olarak kalır.
 ```bash

@@ -36,6 +36,7 @@ def test_document_type_always_runs_the_original_question(settings: Settings) -> 
     assert routed.query_type == "DOCUMENT_QUERY"
     assert routed.document_question == QUESTION  # never the model's rewrite
     assert routed.data_question is None
+    assert routed.fallback_reason is None  # a real decision is not a fallback (S0-a)
     assert (routed.model, routed.tokens_in, routed.tokens_out) == ("fake-model", 123, 45)
 
 
@@ -86,5 +87,6 @@ def test_malformed_json_unknown_type_and_llm_error_fall_back_to_document(
         assert routed.query_type == "DOCUMENT_QUERY", reply
         assert routed.document_question == QUESTION and routed.data_question is None
         assert routed.reason.startswith("fallback:")
+        assert routed.fallback_reason == routed.reason  # S0-a: the ask_router hook
     routed = _route(settings, None, error=True)
     assert routed.query_type == "DOCUMENT_QUERY" and routed.reason == "fallback: LLMRateLimitError"

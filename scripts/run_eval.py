@@ -159,6 +159,9 @@ def ask_with_retry(
                     str(i) for i in data.get("retrieved_document_ids", [])
                 ),
                 audit_log_id=str(data["audit_log_id"]) if data.get("audit_log_id") else None,
+                router_fallback=any(
+                    w.get("kind") == "router_fallback" for w in data.get("warnings") or []
+                ),
             )
         if response is not None and response.status_code != _RETRYABLE_STATUS:
             # Not a rate-limit/availability issue (e.g. 401/422) — retrying won't help.

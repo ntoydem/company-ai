@@ -25,6 +25,7 @@ from app.schemas.ask import (
     MIXED_NOTICE,
     NO_INTERPRETATION_NOTICE,
     PRODUCT_LIMIT_WARNING,
+    ROUTER_FALLBACK_WARNING,
 )
 from app.schemas.excel import NO_INTERPRETATION_NOTICE as EXCEL_NOTICE
 from app.services import excel_ask as excel_ask_module
@@ -511,3 +512,75 @@ def test_mixed_with_retrieved_documents_but_no_answer_is_insufficient_data(
     body = _ask(client, "Covenant ve gerçekleşen DSCR?")
     assert body["answered"] is False
     assert [w["kind"] for w in body["warnings"]] == ["insufficient_data"]
+
+
+# ---------------------------------------------------------------- S0-a (13.10.2026)
+
+
+def test_ambiguous_excel_result_is_insufficient_data_with_the_tried_ranges(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    fake_router: FakeRouter,
+) -> None:
+    """S0-a §2: both SQL attempts returned a table → the fixed sentence, `insufficient_data`,
+    the tried sheet/range in `excel_sources` (no figure), query_type stays DATA_QUERY — no
+    document fall-through (the workbook does hold candidates; B2 will ask which)."""
+    from tests.test_ask import _document
+
+    _document(db_session, title="Facility Agreement", department=None, text="Üretim 1 MWh.")
+    _publish(db_session, _upload_workbook(client, "Monthly_Production_2026.xlsx"))
+    fake_router.query_type = "DATA_QUERY"
+    table_sql = "SELECT month, mwh FROM monthly_production_2026__production"
+    fake_llm.replies = [json.dumps({"kind": "sql", "sql": table_sql})] * 2
+    body = _ask(client, "Aylık üretim ne kadar?")
+    assert body["query_type"] == "DATA_QUERY" and body["answered"] is False
+    assert body["answer"] == NO_ANSWER_TEXT
+    assert [w["kind"] for w in body["warnings"]] == ["insufficient_data"]  # type: ignore[index]
+    assert body["warnings"][0]["message"] == INSUFFICIENT_DATA_WARNING  # type: ignore[index]
+    assert body["sources"] == []
+    assert body["excel_sources"][0]["sheet"] == "Production"  # type: ignore[index]
+    assert len(fake_llm.requests) == 2 and all(
+        r.system == PLAN_SYSTEM_PROMPT for r in fake_llm.requests
+    )
+    rows = _audit_rows(db_session)
+    assert len(rows) == 1 and rows[0].query_type == "DATA_QUERY" and rows[0].error is None
+    assert rows[0].sources[0]["kind"] == "excel"
+    assert rows[0].excel_files_used == ["Monthly_Production_2026.xlsx"]
+    assert [w["kind"] for w in rows[0].warnings] == ["insufficient_data"]
+
+
+def test_router_fallback_is_visible_in_warnings_and_in_the_audit_row(
+    client: TestClient, db_session: Session, admin_user: User, fake_llm: FakeLLMClient
+) -> None:
+    """S0-a §4 (K-B1 §4a): the real router gets an empty/garbage reply → DOCUMENT_QUERY as
+    before, but now `warnings` carries `router_fallback` (fixed sentence) and the audit
+    row's assist JSON records the reason. The decision itself is unchanged."""
+    from tests.test_ask import _document
+
+    app.dependency_overrides.pop(get_router, None)
+    _document(db_session, title="A", department=None, text="DSCR covenant 1,25x")
+    fake_llm.replies = ["", "Covenant 1,25x [K1]."]  # empty classification reply
+    body = _ask(client, "DSCR covenant nedir?")
+    assert body["query_type"] == "DOCUMENT_QUERY" and body["answered"] is True
+    assert body["warnings"] == [  # type: ignore[comparison-overlap]
+        {"kind": "router_fallback", "message": ROUTER_FALLBACK_WARNING, "action": None}
+    ]
+    rows = _audit_rows(db_session)
+    assert len(rows) == 1 and rows[0].query_type == "DOCUMENT_QUERY"
+    assert [w["kind"] for w in rows[0].warnings] == ["router_fallback"]
+    assert rows[0].assist == {"router_fallback": {"reason": "fallback: JSONDecodeError"}}
+
+
+def test_a_real_router_decision_has_no_fallback_warning(
+    client: TestClient, db_session: Session, admin_user: User, fake_llm: FakeLLMClient
+) -> None:
+    from tests.test_ask import _document
+
+    app.dependency_overrides.pop(get_router, None)
+    _document(db_session, title="A", department=None, text="DSCR covenant 1,25x")
+    fake_llm.replies = [json.dumps({"query_type": "DOCUMENT_QUERY"}), "Covenant 1,25x [K1]."]
+    body = _ask(client, "DSCR covenant nedir?")
+    assert body["warnings"] == []
+    assert _audit_rows(db_session)[0].assist is None

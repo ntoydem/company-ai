@@ -508,6 +508,32 @@ def test_render_markdown_and_report_to_json_do_not_raise() -> None:
     assert payload["ok"] is True  # the one question in this report passes
     assert payload["partial"] is True
     assert len(payload["questions"]) == 1
+    assert payload["questions"][0]["router_fallback"] is False
+    assert "Router düşüşü" in markdown and "0/1" in markdown
+
+
+def test_router_fallback_is_carried_to_results_json_and_counted_in_the_report() -> None:
+    """S0-a: `warnings[].kind == "router_fallback"` → `AskOutcome.router_fallback` → counted
+    in the markdown and written per question in results.json; scoring is unchanged."""
+    result = score_question(
+        _question(id="ANK-DOC-003", category="document"),
+        resolve_expected(_question(expected_answer=None), {}),
+        _catalog(),
+        AskOutcome(answered=True, answer_text="cevap", cited_titles=(), router_fallback=True),
+    )
+    assert result.router_fallback is True and result.passed is True
+    report = build_report(
+        [result],
+        model="m",
+        date_str="2026-10-13",
+        demo_today="2026-09-15",
+        embeddings_enabled=False,
+    )
+    assert [r.id for r in report.router_fallbacks] == ["ANK-DOC-003"]
+    assert "Router düşüşü" in render_markdown(report) and "1/1 — ANK-DOC-003" in render_markdown(
+        report
+    )
+    assert report_to_json(report)["questions"][0]["router_fallback"] is True
 
 
 # ---------------------------------------------------------------- Phase 3.2b

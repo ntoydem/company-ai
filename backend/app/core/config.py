@@ -51,6 +51,9 @@ class Settings(BaseSettings):
     llm_model_classify: str = "gemini-3.5-flash-lite"
     llm_model_answer: str = "gemini-3.8-flash"
     llm_timeout_s: int = 60
+    # İş Emri 2026-10-13S0a (11. tur §A3): the Excel *planning* call's model; empty → the
+    # classify model (today's behaviour). Router, metadata and phrasing never read it.
+    llm_model_excel_plan: str = ""
     llm_max_output_tokens: int = 2048
     # Thinking budget stays low (SPEC_01 §5); Gemini maps this to `thinking_level`.
     llm_reasoning_effort: Literal["minimal", "low", "medium", "high"] = "low"

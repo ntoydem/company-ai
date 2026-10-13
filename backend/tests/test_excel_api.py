@@ -10,15 +10,27 @@ import uuid
 import zipfile
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.api.deps import get_calculation_engine
+from app.core.config import Settings
 from app.models.audit_log import AuditLog
 from app.models.document import Document, DocumentReviewStatus
 from app.models.user import User, UserRole
 from app.repositories import user_repo
-from app.services.excel_ask import NO_DATA_TEXT, SQL_REJECTED_TEXT
+from app.schemas.excel import ExcelAskRequest, ExcelAskResponse
+from app.services.answer_prompt import NO_ANSWER_TEXT
+from app.services.excel_ask import (
+    ANSWER_SYSTEM_PROMPT,
+    NO_DATA_TEXT,
+    PLAN_SYSTEM_PROMPT,
+    SQL_REJECTED_TEXT,
+    answer_data_question,
+)
+from app.services.llm import LLMRequest
 from app.services.security import hash_password
 from tests.department_fixtures import (
     add_user_to_department,
@@ -280,3 +292,158 @@ def test_employee_cannot_query_another_departments_workbook(
         app.dependency_overrides[get_current_user] = lambda: admin_user
     assert body["answered"] is False and body["answer"] == NO_DATA_TEXT
     assert fake_llm.requests == []
+
+
+# ---------------------------------------------------------------- S0-a: engine guard + one retry
+
+
+TABLE_SQL = "SELECT month, mwh FROM monthly_production_2026__production WHERE month LIKE '2026-%'"
+SCALAR_SQL = "SELECT SUM(mwh) FROM monthly_production_2026__production WHERE month LIKE '2026-%'"
+
+
+def _no_workbook_figures(requests: list[LLMRequest]) -> None:
+    """Rule 3 / ADR-011: no cell value of the Production sheet reaches a *planning* call —
+    neither a monthly MWh figure nor the yearly sum (the phrasing call gets the engine's
+    one value, nothing else)."""
+    for request in requests:
+        assert request.system == PLAN_SYSTEM_PROMPT
+        assert "14344" not in request.user and "108858" not in request.user
+        assert "108.858" not in request.user
+
+
+def test_scalar_sql_result_keeps_the_old_two_call_flow(
+    client: TestClient, admin_user: User, fake_llm: FakeLLMClient, db_session: Session
+) -> None:
+    """(1) 1×1 → plan + phrasing, exactly as before; no feedback text anywhere."""
+    _publish(db_session, _upload_workbook(client, "Monthly_Production_2026.xlsx"))
+    fake_llm.replies = [_plan("sql", sql=SCALAR_SQL), "2026 yılında toplam üretim 108.858 MWh."]
+    body = client.post("/api/excel/ask", json={"question": "2026'da toplam üretim kaç MWh?"}).json()
+    assert body["answered"] is True and body["value"] == 108858
+    assert len(fake_llm.requests) == 2
+    assert fake_llm.requests[1].system == ANSWER_SYSTEM_PROMPT
+    assert "GERİ BİLDİRİM" not in fake_llm.requests[0].user
+
+
+def test_table_result_triggers_one_replan_with_feedback_and_no_table_to_the_model(
+    client: TestClient, admin_user: User, fake_llm: FakeLLMClient, db_session: Session
+) -> None:
+    """(2) N×M → a second planning call whose user prompt carries the feedback (row × column
+    count, the column names, the previous SQL, candidate row labels — no figures); the
+    second plan's 1×1 result is then phrased as usual."""
+    _publish(db_session, _upload_workbook(client, "Monthly_Production_2026.xlsx"))
+    fake_llm.replies = [
+        _plan("sql", sql=TABLE_SQL),
+        _plan("sql", sql=SCALAR_SQL),
+        "2026 yılında toplam üretim 108.858 MWh.",
+    ]
+    body = client.post("/api/excel/ask", json={"question": "2026'da toplam üretim kaç MWh?"}).json()
+    assert body["answered"] is True and body["value"] == 108858 and body["plan_kind"] == "sql"
+    assert body["plan"]["sql"] == SCALAR_SQL  # the plan that produced the answer
+    assert [r.system for r in fake_llm.requests] == [
+        PLAN_SYSTEM_PROMPT,
+        PLAN_SYSTEM_PROMPT,
+        ANSWER_SYSTEM_PROMPT,
+    ]
+    retry = fake_llm.requests[1].user
+    assert "satır × 2 sütun döndürdü; tek değer gerekiyor; sütunlar: ['month', 'mwh']" in retry
+    assert TABLE_SQL in retry and "Aday satır başlıkları: ['2026-01'" in retry
+    assert retry.startswith(fake_llm.requests[0].user)  # catalogue + question unchanged
+    _no_workbook_figures(fake_llm.requests[:2])
+    phrasing = fake_llm.requests[2].user
+    assert "SONUÇ: 108.858\n" in phrasing and "14344" not in phrasing  # the engine's value only
+
+
+def test_second_table_result_ends_in_the_fixed_sentence_without_any_figure(
+    client: TestClient, admin_user: User, fake_llm: FakeLLMClient, db_session: Session
+) -> None:
+    """(3) both attempts N×M → answered=false, the canonical no-answer sentence, no number
+    in the answer, no phrasing call, the tried sheet/range listed as sources."""
+    _publish(db_session, _upload_workbook(client, "Monthly_Production_2026.xlsx"))
+    fake_llm.replies = [_plan("sql", sql=TABLE_SQL), _plan("sql", sql=TABLE_SQL)]
+    body = client.post("/api/excel/ask", json={"question": "Aylık üretim ne kadar?"}).json()
+    assert body["answered"] is False and body["answer"] == NO_ANSWER_TEXT
+    assert body["value"] is None and body["formatted_value"] is None
+    assert not any(ch.isdigit() for ch in body["answer"])
+    assert len(fake_llm.requests) == 2  # two plans, no phrasing call
+    assert all(r.system == PLAN_SYSTEM_PROMPT for r in fake_llm.requests)
+    _no_workbook_figures(fake_llm.requests)
+    assert body["sources"] and body["sources"][0]["sheet"] == "Production"
+    assert body["excel_files"] == ["Monthly_Production_2026.xlsx"]
+    row = db_session.scalar(select(AuditLog).order_by(AuditLog.timestamp.desc()))
+    assert row is not None and row.error is None
+    assert row.sources[0]["kind"] == "excel" and row.answer == NO_ANSWER_TEXT
+
+
+def test_ambiguous_hook_carries_candidate_labels_but_no_values(
+    admin_user: User, db_session: Session, settings: Settings, client: TestClient
+) -> None:
+    """The B2 hook: `ExcelAskResult.ambiguous` lists the row labels the user could pick
+    from; nothing numeric. Not on the wire in this round."""
+    _publish(db_session, _upload_workbook(client, "Monthly_Production_2026.xlsx"))
+    fake = FakeLLMClient(replies=[_plan("sql", sql=TABLE_SQL), _plan("sql", sql=TABLE_SQL)])
+    result = answer_data_question(
+        db_session,
+        admin_user,
+        ExcelAskRequest(question="Aylık üretim?"),
+        fake,
+        settings,
+        get_calculation_engine(),
+        write_audit=False,
+    )
+    assert result.ambiguous is not None and result.answered is False
+    assert result.ambiguous.attempts == 2 and result.ambiguous.columns == ("month", "mwh")
+    assert result.ambiguous.rows > 1 and "2026-01" in result.ambiguous.candidates
+    assert all(not _looks_numeric(c) for c in result.ambiguous.candidates)
+    assert "ambiguous" not in ExcelAskResponse.model_fields
+
+
+def _looks_numeric(text: str) -> bool:
+    try:
+        float(text)
+    except ValueError:
+        return False
+    return True
+
+
+def test_plan_call_uses_llm_model_excel_plan_only_when_set(
+    admin_user: User, db_session: Session, settings: Settings, client: TestClient
+) -> None:
+    """(4) empty → classify model (today); set → that model — for the planning call only,
+    the phrasing call keeps `LLM_MODEL_ANSWER`."""
+    _publish(db_session, _upload_workbook(client))
+    plan = _plan("function", name="dscr", params={"period": "Q2_2026"})
+
+    fake = FakeLLMClient(replies=[plan, "DSCR 1,37x."])
+    answer_data_question(
+        db_session,
+        admin_user,
+        ExcelAskRequest(question="2026 Q2 DSCR?"),
+        fake,
+        settings.model_copy(update={"llm_model_excel_plan": ""}),
+        get_calculation_engine(),
+        write_audit=False,
+    )
+    assert [r.model for r in fake.requests] == [
+        settings.llm_model_classify,
+        settings.llm_model_answer,
+    ]
+
+    fake = FakeLLMClient(replies=[plan, "DSCR 1,37x."])
+    answer_data_question(
+        db_session,
+        admin_user,
+        ExcelAskRequest(question="2026 Q2 DSCR?"),
+        fake,
+        settings.model_copy(update={"llm_model_excel_plan": "plan-model-x"}),
+        get_calculation_engine(),
+        write_audit=False,
+    )
+    assert [r.model for r in fake.requests] == ["plan-model-x", settings.llm_model_answer]
+
+
+def test_llm_model_excel_plan_env_is_read_and_defaults_to_empty(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    assert Settings().llm_model_excel_plan == ""
+    monkeypatch.setenv("LLM_MODEL_EXCEL_PLAN", "plan-model-y")
+    assert Settings().llm_model_excel_plan == "plan-model-y"

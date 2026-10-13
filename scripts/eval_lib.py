@@ -355,6 +355,10 @@ class AskOutcome:
     # Not 7 §3 (ASSIST_MODE): the "still processing / unreadable" documents named next to
     # the answer — G3 applies to them exactly as to `assist.available`.
     pending_documents: tuple[dict[str, Any], ...] = ()
+    # S0-a: the router call returned nothing usable and `/api/ask` fell back to
+    # DOCUMENT_QUERY (`warnings[].kind == "router_fallback"`). Counted in the report; the
+    # answer is still scored as it was given.
+    router_fallback: bool = False
 
 
 @dataclass(frozen=True)
@@ -630,6 +634,8 @@ class QuestionResult:
     # ADR-027: the assist block as returned (None when off) — kept so a flag-off and a
     # flag-on run of the same question can be laid side by side (Tansu's comparison table).
     assist: dict[str, Any] | None = None
+    # S0-a: see `AskOutcome.router_fallback`.
+    router_fallback: bool = False
 
 
 def phrase_check_passes(question: ls.Question, answer_text: str) -> tuple[bool, str | None]:
@@ -753,6 +759,7 @@ def score_question(
         tokens_out=outcome.tokens_out,
         model=outcome.model,
         query_type=outcome.query_type,
+        router_fallback=outcome.router_fallback,
         phrase_check=phrase_check,
         phrase_check_reason=phrase_reason,
         safety_check=safety_check,
@@ -816,6 +823,10 @@ class EvalReport:
             and all(c.meets_threshold for c in self.categories)
             and not self.safety_failed
         )
+
+    @property
+    def router_fallbacks(self) -> tuple[QuestionResult, ...]:
+        return tuple(r for r in self.results if r.error is None and r.router_fallback)
 
     @property
     def skipped_value_checks(self) -> tuple[QuestionResult, ...]:
@@ -900,6 +911,7 @@ def report_to_json(report: EvalReport) -> dict[str, Any]:
                 "answer_text": r.answer_text,
                 "cited_titles": list(r.cited_titles),
                 "query_type": r.query_type,
+                "router_fallback": r.router_fallback,
                 "answered_ok": r.answered_ok,
                 "required_sources_missing": list(r.required_sources_missing),
                 "forbidden_sources_hit": list(r.forbidden_sources_hit),
@@ -965,6 +977,13 @@ def render_markdown(report: EvalReport) -> str:
         else "❌ en az bir kategori eşiği altında ya da bir güvenlik değişmezi düştü"
     )
     lines.append(f"**Genel sonuç:** {verdict}")
+    evaluated = [r for r in report.results if r.error is None]
+    fallbacks = report.router_fallbacks
+    lines.append(
+        f"**Router düşüşü (sınıflandırma çağrısı boş/hatalı → DOCUMENT_QUERY, S0-a):** "
+        f"{len(fallbacks)}/{len(evaluated)}"
+        + (f" — {', '.join(r.id for r in fallbacks)}" if fallbacks else "")
+    )
 
     failed = [r for r in report.results if r.error is None and not r.passed]
     if failed:

@@ -36,6 +36,7 @@ from app.repositories.document_repo import SqlDocumentIdsProvider
 from app.schemas.authorization import AuthorizationScope
 from app.schemas.excel import ExcelAskRequest, ExcelSourceCard
 from app.services import tr_format
+from app.services.answer_prompt import NO_ANSWER_TEXT
 from app.services.audit_writer import write_audit_row
 from app.services.authorization import allowed_document_ids
 from app.services.llm import LLMClient, LLMRequest
@@ -45,6 +46,12 @@ log = logging.getLogger(__name__)
 
 QUERY_TYPE = "DATA_QUERY"
 PlanKind = Literal["function", "sql", "none"]
+
+# İş Emri 2026-10-13S0a (K-B1 §4a / J §3a): a `kind=sql` plan whose result is not exactly
+# one cell gets ONE more planning call with feedback; a second non-scalar result ends in
+# the fixed no-answer sentence. The table never reaches the answering model (ADR-011).
+PLAN_MAX_ATTEMPTS = 2
+_CANDIDATE_LABEL_LIMIT = 20
 
 NO_DATA_TEXT = "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım."
 RECALC_TEXT = (
@@ -74,6 +81,18 @@ ANSWER_SYSTEM_PROMPT = (
 
 
 @dataclass(frozen=True)
+class AmbiguousResult:
+    """S0-a: both SQL attempts returned a table instead of one value. The hook for the B2
+    clarifying question — row labels only (first string cell per row), never a number.
+    Not shown to the user in this round."""
+
+    rows: int
+    columns: tuple[str, ...]
+    candidates: tuple[str, ...]
+    attempts: int
+
+
+@dataclass(frozen=True)
 class ExcelAskResult:
     answer: str
     answered: bool
@@ -87,6 +106,9 @@ class ExcelAskResult:
     model: str | None = None
     tokens_in: int = 0
     tokens_out: int = 0
+    # S0-a: set only when the engine guard ended the call (answered=False); `sources` then
+    # lists the ranges that were *tried*, not a source of an answer.
+    ambiguous: AmbiguousResult | None = None
 
 
 # ---------------------------------------------------------------- formatting
@@ -170,6 +192,53 @@ def _kind(plan: dict[str, Any]) -> PlanKind:
     return cast(PlanKind, plan["kind"])
 
 
+def plan_model(settings: Settings) -> str:
+    """S0-a (11. tur §A3): the planning call may run on its own model
+    (`LLM_MODEL_EXCEL_PLAN`); empty → the classify model, as before."""
+    return settings.llm_model_excel_plan or settings.llm_model_classify
+
+
+def _is_scalar(query: QueryResult) -> bool:
+    return len(query.rows) == 1 and len(query.columns) == 1
+
+
+def _is_number_like(value: str) -> bool:
+    try:
+        float(value.replace(".", "").replace(",", "."))
+    except ValueError:
+        return False
+    return True
+
+
+def candidate_labels(query: QueryResult) -> tuple[str, ...]:
+    """Row labels for the retry feedback and the B2 hook: the first *string* cell of each
+    row that does not read as a number — never a figure from the workbook."""
+    labels: list[str] = []
+    for row in query.rows:
+        for cell in row:
+            if isinstance(cell, str) and cell.strip() and not _is_number_like(cell):
+                if cell not in labels:
+                    labels.append(cell)
+                break
+        if len(labels) >= _CANDIDATE_LABEL_LIMIT:
+            break
+    return tuple(labels)
+
+
+def retry_feedback(plan: dict[str, Any], query: QueryResult) -> str:
+    """The one sentence the planning model gets on the second attempt (order text) — row
+    count, column count, column names and candidate row labels; no cell values."""
+    labels = candidate_labels(query)
+    text = (
+        f"ÖNCEKİ PLAN: {plan.get('sql', '')}\n"
+        f"GERİ BİLDİRİM: sorgu {len(query.rows)} satır × {len(query.columns)} sütun döndürdü; "
+        f"tek değer gerekiyor; sütunlar: {list(query.columns)}."
+    )
+    if labels:
+        text += f" Aday satır başlıkları: {list(labels)}."
+    return text + " Tek hücre (1 satır × 1 sütun) döndüren yeni bir plan yaz."
+
+
 def _load_workbooks(
     documents: list[Document], engine: CalculationEngine, documents_dir: Path
 ) -> tuple[list[tuple[Document, LoadedWorkbook]], list[str]]:
@@ -201,11 +270,11 @@ def _card(source: SourceRange) -> ExcelSourceCard:
 
 
 def _sql_value(result: QueryResult, *, ek_f: bool = False) -> tuple[Any, str, str]:
-    """A 1×1 result is *the* number; anything else is relayed as a compact table. With `ek_f`
+    """A 1×1 result is *the* number; anything else is rendered as a compact table. With `ek_f`
     (ADR-030 F-8) the 1×1 unit is read from the column label (`"Debt (EUR)"` → `EUR`) and the
-    table cells are formatted by code (`72.000.000 EUR`, `15.11.2021`) — the model never sees
-    a raw float or a `00:00:00` timestamp (ADIM1 DSC-001 finding). Without it: Phase 4.3
-    behaviour, byte for byte."""
+    table cells are formatted by code (`72.000.000 EUR`, `15.11.2021`). Since S0-a the
+    pipeline calls this for 1×1 results only (the engine guard stops a table before any
+    model sees it); the table branch stays for `tr_format`'s own tests."""
     if len(result.rows) == 1 and len(result.columns) == 1:
         value = result.rows[0][0]
         if not ek_f:
@@ -259,32 +328,92 @@ def answer_data_question(
             ExcelAskResult(answer=text, answered=False, value=None, unit=None, formatted_value=None)
         )
 
-    plan_response = llm.complete(
-        LLMRequest(
-            system=PLAN_SYSTEM_PROMPT,
-            user=f"{_catalogue(workbooks)}\n\nQUESTION: {request.question}",
-            model=settings.llm_model_classify,
-            max_output_tokens=400,
-            response_format="json_object",
-        )
-    )
-    plan = _parse_plan(plan_response.text)
-    tokens_in, tokens_out = plan_response.tokens_in, plan_response.tokens_out
+    catalogue = _catalogue(workbooks)
     loaded = [wb for _, wb in workbooks]
+    tokens_in = tokens_out = 0
+    plan_model_name: str | None = None
 
+    def request_plan(feedback: str | None) -> dict[str, Any]:
+        nonlocal tokens_in, tokens_out, plan_model_name
+        user = f"{catalogue}\n\nQUESTION: {request.question}"
+        if feedback:
+            user += f"\n\n{feedback}"
+        response = llm.complete(
+            LLMRequest(
+                system=PLAN_SYSTEM_PROMPT,
+                user=user,
+                model=plan_model(settings),
+                max_output_tokens=400,
+                response_format="json_object",
+            )
+        )
+        tokens_in += response.tokens_in
+        tokens_out += response.tokens_out
+        plan_model_name = response.model
+        return _parse_plan(response.text)
+
+    def execute(plan: dict[str, Any]) -> tuple[CalcResult | None, QueryResult | None]:
+        if plan["kind"] == "function":
+            return (
+                run_function(
+                    engine,
+                    loaded,
+                    str(plan.get("name")),
+                    dict(plan.get("params") or {}),
+                    today=temporal_today(settings),
+                ),
+                None,
+            )
+        if plan["kind"] == "sql":
+            return None, engine.run_sql(loaded, str(plan.get("sql") or ""))
+        return None, None
+
+    plan = request_plan(None)
     calc: CalcResult | None = None
     query: QueryResult | None = None
+    tried: list[SourceRange] = []
     try:
-        if plan["kind"] == "function":
-            calc = run_function(
-                engine,
-                loaded,
-                str(plan.get("name")),
-                dict(plan.get("params") or {}),
-                today=temporal_today(settings),
+        for attempt in range(1, PLAN_MAX_ATTEMPTS + 1):
+            calc, query = execute(plan)
+            if query is None or _is_scalar(query):
+                break
+            # Engine guard (ADR-011): a table is not a result. Log the SQL (J §3a: it was
+            # recorded nowhere) and either re-plan once or stop.
+            log.info(
+                "excel sql result not scalar",
+                extra={
+                    "attempt": attempt,
+                    "rows": len(query.rows),
+                    "columns": list(query.columns),
+                    "sql": plan.get("sql"),
+                },
             )
-        elif plan["kind"] == "sql":
-            query = engine.run_sql(loaded, str(plan.get("sql") or ""))
+            tried += [s for s in query.sources if s not in tried]
+            if attempt == PLAN_MAX_ATTEMPTS:
+                return finish(
+                    ExcelAskResult(
+                        NO_ANSWER_TEXT,
+                        False,
+                        None,
+                        None,
+                        None,
+                        sources=[_card(s) for s in tried],
+                        plan_kind="sql",
+                        plan=plan,
+                        excel_files=sorted({s.file for s in tried}),
+                        model=plan_model_name,
+                        tokens_in=tokens_in,
+                        tokens_out=tokens_out,
+                        ambiguous=AmbiguousResult(
+                            rows=len(query.rows),
+                            columns=tuple(query.columns),
+                            candidates=candidate_labels(query),
+                            attempts=attempt,
+                        ),
+                    )
+                )
+            plan = request_plan(retry_feedback(plan, query))
+            calc = query = None
     except FunctionError as exc:
         log.info("excel function failed", extra={"plan": plan, "error": str(exc)})
         return finish(
@@ -296,7 +425,7 @@ def answer_data_question(
                 None,
                 plan_kind=_kind(plan),
                 plan=plan,
-                model=plan_response.model,
+                model=plan_model_name,
                 tokens_in=tokens_in,
                 tokens_out=tokens_out,
             ),
@@ -313,7 +442,7 @@ def answer_data_question(
                 None,
                 plan_kind="sql",
                 plan=plan,
-                model=plan_response.model,
+                model=plan_model_name,
                 tokens_in=tokens_in,
                 tokens_out=tokens_out,
             ),
@@ -330,7 +459,7 @@ def answer_data_question(
                 None,
                 plan_kind=_kind(plan),
                 plan=plan,
-                model=plan_response.model,
+                model=plan_model_name,
                 tokens_in=tokens_in,
                 tokens_out=tokens_out,
             ),
@@ -347,7 +476,7 @@ def answer_data_question(
                 None,
                 plan_kind="none",
                 plan=plan,
-                model=plan_response.model,
+                model=plan_model_name,
                 tokens_in=tokens_in,
                 tokens_out=tokens_out,
             )
@@ -356,16 +485,15 @@ def answer_data_question(
     if calc is not None:
         value, unit, detail = calc.value, calc.unit, calc.detail
         sources = [_card(calc.source)]
-        table_text = ""
     else:
-        assert query is not None
-        value, unit, table_text = _sql_value(query, ek_f=settings.ek_f_enabled)
+        assert query is not None and _is_scalar(query)  # the guard above let only 1×1 through
+        value, unit, _ = _sql_value(query, ek_f=settings.ek_f_enabled)
         detail = "SQL"
         sources = [_card(s) for s in query.sources]
     formatted = format_value(value, unit, ek_f=settings.ek_f_enabled) if value is not None else None
 
     result_block = (
-        f"SORU: {request.question}\nSONUÇ: {formatted if formatted else table_text}\n"
+        f"SORU: {request.question}\nSONUÇ: {formatted}\n"
         f"AÇIKLAMA: {detail}\nKAYNAK: {', '.join(s.label for s in sources)}"
     )
     answer_response = llm.complete(
@@ -387,8 +515,6 @@ def answer_data_question(
     ):
         log.warning("excel answer dropped engine value, using template", extra={"answer": answer})
         answer = f"Sonuç: {formatted} ({detail})."
-    if value is None and not answer:
-        answer = table_text
     return finish(
         ExcelAskResult(
             answer=answer,
