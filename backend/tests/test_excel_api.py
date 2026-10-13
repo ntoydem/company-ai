@@ -441,6 +441,27 @@ def test_plan_call_uses_llm_model_excel_plan_only_when_set(
     assert [r.model for r in fake.requests] == ["plan-model-x", settings.llm_model_answer]
 
 
+def test_answer_thinking_setting_never_reaches_excel_calls(
+    admin_user: User, db_session: Session, settings: Settings, client: TestClient
+) -> None:
+    """S0-d: ANSWER_THINKING switches thinking on for `ask.answer_question`'s call only — the
+    Excel plan call (400-token budget) and the Excel phrasing call keep the client default."""
+    _publish(db_session, _upload_workbook(client))
+    plan = _plan("function", name="dscr", params={"period": "Q2_2026"})
+    fake = FakeLLMClient(replies=[plan, "DSCR 1,37x."])
+    answer_data_question(
+        db_session,
+        admin_user,
+        ExcelAskRequest(question="2026 Q2 DSCR?"),
+        fake,
+        settings.model_copy(update={"answer_thinking": True}),
+        get_calculation_engine(),
+        write_audit=False,
+    )
+    assert [r.thinking for r in fake.requests] == [None, None]
+    assert fake.requests[0].max_output_tokens == 400
+
+
 # ---------------------------------------------------------------- S0-b: TODAY in the plan, units
 
 

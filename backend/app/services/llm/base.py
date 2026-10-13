@@ -10,6 +10,9 @@ from typing import Literal, Protocol
 
 ReasoningEffort = Literal["minimal", "low", "medium", "high"]
 ResponseFormat = Literal["text", "json_object"]
+# İş Emri 2026-10-13S0d: per-call thinking override for providers that have one
+# (Anthropic). None = the client's configured default (ANTHROPIC_THINKING).
+ThinkingMode = Literal["adaptive", "off"]
 
 
 @dataclass(frozen=True)
@@ -24,6 +27,10 @@ class LLMRequest:
     # a single JSON object. "/api/ask" never sets this — plain text + [K#] labels stay
     # simpler to parse and don't need escaping for Turkish text (ADR-021).
     response_format: ResponseFormat = "text"
+    # S0-d: only the document *answer* call sets this (ANSWER_THINKING=true → "adaptive");
+    # router, Excel plan and metadata calls leave it None and keep the client default.
+    # The OpenAI-compatible client ignores it (Gemini has `reasoning_effort` instead).
+    thinking: ThinkingMode | None = None
 
 
 @dataclass(frozen=True)

@@ -148,6 +148,23 @@ def _write_audit_log(
     )
 
 
+def _answer_request(settings: Settings, user_prompt: str) -> LLMRequest:
+    """The one LLM call of the document pipeline. S0-d: `ANSWER_THINKING=true` turns adaptive
+    thinking on for *this call only* (with its own, larger output budget); off = the request
+    is byte-identical to before. The router/Excel plan calls never read these settings."""
+    thinking_on = settings.answer_thinking
+    return LLMRequest(
+        system=answer_prompt.system_prompt(settings.assist_computations),
+        user=user_prompt,
+        model=settings.llm_model_answer,
+        max_output_tokens=(
+            settings.answer_thinking_max_tokens if thinking_on else settings.llm_max_output_tokens
+        ),
+        reasoning_effort=settings.llm_reasoning_effort,
+        thinking="adaptive" if thinking_on else None,
+    )
+
+
 def answer_question(
     session: Session,
     user: User,
@@ -226,15 +243,7 @@ def answer_question(
                 previous_question=request.previous_question if settings.ek_f_enabled else None,
             )
             try:
-                response = llm.complete(
-                    LLMRequest(
-                        system=answer_prompt.system_prompt(settings.assist_computations),
-                        user=user_prompt,
-                        model=settings.llm_model_answer,
-                        max_output_tokens=settings.llm_max_output_tokens,
-                        reasoning_effort=settings.llm_reasoning_effort,
-                    )
-                )
+                response = llm.complete(_answer_request(settings, user_prompt))
             except LLMError as exc:
                 if write_audit:
                     _write_audit_log(

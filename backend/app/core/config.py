@@ -69,6 +69,12 @@ class Settings(BaseSettings):
     # 5.5's default adaptive thinking ate the router's 300-token budget, K-B1 §4a). True →
     # adaptive thinking; then LLM_MAX_OUTPUT_TOKENS / router budget must grow with it.
     anthropic_thinking: bool = False
+    # İş Emri 2026-10-13S0d (diagnosis): True → only the document *answer* call
+    # (`ask.answer_question`) asks for adaptive thinking and gets `answer_thinking_max_tokens`
+    # as its output budget (thinking tokens are billed as output). Router, Excel plan and
+    # metadata calls are untouched (K-B1 §4a). False (default) = byte-identical requests.
+    answer_thinking: bool = False
+    answer_thinking_max_tokens: int = 8192
 
     # ADR-027 (Tansu Not 2): when a question cannot be answered, add a code-generated
     # `assist` block (what is available, which terms did not match, one bounded clarifying

@@ -40,6 +40,17 @@ def test_document_type_always_runs_the_original_question(settings: Settings) -> 
     assert (routed.model, routed.tokens_in, routed.tokens_out) == ("fake-model", 123, 45)
 
 
+def test_answer_thinking_setting_never_reaches_the_router(settings: Settings) -> None:
+    """S0-d: ANSWER_THINKING is the document answer call's switch only — the router keeps
+    its 300-token budget and the client-default thinking (K-B1 §4a)."""
+    reply = json.dumps({"query_type": "DOCUMENT_QUERY", "document_question": "q", "reason": "r"})
+    fake = FakeLLMClient(replies=[reply])
+    LLMRouter(fake, settings.model_copy(update={"answer_thinking": True})).route(QUESTION)
+    request = fake.requests[0]
+    assert request.thinking is None
+    assert request.max_output_tokens == 300
+
+
 def test_data_type_runs_the_original_question(settings: Settings) -> None:
     routed = _route(settings, json.dumps({"query_type": "DATA_QUERY"}))
     assert routed.query_type == "DATA_QUERY"

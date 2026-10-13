@@ -13,6 +13,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_llm_client
+from app.core.config import Settings
 from app.core.errors import LLM_NOT_CONFIGURED_MESSAGE, LLM_UNAVAILABLE_MESSAGE
 from app.main import app
 from app.models.document import Confidentiality, Document, DocumentStatus
@@ -22,6 +23,7 @@ from app.repositories import audit_log_repo
 from app.schemas.ask import NO_INTERPRETATION_NOTICE
 from app.services import retrieval as retrieval_module
 from app.services.answer_prompt import NO_ANSWER_TEXT
+from app.services.ask import _answer_request
 from app.services.llm import LLMNotConfiguredError, LLMRateLimitError, LLMRequest
 from tests.department_fixtures import add_user_to_department, make_department
 from tests.fakes import FakeLLMClient
@@ -199,6 +201,30 @@ def test_sources_come_from_citations_with_page_and_chain(
     assert "BUGÜN: 06.10.2026" in prompt
     assert str(facility.id) in body["retrieved_document_ids"]  # type: ignore[operator]
     assert str(amendment.id) in body["retrieved_document_ids"]  # type: ignore[operator]
+
+
+def test_answer_thinking_setting_shapes_only_the_answer_call(settings: Settings) -> None:
+    """S0-d: default (ANSWER_THINKING=false) → the request is byte-identical to before the
+    field existed (thinking None, LLM_MAX_OUTPUT_TOKENS); true → "adaptive" + the dedicated
+    output budget on this one call."""
+    default = _answer_request(settings, "prompt")
+    assert default == LLMRequest(
+        system=default.system,
+        user="prompt",
+        model=settings.llm_model_answer,
+        max_output_tokens=settings.llm_max_output_tokens,
+        reasoning_effort=settings.llm_reasoning_effort,
+    )
+    assert default.thinking is None
+
+    on = _answer_request(
+        settings.model_copy(update={"answer_thinking": True, "answer_thinking_max_tokens": 8192}),
+        "prompt",
+    )
+    assert on.thinking == "adaptive"
+    assert on.max_output_tokens == 8192
+    assert (on.system, on.user, on.model) == (default.system, "prompt", settings.llm_model_answer)
+    assert settings.answer_thinking is False and settings.answer_thinking_max_tokens == 8192
 
 
 def test_no_answer_reply_is_canonicalized(

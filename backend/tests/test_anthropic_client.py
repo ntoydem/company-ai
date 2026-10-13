@@ -305,6 +305,45 @@ def test_thinking_and_text_blocks_join_text_only() -> None:
     assert _client(handler).complete(REQUEST).text == "Merhaba [K1]."
 
 
+def test_request_thinking_override_beats_client_default() -> None:
+    """S0-d: `LLMRequest.thinking` is applied per call — "adaptive" on a thinking-off client
+    sends adaptive; "off" on a thinking-on client sends the model's own "off" spelling;
+    None keeps the client default (byte-identical to before the field existed)."""
+    bodies: list[dict[str, Any]] = []
+
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        import json
+
+        bodies.append(json.loads(request.content))
+        return httpx2.Response(200, json=_message("ok"))
+
+    off_client = _client(handler)
+    off_client.complete(dataclasses.replace(REQUEST, thinking="adaptive"))
+    off_client.complete(REQUEST)  # thinking=None → default (off, Haiku → disabled)
+    off_client.complete(dataclasses.replace(REQUEST, model="claude-sonnet-5-5", thinking="off"))
+
+    on_client = AnthropicClient(
+        api_key="test-key",
+        timeout_s=5,
+        max_retries=0,
+        http_client=httpx2.Client(transport=httpx2.MockTransport(handler)),
+        thinking=True,
+    )
+    on_client.complete(dataclasses.replace(REQUEST, thinking="off"))
+    on_client.complete(dataclasses.replace(REQUEST, model="claude-sonnet-5-5", thinking="off"))
+    on_client.complete(REQUEST)  # None → client default (adaptive)
+
+    assert [b["thinking"] for b in bodies] == [
+        {"type": "adaptive"},
+        {"type": "disabled"},
+        {"type": "between_tools"},
+        {"type": "disabled"},
+        {"type": "between_tools"},
+        {"type": "adaptive"},
+    ]
+    assert all(b["max_tokens"] == 64 for b in bodies)  # the override touches only `thinking`
+
+
 def test_factory_passes_thinking_setting(settings: Settings) -> None:
     client = build_llm_client(
         settings.model_copy(

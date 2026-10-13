@@ -23,6 +23,11 @@ between_tools"). Known models are mapped in `_THINKING_OFF_BY_MODEL`; an unknown
 first gets `disabled` and, if the API answers 400 asking for `between_tools`, is retried
 once with it — logged (model + safe error summary, never the key) and remembered for the
 rest of the process so the 400 is not repeated per call.
+
+Per-call override (İş Emri 2026-10-13S0d): `LLMRequest.thinking` ("adaptive" | "off") beats
+the client-wide setting for that one call; None keeps today's behaviour byte-identical. Only
+`ask.py`'s document answer call sets it (ANSWER_THINKING=true), never the router or the
+Excel plan call (K-B1 §4a budget risk).
 """
 
 from __future__ import annotations
@@ -125,13 +130,17 @@ class AnthropicClient:
             http_client=http_client,
         )
 
-    def _thinking_for(self, model: str) -> ThinkingConfigParam:
-        if self._thinking is not None:
+    def _thinking_for(self, request: LLMRequest) -> ThinkingConfigParam:
+        """Per-call `request.thinking` wins (S0-d: "adaptive" / "off"); otherwise the
+        client-wide ANTHROPIC_THINKING setting. "Off" is always spelled per model."""
+        if request.thinking == "adaptive":
+            return _THINKING_ADAPTIVE
+        if request.thinking is None and self._thinking is not None:
             return self._thinking
-        learned = self._thinking_off_learned.get(model)
+        learned = self._thinking_off_learned.get(request.model)
         if learned is not None:
             return learned
-        return _THINKING_OFF_BY_MODEL.get(model, _THINKING_DISABLED)
+        return _THINKING_OFF_BY_MODEL.get(request.model, _THINKING_DISABLED)
 
     def _create(
         self, request: LLMRequest, system: str, thinking: ThinkingConfigParam
@@ -177,7 +186,7 @@ class AnthropicClient:
         system = request.system
         if request.response_format == "json_object":
             system = system + _JSON_ONLY_SUFFIX
-        thinking = self._thinking_for(request.model)
+        thinking = self._thinking_for(request)
         try:
             message = self._create(request, system, thinking)
         except _ThinkingDisabledRejectedError as rejected:
