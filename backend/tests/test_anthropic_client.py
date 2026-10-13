@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import logging
 from typing import Any
 
@@ -178,6 +179,89 @@ def test_thinking_opt_in_sends_adaptive() -> None:
     )
     assert client.complete(REQUEST).text == "ok"
     assert seen["body"]["thinking"] == {"type": "adaptive"}
+
+
+def test_thinking_off_is_spelled_per_model() -> None:
+    """S0-c bloke düzeltmesi: düşünme kapalıyken Haiku 5.5 `disabled`, Sonnet 5.5
+    `between_tools` alır (13.10.2026: her biri diğerini 400 ile reddediyor)."""
+    bodies: list[dict[str, Any]] = []
+
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        import json
+
+        bodies.append(json.loads(request.content))
+        return httpx2.Response(200, json=_message("ok"))
+
+    client = _client(handler)
+    for model in ("claude-sonnet-5-5", "claude-haiku-5-5", "claude-sonnet-5-5"):
+        assert client.complete(dataclasses.replace(REQUEST, model=model)).text == "ok"
+
+    assert [b["model"] for b in bodies] == [
+        "claude-sonnet-5-5",
+        "claude-haiku-5-5",
+        "claude-sonnet-5-5",
+    ]
+    assert [b["thinking"] for b in bodies] == [
+        {"type": "between_tools"},
+        {"type": "disabled"},
+        {"type": "between_tools"},
+    ]
+
+
+def test_unknown_model_falls_back_to_between_tools_after_400_and_logs(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Bilinmeyen model: önce `disabled`; API "send between_tools instead of disabled" ile
+    400 verirse aynı istek bir kez `between_tools` ile tekrarlanır, WARNING loglanır (anahtar
+    yok) ve o model için sonraki çağrılar doğrudan `between_tools` gider. Başka 400'ler
+    eskisi gibi `LLMUnavailableError`."""
+    bodies: list[dict[str, Any]] = []
+
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        import json
+
+        body = json.loads(request.content)
+        bodies.append(body)
+        if body["thinking"] == {"type": "disabled"}:
+            return httpx2.Response(
+                400,
+                json={
+                    "type": "error",
+                    "error": {
+                        "type": "invalid_request_error",
+                        "message": 'To turn thinking off on this model, send "thinking": '
+                        '{"type": "between_tools"} instead of {"type": "disabled"}.',
+                    },
+                },
+            )
+        return httpx2.Response(200, json=_message("ok"))
+
+    req = dataclasses.replace(REQUEST, model="claude-future-9")
+    client = _client(handler)
+    with caplog.at_level(logging.WARNING, logger="app.services.llm"):
+        assert client.complete(req).text == "ok"
+        assert client.complete(req).text == "ok"
+
+    assert [b["thinking"]["type"] for b in bodies] == ["disabled", "between_tools", "between_tools"]
+    record = next(
+        r
+        for r in caplog.records
+        if r.getMessage() == "llm thinking=disabled rejected, retrying with between_tools"
+    )
+    assert record.model == "claude-future-9"  # type: ignore[attr-defined]
+    assert "between_tools" in record.error_body  # type: ignore[attr-defined]
+    assert "test-key" not in str(record.error_body)  # type: ignore[attr-defined]
+    assert sum(1 for r in caplog.records if "retrying with between_tools" in r.getMessage()) == 1
+
+    # Bir başka 400 (between_tools istemeyen) düşüşe yol açmaz, eski eşleme kalır.
+    def other_400(_: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(
+            400,
+            json={"type": "error", "error": {"type": "invalid_request_error", "message": "bad"}},
+        )
+
+    with pytest.raises(LLMUnavailableError):
+        _client(other_400).complete(req)
 
 
 def test_thinking_only_reply_is_response_error_naming_thinking() -> None:

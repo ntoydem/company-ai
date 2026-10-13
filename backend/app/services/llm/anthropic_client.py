@@ -12,9 +12,17 @@ Thinking (İş Emri 2026-10-12K-B1F): on Haiku 5.5, omitting the `thinking` para
 *adaptive* thinking by default, and the (hidden, empty-text) thinking block is billed as
 output tokens — with the router's `max_tokens=300` it ate the whole budget 3/3 times and
 the reply had no text block at all (`output_config={"effort": "low"}` did NOT help, also
-3/3). So every call sends `thinking={"type": "disabled"}` unless `ANTHROPIC_THINKING=true`
-(then `{"type": "adaptive"}`; see infra/.env.example). Measurement table in
+3/3). So every call sends thinking *off* unless `ANTHROPIC_THINKING=true` (then
+`{"type": "adaptive"}`; see infra/.env.example). Measurement table in
 docs/reports/IS_EMRI_2026-10-12K_B1F.md.
+
+"Off" is spelled per model (İş Emri 2026-10-13S0c, blocker fix): Haiku 5.5 takes only
+`{"type": "disabled"}` (400 on `between_tools`), Sonnet 5.5 takes only
+`{"type": "between_tools"}` (400 on `disabled`: "To turn thinking off on this model, send
+between_tools"). Known models are mapped in `_THINKING_OFF_BY_MODEL`; an unknown model
+first gets `disabled` and, if the API answers 400 asking for `between_tools`, is retried
+once with it — logged (model + safe error summary, never the key) and remembered for the
+rest of the process so the 400 is not repeated per call.
 """
 
 from __future__ import annotations
@@ -43,6 +51,23 @@ _JSON_ONLY_SUFFIX = (
     "\n\nReply with a single valid JSON object and nothing else — no markdown code "
     "fence, no commentary before or after it."
 )
+
+_THINKING_ADAPTIVE: ThinkingConfigParam = {"type": "adaptive"}
+_THINKING_DISABLED: ThinkingConfigParam = {"type": "disabled"}
+_THINKING_BETWEEN_TOOLS: ThinkingConfigParam = {"type": "between_tools"}
+# How each known model spells "thinking off" (module docstring; verified 13.10.2026).
+_THINKING_OFF_BY_MODEL: dict[str, ThinkingConfigParam] = {
+    "claude-haiku-5-5": _THINKING_DISABLED,
+    "claude-sonnet-5-5": _THINKING_BETWEEN_TOOLS,
+}
+
+
+class _ThinkingDisabledRejectedError(Exception):
+    """400 whose message asks for `between_tools` instead of `disabled` (unknown model)."""
+
+
+def _wants_between_tools(exc: anthropic.APIStatusError) -> bool:
+    return exc.status_code == 400 and "between_tools" in _safe_error_summary(exc)
 
 
 def _safe_error_summary(exc: anthropic.APIStatusError) -> str:
@@ -84,12 +109,12 @@ class AnthropicClient:
         http_client: httpx2.Client | None = None,
         thinking: bool = False,
     ) -> None:
-        # `thinking`: False (default) sends `{"type": "disabled"}` on every call — see the
-        # module docstring; True opts into adaptive thinking (callers must then budget
-        # `max_output_tokens` for it, the router's 300 is not enough).
-        self._thinking: ThinkingConfigParam = (
-            {"type": "adaptive"} if thinking else {"type": "disabled"}
-        )
+        # `thinking`: False (default) sends thinking *off* on every call, spelled per model
+        # (`_thinking_for`, module docstring); True opts into adaptive thinking (callers
+        # must then budget `max_output_tokens` for it, the router's 300 is not enough).
+        self._thinking: ThinkingConfigParam | None = _THINKING_ADAPTIVE if thinking else None
+        # Unknown models whose `disabled` was rejected once → `between_tools` from then on.
+        self._thinking_off_learned: dict[str, ThinkingConfigParam] = {}
         # `max_retries`: the SDK's own backoff for 429/5xx (İş Emri 2026-10-11-C Adım 1 —
         # bu hesapta dakikada 1000 istek/2.400.000 token, agresif bir dış pacing'e gerek
         # yok; SDK'nın yerleşik üstel geri-çekilmesi yeterli).
@@ -100,22 +125,31 @@ class AnthropicClient:
             http_client=http_client,
         )
 
-    def complete(self, request: LLMRequest) -> LLMResponse:
-        started = time.perf_counter()
-        system = request.system
-        if request.response_format == "json_object":
-            system = system + _JSON_ONLY_SUFFIX
+    def _thinking_for(self, model: str) -> ThinkingConfigParam:
+        if self._thinking is not None:
+            return self._thinking
+        learned = self._thinking_off_learned.get(model)
+        if learned is not None:
+            return learned
+        return _THINKING_OFF_BY_MODEL.get(model, _THINKING_DISABLED)
+
+    def _create(
+        self, request: LLMRequest, system: str, thinking: ThinkingConfigParam
+    ) -> anthropic.types.Message:
+        """One `messages.create()` with the SDK errors mapped to the shared `LLMError`
+        family. A 400 asking for `between_tools` (unknown model, `disabled` sent) is raised
+        as `_ThinkingDisabledRejectedError` so `complete()` can retry once."""
         try:
             # `messages.create()` has no `temperature` parameter in the installed SDK
             # (confirmed by introspection, 11.10.2026 — not in its `create()` signature at
             # all); `request.temperature` (Gemini-side determinism knob) has no Anthropic
             # equivalent here and is silently not forwarded.
-            message = self._client.messages.create(
+            return self._client.messages.create(
                 model=request.model,
                 max_tokens=request.max_output_tokens,
                 system=system,
                 messages=[{"role": "user", "content": request.user}],
-                thinking=self._thinking,
+                thinking=thinking,
             )
         except (anthropic.AuthenticationError, anthropic.PermissionDeniedError) as exc:
             raise LLMAuthError(str(exc)) from exc
@@ -125,6 +159,8 @@ class AnthropicClient:
         except anthropic.APITimeoutError as exc:
             raise LLMTimeoutError(str(exc)) from exc
         except anthropic.APIStatusError as exc:
+            if thinking["type"] == "disabled" and _wants_between_tools(exc):
+                raise _ThinkingDisabledRejectedError() from exc
             if exc.status_code in (503, 529):
                 log.warning(
                     f"llm unavailable ({exc.status_code})",
@@ -135,10 +171,33 @@ class AnthropicClient:
             raise LLMUnavailableError(str(exc)) from exc
         except anthropic.AnthropicError as exc:
             raise LLMError(str(exc)) from exc
+
+    def complete(self, request: LLMRequest) -> LLMResponse:
+        started = time.perf_counter()
+        system = request.system
+        if request.response_format == "json_object":
+            system = system + _JSON_ONLY_SUFFIX
+        thinking = self._thinking_for(request.model)
+        try:
+            message = self._create(request, system, thinking)
+        except _ThinkingDisabledRejectedError as rejected:
+            cause = rejected.__cause__
+            log.warning(
+                "llm thinking=disabled rejected, retrying with between_tools",
+                extra={
+                    "model": request.model,
+                    "error_body": _safe_error_summary(cause)
+                    if isinstance(cause, anthropic.APIStatusError)
+                    else "gövde yok/okunamadı",
+                },
+            )
+            thinking = _THINKING_BETWEEN_TOOLS
+            self._thinking_off_learned[request.model] = thinking
+            message = self._create(request, system, thinking)
         latency_ms = round((time.perf_counter() - started) * 1000)
 
         # Only `text` blocks are the answer; `thinking` blocks (if the operator enabled
-        # thinking, or a model ignores "disabled") are never surfaced.
+        # thinking, or a model ignores "off") are never surfaced.
         block_types = [block.type for block in message.content]
         text = "".join(block.text for block in message.content if block.type == "text")
         if request.response_format == "json_object":
@@ -166,7 +225,7 @@ class AnthropicClient:
                 # `max_output_tokens` or keep thinking disabled (ANTHROPIC_THINKING).
                 detail += (
                     "; thinking block consumed the output budget before any text was "
-                    f"written (thinking={self._thinking['type']})"
+                    f"written (thinking={thinking['type']})"
                 )
             raise LLMResponseError(detail)
         return LLMResponse(
