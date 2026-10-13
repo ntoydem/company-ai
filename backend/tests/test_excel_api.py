@@ -441,6 +441,49 @@ def test_plan_call_uses_llm_model_excel_plan_only_when_set(
     assert [r.model for r in fake.requests] == ["plan-model-x", settings.llm_model_answer]
 
 
+# ---------------------------------------------------------------- S0-b: TODAY in the plan, units
+
+
+def test_plan_context_carries_today_and_a_missing_month_is_no_data_not_another_row(
+    client: TestClient, admin_user: User, fake_llm: FakeLLMClient, db_session: Session
+) -> None:
+    """İş Emri 2026-10-13S0b A/1 (BT-01 E1): "Karatepe geçen ay ne kadar üretti?" — the
+    planner sees `TODAY: 2026-10-06` and asks for 2026-09; that month has no row, so the
+    answer is "no data" (one call, no phrasing), never the June figure 10.951."""
+    _publish(db_session, _upload_workbook(client, "Monthly_Production_2026.xlsx"))
+    fake_llm.replies = [_plan("function", name="production", params={"period": "2026-09"})]
+    body = client.post(
+        "/api/excel/ask", json={"question": "Karatepe geçen ay ne kadar elektrik üretti?"}
+    ).json()
+    assert body["answered"] is False and body["answer"] == NO_DATA_TEXT
+    assert body["value"] is None and body["formatted_value"] is None
+    assert "10951" not in body["answer"] and "10.951" not in body["answer"]
+    assert len(fake_llm.requests) == 1  # no phrasing call for a missing period
+    plan_request = fake_llm.requests[0]
+    assert "\n\nTODAY: 2026-10-06\nQUESTION: Karatepe geçen ay" in plan_request.user
+    assert "TODAY in the context is the system's current date" in plan_request.system
+    assert "never substitute an earlier period" in PLAN_SYSTEM_PROMPT
+
+
+def test_outstanding_debt_answer_carries_the_workbook_currency(
+    client: TestClient, admin_user: User, fake_llm: FakeLLMClient, db_session: Session
+) -> None:
+    """İş Emri 2026-10-13S0b A/2 (BT-01 E5): 11.671.800 **USD** on the wire — unit, formatted
+    value and the engine-value check all use the workbook's currency, not a constant."""
+    _publish(db_session, _upload_workbook(client, "Financial_Model_2026.xlsx"))
+    fake_llm.replies = [
+        _plan("function", name="outstanding_debt", params={"as_of": "today"}),
+        "Karatepe RES kredisinin güncel kalan bakiyesi 11.671.800 USD.",
+    ]
+    body = client.post("/api/excel/ask", json={"question": "Kalan kredi borcu ne kadar?"}).json()
+    assert body["answered"] is True and body["value"] == 11_671_800
+    assert body["unit"] == "USD" and body["formatted_value"] == "11.671.800 USD"
+    assert "11.671.800 USD" in body["answer"] and "EUR" not in json.dumps(body)
+    assert body["sources"][0]["label"] == "Financial_Model_2026.xlsx Debt!H9"
+    assert "outstanding_debt(as_of)" in fake_llm.requests[0].user
+    assert "(EUR)" not in fake_llm.requests[0].user  # the catalogue no longer promises EUR
+
+
 def test_llm_model_excel_plan_env_is_read_and_defaults_to_empty(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -69,7 +69,11 @@ PLAN_SYSTEM_PROMPT = (
     "Rules: prefer a predefined function when one fits; otherwise write a single read-only "
     "SELECT over the listed tables only (no semicolons, no comments, no other statements, "
     "no file functions). Use the exact table and column names from the catalogue. Periods: "
-    "quarters as Q2_2026, months as 2026-06, years as 2026."
+    "quarters as Q2_2026, months as 2026-06, years as 2026. TODAY in the context is the "
+    "system's current date: resolve relative expressions (last month, this quarter, next "
+    "instalment) against it and ask for exactly that period — never substitute an earlier "
+    "period because the asked one might be missing; the engine reports missing data itself. "
+    "'Latest' or 'most recent' means the newest row in the data, not a period you guess."
 )
 
 ANSWER_SYSTEM_PROMPT = (
@@ -330,12 +334,15 @@ def answer_data_question(
 
     catalogue = _catalogue(workbooks)
     loaded = [wb for _, wb in workbooks]
+    # S0-b (Tansu §0/2-1): the planner sees the system's own date (ADR-026) so "last
+    # month" resolves to a period, not to a guess; the same date feeds the functions.
+    today_ = temporal_today(settings)
     tokens_in = tokens_out = 0
     plan_model_name: str | None = None
 
     def request_plan(feedback: str | None) -> dict[str, Any]:
         nonlocal tokens_in, tokens_out, plan_model_name
-        user = f"{catalogue}\n\nQUESTION: {request.question}"
+        user = f"{catalogue}\n\nTODAY: {today_.isoformat()}\nQUESTION: {request.question}"
         if feedback:
             user += f"\n\n{feedback}"
         response = llm.complete(
@@ -360,7 +367,7 @@ def answer_data_question(
                     loaded,
                     str(plan.get("name")),
                     dict(plan.get("params") or {}),
-                    today=temporal_today(settings),
+                    today=today_,
                 ),
                 None,
             )

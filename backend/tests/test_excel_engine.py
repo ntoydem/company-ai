@@ -95,6 +95,68 @@ def test_outstanding_debt_today_refuses_a_stale_snapshot(
         )
 
 
+def test_outstanding_debt_unit_comes_from_the_workbook_label_not_from_code(
+    workbooks: list[LoadedWorkbook], engine: CachedValueEngine
+) -> None:
+    """İş Emri 2026-10-13S0b A/2 (BT-01 E5): the schedule is in USD (`Closing (USD)`,
+    `Outstanding after half (USD)`); the code used to say EUR for every branch."""
+    today = run_function(
+        engine, workbooks, "outstanding_debt", {"as_of": "today"}, today=date(2026, 10, 6)
+    )
+    assert today.value == pytest.approx(11_671_800) and today.unit == "USD"
+    quarter = run_function(
+        engine, workbooks, "outstanding_debt", {"as_of": "Q4_2024"}, today=date(2026, 10, 6)
+    )
+    assert quarter.unit == "USD" and quarter.source.label == "Covenant_Report.xlsx Q4_2024!D12"
+    variance = run_function(
+        engine, workbooks, "budget_variance", {"period": "Q2 2026"}, today=date(2026, 10, 6)
+    )
+    assert variance.unit == "TRY"  # `Variance (TRY)` header, no constant either
+
+
+def test_outstanding_debt_on_a_date_resolves_the_closing_column_from_the_sheet(
+    workbooks: list[LoadedWorkbook], engine: CachedValueEngine
+) -> None:
+    """İş Emri 2026-10-13S0b A/3: a dated question looked for `closing_eur`; the Debt
+    sheet has `Closing (USD)` → `closing_usd`, so every dated call failed with "no debt
+    schedule table". The column (and its letter, H) now come from the sheet."""
+    september = run_function(
+        engine, workbooks, "outstanding_debt", {"as_of": "2026-09"}, today=date(2026, 10, 6)
+    )
+    assert september.value == pytest.approx(11_671_800) and september.unit == "USD"
+    assert september.source.label == "Financial_Model_2026.xlsx Debt!H9"  # H1_2026 row
+    assert september.detail == "outstanding on 2026-09-01"
+    tr_date = run_function(
+        engine, workbooks, "outstanding_debt", {"as_of": "15.09.2026"}, today=date(2026, 10, 6)
+    )
+    assert tr_date.value == pytest.approx(11_671_800)
+    year = run_function(
+        engine, workbooks, "outstanding_debt", {"as_of": "2024"}, today=date(2026, 10, 6)
+    )
+    assert year.value == pytest.approx(12_703_700)  # = Covenant Q4_2024 outstanding
+    assert year.source.label == "Financial_Model_2026.xlsx Debt!H6"
+    with pytest.raises(FunctionError):  # before the first drawdown: no row, no guess
+        run_function(
+            engine, workbooks, "outstanding_debt", {"as_of": "2022-06"}, today=date(2026, 10, 6)
+        )
+
+
+def test_production_of_a_month_without_data_is_refused_not_another_month(
+    workbooks: list[LoadedWorkbook], engine: CachedValueEngine
+) -> None:
+    """İş Emri 2026-10-13S0b A/1 (BT-01 E1): "last month" from 06.10.2026 is 2026-09; the
+    workbook ends at 2026-08 (13.538 MWh). The engine says "no data" — it never serves
+    June (10.951) or any other row instead."""
+    with pytest.raises(FunctionError):
+        run_function(
+            engine, workbooks, "production", {"period": "2026-09"}, today=date(2026, 10, 6)
+        )
+    latest = run_function(
+        engine, workbooks, "production", {"period": "2026-08"}, today=date(2026, 10, 6)
+    )
+    assert latest.value == pytest.approx(13_538)
+
+
 def test_budget_variance_production_and_capacity_factor(
     workbooks: list[LoadedWorkbook], engine: CachedValueEngine
 ) -> None:
