@@ -86,6 +86,70 @@ def test_suggest_metadata_classifies_document_with_confidence(
     assert fake.requests[0].model == settings.llm_model_classify
 
 
+def test_extra_fields_with_a_flat_confidence_number_no_longer_fails_validation(
+    db_session: Session, settings: Settings
+) -> None:
+    """İş Emri 2026-10-13S0b §B — the K-B1 §5 failure body: `"extra_fields": {"confidence":
+    0.5}` raised `extra_fields.confidence: Input should be a valid dictionary or instance of
+    _FieldGuess [input_value=0.5, input_type=float]` → 11 documents `failed`. The stray
+    number is dropped, the suggestion is stored as `pending`."""
+    department_repo.create(db_session, name="Finans", slug="finans")
+    document = _document(db_session, text="Facility Agreement ...")
+    reply = json.loads(_classify_reply(department="finans", project_code=None))
+    reply["extra_fields"] = {"confidence": 0.5}
+    fake = FakeLLMClient(replies=[json.dumps(reply)])
+
+    suggestion = metadata_suggestion.suggest_metadata(db_session, document, fake, settings)
+
+    assert suggestion.status == SuggestionStatus.pending and suggestion.error is None
+    assert suggestion.fields["extra_fields"] == {}
+    assert suggestion.fields["department"] == {"value": "finans", "confidence": 0.9}
+    # The classify prompt now shows the model one well-formed extra_fields example.
+    assert '"extra_fields": {"sozlesme_no": {"value": "FA-2022-01"' in fake.requests[0].system
+
+
+def test_valid_extra_fields_pass_through_unchanged_and_bare_values_are_wrapped(
+    db_session: Session, settings: Settings
+) -> None:
+    """A valid `{value, confidence}` entry is stored exactly as before (byte-identical
+    `fields`); a bare string becomes a guess with confidence 0.0; a bare number, a `None`
+    and the schema words used as keys are dropped."""
+    department_repo.create(db_session, name="Finans", slug="finans")
+    document = _document(db_session, text="Facility Agreement ...")
+    reply = json.loads(_classify_reply(department="finans", project_code=None))
+    reply["extra_fields"] = {
+        "parties": {"value": "DEF Enerji, PQR Bank", "confidence": 0.9},
+        "Sözleşme No": "FA-2022-01",
+        "lenders": ["PQR Bank", "XYZ Bank"],
+        "capacity_mw": 50,
+        "tenor": None,
+        "value": "stray",
+        "confidence": 0.5,
+    }
+    fake = FakeLLMClient(replies=[json.dumps(reply)])
+
+    suggestion = metadata_suggestion.suggest_metadata(db_session, document, fake, settings)
+
+    assert suggestion.status == SuggestionStatus.pending
+    assert suggestion.fields["extra_fields"] == {
+        "parties": {"value": "DEF Enerji, PQR Bank", "confidence": 0.9},
+        "sozlesme_no": {"value": "FA-2022-01", "confidence": 0.0},
+        "lenders": {"value": "PQR Bank, XYZ Bank", "confidence": 0.0},
+    }
+    expected_rest = {
+        "department": {"value": "finans", "confidence": 0.9},
+        "subdepartment": {"value": None, "confidence": 0.0},
+        "project_code": {"value": None, "confidence": 0.9},  # null is never re-scored
+        "document_type": {"value": "facility_agreement", "confidence": 0.9},
+        "counterparty": {"value": "PQR Bank", "confidence": 0.9},
+        "document_date": {"value": "2023-06-01", "confidence": 0.9},
+        "status": {"value": "executed", "confidence": 0.9},
+        "confidentiality": {"value": "normal", "confidence": 0.9},
+        "tags": {"value": None, "confidence": 0.7, "dropped": ["facility", "kredi"]},
+    }
+    assert {k: v for k, v in suggestion.fields.items() if k != "extra_fields"} == expected_rest
+
+
 def test_suggest_metadata_llm_error_is_caught_and_stored_as_failed(
     db_session: Session, settings: Settings
 ) -> None:

@@ -12,7 +12,7 @@ import json
 import logging
 from typing import Any
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
@@ -54,6 +54,8 @@ _FIELDS = (
     "confidentiality",
     "tags",
 )
+# The two keys of a guess object; as *extra field names* they are a leaked schema word.
+_SCHEMA_WORDS = frozenset({"value", "confidence"})
 
 
 class _FieldGuess(BaseModel):
@@ -73,6 +75,29 @@ class _ClassifyResponse(BaseModel):
     tags: _FieldGuess = Field(default_factory=_FieldGuess)
     # B-28b: type-specific facts, keyed by the guide's suggested keys (free keys allowed).
     extra_fields: dict[str, _FieldGuess] = Field(default_factory=dict)
+
+    @field_validator("extra_fields", mode="before")
+    @classmethod
+    def _only_guess_objects(cls, raw: Any) -> Any:
+        """İş Emri 2026-10-13S0b §B (K-B1 §5): models write `"extra_fields": {"confidence":
+        0.5}` — a flat number where a `{value, confidence}` object belongs — and the whole
+        suggestion failed validation (11 documents, Gemini and Haiku alike). A `{...}`
+        entry passes through untouched (a valid reply is byte-identical); a bare string or
+        list of strings is wrapped as a guess with confidence 0.0; anything else (a stray
+        number/bool/None, or the schema words `value`/`confidence` used as keys) is dropped."""
+        if not isinstance(raw, dict):
+            return {}
+        kept: dict[str, Any] = {}
+        for key, guess in raw.items():
+            if isinstance(guess, dict):
+                kept[key] = guess
+            elif str(key) in _SCHEMA_WORDS:
+                continue
+            elif isinstance(guess, str) or (
+                isinstance(guess, list) and all(isinstance(v, str) for v in guess)
+            ):
+                kept[key] = {"value": guess, "confidence": 0.0}
+        return kept
 
 
 def _guide_block(guides: list[dict[str, Any]]) -> str:
@@ -113,7 +138,9 @@ def _build_prompt(
     extra_rule = (
         "extra_fields: belgenin türüne uyan rehber satırındaki anahtarlar için "
         '{"anahtar": {"value": ..., "confidence": ...}} nesnesi; yalnızca metinde AÇIKÇA yazanı '
-        f"yaz, uydurma; en fazla {MAX_EXTRA_FIELDS} anahtar; uygun bilgi yoksa boş nesne.\n"
+        f"yaz, uydurma; en fazla {MAX_EXTRA_FIELDS} anahtar; uygun bilgi yoksa boş nesne. "
+        'Örnek: "extra_fields": {"sozlesme_no": {"value": "FA-2022-01", "confidence": 0.8}} '
+        "(her anahtarın değeri bir nesnedir; extra_fields içine düz sayı yazma).\n"
         + (
             f"Tür rehberi (aile [tür desenleri]: ek alanlar; etiketler; ipucu):\n{guide_text}\n"
             if guide_text
