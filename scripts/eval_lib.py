@@ -551,15 +551,25 @@ def safety_checks(
     return tuple(reasons)
 
 
+# İş Emri 2026-10-14B2a (Tansu madde 13; K planA §3.5 "kriter sorunu 1"): a clarifying
+# question is a clarifying question whether code asked it along the project axis
+# (`disambiguate`, Adım 4) or the model asked it under rule 12 and code validated it
+# (`clarify`). The two kinds satisfy each other's expectation; `term_mismatch` stays apart.
+_EQUIVALENT_ASSIST_KINDS = frozenset({"clarify", "disambiguate"})
+
+
 def assist_check(question: ls.Question, outcome: AskOutcome) -> tuple[str, str | None]:
     """`expect_assist` scoring: "skipped" when the question declares none or the response
-    carries no assist block (ASSIST_MODE off), else pass/fail on `assist.kind`."""
+    carries no assist block (ASSIST_MODE off), else pass/fail on `assist.kind` — with
+    `clarify` and `disambiguate` accepted for each other."""
     if question.expect_assist is None:
         return "skipped", None
     if outcome.assist is None:
         return "skipped", "assist bloğu yok (ASSIST_MODE kapalı?)"
     kind = outcome.assist.get("kind")
     if kind == question.expect_assist:
+        return "pass", None
+    if kind in _EQUIVALENT_ASSIST_KINDS and question.expect_assist in _EQUIVALENT_ASSIST_KINDS:
         return "pass", None
     return "fail", f"assist.kind={kind!r}, beklenen {question.expect_assist!r}"
 

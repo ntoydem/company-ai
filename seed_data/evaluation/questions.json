@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 12,
   "demo_today": "2026-10-06",
   "questions": [
     {
@@ -1434,8 +1434,9 @@
         "Kızılova RES"
       ],
       "ask_as_user": "finans",
-      "expect_no_answer": false,
-      "notes": "NEGATİF KONTROL (BELIRSIZLIK_PLAN §3, Naci 07.10.2026): sözleşme adı verilmiyor ama finans kullanıcısının tek kredi sözleşmesi zinciri var; sürüm zinciri belirsizlik değildir (kural 12-a). Beklenen: güncel vade (13 yıl), netleştirme yok. ANK-NEG-001 ile aynı ledger deseni. Adım 5 Aşama C (10.10.2026): tenor artık değişmiyor (eski 14 senaryosu geçersiz)."
+      "expect_no_answer": true,
+      "notes": "NEGATİF KONTROL → NETLEŞTİRME (İş Emri 2026-10-14B2a, Tansu madde 13; K planA §3.3/§3.5): sözleşme adı verilmiyor; 113 belgelik kütüphanede finans dört projenin kredi sözleşmesini görüyor (Karatepe 13 yıl, Boztepe 10 yıl …) → gerçekten belirsiz, kural 12 ile tek soru beklenir (clarify ≡ disambiguate). Eski beklenti (BELIRSIZLIK_PLAN §3, 07.10.2026, tek zincir): güncel vade, netleştirme yok. ANK-NEG-001 ile aynı ledger deseni; expected_answer bilgi için kaldı (expect_no_answer → değer kontrolü skip).",
+      "expect_assist": "clarify"
     },
     {
       "id": "ANK-NEG-004",
@@ -1486,8 +1487,9 @@
         "Kızılova RES"
       ],
       "ask_as_user": "finans",
-      "expect_no_answer": false,
-      "notes": "NEGATİF KONTROL (Naci 07.10.2026, cevap 3): GEN-AMB-003 ile aynı soru, finans kullanıcısı — lisans tadilini görmez, tek tadil zinciri (kredi) → cevap beklenir, assist yok. expected_answer liste yolu → değer kontrolü atlanır (skip), ölçüt required_sources + answered."
+      "expect_no_answer": true,
+      "notes": "NEGATİF KONTROL → NETLEŞTİRME (İş Emri 2026-10-14B2a, Tansu madde 13; K planA §3.3/§3.5): GEN-AMB-003 ile aynı soru, finans kullanıcısı. 113 belgelik kütüphanede finans artık Karatepe ve Yeşilova kredi tadillerini birlikte görüyor; proje ekseni (kod) disambiguate, kural 12 (prompt) soru üretir → netleştirme beklenir (clarify ≡ disambiguate, eval_lib.assist_check). Eski beklenti (07.10.2026, 76 belge): cevap, assist yok. expected_answer bilgi için kaldı (expect_no_answer → değer kontrolü skip).",
+      "expect_assist": "clarify"
     },
     {
       "id": "GEN-DSC-001",

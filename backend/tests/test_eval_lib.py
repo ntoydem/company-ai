@@ -63,8 +63,14 @@ def test_load_questions_returns_the_committed_questions() -> None:
     # initial != current çifti ve henüz test edilmemişti); soru sayısı değişmedi (99)
     # v11 (İş A, 10.10.2026): Karatepe para birimi EUR->USD geri alındı (M2 düzeltmesi
     # geri alındı); yalnız ANK-FIN-015'in notu güncellendi, soru sayısı değişmedi (99)
+    # v12 (İş Emri 2026-10-14B2a, Tansu madde 13): GEN-AMB-003-F ve ANK-NEG-003 beklentisi
+    # netleştirme (expect_no_answer + expect_assist clarify, 113 belgelik kütüphane); başka
+    # soru değişmedi, soru sayısı değişmedi (99)
     assert len(question_set.questions) == 99
-    assert question_set.version == 11
+    assert question_set.version == 12
+    by_id = {q.id: q for q in question_set.questions}
+    for qid in ("GEN-AMB-003-F", "ANK-NEG-003"):
+        assert by_id[qid].expect_no_answer and by_id[qid].expect_assist == "clarify"
 
 
 def test_build_document_catalog_maps_title_type_and_project() -> None:
@@ -935,12 +941,45 @@ def test_assist_check_matches_the_disambiguate_kind() -> None:
         question,
         AskOutcome(answered=False, answer_text=fixed_question, assist={"kind": "disambiguate"}),
     ) == ("pass", None)
-    status, reason = assist_check(
+    # İş Emri 2026-10-14B2a (Tansu madde 13): a model-asked (`clarify`) question satisfies a
+    # `disambiguate` expectation too — see the equivalence test below.
+    assert assist_check(
         question,
         AskOutcome(answered=False, answer_text=fixed_question, assist={"kind": "clarify"}),
+    ) == ("pass", None)
+    status, reason = assist_check(
+        question,
+        AskOutcome(answered=False, answer_text=fixed_question, assist={"kind": "term_mismatch"}),
     )
     assert status == "fail" and reason is not None
     # G1: the disambiguate question itself carries no digit/date/currency fact
     from scripts.eval_lib import format_check
 
     assert format_check(fixed_question) == ("pass", None)
+
+
+# --- İş Emri 2026-10-14B2a (Tansu madde 13): clarify ≡ disambiguate in assist_check ---
+
+
+def test_assist_check_treats_clarify_and_disambiguate_as_equivalent() -> None:
+    """K planA §3.5 "kriter sorunu 1": the project axis (code) answers with `disambiguate`,
+    rule 12 (model, validated) with `clarify` — both are the one clarifying question the
+    `ambiguous` category expects. Only these two are interchangeable; `term_mismatch` and
+    `none` still fail, and a declared `term_mismatch` accepts neither of them."""
+    fixed = "Hangi sözleşmeyi kastediyorsunuz?"
+
+    def outcome(kind: str) -> AskOutcome:
+        return AskOutcome(answered=False, answer_text=fixed, assist={"kind": kind})
+
+    for expected in ("clarify", "disambiguate"):
+        question = _question(category="ambiguous", expect_no_answer=True, expect_assist=expected)
+        assert assist_check(question, outcome("clarify")) == ("pass", None)
+        assert assist_check(question, outcome("disambiguate")) == ("pass", None)
+        assert assist_check(question, outcome("term_mismatch"))[0] == "fail"
+        assert assist_check(question, outcome("none"))[0] == "fail"
+    mismatch = _question(
+        category="term_mismatch", expect_no_answer=True, expect_assist="term_mismatch"
+    )
+    assert assist_check(mismatch, outcome("term_mismatch")) == ("pass", None)
+    assert assist_check(mismatch, outcome("clarify"))[0] == "fail"
+    assert assist_check(mismatch, outcome("disambiguate"))[0] == "fail"
