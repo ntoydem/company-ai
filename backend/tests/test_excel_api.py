@@ -514,3 +514,103 @@ def test_llm_model_excel_plan_env_is_read_and_defaults_to_empty(
     assert Settings().llm_model_excel_plan == ""
     monkeypatch.setenv("LLM_MODEL_EXCEL_PLAN", "plan-model-y")
     assert Settings().llm_model_excel_plan == "plan-model-y"
+
+
+# ---------------------------------------------------------------- S2c: "tarih ≤ bugün" guard
+
+
+DEBT_LATEST_SQL = (
+    "SELECT closing_usd FROM financial_model_2026__debt ORDER BY end_date DESC LIMIT 1"
+)
+DEBT_CURRENT_SQL = (
+    "SELECT closing_usd FROM financial_model_2026__debt "
+    "WHERE end_date <= DATE '2026-10-06' ORDER BY end_date DESC LIMIT 1"
+)
+DEBT_2030_SQL = "SELECT closing_usd FROM financial_model_2026__debt WHERE period = 'H2_2030'"
+
+
+def test_plan_prompt_carries_the_today_rule_and_future_ok() -> None:
+    assert "Rows dated after TODAY are projections, not current values" in PLAN_SYSTEM_PROMPT
+    assert "WHERE end_date <= DATE 'TODAY'" in PLAN_SYSTEM_PROMPT
+    assert '"future_ok": true' in PLAN_SYSTEM_PROMPT
+    assert "newest row in the data that is not after TODAY" in PLAN_SYSTEM_PROMPT
+
+
+def test_a_row_after_today_is_replanned_once_and_the_current_row_is_answered(
+    client: TestClient, admin_user: User, fake_llm: FakeLLMClient, db_session: Session
+) -> None:
+    """İş Emri 2026-10-14S2c, (g) pattern: "Karatepe için bankaya hâlâ ne kadar borcumuz
+    var?" planned as ORDER BY end_date DESC LIMIT 1 reads 0 from H2_2034. The engine guard
+    re-plans once with a feedback line (table, date column, row label — no figure, no
+    date of the row); the `<= TODAY` plan answers 11.671.800 from H1_2026."""
+    _publish(db_session, _upload_workbook(client, "Financial_Model_2026.xlsx"))
+    fake_llm.replies = [
+        _plan("sql", sql=DEBT_LATEST_SQL),
+        _plan("sql", sql=DEBT_CURRENT_SQL),
+        "Karatepe için bankaya kalan borç 11.671.800 USD.",
+    ]
+    body = client.post(
+        "/api/excel/ask", json={"question": "Karatepe için bankaya hâlâ ne kadar borcumuz var?"}
+    ).json()
+    assert body["answered"] is True and body["value"] == 11_671_800
+    assert body["plan"]["sql"] == DEBT_CURRENT_SQL
+    assert "11.671.800" in body["answer"] and "2034" not in body["answer"]
+    assert [r.system for r in fake_llm.requests] == [
+        PLAN_SYSTEM_PROMPT,
+        PLAN_SYSTEM_PROMPT,
+        ANSWER_SYSTEM_PROMPT,
+    ]
+    retry = fake_llm.requests[1].user
+    assert retry.startswith(fake_llm.requests[0].user)
+    assert f"ÖNCEKİ PLAN: {DEBT_LATEST_SQL}" in retry
+    assert "seçilen satır bugünden sonra" in retry and "güncel değer isteniyor" in retry
+    assert "tablo financial_model_2026__debt, sütun end_date, satır başlığı 'H2_2034'" in retry
+    assert "WHERE end_date <= DATE '2026-10-06'" in retry and '"future_ok": true' in retry
+    assert "2034-12-31" not in retry and "11671800" not in retry and "960600" not in retry
+    _no_workbook_figures(fake_llm.requests[:2])
+
+
+def test_an_explicit_future_question_keeps_the_future_row_with_future_ok(
+    client: TestClient, admin_user: User, fake_llm: FakeLLMClient, db_session: Session
+) -> None:
+    """ "2030'daki kalan borç ne olacak?" — the plan carries `future_ok: true`, so the
+    H2_2030 row is served as before: two calls, no feedback."""
+    _publish(db_session, _upload_workbook(client, "Financial_Model_2026.xlsx"))
+    fake_llm.replies = [
+        _plan("sql", sql=DEBT_2030_SQL, future_ok=True),
+        "2030 sonunda kalan borç 6.725.900 USD olacak.",
+    ]
+    body = client.post(
+        "/api/excel/ask", json={"question": "2030'daki kalan borç ne olacak?"}
+    ).json()
+    assert body["answered"] is True and body["value"] == 6_725_900
+    assert body["plan"] == {"kind": "sql", "sql": DEBT_2030_SQL, "future_ok": True}
+    assert len(fake_llm.requests) == 2
+    assert "GERİ BİLDİRİM" not in fake_llm.requests[0].user
+
+
+def test_a_second_row_after_today_ends_in_the_fixed_sentence(
+    client: TestClient, admin_user: User, fake_llm: FakeLLMClient, db_session: Session
+) -> None:
+    """S0-a's one-retry rule holds: the same future row twice, no `future_ok` → the
+    canonical no-answer sentence, no figure, no phrasing call, the tried range listed."""
+    _publish(db_session, _upload_workbook(client, "Financial_Model_2026.xlsx"))
+    fake_llm.replies = [_plan("sql", sql=DEBT_LATEST_SQL), _plan("sql", sql=DEBT_LATEST_SQL)]
+    body = client.post("/api/excel/ask", json={"question": "Kalan borç?"}).json()
+    assert body["answered"] is False and body["answer"] == NO_ANSWER_TEXT
+    assert body["value"] is None and not any(ch.isdigit() for ch in body["answer"])
+    assert len(fake_llm.requests) == 2
+    assert body["sources"] and body["sources"][0]["sheet"] == "Debt"
+    assert body["excel_files"] == ["Financial_Model_2026.xlsx"]
+
+
+def test_a_past_row_and_a_function_plan_never_see_the_guard(
+    client: TestClient, admin_user: User, fake_llm: FakeLLMClient, db_session: Session
+) -> None:
+    """Existing behaviour byte for byte: a `<= TODAY` plan on the first attempt and the
+    `outstanding_debt` function path are two calls, no feedback."""
+    _publish(db_session, _upload_workbook(client, "Financial_Model_2026.xlsx"))
+    fake_llm.replies = [_plan("sql", sql=DEBT_CURRENT_SQL), "Kalan borç 11.671.800 USD."]
+    body = client.post("/api/excel/ask", json={"question": "Kalan borç?"}).json()
+    assert body["answered"] is True and body["value"] == 11_671_800
+    assert len(fake_llm.requests) == 2

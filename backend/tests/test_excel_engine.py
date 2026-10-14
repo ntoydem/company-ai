@@ -295,3 +295,50 @@ def test_csv_is_loaded_as_a_single_table(tmp_path: Path, engine: CachedValueEngi
     result = engine.run_sql([loaded], "SELECT SUM(CAST(amount AS DOUBLE)) FROM opex__opex")
     assert result.rows[0][0] == pytest.approx(350)
     assert loaded.info.kind == "csv" and not loaded.info.has_macros
+
+
+# ---------------------------------------------------------------- S2c: a row after TODAY
+
+
+DEBT = "financial_model_2026__debt"
+DEBT_LATEST = f"SELECT closing_usd FROM {DEBT} ORDER BY end_date DESC LIMIT 1"
+
+
+def test_future_row_identifies_a_debt_row_dated_after_today(
+    workbooks: list[LoadedWorkbook],
+) -> None:
+    """İş Emri 2026-10-14S2c (B2-b §4c): `ORDER BY end_date DESC LIMIT 1` on the Debt sheet
+    reads Closing = 0 from H2_2034 — the guard names that row (table, date column, Excel
+    row, label), without any figure; the past row H1_2026 (11.671.800) is not flagged."""
+    from app.excel.future_guard import future_row
+
+    today = date(2026, 10, 6)
+    row = future_row(workbooks, DEBT_LATEST, 0, today)
+    assert row is not None
+    assert row.table == DEBT and row.date_column == "end_date"
+    assert row.excel_row == 26 and row.label == "H2_2034"
+    # the right row (H1_2026, end date 30.06.2026) — no guard
+    assert future_row(workbooks, DEBT_LATEST, 11_671_800, today) is None
+    # explicit future period: the engine still reports it; the plan's `future_ok` decides
+    by_period = f"SELECT closing_usd FROM {DEBT} WHERE period = 'H2_2030'"
+    assert future_row(workbooks, by_period, 6_725_900, today) is not None
+
+
+def test_future_row_stays_silent_when_it_cannot_attribute_the_value(
+    workbooks: list[LoadedWorkbook],
+) -> None:
+    """No date column (Production: `month` is text), a value in no row, a column the SQL
+    does not name, an aggregate, or a value that also occurs in a past row → `None`."""
+    from app.excel.future_guard import future_row
+
+    today = date(2026, 10, 6)
+    production = "SELECT mwh FROM monthly_production_2026__production ORDER BY month DESC LIMIT 1"
+    assert future_row(workbooks, production, 13_538, today) is None
+    assert future_row(workbooks, DEBT_LATEST, 12_345, today) is None
+    assert future_row(workbooks, f"SELECT SUM(interest_usd) FROM {DEBT}", 0, today) is None
+    # `drawdown_usd` is 0 in past rows too — cannot be attributed to a future row
+    drawdown = f"SELECT drawdown_usd FROM {DEBT} ORDER BY end_date DESC LIMIT 1"
+    assert future_row(workbooks, drawdown, 0, today) is None
+    assert future_row(workbooks, "not a select", 0, today) is None
+    dated = f"SELECT end_date FROM {DEBT} ORDER BY end_date DESC LIMIT 1"
+    assert future_row(workbooks, dated, date(2034, 12, 31), today) is None

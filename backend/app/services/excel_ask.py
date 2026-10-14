@@ -28,6 +28,7 @@ from app.excel.calc import (
     SourceRange,
 )
 from app.excel.functions import FUNCTIONS, FunctionError, run_function
+from app.excel.future_guard import FutureRow, future_row
 from app.excel.sql_guard import SqlRejectedError
 from app.models.document import Document
 from app.models.user import User
@@ -73,7 +74,14 @@ PLAN_SYSTEM_PROMPT = (
     "system's current date: resolve relative expressions (last month, this quarter, next "
     "instalment) against it and ask for exactly that period — never substitute an earlier "
     "period because the asked one might be missing; the engine reports missing data itself. "
-    "'Latest' or 'most recent' means the newest row in the data, not a period you guess."
+    "'Latest' or 'most recent' means the newest row in the data that is not after TODAY, not "
+    "a period you guess. Rows dated after TODAY are projections, not current values: when "
+    "the question asks for the current, present, still-outstanding or remaining value "
+    "(güncel, şu an, hâlâ, kalan, en son dönem), take the newest row whose date column "
+    "(end_date, period end, month) is on or before TODAY — filter it first (e.g. WHERE "
+    "end_date <= DATE 'TODAY') and only then ORDER BY ... DESC LIMIT 1. Select a row after "
+    "TODAY only when the question explicitly names a future period or date (in 2030, ne "
+    'olacak, projection), and then add "future_ok": true to the JSON.'
 )
 
 ANSWER_SYSTEM_PROMPT = (
@@ -243,6 +251,23 @@ def retry_feedback(plan: dict[str, Any], query: QueryResult) -> str:
     return text + " Tek hücre (1 satır × 1 sütun) döndüren yeni bir plan yaz."
 
 
+def future_feedback(plan: dict[str, Any], row: FutureRow, today: date) -> str:
+    """S2c: the one sentence for the re-plan after a row dated after TODAY — table, date
+    column and row *label* (no cell value, no date of the row), plus the two ways out:
+    filter to `<= TODAY`, or declare the future period with `future_ok`."""
+    where = f"tablo {row.table}, sütun {row.date_column}"
+    if row.label:
+        where += f", satır başlığı {row.label!r}"
+    return (
+        f"ÖNCEKİ PLAN: {plan.get('sql', '')}\n"
+        f"GERİ BİLDİRİM: seçilen satır bugünden sonra ({where}); güncel değer isteniyor. "
+        f"Tarihi TODAY'e ({today.isoformat()}) eşit ya da ondan önceki son satırı seçen yeni bir "
+        f"plan yaz (örn. WHERE {row.date_column} <= DATE '{today.isoformat()}' ORDER BY "
+        f"{row.date_column} DESC LIMIT 1). Soru açıkça gelecek bir dönemi istiyorsa aynı planı "
+        '"future_ok": true alanıyla yaz.'
+    )
+
+
 def _load_workbooks(
     documents: list[Document], engine: CalculationEngine, documents_dir: Path
 ) -> tuple[list[tuple[Document, LoadedWorkbook]], list[str]]:
@@ -382,19 +407,39 @@ def answer_data_question(
     try:
         for attempt in range(1, PLAN_MAX_ATTEMPTS + 1):
             calc, query = execute(plan)
-            if query is None or _is_scalar(query):
+            if query is None:
                 break
-            # Engine guard (ADR-011): a table is not a result. Log the SQL (J §3a: it was
-            # recorded nowhere) and either re-plan once or stop.
-            log.info(
-                "excel sql result not scalar",
-                extra={
-                    "attempt": attempt,
-                    "rows": len(query.rows),
-                    "columns": list(query.columns),
-                    "sql": plan.get("sql"),
-                },
-            )
+            future: FutureRow | None = None
+            if _is_scalar(query):
+                # S2c guard (B2-b §4c): one value read from a row dated after TODAY is a
+                # projection; without `future_ok` in the plan it is not the current value.
+                if plan.get("future_ok") is True:
+                    break
+                future = future_row(loaded, str(plan.get("sql") or ""), query.rows[0][0], today_)
+                if future is None:
+                    break
+                log.info(
+                    "excel sql result after today",
+                    extra={
+                        "attempt": attempt,
+                        "table": future.table,
+                        "date_column": future.date_column,
+                        "excel_row": future.excel_row,
+                        "sql": plan.get("sql"),
+                    },
+                )
+            else:
+                # Engine guard (ADR-011): a table is not a result. Log the SQL (J §3a: it
+                # was recorded nowhere) and either re-plan once or stop.
+                log.info(
+                    "excel sql result not scalar",
+                    extra={
+                        "attempt": attempt,
+                        "rows": len(query.rows),
+                        "columns": list(query.columns),
+                        "sql": plan.get("sql"),
+                    },
+                )
             tried += [s for s in query.sources if s not in tried]
             if attempt == PLAN_MAX_ATTEMPTS:
                 return finish(
@@ -411,7 +456,9 @@ def answer_data_question(
                         model=plan_model_name,
                         tokens_in=tokens_in,
                         tokens_out=tokens_out,
-                        ambiguous=AmbiguousResult(
+                        ambiguous=None
+                        if future is not None
+                        else AmbiguousResult(
                             rows=len(query.rows),
                             columns=tuple(query.columns),
                             candidates=candidate_labels(query),
@@ -419,7 +466,12 @@ def answer_data_question(
                         ),
                     )
                 )
-            plan = request_plan(retry_feedback(plan, query))
+            feedback = (
+                future_feedback(plan, future, today_)
+                if future is not None
+                else retry_feedback(plan, query)
+            )
+            plan = request_plan(feedback)
             calc = query = None
     except FunctionError as exc:
         log.info("excel function failed", extra={"plan": plan, "error": str(exc)})
