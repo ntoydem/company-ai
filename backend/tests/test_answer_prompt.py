@@ -158,3 +158,27 @@ def test_closed_prompt_is_unchanged_and_assist_prompt_adds_the_no_filler_sentenc
     assert build_user_prompt("x", [], date(2026, 9, 15), previous_question="   ") == plain.replace(
         "Amendment var mı?", "x"
     )
+
+
+# --- İş Emri 2026-10-14B2a (K planA §3.4, Tansu PR #23 §1/2): rule 12, assist prompt only ---
+
+
+def test_rule_12_asks_one_question_on_ambiguity_only_in_the_assist_prompt() -> None:
+    """Tansu decision (a), 07.10.2026: an ambiguous question → the fixed sentence + one
+    SORU: line, never an enumeration; version chains, named scope, "tüm/hepsi/listele" and
+    multi-project questions are excluded. Flag off: today's prompt, byte-identical."""
+    from app.services.answer_prompt import SYSTEM_PROMPT_ASSIST
+
+    rule = SYSTEM_PROMPT_ASSIST.split("\n12. ", 1)[1]
+    assert "birini seçme ve hepsini sıralama" in rule
+    assert "sürüm zinciri" in rule and '"son"' in rule and '"güncel"' in rule
+    assert '"tüm"' in rule and '"hepsi"' in rule and '"listele"' in rule
+    assert "birden fazla projeyi ADIYLA" in rule  # revision 1: two projects ≠ exclusion
+    assert "adayları listeleme" in rule and "tek başına kapsam vermez" in rule
+    assert "dönem" in rule and "farklı dönemler" not in rule  # Naci (c): no bare "periods"
+    assert "9. kural (aynı terimin farklı tanımları) bu kuraldan etkilenmez." in rule
+    assert SYSTEM_PROMPT_ASSIST.count("\n12. ") == 1 and rule.count("\n") == 0
+    # Rule 11 (one SORU: line) is still there and precedes rule 12
+    assert SYSTEM_PROMPT_ASSIST.index("\n11. ") < SYSTEM_PROMPT_ASSIST.index("\n12. ")
+    assert "\n12. " not in SYSTEM_PROMPT
+    assert "belirsizliktir" not in SYSTEM_PROMPT
