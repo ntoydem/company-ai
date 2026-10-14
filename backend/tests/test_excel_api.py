@@ -508,6 +508,9 @@ def test_outstanding_debt_answer_carries_the_workbook_currency(
 def test_llm_model_excel_plan_env_is_read_and_defaults_to_empty(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    # The test container inherits the live `.env` (S1 sets this key): the default is the
+    # field's, not the environment's.
+    monkeypatch.delenv("LLM_MODEL_EXCEL_PLAN", raising=False)
     assert Settings().llm_model_excel_plan == ""
     monkeypatch.setenv("LLM_MODEL_EXCEL_PLAN", "plan-model-y")
     assert Settings().llm_model_excel_plan == "plan-model-y"

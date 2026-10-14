@@ -207,7 +207,12 @@ def test_answer_thinking_setting_shapes_only_the_answer_call(settings: Settings)
     """S0-d: default (ANSWER_THINKING=false) → the request is byte-identical to before the
     field existed (thinking None, LLM_MAX_OUTPUT_TOKENS); true → "adaptive" + the dedicated
     output budget on this one call."""
-    default = _answer_request(settings, "prompt")
+    # The test container inherits the live `.env` (S1 turned ANSWER_THINKING on): pin the
+    # field defaults explicitly so the test measures the code, not the environment.
+    base = settings.model_copy(
+        update={"answer_thinking": False, "answer_thinking_max_tokens": 8192}
+    )
+    default = _answer_request(base, "prompt")
     assert default == LLMRequest(
         system=default.system,
         user="prompt",
@@ -218,13 +223,13 @@ def test_answer_thinking_setting_shapes_only_the_answer_call(settings: Settings)
     assert default.thinking is None
 
     on = _answer_request(
-        settings.model_copy(update={"answer_thinking": True, "answer_thinking_max_tokens": 8192}),
+        base.model_copy(update={"answer_thinking": True, "answer_thinking_max_tokens": 8192}),
         "prompt",
     )
     assert on.thinking == "adaptive"
     assert on.max_output_tokens == 8192
     assert (on.system, on.user, on.model) == (default.system, "prompt", settings.llm_model_answer)
-    assert settings.answer_thinking is False and settings.answer_thinking_max_tokens == 8192
+    assert base.answer_thinking is False and base.answer_thinking_max_tokens == 8192
 
 
 def test_no_answer_reply_is_canonicalized(

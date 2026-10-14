@@ -20,19 +20,24 @@ from app.models.project import Project
 from app.models.user import User
 from app.services import ask as ask_module
 from app.services import assist as assist_module
+from app.services import excel_ask as excel_ask_module
 from app.services import retrieval as retrieval_module
 from app.services.answer_prompt import NO_ANSWER_TEXT, NO_DATA_VERDICT
 from app.services.ask_router import merge_mixed_answer
 from app.services.assist import (
     CLARIFY_TEMPLATE,
+    EXCEL_CHOICE_FALLBACK,
     MAX_AVAILABLE_EKF,
     Assist,
     AvailableDocument,
     AvailableGroup,
+    excel_choice_question,
     render_no_data,
+    validate_question,
 )
-from tests.fakes import FakeLLMClient
+from tests.fakes import FakeLLMClient, FakeRouter
 from tests.test_ask import _ask, _document
+from tests.test_excel_api import _publish, _upload_workbook
 
 
 @pytest.fixture
@@ -589,3 +594,201 @@ def test_insufficient_dominant_project_is_stated_explicitly_and_the_minority_is_
     assert str(izmir_doc.id) not in listed
     assert "İzmir Belgesi" not in body["answer"]
     assert "Ankara RES projesine ait olduğu varsayıldı." in body["answer"]
+
+
+# ---------------------------------------------------------------- İş Emri 2026-10-14B2a
+# Tansu madde 12: a value question answered with the fixed sentence + the model's SORU:
+# (rule 12) shows only the verdict and that question (F-4); existence questions keep the
+# 10.10.2026 grouped list; an ambiguous Excel result asks a choice question by row label;
+# flag off: byte-identical.
+
+MODEL_QUESTION = "Hangi sözleşmeyi kastediyorsunuz?"
+VALUE_QUESTION = "Sözleşmenin vadesi ne zaman doluyor?"
+
+
+def _two_contracts(session: Session) -> tuple[Document, Document]:
+    return (
+        _document(
+            session,
+            title="Karatepe Facility Agreement",
+            department=None,
+            text="Kredi sözleşmesi imzalandı; sözleşmenin vadesi on üç yıl.",
+        ),
+        _document(
+            session,
+            title="Boztepe Facility Agreement",
+            department=None,
+            text="Kredi sözleşmesi imzalandı; sözleşmenin vadesi on yıl.",
+        ),
+    )
+
+
+def test_value_question_with_a_model_question_shows_only_the_verdict_and_the_question(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    ek_f_on: None,
+) -> None:
+    """Rule 12 path: the model wrote the fixed sentence + `SORU:` on a *value* question →
+    the user reads the verdict and that one question, nothing is enumerated (F-4). The
+    retrieved documents are still in `assist.available` (audit/G3), the text does not list
+    them."""
+    a, b = _two_contracts(db_session)
+    fake_llm.replies = [f"{NO_ANSWER_TEXT}\nSORU: {MODEL_QUESTION}"]
+
+    body = _ask(client, VALUE_QUESTION)
+
+    assert len(fake_llm.requests) == 1 and body["answered"] is False
+    assert body["answer"] == f"{NO_DATA_VERDICT}\n{MODEL_QUESTION}"
+    assert "Elimde" not in body["answer"]
+    assert a.title not in body["answer"] and b.title not in body["answer"]
+    assist = body["assist"]
+    assert assist["kind"] == "clarify" and assist["question"] == MODEL_QUESTION
+    assert {d["document_id"] for d in assist["available"]} == {str(a.id), str(b.id)}
+    row = db_session.scalar(select(AuditLog).order_by(AuditLog.timestamp.desc()))
+    assert (
+        row is not None
+        and row.answer == body["answer"]
+        and row.assist["question"] == MODEL_QUESTION
+    )
+
+
+def test_value_question_with_a_dropped_model_question_keeps_the_list(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    ek_f_on: None,
+) -> None:
+    """Only the model's *own* validated question suppresses the list: a dropped line (here:
+    a digit, G1) falls back to the template and the F-5 pattern with the list, as before."""
+    a, _ = _two_contracts(db_session)
+    fake_llm.replies = [f"{NO_ANSWER_TEXT}\nSORU: 2022 sözleşmesini mi kastediyorsunuz?"]
+
+    body = _ask(client, VALUE_QUESTION)
+
+    lines = body["answer"].splitlines()
+    assert lines[-1] == CLARIFY_TEMPLATE
+    assert "Elimde konuyla ilgili şunlar var:" in lines and a.title in body["answer"]
+    assert body["assist"]["question"] == CLARIFY_TEMPLATE
+
+
+def test_existence_question_keeps_the_grouped_list_with_the_model_question_last(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    ek_f_on: None,
+) -> None:
+    """10.10.2026 decision unchanged: "var mı / nerede / ne demek" asks *for documents* — the
+    project-headed list is the answer, the model's question closes it."""
+    a, b = _two_contracts(db_session)
+    question = "Hangi dönemi kastediyorsunuz?"
+    fake_llm.replies = [f"{NO_ANSWER_TEXT}\nSORU: {question}"]
+
+    body = _ask(client, "Kredi sözleşmesi var mı?")
+
+    lines = body["answer"].splitlines()
+    assert NO_DATA_VERDICT in lines and "Elimde konuyla ilgili şunlar var:" in lines
+    assert any(a.title in line and b.title in line for line in lines)
+    assert lines[-1] == question and body["assist"]["question"] == question
+
+
+def test_flag_off_value_question_with_a_model_question_is_byte_identical(
+    client: TestClient, db_session: Session, admin_user: User, fake_llm: FakeLLMClient
+) -> None:
+    _two_contracts(db_session)
+    fake_llm.replies = [f"{NO_ANSWER_TEXT}\nSORU: {MODEL_QUESTION}"]
+
+    body = _ask(client, VALUE_QUESTION)
+
+    assert body["answer"] == NO_ANSWER_TEXT and body["answered"] is False
+    assert body["assist"] is None
+
+
+def test_excel_choice_question_names_labels_only_and_passes_the_question_gate() -> None:
+    labels = (
+        "Toplam borç",
+        "Çekiliş 2026",  # digit → skipped (G1)
+        "Faiz (%)",  # percent sign → skipped
+        "Garanti A.Ş.",  # sentence punctuation → skipped
+        "Kalan bakiye",
+        "Toplam borç",  # duplicate
+        " Dördüncü  kalem ",
+        "Beşinci",  # beyond EXCEL_CHOICE_MAX
+    )
+    question = excel_choice_question(labels)
+    assert question == "Hangisini kastediyorsunuz: Toplam borç, Kalan bakiye veya Dördüncü kalem?"
+    assert validate_question(question, hidden_titles=()) == (question, None)
+    assert excel_choice_question(("2026-01", "2026-02")) == EXCEL_CHOICE_FALLBACK
+    assert excel_choice_question(("Tek",)) == EXCEL_CHOICE_FALLBACK
+    assert validate_question(EXCEL_CHOICE_FALLBACK, hidden_titles=()) == (
+        EXCEL_CHOICE_FALLBACK,
+        None,
+    )
+    # too long for the question gate → fewer options, never a truncated label
+    long = excel_choice_question(("a" * 80, "b" * 80, "c" * 80))
+    assert long.startswith("Hangisini kastediyorsunuz: " + "a" * 80) and "c" * 80 not in long
+    assert validate_question(long, hidden_titles=()) == (long, None)
+
+
+def _ambiguous_table(
+    client: TestClient, db_session: Session, fake_llm: FakeLLMClient, fake_router: FakeRouter
+) -> None:
+    import json
+
+    _publish(db_session, _upload_workbook(client, "Monthly_Production_2026.xlsx"))
+    fake_router.query_type = "DATA_QUERY"
+    table_sql = "SELECT month, mwh FROM monthly_production_2026__production"
+    fake_llm.replies = [json.dumps({"kind": "sql", "sql": table_sql})] * 2
+
+
+def test_ambiguous_excel_result_asks_a_choice_question_under_the_flag(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    fake_router: FakeRouter,
+    ek_f_on: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """S0-a's B2 hook, rendered: both SQL attempts returned a table → the verdict and one
+    choice question naming the row labels; no figure, date or percent (G1); `assist.kind`
+    clarify with an empty list; still DATA_QUERY + `insufficient_data` + the tried range."""
+    _ambiguous_table(client, db_session, fake_llm, fake_router)
+    monkeypatch.setattr(
+        excel_ask_module,
+        "candidate_labels",
+        lambda query: ("Toplam borç", "Çekiliş tutarları", "Faiz 2026"),
+    )
+
+    body = _ask(client, "Aylık üretim ne kadar?")
+
+    assert body["query_type"] == "DATA_QUERY" and body["answered"] is False
+    assert body["answer"] == (
+        f"{NO_DATA_VERDICT}\nHangisini kastediyorsunuz: Toplam borç veya Çekiliş tutarları?"
+    )
+    assert not any(ch.isdigit() for ch in body["answer"]) and "%" not in body["answer"]
+    assert body["assist"]["kind"] == "clarify" and body["assist"]["available"] == []
+    assert body["assist"]["question"] == body["answer"].splitlines()[-1]
+    assert [w["kind"] for w in body["warnings"]] == ["insufficient_data"]
+    assert body["sources"] == [] and body["excel_sources"][0]["sheet"] == "Production"
+    row = db_session.scalar(select(AuditLog).order_by(AuditLog.timestamp.desc()))
+    assert row is not None and row.assist["kind"] == "clarify" and row.answer == body["answer"]
+
+
+def test_ambiguous_excel_result_without_the_flag_is_the_s0a_text(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    fake_router: FakeRouter,
+) -> None:
+    _ambiguous_table(client, db_session, fake_llm, fake_router)
+
+    body = _ask(client, "Aylık üretim ne kadar?")
+
+    assert body["answer"] == NO_ANSWER_TEXT and body["answered"] is False
+    assert body["assist"] is None
+    assert [w["kind"] for w in body["warnings"]] == ["insufficient_data"]

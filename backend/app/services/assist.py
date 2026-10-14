@@ -237,6 +237,10 @@ class Assist:
     inferred_project: str | None = None
     # Why a model-written question was dropped (logged, never shown) — None when kept.
     dropped_reason: str | None = field(default=None, compare=False)
+    # İş Emri 2026-10-14B2a (Tansu madde 12): True when `question` is the model's own
+    # validated `SORU:` line (rule 11/12), not a code template. `render_no_data` then shows
+    # a *value* question only the verdict and that question — no list (F-4).
+    model_question: bool = False
 
 
 # ---------------------------------------------------------------- code-side lookups
@@ -631,6 +635,34 @@ def validate_question(
 # ---------------------------------------------------------------- assembly
 
 
+EXCEL_CHOICE_MAX = 3
+EXCEL_CHOICE_FALLBACK = "Hangi kalemi kastediyorsunuz?"
+
+
+def excel_choice_question(candidates: Iterable[str]) -> str:
+    """İş Emri 2026-10-14B2a (Tansu madde 12; S0-a B2 hook): the clarifying question for an
+    ambiguous Excel result — the row labels the user could pick, by name only, up to
+    `EXCEL_CHOICE_MAX`. A label carrying a digit, currency/percent sign or sentence
+    punctuation is skipped (G1: no figure, date, amount or percent in a question — the
+    result passes `validate_question`). Fewer than two usable labels → the generic question."""
+    labels: list[str] = []
+    for raw in candidates:
+        label = " ".join(str(raw).split())
+        if not label or label in labels:
+            continue
+        if _FACT_TOKEN.search(label) or _SENTENCE_END.search(label):
+            continue
+        labels.append(label)
+        if len(labels) == EXCEL_CHOICE_MAX:
+            break
+    while len(labels) >= 2:
+        text = f"Hangisini kastediyorsunuz: {', '.join(labels[:-1])} veya {labels[-1]}?"
+        if len(text) <= MAX_QUESTION_CHARS:
+            return text
+        labels.pop()
+    return EXCEL_CHOICE_FALLBACK
+
+
 def _kind_for(mismatched: list[str]) -> AssistKind:
     """`term_mismatch` when the question uses a word the corpus and the glossary both lack;
     otherwise `clarify` (every word is known, the question still could not be answered)."""
@@ -800,6 +832,7 @@ def build_insufficient_assist(
         dropped_reason=reason,
         axis=axis,
         inferred_project=inferred_project,
+        model_question=kept is not None,
     )
 
 
@@ -893,6 +926,12 @@ def render_no_data(assist: Assist, question: str) -> str:
     out loud right after the verdict — never silently (Naci 09.10.2026)."""
     if assist.kind == "disambiguate":
         return assist.question or CLARIFY_TEMPLATE
+    if assist.model_question and assist.question and not is_existence_question(question):
+        # İş Emri 2026-10-14B2a (Tansu madde 12, rule 12): the model asked which document,
+        # project or period is meant — a value question gets the verdict and that one
+        # question, no list (F-4 "içerik sıralamaz"). Existence/discovery questions keep
+        # the 10.10.2026 grouped list: there the list *is* the answer.
+        return f"{NO_DATA_VERDICT}\n{assist.question}"
     lowered = [turkish_lower(t) for t in question_terms(question)]
     lines: list[str] = []
     understood = understood_terms(lowered)[:MAX_UNDERSTOOD_TERMS]

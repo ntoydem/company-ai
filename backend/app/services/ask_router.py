@@ -49,8 +49,9 @@ from app.schemas.ask import (
 from app.schemas.excel import NO_INTERPRETATION_NOTICE as EXCEL_NOTICE
 from app.schemas.excel import ExcelAskRequest, ExcelSourceCard
 from app.services import pending_documents, tr_format
+from app.services.answer_prompt import NO_DATA_VERDICT
 from app.services.ask import answer_question
-from app.services.assist import Assist
+from app.services.assist import Assist, excel_choice_question
 from app.services.audit_writer import write_audit_row
 from app.services.excel_ask import answer_data_question, excel_document_ids
 from app.services.llm import LLMClient, LLMError
@@ -195,10 +196,25 @@ def _run(
         doc = answer_question(session, user, request, llm, settings, write_audit=False)
         data = None
 
+    excel_assist: Assist | None = None
+    data_answer = data.answer if data is not None else ""
+    if (
+        settings.ek_f_enabled
+        and data is not None
+        and not data.answered
+        and data.ambiguous is not None
+    ):
+        # İş Emri 2026-10-14B2a (Tansu madde 12): an ambiguous Excel result (S0-a hook)
+        # asks which item is meant — the verdict plus one choice question built from the
+        # row labels, never a figure (F-4/F-5). Flag off: the S0-a text, byte-identical.
+        choice = excel_choice_question(data.ambiguous.candidates)
+        data_answer = f"{NO_DATA_VERDICT}\n{choice}"
+        excel_assist = Assist(kind="clarify", question=choice)
+
     if doc is not None and data is not None:
         answer = merge_mixed_answer(
             doc.answer,
-            data.answer,
+            data_answer,
             document_answered=doc.answered,
             data_answered=data.answered,
             ek_f=settings.ek_f_enabled,
@@ -208,7 +224,7 @@ def _run(
         answer, answered = doc.answer, doc.answered
     else:
         assert data is not None
-        answer, answered = data.answer, data.answered
+        answer, answered = data_answer, data.answered
 
     sources = doc.sources if doc else []
     excel_sources = data.sources if data else []
@@ -262,7 +278,9 @@ def _run(
         tokens_out=(doc.tokens_out if doc else 0) + (data.tokens_out if data else 0),
         product_level=PRODUCT_LEVEL_BY_TYPE[query_type],
         warnings=warnings + no_answer,
-        assist=doc.assist if (doc is not None and not answered) else None,
+        # The document pipeline's assist first (MIXED); a pure DATA call carries the Excel
+        # choice question (EK_F_MODE only, else None as before).
+        assist=(doc.assist if doc is not None else excel_assist) if not answered else None,
         pending=pending,
     )
 
