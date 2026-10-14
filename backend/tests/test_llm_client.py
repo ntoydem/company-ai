@@ -134,15 +134,22 @@ def test_empty_completion_is_response_error() -> None:
         _client(handler).complete(REQUEST)
 
 
+# The test container inherits the live `.env` (S1 set LLM_PROVIDER=anthropic): these two
+# tests are about the openai_compatible branch of the factory, so pin the provider.
+_OPENAI = {"llm_provider": "openai_compatible"}
+
+
 def test_factory_without_key_is_not_configured(settings: Settings) -> None:
     with pytest.raises(LLMNotConfiguredError):
-        build_llm_client(settings.model_copy(update={"llm_api_key": None}))
+        build_llm_client(settings.model_copy(update={**_OPENAI, "llm_api_key": None}))
     with pytest.raises(LLMNotConfiguredError):
-        build_llm_client(settings.model_copy(update={"llm_api_key": SecretStr("")}))
+        build_llm_client(settings.model_copy(update={**_OPENAI, "llm_api_key": SecretStr("")}))
 
 
 def test_factory_builds_openai_compatible_client(settings: Settings) -> None:
-    client = build_llm_client(settings.model_copy(update={"llm_api_key": SecretStr("k")}))
+    client = build_llm_client(
+        settings.model_copy(update={**_OPENAI, "llm_api_key": SecretStr("k")})
+    )
     assert isinstance(client, OpenAICompatibleClient)
 
 
