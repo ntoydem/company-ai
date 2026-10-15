@@ -22,7 +22,31 @@ from seed_data.generator.validate_ledger import DEFAULT_MASTER, DEFAULT_QUESTION
 
 DEFAULT_MANIFEST = DEFAULT_MASTER.parent / "documents" / "manifest.json"
 DEFAULT_EXCEL_MANIFEST = DEFAULT_MASTER.parent / "excel" / "manifest.json"
-DEFAULT_RESULTS_DIR = DEFAULT_MASTER.parent / "evaluation" / "results"
+# İş Emri 2026-10-15F0 C: results live at the repo root and are committed (not git-ignored).
+DEFAULT_RESULTS_DIR = DEFAULT_MASTER.parent.parent / "results"
+
+# Scorer contract version — bump with every scoring-rule change and add a CHANGELOG line, so a
+# results.json can always be read against the rules that produced it (İş Emri 2026-10-15F0 A).
+SCORER_VERSION = "2.0"
+SCORER_CHANGELOG: tuple[str, ...] = (
+    "1.x (Phase 4.1 … İş Emri 2026-10-14B2a): value/source/phrase checks, G1–G3, assist, "
+    "discovery, F-8 format; clarify ≡ disambiguate.",
+    "2.0 (İş Emri 2026-10-15F0 A1): G2 accepts a bare clarifying question (assist.kind in "
+    "{disambiguate, clarify}, answer = status sentence/question only) without the fixed verdict.",
+    "2.0 (F0 A2): run_eval visibility for G3 comes from allowed_document_ids() for *every* "
+    "ask_as_user (finans_mudur included), looked up in the DB, not from a static user list.",
+    "2.0 (F0 A3): expect_no_answer + expect_assist => value check skipped even if a ledger path "
+    "is kept on the question for information.",
+    "2.0 (F0 A4): forbidden_sources match by document identity (external_ref or the unique "
+    "title that resolves to it) or by project; a document *type* no longer matches.",
+    "2.0 (F0 A5): required sources pass when the value is right AND a cited source is in the "
+    "authoritative set (expected sources + ledger documents carrying the same fact under the "
+    "current>historical rule); a question that names the document keeps the exact-source rule.",
+    "2.0 (F0 A6): discovery counters per question (expected document shown? foreign project "
+    "shown?) and summary lines in results.json/results.md.",
+    "2.0 (F0 A7): cost tracked per model (Sonnet plan separately) — run_eval.CostTracker and "
+    "run_eval.cost_from_llm_log.",
+)
 
 # Categories PHASES.md requires 100% on; every other category needs >= 80%.
 HUNDRED_PERCENT_CATEGORIES = frozenset(
@@ -30,7 +54,20 @@ HUNDRED_PERCENT_CATEGORIES = frozenset(
 )
 DEFAULT_THRESHOLD_PCT = 80.0
 
+# The two demo projects the G3 "other project's document" rule and the golden set's project
+# names are written against (unchanged by F0 — see the F0 report's open items).
 _PROJECT_NAME_BY_CODE = {"ANK_RES": "Karatepe RES", "IZM_RES": "Kızılova RES"}
+# Every project the library knows (company.yaml / ledger_schema.Question.expected_project) —
+# used for forbidden-by-project matching and the F0 A6 "foreign project shown" counter.
+_ALL_PROJECT_NAME_BY_CODE = {
+    **_PROJECT_NAME_BY_CODE,
+    "YSV_RES": "Yeşilova RES",
+    "BOZ_RES": "Boztepe RES",
+    "GNS_GES": "Güneşalan GES",
+    "AKY_GES": "Akyar GES",
+    "DMR_RES": "Demirci RES",
+}
+_DOC_REF = re.compile(r"^DOC-[A-Z]{2,4}-[A-Z]{2,4}-\d{3}$")
 
 # Enum-like strings that never get formatted into a document as a `[[token]]` (unlike
 # `ced_status`, which is a real `_FIELD_KIND` entry) — hand-verified against the actual
@@ -63,6 +100,11 @@ class DocumentCatalog:
     title_to_type: dict[str, str]
     title_to_project: dict[str, str]
     file_to_title: dict[str, str] = field(default_factory=dict)
+    # F0 A4: document identity — the manifest `external_ref` (= ledger `documents[].id`) per
+    # title. Titles are unique in the manifest (asserted in `build_document_catalog`), so a
+    # title resolves to exactly one document.
+    title_to_ref: dict[str, str] = field(default_factory=dict)
+    title_to_status: dict[str, str] = field(default_factory=dict)
 
     @property
     def titles(self) -> frozenset[str]:
@@ -74,13 +116,20 @@ class DocumentCatalog:
 
     @property
     def project_names(self) -> frozenset[str]:
-        return frozenset(_PROJECT_NAME_BY_CODE.values())
+        return frozenset(_ALL_PROJECT_NAME_BY_CODE.values())
+
+    @property
+    def ref_to_title(self) -> dict[str, str]:
+        return {ref: title for title, ref in self.title_to_ref.items()}
 
     def cited_titles(self, titles: tuple[str, ...], files: tuple[str, ...]) -> frozenset[str]:
         """Document titles cited directly plus the titles of cited workbook files."""
         return frozenset(titles) | frozenset(
             self.file_to_title[f] for f in files if f in self.file_to_title
         )
+
+    def titles_of_type(self, document_type: str) -> frozenset[str]:
+        return frozenset(t for t, ty in self.title_to_type.items() if ty == document_type)
 
 
 def build_document_catalog(
@@ -93,28 +142,41 @@ def build_document_catalog(
     title_to_type: dict[str, str] = {}
     title_to_project: dict[str, str] = {}
     file_to_title: dict[str, str] = {}
+    title_to_ref: dict[str, str] = {}
+    title_to_status: dict[str, str] = {}
     for entry in entries:
         title = entry["title"]
+        if title in title_to_type:
+            # Identity matching (A4) and the authoritative set (A5) key on the title.
+            raise ValueError(f"duplicate document title in manifest: {title!r}")
         title_to_type[title] = entry["document_type"]
         project_code = entry.get("project_code")
-        if project_code in _PROJECT_NAME_BY_CODE:
-            title_to_project[title] = _PROJECT_NAME_BY_CODE[project_code]
+        if project_code in _ALL_PROJECT_NAME_BY_CODE:
+            title_to_project[title] = _ALL_PROJECT_NAME_BY_CODE[project_code]
         if entry.get("source_type") == "xlsx":
             file_to_title[entry["file"]] = title
+        if entry.get("external_ref"):
+            title_to_ref[title] = entry["external_ref"]
+        if entry.get("status"):
+            title_to_status[title] = entry["status"]
     return DocumentCatalog(
-        title_to_type=title_to_type, title_to_project=title_to_project, file_to_title=file_to_title
+        title_to_type=title_to_type,
+        title_to_project=title_to_project,
+        file_to_title=file_to_title,
+        title_to_ref=title_to_ref,
+        title_to_status=title_to_status,
     )
 
 
 def _source_satisfied(name: str, cited_titles: frozenset[str], catalog: DocumentCatalog) -> bool:
-    """`name` (a `required_sources`/`forbidden_sources` entry) is a document title, a
-    document type, or (forbidden-only) a project name — same three-way rule
-    `validate_ledger.py::check_questions` uses to validate `questions.json` itself."""
+    """A `required_sources` entry is a document title or a document type (the "name or type"
+    rule `validate_ledger.py::check_questions` validates the set with); a project name is
+    accepted too for symmetry with the forbidden list."""
     if name in catalog.titles and name in cited_titles:
         return True
     # "Facility Agreement" is both one document's title and the type shared by its draft
     # and amendments; the golden set uses the bare name in both senses, so either reading
-    # satisfies it (same "name or type" rule `validate_ledger.py` applies to the set).
+    # satisfies a *required* entry.
     if name in catalog.types:
         return any(catalog.title_to_type.get(t) == name for t in cited_titles)
     if name in catalog.titles:
@@ -122,6 +184,141 @@ def _source_satisfied(name: str, cited_titles: frozenset[str], catalog: Document
     if name in catalog.project_names:
         return any(catalog.title_to_project.get(t) == name for t in cited_titles)
     return False
+
+
+def _forbidden_hit(name: str, cited_titles: frozenset[str], catalog: DocumentCatalog) -> bool:
+    """F0 A4 — a `forbidden_sources` entry names a document *identity* (`DOC-…` external_ref,
+    or the unique title that resolves to one) or a project. The type reading is gone: the
+    bare name "Facility Agreement" forbids DOC-ANK-FIN-004 alone, never every document of
+    that type (which used to hit Kızılova's own 2026-KZ contract — S3 §3.2 E)."""
+    if _DOC_REF.match(name):
+        return any(catalog.title_to_ref.get(t) == name for t in cited_titles)
+    if name in catalog.titles:
+        return name in cited_titles
+    if name in catalog.project_names:
+        return any(catalog.title_to_project.get(t) == name for t in cited_titles)
+    return False
+
+
+# ---------------------------------------------------------------- authoritative sources (F0 A5)
+
+# A question that *names* the document it asks about ("… raporuna göre", "… kararında") keeps
+# the exact-source rule: the named document must be among the citations (Tansu karar 1).
+_NAMED_DOCUMENT_MARKERS = (
+    "raporuna göre",
+    "raporunda",
+    "belgesine göre",
+    "belgesinde",
+    "kararında",
+    "kararına göre",
+    "bildiriminde",
+    "bildirimine göre",
+    "değerlendirmesinde",
+    "sözleşmesinde",
+    "sözleşmesine göre",
+    "sertifikasında",
+    "yazısında",
+    "yazısına göre",
+)
+
+
+@dataclass(frozen=True)
+class SourceExpectation:
+    """How the citations of an answered question are judged (F0 A5).
+
+    `strict=True`: every `required_sources` entry must be satisfied (the pre-F0 rule) —
+    used when the question names the document, or when no set could be derived.
+    `strict=False`: at least one cited document must be in `titles`, the authoritative set:
+    the expected sources (a type expands to all its titles) plus every ledger document whose
+    `key_facts` carry the question's expected ledger path (the same fact), under the
+    current > historical rule — a `.current.value` path keeps only the documents that carry
+    the current value, `draft` documents are never authoritative, and a `superseded` document
+    stays only when no live document carries the fact (e.g. the financial-close date printed
+    on the executed Facility Agreement alone). `derivation` says which rule built the set."""
+
+    strict: bool
+    titles: frozenset[str] = frozenset()
+    derivation: str = ""
+
+
+def _expected_paths(question: ls.Question) -> list[tuple[str, str]]:
+    ea = question.expected_answer
+    refs = ea if isinstance(ea, list) else ([ea] if ea else [])
+    out = []
+    for ref in refs:
+        if not isinstance(ref, str) or not ref.startswith("ledger:"):
+            continue
+        file_key, _, path = ref.removeprefix("ledger:").partition(".")
+        out.append((file_key, path))
+    return out
+
+
+def _carries_fact(key_fact_path: str, expected_path: str) -> bool:
+    """`expected_path` `finance.covenant_tests[4]` is carried by key fact
+    `finance.covenant_tests[4].dscr`; `…margin_pct.current.value` only by itself (so the
+    document carrying `…margin_pct.initial.value` is historical, not authoritative)."""
+    return key_fact_path == expected_path or key_fact_path.startswith(expected_path + ".")
+
+
+def authoritative_sources(
+    question: ls.Question, raws: dict[str, Any], catalog: DocumentCatalog
+) -> SourceExpectation:
+    if not question.required_sources or question.expect_no_answer:
+        return SourceExpectation(strict=True, derivation="no required_sources / no-answer")
+    lowered = question.question.lower()
+    if any(marker in lowered for marker in _NAMED_DOCUMENT_MARKERS):
+        return SourceExpectation(strict=True, derivation="question names the document")
+
+    titles: set[str] = set()
+    notes: list[str] = []
+    for name in question.required_sources:
+        if name in catalog.titles:
+            titles.add(name)
+        if name in catalog.types:
+            # A type expands to the question's own project's *live* documents of that type
+            # (never another project's, never a draft or a superseded version).
+            typed = {
+                t
+                for t in catalog.titles_of_type(name)
+                if (
+                    question.expected_project is None
+                    or catalog.title_to_project.get(t) == question.expected_project
+                )
+                and catalog.title_to_status.get(t) not in ("draft", "superseded")
+            }
+            titles |= typed
+            notes.append(f"type {name!r} → {sorted(typed)}")
+    for file_key, path in _expected_paths(question):
+        carrier_docs = [
+            doc
+            for doc in (raws.get(file_key) or {}).get("documents") or []
+            if any(
+                _carries_fact(str(kf_path), path)
+                for kf_path in (doc.get("key_facts") or {}).values()
+            )
+            and catalog.ref_to_title.get(str(doc.get("id"))) is not None
+        ]
+        carrier_refs = {str(doc["id"]) for doc in carrier_docs}
+        # Version rule inside one chain: a carrier superseded by *another carrier* of the same
+        # fact (V01 → V02 → executed) is the older copy of the same text — drop it.
+        older = {str(doc.get("supersedes")) for doc in carrier_docs if doc.get("supersedes")}
+        carriers = [
+            catalog.ref_to_title[str(doc["id"])]
+            for doc in carrier_docs
+            if str(doc["id"]) not in (older & carrier_refs)
+        ]
+        live = [
+            t for t in carriers if catalog.title_to_status.get(t) not in ("draft", "superseded")
+        ]
+        kept = live or [t for t in carriers if catalog.title_to_status.get(t) != "draft"]
+        titles |= set(kept)
+        notes.append(f"{file_key}.{path}: carriers {sorted(carriers)} → kept {sorted(kept)}")
+    # The same current > historical rule for the expected sources themselves: a `draft` is
+    # never authoritative; a superseded expected source stays (the golden set named it).
+    titles = {t for t in titles if catalog.title_to_status.get(t) != "draft"}
+    if not titles:
+        return SourceExpectation(strict=True, derivation="empty set → exact-source rule")
+    return SourceExpectation(strict=False, titles=frozenset(titles), derivation="; ".join(notes))
 
 
 # ---------------------------------------------------------------- expected value
@@ -181,6 +378,10 @@ def resolve_expected(question: ls.Question, raws: dict[str, Any]) -> ExpectedVal
     ea = question.expected_answer
     if ea is None:
         return ExpectedValue(skip=True, skip_reason="expect_no_answer")
+    if question.expect_no_answer and question.expect_assist is not None:
+        # F0 A3: the question expects a clarifying question, not the value; a ledger path
+        # kept "for information" (ANK-NEG-003, B2a) must not make it unpassable.
+        return ExpectedValue(skip=True, skip_reason="expect_no_answer + expect_assist")
     if isinstance(ea, list):
         # Several ledger facts (a cross-project question): one group per path; any
         # unformattable path skips the whole value check, as a single one would.
@@ -284,6 +485,48 @@ def _starts_with_verdict(answer_text: str) -> bool:
         return True
     head = [line.strip() for line in answer_text.splitlines() if line.strip()][:2]
     return any(line.startswith(NO_DATA_VERDICT) for line in head)
+
+
+_MIXED_DOC_HEADING = "Belgelere göre:"
+_MIXED_EXCEL_HEADING = "Excel verisine göre:"
+_CITATION_MARK = re.compile(r"\[k\d+", re.IGNORECASE)
+
+
+def _document_part(answer_text: str, query_type: str | None) -> str:
+    """The document pipeline's text: the whole answer, or for MIXED the block between the
+    two headings (`ask_router.merge_mixed_answer`)."""
+    if query_type != "MIXED_QUERY":
+        return answer_text
+    text = answer_text.split(_MIXED_EXCEL_HEADING, 1)[0]
+    return text.split(_MIXED_DOC_HEADING, 1)[-1]
+
+
+def _is_bare_clarification(outcome: AskOutcome) -> bool:
+    """F0 A1 — an unanswered response whose document part is *only* a clarifying question
+    (`disambiguate`, Adım 4: "Hangi projeyi kastediyorsunuz: X mi, Y mi?") or a status
+    sentence plus that question (`clarify`, rule 12). Such a response carries no fact, no
+    citation and no list; by product design (`assist.render_no_data`) it does not open with
+    the fixed verdict, so G2 does not demand one. Anything more — a figure, a citation
+    mark, a third line — is not "bare" and the verdict rule applies as before."""
+    assist = outcome.assist or {}
+    if outcome.answered or assist.get("kind") not in _EQUIVALENT_ASSIST_KINDS:
+        return False
+    question = str(assist.get("question") or "").strip()
+    if not question:
+        return False
+    lines = [
+        line.strip()
+        for line in _document_part(outcome.answer_text, outcome.query_type).splitlines()
+        if line.strip()
+    ]
+    if not lines or question not in lines or len(lines) > 2:
+        return False
+    for line in lines:
+        if line == question:
+            continue
+        if _FACT_CHAR.search(line) or _CITATION_MARK.search(line):
+            return False  # the status sentence must not smuggle a fact or a source
+    return not _FACT_CHAR.search(question)
 
 
 # ---------------------------------------------------------------- F-8 format check (ADR-030)
@@ -515,6 +758,8 @@ def safety_checks(
     if outcome.answered:
         if not outcome.cited_titles and not outcome.cited_files:
             reasons.append("G2: cevap var, kaynak yok")
+    elif _is_bare_clarification(outcome):
+        pass  # F0 A1: a bare clarifying question is the verdict (product design, ADR-030 F-4)
     elif outcome.query_type == "MIXED_QUERY":
         # A MIXED no-answer is two no-answers under "Belgelere göre:" / "Excel verisine
         # göre:" headings (ask_router.merge_mixed_answer) — the fixed sentence is inside.
@@ -537,7 +782,7 @@ def safety_checks(
             reasons.append(f"G3: başka projenin belgesi önerildi: {item.get('title')}")
     suggested = frozenset(str(item.get("title")) for item in available)
     for name in question.forbidden_sources:
-        if _source_satisfied(name, suggested, catalog):
+        if _forbidden_hit(name, suggested, catalog):
             reasons.append(f"G3: yasak kaynak assist'te: {name}")
     # G3 for Not 7's pending list: same gate, same forbidden-source rule (project is not
     # checked — a document still processing may have no project metadata yet).
@@ -546,9 +791,52 @@ def safety_checks(
             reasons.append(f"G3: yetkisiz bekleyen belge gösterildi: {item.get('title')}")
     pending_titles = frozenset(str(item.get("title")) for item in outcome.pending_documents)
     for name in question.forbidden_sources:
-        if _source_satisfied(name, pending_titles, catalog):
+        if _forbidden_hit(name, pending_titles, catalog):
             reasons.append(f"G3: yasak kaynak bekleyen belgelerde: {name}")
     return tuple(reasons)
+
+
+# ---------------------------------------------------------------- discovery counters (F0 A6)
+
+
+@dataclass(frozen=True)
+class DiscoveryCounters:
+    """Two observation counters per question, independent of the pass verdict: was an
+    expected document (a `required_sources` entry) among the documents *shown* (cited or
+    listed in `assist.available`), and was a document of another project shown. `None` when
+    not measurable (no required sources / no expected project, or nothing shown)."""
+
+    expected_source_listed: bool | None
+    foreign_project_listed: bool | None
+    foreign_projects: tuple[str, ...] = ()
+
+
+def discovery_counters(
+    question: ls.Question, outcome: AskOutcome, catalog: DocumentCatalog
+) -> DiscoveryCounters:
+    available = list((outcome.assist or {}).get("available") or [])
+    listed_titles = tuple(str(item.get("title")) for item in available)
+    shown = catalog.cited_titles(outcome.cited_titles + listed_titles, outcome.cited_files)
+    expected: bool | None = None
+    if question.required_sources:
+        expected = any(_source_satisfied(n, shown, catalog) for n in question.required_sources)
+    foreign: bool | None = None
+    foreign_projects: set[str] = set()
+    if question.expected_project is not None and shown:
+        for title in shown:
+            project = catalog.title_to_project.get(title)
+            if project is not None and project != question.expected_project:
+                foreign_projects.add(project)
+        for item in available:  # project_code travels with the assist card
+            project = _ALL_PROJECT_NAME_BY_CODE.get(str(item.get("project_code")))
+            if project is not None and project != question.expected_project:
+                foreign_projects.add(project)
+        foreign = bool(foreign_projects)
+    return DiscoveryCounters(
+        expected_source_listed=expected,
+        foreign_project_listed=foreign,
+        foreign_projects=tuple(sorted(foreign_projects)),
+    )
 
 
 # İş Emri 2026-10-14B2a (Tansu madde 13; K planA §3.5 "kriter sorunu 1"): a clarifying
@@ -646,6 +934,15 @@ class QuestionResult:
     assist: dict[str, Any] | None = None
     # S0-a: see `AskOutcome.router_fallback`.
     router_fallback: bool = False
+    # F0 A5: which source rule judged the citations ("strict" | "set" | "n/a"), the
+    # authoritative set and the cited titles that hit it.
+    source_rule: str = "n/a"
+    authoritative_sources: tuple[str, ...] = ()
+    source_hits: tuple[str, ...] = ()
+    # F0 A6 observation counters (never part of `passed`).
+    expected_source_listed: bool | None = None
+    foreign_project_listed: bool | None = None
+    foreign_projects: tuple[str, ...] = ()
 
 
 def phrase_check_passes(question: ls.Question, answer_text: str) -> tuple[bool, str | None]:
@@ -670,6 +967,7 @@ def score_question(
     catalog: DocumentCatalog,
     outcome: AskOutcome,
     safety: SafetyContext | None = None,
+    sources_expected: SourceExpectation | None = None,
 ) -> QuestionResult:
     if outcome.error is not None:
         return QuestionResult(
@@ -702,17 +1000,28 @@ def score_question(
         # acceptable; `discovery_check` is the whole criterion.
         answered_ok = True
 
-    missing_required = ()
+    missing_required: tuple[str, ...] = ()
+    source_rule = "n/a"
+    source_hits: tuple[str, ...] = ()
     if not question.expect_no_answer and question.category != "discovery":
         missing_required = tuple(
             name
             for name in question.required_sources
             if not _source_satisfied(name, cited, catalog)
         )
+        source_rule = "strict"
+        if sources_expected is not None and not sources_expected.strict:
+            # F0 A5: the value must be right (checked below) and one cited document must be
+            # in the authoritative set; the exact list of `required_sources` is no longer
+            # demanded unless the question names the document.
+            source_rule = "set"
+            source_hits = tuple(sorted(cited & sources_expected.titles))
+            missing_required = () if source_hits else tuple(question.required_sources)
     forbidden_hit = tuple(
-        name for name in question.forbidden_sources if _source_satisfied(name, cited, catalog)
+        name for name in question.forbidden_sources if _forbidden_hit(name, cited, catalog)
     )
     sources_ok = not missing_required and not forbidden_hit
+    counters = discovery_counters(question, outcome, catalog)
 
     if expected.skip:
         value_check = "skipped"
@@ -781,6 +1090,16 @@ def score_question(
         format_check=format_status,
         format_check_reason=format_reason,
         assist=outcome.assist,
+        source_rule=source_rule,
+        authoritative_sources=(
+            tuple(sorted(sources_expected.titles))
+            if sources_expected is not None and not sources_expected.strict
+            else ()
+        ),
+        source_hits=source_hits,
+        expected_source_listed=counters.expected_source_listed,
+        foreign_project_listed=counters.foreign_project_listed,
+        foreign_projects=counters.foreign_projects,
     )
 
 
@@ -846,6 +1165,27 @@ class EvalReport:
     def errored(self) -> tuple[QuestionResult, ...]:
         return tuple(r for r in self.results if r.error is not None)
 
+    @property
+    def discovery_summary(self) -> dict[str, Any]:
+        """F0 A6 — the two counters, over every measurable question and over the discovery
+        category alone (separate fields, separate summary lines)."""
+
+        def block(rows: tuple[QuestionResult, ...]) -> dict[str, Any]:
+            exp = [r for r in rows if r.error is None and r.expected_source_listed is not None]
+            foreign = [r for r in rows if r.error is None and r.foreign_project_listed is not None]
+            return {
+                "expected_source_listed": sum(1 for r in exp if r.expected_source_listed),
+                "expected_source_measurable": len(exp),
+                "foreign_project_listed": sum(1 for r in foreign if r.foreign_project_listed),
+                "foreign_project_measurable": len(foreign),
+                "foreign_project_ids": [r.id for r in foreign if r.foreign_project_listed],
+            }
+
+        return {
+            "all": block(self.results),
+            "discovery": block(tuple(r for r in self.results if r.category == "discovery")),
+        }
+
 
 def build_report(
     results: list[QuestionResult],
@@ -890,6 +1230,7 @@ def build_report(
 
 def report_to_json(report: EvalReport) -> dict[str, Any]:
     return {
+        "scorer_version": SCORER_VERSION,
         "model": report.model,
         "date": report.date,
         "demo_today": report.demo_today,
@@ -897,6 +1238,7 @@ def report_to_json(report: EvalReport) -> dict[str, Any]:
         "partial": report.partial,
         "partial_reason": report.partial_reason,
         "ok": report.ok,
+        "discovery_counters": report.discovery_summary,
         "categories": [
             {
                 "category": c.category,
@@ -938,6 +1280,12 @@ def report_to_json(report: EvalReport) -> dict[str, Any]:
                 "phrase_check_reason": r.phrase_check_reason,
                 "value_check": r.value_check,
                 "value_check_reason": r.value_check_reason,
+                "source_rule": r.source_rule,
+                "authoritative_sources": list(r.authoritative_sources),
+                "source_hits": list(r.source_hits),
+                "expected_source_listed": r.expected_source_listed,
+                "foreign_project_listed": r.foreign_project_listed,
+                "foreign_projects": list(r.foreign_projects),
                 "passed": r.passed,
                 "error": r.error,
                 "latency_ms": r.latency_ms,
@@ -954,7 +1302,8 @@ def render_markdown(report: EvalReport) -> str:
     lines = [
         f"# Eval sonucu — {report.model or '(model bilinmiyor)'} — {report.date}",
         "",
-        f"`DEMO_TODAY`: {report.demo_today} · `EMBEDDINGS_ENABLED`: {report.embeddings_enabled}",
+        f"`DEMO_TODAY`: {report.demo_today} · `EMBEDDINGS_ENABLED`: {report.embeddings_enabled}"
+        f" · puanlayıcı v{SCORER_VERSION}",
     ]
     if report.partial:
         lines.append(f"\n**Koşu yarıda kesildi:** {report.partial_reason}")
@@ -994,6 +1343,23 @@ def render_markdown(report: EvalReport) -> str:
         f"{len(fallbacks)}/{len(evaluated)}"
         + (f" — {', '.join(r.id for r in fallbacks)}" if fallbacks else "")
     )
+    # F0 A6: two separate observation lines (never part of the verdict).
+    counters = report.discovery_summary
+    for label, key in (("tüm sorular", "all"), ("discovery", "discovery")):
+        block = counters[key]
+        lines.append(
+            f"**Keşif sayacı — beklenen belge gösterildi ({label}):** "
+            f"{block['expected_source_listed']}/{block['expected_source_measurable']}"
+        )
+        lines.append(
+            f"**Keşif sayacı — listede yabancı proje var ({label}):** "
+            f"{block['foreign_project_listed']}/{block['foreign_project_measurable']}"
+            + (
+                f" — {', '.join(block['foreign_project_ids'])}"
+                if block["foreign_project_ids"]
+                else ""
+            )
+        )
 
     failed = [r for r in report.results if r.error is None and not r.passed]
     if failed:
@@ -1002,7 +1368,10 @@ def render_markdown(report: EvalReport) -> str:
             reasons = []
             if not r.answered_ok:
                 reasons.append(f"answered={r.answered} bekleniyordu={not r.expect_no_answer}")
-            if r.required_sources_missing:
+            if r.required_sources_missing and r.source_rule == "set":
+                kume = list(r.authoritative_sources)
+                reasons.append(f"gösterilen kaynak yetkili kümede değil (küme: {kume})")
+            elif r.required_sources_missing:
                 reasons.append(f"eksik kaynak: {list(r.required_sources_missing)}")
             if r.forbidden_sources_hit:
                 reasons.append(f"yasak kaynak geldi: {list(r.forbidden_sources_hit)}")

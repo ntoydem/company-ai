@@ -6,7 +6,9 @@ themselves."""
 from __future__ import annotations
 
 from scripts.eval_lib import (
+    SCORER_VERSION,
     AskOutcome,
+    DiscoveryCounters,
     DocumentCatalog,
     SafetyContext,
     _classify_and_format,
@@ -85,7 +87,13 @@ def test_build_document_catalog_maps_title_type_and_project() -> None:
     assert catalog.title_to_type["Budget vs Actual 2026"] == "Budget vs Actual"
     assert catalog.title_to_project["Monthly Production 2026"] == "Karatepe RES"
     assert catalog.title_to_project["Kızılova RES Önlisans Belgesi"] == "Kızılova RES"
-    assert catalog.project_names == {"Karatepe RES", "Kızılova RES"}
+    # F0: every library project is known (forbidden-by-project and the A6 counter), and a
+    # title resolves to its document identity (manifest external_ref) and status.
+    assert {"Karatepe RES", "Kızılova RES", "Yeşilova RES", "Boztepe RES"} <= catalog.project_names
+    assert catalog.title_to_project["Boztepe RES Facility Agreement (2024-BZ)"] == "Boztepe RES"
+    assert catalog.title_to_ref["Facility Agreement"] == "DOC-ANK-FIN-004"
+    assert catalog.ref_to_title["DOC-IZM-FIN-004"].endswith("(2026-KZ)")
+    assert catalog.title_to_status["Facility Agreement"] == "superseded"
 
 
 def test_cited_workbook_file_satisfies_a_required_workbook_title() -> None:
@@ -983,3 +991,303 @@ def test_assist_check_treats_clarify_and_disambiguate_as_equivalent() -> None:
     assert assist_check(mismatch, outcome("term_mismatch")) == ("pass", None)
     assert assist_check(mismatch, outcome("clarify"))[0] == "fail"
     assert assist_check(mismatch, outcome("disambiguate"))[0] == "fail"
+
+
+# ---------------------------------------------------------------- İş Emri 2026-10-15F0 (v2.0)
+
+
+def _f0_catalog() -> DocumentCatalog:
+    """Karatepe's Facility Agreement chain + Kızılova's own 2026-KZ contract (same type)."""
+    return DocumentCatalog(
+        title_to_type={
+            "Facility Agreement — Draft": "Facility Agreement",
+            "Facility Agreement — V02": "Facility Agreement",
+            "Facility Agreement": "Facility Agreement",
+            "Facility Agreement Amendment 02": "Facility Agreement",
+            "Garanti BBVA Faiz Belirleme Bildirimi": "Rate Setting Notice",
+            "Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ)": "Facility Agreement",
+            "Boztepe RES Facility Agreement (2024-BZ)": "Facility Agreement",
+        },
+        title_to_project={
+            "Facility Agreement — Draft": "Karatepe RES",
+            "Facility Agreement — V02": "Karatepe RES",
+            "Facility Agreement": "Karatepe RES",
+            "Facility Agreement Amendment 02": "Karatepe RES",
+            "Garanti BBVA Faiz Belirleme Bildirimi": "Karatepe RES",
+            "Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ)": "Kızılova RES",
+            "Boztepe RES Facility Agreement (2024-BZ)": "Boztepe RES",
+        },
+        title_to_ref={
+            "Facility Agreement — Draft": "DOC-ANK-FIN-001",
+            "Facility Agreement — V02": "DOC-ANK-FIN-003",
+            "Facility Agreement": "DOC-ANK-FIN-004",
+            "Facility Agreement Amendment 02": "DOC-ANK-FIN-006",
+            "Garanti BBVA Faiz Belirleme Bildirimi": "DOC-ANK-FIN-017",
+            "Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ)": "DOC-IZM-FIN-004",
+            "Boztepe RES Facility Agreement (2024-BZ)": "DOC-BOZ-FIN-001",
+        },
+        title_to_status={
+            "Facility Agreement — Draft": "draft",
+            "Facility Agreement — V02": "superseded",
+            "Facility Agreement": "superseded",
+            "Facility Agreement Amendment 02": "executed",
+            "Garanti BBVA Faiz Belirleme Bildirimi": "active",
+            "Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ)": "executed",
+            "Boztepe RES Facility Agreement (2024-BZ)": "executed",
+        },
+    )
+
+
+def _f0_raws() -> dict[str, object]:
+    return {
+        "ankara_res": {
+            "documents": [
+                {
+                    "id": "DOC-ANK-FIN-001",
+                    "key_facts": {"m": "project.finance.interest.margin_pct.initial.value"},
+                },
+                {
+                    "id": "DOC-ANK-FIN-003",
+                    "key_facts": {"m": "project.finance.interest.margin_pct.initial.value"},
+                },
+                {
+                    "id": "DOC-ANK-FIN-004",
+                    "supersedes": "DOC-ANK-FIN-003",
+                    "key_facts": {
+                        "m": "project.finance.interest.margin_pct.initial.value",
+                        "fc": "project.timeline.financial_close.date",
+                    },
+                },
+                {
+                    "id": "DOC-ANK-FIN-006",
+                    "key_facts": {"m": "project.finance.interest.margin_pct.current.value"},
+                },
+                {
+                    "id": "DOC-ANK-FIN-017",
+                    "key_facts": {"m": "project.finance.interest.margin_pct.current.value"},
+                },
+            ]
+        }
+    }
+
+
+def test_f0_a1_g2_accepts_a_bare_clarifying_question_without_the_verdict() -> None:
+    """A1: `disambiguate` (code) is one line, `clarify` (rule 12) a status sentence plus the
+    question — neither opens with the fixed verdict by design; neither carries a fact."""
+    question = _question(expect_no_answer=True, expect_assist="clarify")
+    ctx = SafetyContext(grounding_text="", visible_document_ids=frozenset())
+    q = "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Yeşilova RES mi?"
+    bare = AskOutcome(answered=False, answer_text=q, assist={"kind": "disambiguate", "question": q})
+    assert safety_checks(question, bare, _mini_catalog(), ctx) == ()
+    mixed = AskOutcome(
+        answered=False,
+        answer_text=f"Belgelere göre:\n{q}\n\nExcel verisine göre:\nveri bulamadım.",
+        query_type="MIXED_QUERY",
+        assist={"kind": "disambiguate", "question": q},
+    )
+    assert safety_checks(question, mixed, _mini_catalog(), ctx) == ()
+    status_plus_question = AskOutcome(
+        answered=False,
+        answer_text=f"Birden fazla kredi sözleşmesi var.\n{q}",
+        assist={"kind": "clarify", "question": q},
+    )
+    assert safety_checks(question, status_plus_question, _mini_catalog(), ctx) == ()
+    # Not bare: a figure or a citation in the status line, a third line, another kind, or a
+    # response whose text does not even contain the question → the verdict rule stays.
+    for text, kind in (
+        (f"Vade 13 yıl olabilir.\n{q}", "clarify"),
+        (f"Sözleşme [K1] şunu diyor.\n{q}", "clarify"),
+        (f"Birinci satır.\nİkinci satır.\n{q}", "clarify"),
+        (q, "term_mismatch"),
+        ("Hangi projeyi kastediyorsunuz?", "disambiguate"),
+    ):
+        outcome = AskOutcome(answered=False, answer_text=text, assist={"kind": kind, "question": q})
+        assert any(
+            r.startswith("G2") for r in safety_checks(question, outcome, _mini_catalog(), ctx)
+        ), text
+
+
+def test_f0_a3_expect_no_answer_with_expect_assist_skips_the_value_check() -> None:
+    """A3: ANK-NEG-003 keeps a ledger path for information; the clarifying question it expects
+    can never contain the value, so the check is skipped — but only with `expect_assist`."""
+    raws = load_ledger_raws()
+    path = "ledger:ankara_res.project.finance.tenor_years.current.value"
+    clarifying = _question(expected_answer=path, expect_no_answer=True, expect_assist="clarify")
+    expected = resolve_expected(clarifying, raws)
+    assert expected.skip and expected.skip_reason == "expect_no_answer + expect_assist"
+    plain_no_answer = _question(expected_answer=path, expect_no_answer=True)
+    assert not resolve_expected(plain_no_answer, raws).skip
+    answerable = _question(expected_answer=path, expect_no_answer=False)
+    assert not resolve_expected(answerable, raws).skip
+
+
+def test_f0_a4_forbidden_source_matches_by_document_identity_not_type() -> None:
+    """A4: "Facility Agreement" forbids DOC-ANK-FIN-004 alone — Kızılova's own 2026-KZ contract
+    (same *type*) is free; a `DOC-…` ref and a project name still match."""
+    from scripts.eval_lib import ExpectedValue, _forbidden_hit
+
+    catalog = _f0_catalog()
+    kz = frozenset({"Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ)"})
+    assert not _forbidden_hit("Facility Agreement", kz, catalog)
+    assert _forbidden_hit("Facility Agreement", frozenset({"Facility Agreement"}), catalog)
+    assert _forbidden_hit("DOC-ANK-FIN-004", frozenset({"Facility Agreement"}), catalog)
+    assert not _forbidden_hit("DOC-ANK-FIN-004", kz, catalog)
+    assert _forbidden_hit("Karatepe RES", frozenset({"Facility Agreement Amendment 02"}), catalog)
+    assert not _forbidden_hit("Karatepe RES", kz, catalog)
+    # a required entry keeps the name-or-type reading (unchanged)
+    assert _source_satisfied("Facility Agreement", kz, catalog)
+
+    question = _question(
+        expected_project="Kızılova RES",
+        forbidden_sources=["Facility Agreement", "Facility Agreement Amendment 02", "Karatepe RES"],
+    )
+    cited_own = AskOutcome(answered=True, answer_text="Evet, 2026-KZ [K1].", cited_titles=tuple(kz))
+    assert score_question(question, ExpectedValue(skip=True), catalog, cited_own).passed
+    cited_karatepe = AskOutcome(
+        answered=True, answer_text="Evet [K1].", cited_titles=("Facility Agreement Amendment 02",)
+    )
+    result = score_question(question, ExpectedValue(skip=True), catalog, cited_karatepe)
+    assert result.forbidden_sources_hit == ("Facility Agreement Amendment 02", "Karatepe RES")
+    # G3 on the assist list follows the same identity rule (GEN-HAL-004 root cause)
+    ctx = SafetyContext(grounding_text="", visible_document_ids=frozenset({"kz"}))
+    listed = AskOutcome(
+        answered=False,
+        answer_text="Bu konuda kesin bilgi bulamadım.\nHangi belge?",
+        assist={
+            "kind": "clarify",
+            "question": "Hangi belge?",
+            "available": [
+                {"document_id": "kz", "title": next(iter(kz)), "project_code": "IZM_RES"}
+            ],
+        },
+    )
+    assert safety_checks(question, listed, catalog, ctx) == ()
+
+
+def test_f0_a5_authoritative_source_set_follows_the_current_over_historical_rule() -> None:
+    """A5: required "Facility Agreement" (a type) + the current-margin ledger path → the set is
+    Karatepe's live documents carrying the *current* value; the superseded base FA (initial
+    value) and the draft are out; another project's FA is never in."""
+    from scripts.eval_lib import ExpectedValue, authoritative_sources
+
+    catalog, raws = _f0_catalog(), _f0_raws()
+    question = _question(
+        required_sources=["Facility Agreement"],
+        expected_answer="ledger:ankara_res.project.finance.interest.margin_pct.current.value",
+    )
+    se = authoritative_sources(question, raws, catalog)
+    assert not se.strict
+    # the named expected source itself (never a draft) + the live carriers of the current value
+    assert se.titles == {
+        "Facility Agreement",
+        "Facility Agreement Amendment 02",
+        "Garanti BBVA Faiz Belirleme Bildirimi",
+    }
+    assert "Facility Agreement — Draft" not in se.titles
+    assert "Boztepe RES Facility Agreement (2024-BZ)" not in se.titles
+    # the answer cites only the rate-setting notice: right value, source in the set → pass
+    notice_only = AskOutcome(
+        answered=True,
+        answer_text="Marj %2,9 [K1].",
+        cited_titles=("Garanti BBVA Faiz Belirleme Bildirimi",),
+    )
+    expected = ExpectedValue(required=(("%2,9",),))
+    result = score_question(question, expected, catalog, notice_only, sources_expected=se)
+    assert result.passed and result.source_rule == "set"
+    assert result.source_hits == ("Garanti BBVA Faiz Belirleme Bildirimi",)
+    # same citation, wrong value → fails on the value, not on the source
+    wrong = AskOutcome(
+        answered=True, answer_text="Marj %3,25 [K1].", cited_titles=notice_only.cited_titles
+    )
+    assert not score_question(question, expected, catalog, wrong, sources_expected=se).passed
+    # a source outside the set (Boztepe's FA) is not authoritative
+    foreign = AskOutcome(
+        answered=True,
+        answer_text="Marj %2,9 [K1].",
+        cited_titles=("Boztepe RES Facility Agreement (2024-BZ)",),
+    )
+    assert not score_question(question, expected, catalog, foreign, sources_expected=se).passed
+    # without a derived set the pre-F0 exact rule applies (every required source)
+    assert not score_question(question, expected, catalog, notice_only).passed
+
+    # the historical question keeps the base FA (it carries `.initial.value`)
+    initial = _question(
+        required_sources=["Facility Agreement"],
+        expected_answer="ledger:ankara_res.project.finance.interest.margin_pct.initial.value",
+    )
+    historical = authoritative_sources(initial, raws, catalog).titles
+    assert "Facility Agreement" in historical
+    assert "Facility Agreement — Draft" not in historical
+    # V02 carries the same initial value but is superseded by the executed FA (same chain)
+    assert "Facility Agreement — V02" not in historical
+    # a superseded carrier survives only when no live document carries the fact
+    close = _question(
+        required_sources=["Facility Agreement"],
+        expected_answer="ledger:ankara_res.project.timeline.financial_close.date",
+    )
+    assert "Facility Agreement" in authoritative_sources(close, raws, catalog).titles
+    # a question that names the document keeps the exact-source rule
+    named = _question(
+        question="Q4 2024 covenant compliance raporunda DSCR kaç?",
+        required_sources=["Facility Agreement"],
+        expected_answer="ledger:ankara_res.project.finance.interest.margin_pct.current.value",
+    )
+    assert authoritative_sources(named, raws, catalog).strict
+    assert authoritative_sources(_question(expect_no_answer=True), raws, catalog).strict
+
+
+def test_f0_a6_discovery_counters_and_their_summary_lines() -> None:
+    """A6: "expected document shown?" and "foreign project shown?" are observations next to
+    the verdict, with separate summary fields/lines."""
+    from scripts.eval_lib import build_report, discovery_counters, render_markdown, report_to_json
+
+    catalog = _f0_catalog()
+    question = _question(
+        category="discovery",
+        required_sources=["Facility Agreement Amendment 02"],
+        expected_project="Karatepe RES",
+    )
+    listed = AskOutcome(
+        answered=False,
+        answer_text="Bu konuda kesin bilgi bulamadım.\nHangisi?",
+        assist={
+            "kind": "clarify",
+            "question": "Hangisi?",
+            "available": [
+                {
+                    "document_id": "a",
+                    "title": "Facility Agreement Amendment 02",
+                    "project_code": "ANK_RES",
+                },
+                {
+                    "document_id": "b",
+                    "title": "Boztepe RES Facility Agreement (2024-BZ)",
+                    "project_code": "BOZ_RES",
+                },
+            ],
+        },
+    )
+    counters = discovery_counters(question, listed, catalog)
+    assert counters.expected_source_listed is True
+    assert counters.foreign_project_listed is True and counters.foreign_projects == ("Boztepe RES",)
+    nothing = AskOutcome(answered=False, answer_text="Bu konuda kesin bilgi bulamadım.")
+    assert discovery_counters(question, nothing, catalog) == DiscoveryCounters(False, None)
+    no_expectation = _question(required_sources=[], expected_project=None)
+    assert discovery_counters(no_expectation, listed, catalog) == DiscoveryCounters(None, None)
+
+    from scripts.eval_lib import ExpectedValue
+
+    result = score_question(question, ExpectedValue(skip=True), catalog, listed)
+    assert result.expected_source_listed is True and result.foreign_project_listed is True
+    report = build_report(
+        [result], model="m", date_str="d", demo_today="x", embeddings_enabled=False
+    )
+    summary = report_to_json(report)["discovery_counters"]
+    assert summary["discovery"]["expected_source_listed"] == 1
+    assert summary["discovery"]["foreign_project_listed"] == 1
+    assert summary["discovery"]["foreign_project_ids"] == [question.id]
+    assert summary["all"] == summary["discovery"]
+    markdown = render_markdown(report)
+    assert "beklenen belge gösterildi (discovery):** 1/1" in markdown
+    assert "listede yabancı proje var (discovery):** 1/1" in markdown
+    assert report_to_json(report)["scorer_version"] == SCORER_VERSION

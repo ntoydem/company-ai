@@ -1,6 +1,7 @@
-"""Phase 4.1 — `questions.json` -> real `/api/ask` calls -> `seed_data/evaluation/results/
-<model>_<date>/`. Network/CLI layer; pure scoring lives in `scripts/eval_lib.py` (covered
-by `backend/tests/test_eval_lib.py` without a running server).
+"""Phase 4.1 — `questions.json` -> real `/api/ask` calls -> `results/<model>_<date>/` (repo
+root, committed — İş Emri 2026-10-15F0 C). Network/CLI layer; pure scoring lives in
+`scripts/eval_lib.py` (covered by `backend/tests/test_eval_lib.py` without a running server).
+`scripts/rescore.py` re-scores a finished run's raw results with the current scorer, LLM-free.
 
 Usage (inside the backend container, `postgres`+`backend` already up — see `make eval`):
     python -m scripts.run_eval [--min-interval-s 26] [--model-label gemini-3.5-flash]
@@ -18,6 +19,7 @@ import re
 import sys
 import time
 from collections import Counter
+from collections.abc import Callable, Iterable
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -77,26 +79,94 @@ _PRICING_USD_PER_MTOK: dict[str, tuple[float, float]] = {
 }
 
 
+def price_usd(model: str | None, tokens_in: int, tokens_out: int) -> float | None:
+    """$ for one call at list price; `None` for a model the table does not know."""
+    price = _PRICING_USD_PER_MTOK.get(model or "")
+    if price is None:
+        return None
+    in_price, out_price = price
+    return (tokens_in * in_price + tokens_out * out_price) / 1_000_000
+
+
 @dataclasses.dataclass
 class CostTracker:
     """`EVAL_BUDGET_USD` maliyet sayacı: her `/api/ask` cevabının kendi `model`/`tokens_in`/
     `tokens_out`'u (zaten `AskResponse`'ta var) üzerinden kümülatif $ hesaplar; aşılırsa
-    koşuyu DURDURUR (DUR kuralı — bütçe aşımı bir devam-et-ve-raporla durumu değil)."""
+    koşuyu DURDURUR (DUR kuralı — bütçe aşımı bir devam-et-ve-raporla durumu değil).
+
+    F0 A7: the spend is kept **per model** (`spent_by_model`, Sonnet plan calls separately)
+    and per call count. `AskResponse` reports one `model` and the *sum* of all tokens of the
+    request (router + plan + answer), so in-run attribution is only as fine as the response:
+    a MIXED request's Sonnet plan tokens land under the answer model. The exact split comes
+    from the backend's `llm call` log lines (`cost_from_llm_log`), which `scripts/rescore.py`
+    applies after the run; the in-run figure is therefore a lower bound when a dearer plan
+    model is configured (S3: $0.41 in-run vs $0.54 from the log)."""
 
     budget_usd: float | None
     spent_usd: float = 0.0
     unpriced_model_calls: int = 0
+    spent_by_model: dict[str, float] = dataclasses.field(default_factory=dict)
+    calls_by_model: dict[str, int] = dataclasses.field(default_factory=dict)
+    tokens_by_model: dict[str, tuple[int, int]] = dataclasses.field(default_factory=dict)
 
     def add(self, model: str | None, tokens_in: int, tokens_out: int) -> None:
-        price = _PRICING_USD_PER_MTOK.get(model or "")
-        if price is None:
+        cost = price_usd(model, tokens_in, tokens_out)
+        if cost is None:
             self.unpriced_model_calls += 1
             return
-        in_price, out_price = price
-        self.spent_usd += (tokens_in * in_price + tokens_out * out_price) / 1_000_000
+        key = model or ""
+        self.spent_usd += cost
+        self.spent_by_model[key] = self.spent_by_model.get(key, 0.0) + cost
+        self.calls_by_model[key] = self.calls_by_model.get(key, 0) + 1
+        t_in, t_out = self.tokens_by_model.get(key, (0, 0))
+        self.tokens_by_model[key] = (t_in + tokens_in, t_out + tokens_out)
 
     def budget_exceeded(self) -> bool:
         return self.budget_usd is not None and self.spent_usd >= self.budget_usd
+
+    def summary(self) -> dict[str, Any]:
+        return {
+            "spent_usd": round(self.spent_usd, 4),
+            "budget_usd": self.budget_usd,
+            "unpriced_model_calls": self.unpriced_model_calls,
+            "by_model": {
+                model: {
+                    "calls": self.calls_by_model[model],
+                    "tokens_in": self.tokens_by_model[model][0],
+                    "tokens_out": self.tokens_by_model[model][1],
+                    "usd": round(self.spent_by_model[model], 4),
+                }
+                for model in sorted(self.spent_by_model)
+            },
+        }
+
+
+def cost_from_llm_log(
+    lines: Iterable[str], request_ids: Iterable[str] | None = None
+) -> CostTracker:
+    """F0 A7 — exact per-model spend from the backend's JSON log: every `"message": "llm call"`
+    line carries `model`, `tokens_in`, `tokens_out` and the `request_id` of the `/api/ask`
+    call it served (router, plan, answer, relay — one line each). With `request_ids` only the
+    lines of those requests are summed (the eval run's own calls, not the background
+    metadata loop)."""
+    wanted = set(request_ids) if request_ids is not None else None
+    tracker = CostTracker(budget_usd=None)
+    for raw in lines:
+        raw = raw.strip()
+        if not raw.startswith("{"):
+            continue
+        try:
+            row = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        if row.get("message") != "llm call":
+            continue
+        if wanted is not None and row.get("request_id") not in wanted:
+            continue
+        tracker.add(
+            row.get("model"), int(row.get("tokens_in") or 0), int(row.get("tokens_out") or 0)
+        )
+    return tracker
 
 
 class EvalSession:
@@ -181,6 +251,46 @@ def ask_with_retry(
         time.sleep(delay)
 
 
+class VisibilityIndex:
+    """F0 A2 — which documents a demo user may see, per `ask_as_user`, from the real gate
+    (`allowed_document_ids`, ADR-004) through the DB, resolved lazily for *whichever* user a
+    question names (S3 §3.2 B: a static five-user list left `finans_mudur` out and flagged
+    every document it was shown as "unauthorised"). An unknown user is an error, never an
+    empty set — an empty set would silently fail every G3 check for that user."""
+
+    def __init__(
+        self,
+        session_factory: Callable[[], Any],
+        *,
+        lookup: Callable[[Any, str], set[UUID] | None] | None = None,
+    ) -> None:
+        self._session_factory = session_factory
+        self._lookup = lookup or self._db_lookup
+        self._cache: dict[str, frozenset[str]] = {}
+
+    @staticmethod
+    def _db_lookup(session: Any, username: str) -> set[UUID] | None:
+        user = user_repo.get_by_username(session, username)
+        if user is None:
+            return None
+        return set(
+            allowed_document_ids(user, AuthorizationScope(), SqlDocumentIdsProvider(session))
+        )
+
+    def for_user(self, username: str) -> frozenset[str]:
+        if username not in self._cache:
+            with self._session_factory() as session:
+                ids = self._lookup(session, username)
+            if ids is None:
+                raise LookupError(f"demo user missing in DB: {username!r}")
+            self._cache[username] = frozenset(str(i) for i in ids)
+        return self._cache[username]
+
+    @property
+    def resolved(self) -> dict[str, int]:
+        return {user: len(ids) for user, ids in sorted(self._cache.items())}
+
+
 class SafetyIndex:
     """ADR-027: what the G1–G3 invariants compare against, read once from the live DB (the
     eval runs inside the backend container). Visibility per demo user comes from the real
@@ -189,6 +299,7 @@ class SafetyIndex:
     def __init__(self) -> None:
         settings = get_settings()
         self._today = temporal.today(settings)
+        self.visibility = VisibilityIndex(get_session_factory())
         with get_session_factory()() as session:
             rows = session.execute(
                 select(DocumentChunk.document_id, DocumentChunk.page_number, DocumentChunk.text)
@@ -220,17 +331,6 @@ class SafetyIndex:
                 )
                 for d in documents
             }
-            self._visible: dict[str, frozenset[str]] = {}
-            for username in ("admin", "yonetim", "finans", "hukuk", "enerji"):
-                user = user_repo.get_by_username(session, username)
-                ids = (
-                    allowed_document_ids(
-                        user, AuthorizationScope(), SqlDocumentIdsProvider(session)
-                    )
-                    if user is not None
-                    else set()
-                )
-                self._visible[username] = frozenset(str(i) for i in ids)
 
     def _retrieved_pages(self, outcome: AskOutcome) -> set[tuple[str, int]]:
         """Every (document, page) the prompt carried — from this call's audit row
@@ -252,7 +352,7 @@ class SafetyIndex:
             parts.append(self._page_text.get((document_id, page), ""))
         return eval_lib.SafetyContext(
             grounding_text=" ".join(parts),
-            visible_document_ids=self._visible.get(ask_as_user, frozenset()),
+            visible_document_ids=self.visibility.for_user(ask_as_user),
         )
 
 
@@ -476,7 +576,14 @@ def main(argv: list[str] | None = None) -> int:
                 if outcome.error is None
                 else None
             )
-            result = eval_lib.score_question(question, expected, catalog, outcome, safety)
+            result = eval_lib.score_question(
+                question,
+                expected,
+                catalog,
+                outcome,
+                safety,
+                sources_expected=eval_lib.authoritative_sources(question, raws, catalog),
+            )
             results.append(result)
             cost_tracker.add(outcome.model, outcome.tokens_in, outcome.tokens_out)
 
@@ -526,12 +633,21 @@ def main(argv: list[str] | None = None) -> int:
     )
     markdown = eval_lib.render_markdown(report)
     (out_dir / "results.md").write_text(markdown, encoding="utf-8")
+    # F0 A7: per-model spend next to the results (AskResponse granularity — see CostTracker).
+    cost = cost_tracker.summary()
+    cost["visibility_resolved"] = safety_index.visibility.resolved
+    (out_dir / "cost.json").write_text(
+        json.dumps(cost, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
 
     print(markdown)
     budget_note = f"/${cost_tracker.budget_usd:.2f}" if cost_tracker.budget_usd else ""
+    by_model = ", ".join(
+        f"{model or '?'} ${usd:.4f}" for model, usd in sorted(cost_tracker.spent_by_model.items())
+    )
     print(
         f"maliyet: ${cost_tracker.spent_usd:.4f}{budget_note}"
-        f" ({cost_tracker.unpriced_model_calls} fiyatsız model çağrısı)",
+        f" ({cost_tracker.unpriced_model_calls} fiyatsız model çağrısı; modele göre: {by_model})",
         file=sys.stderr,
     )
     print(f"sonuçlar: {out_dir}", file=sys.stderr)
