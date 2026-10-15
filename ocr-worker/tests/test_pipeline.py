@@ -61,6 +61,10 @@ def _insert_document_with_job(
                 counterparty="Test A.Ş.",
                 document_date=date(2026, 1, 1),
                 storage_path=storage_path,
+                # ADR-031 (migration 0016): a project-less document is a group document; the
+                # CHECK rejects the column's server default next to a NULL project_id, and a
+                # raw insert bypasses the backend ORM hook that sets it.
+                project_scope="group",
             )
         )
         conn.execute(

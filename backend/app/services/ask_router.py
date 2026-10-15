@@ -51,10 +51,11 @@ from app.schemas.excel import ExcelAskRequest, ExcelSourceCard
 from app.services import pending_documents, tr_format
 from app.services.answer_prompt import NO_DATA_VERDICT
 from app.services.ask import answer_question
-from app.services.assist import Assist, excel_choice_question
+from app.services.assist import Assist, excel_choice_question, is_existence_question
 from app.services.audit_writer import write_audit_row
 from app.services.excel_ask import answer_data_question, excel_document_ids
 from app.services.llm import LLMClient, LLMError
+from app.services.project_narrowing import unknown_project_names
 from app.services.router import RoutedQuestion, Router
 
 log = logging.getLogger(__name__)
@@ -137,6 +138,31 @@ def degrade_for_products(
         tokens_out=routed.tokens_out,
     )
     return degraded, [product_limit_warning()]
+
+
+def route_without_llm(session: Session, question: str) -> RoutedQuestion | None:
+    """İş Emri 2026-10-15A2L2 (Ortak Not 15.10 §5 ilke 1, "politika kodda"): two question
+    shapes are decided by code before — instead of — the router's classification call:
+
+    - a project name the `projects` table does not know ("Bursa RES", ADR-031): the document
+      pipeline refuses it without retrieval or the LLM, so classifying it first was a wasted
+      call and the one thing that made the audit row's token count non-zero;
+    - an existence / definition question (`is_existence_question`: "var mı", "nerede",
+      "ne demek", …): the answer is the F-3 document list, never a value — it is always the
+      DOCUMENT path and the answer model is never called (`ask.answer_question`).
+
+    `None` → the router decides as before. The returned route carries no `fallback_reason`:
+    this is a decision, not a degraded one."""
+    if unknown_project_names(session, question):
+        reason = "unknown_project"
+    elif is_existence_question(question):
+        reason = "existence_question"
+    else:
+        return None
+    log.info("routed without llm", extra={"reason": reason})
+    return RoutedQuestion(
+        query_type="DOCUMENT_QUERY", document_question=question, data_question=None, reason=reason
+    )
 
 
 def _run(
@@ -302,9 +328,14 @@ def answer_routed_question(
     before)."""
     started = time.perf_counter()
     enabled_products = company_settings_repo.enabled_products(session)
-    routed, warnings = degrade_for_products(
-        router.route(request.question), enabled_products, request.question
-    )
+    warnings: list[AskWarning] = []
+    pre_routed = route_without_llm(session, request.question)
+    if pre_routed is not None:
+        routed = pre_routed
+    else:
+        routed, warnings = degrade_for_products(
+            router.route(request.question), enabled_products, request.question
+        )
     if routed.fallback_reason:
         # S0-a: the router's own call failed and DOCUMENT_QUERY was taken by default —
         # the decision stands (router.py unchanged); the user, the audit row and the eval

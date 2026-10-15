@@ -294,8 +294,11 @@ def test_previous_question_reaches_the_prompt_and_the_audit_context(
         db_session, title="Facility Agreement Amendment 01", department=None, text="amendment tadil"
     )
 
+    # A2L2: "var mı" would no longer reach the model; a value question carries the context.
     body = _ask(
-        client, "peki amendment var mı hiç?", previous_question="Ankara RES kredi sözleşmesi nedir?"
+        client,
+        "peki amendment ne zaman imzalandı?",
+        previous_question="Ankara RES kredi sözleşmesi nedir?",
     )
 
     prompt = fake_llm.prompt_text()
@@ -674,7 +677,7 @@ def test_value_question_with_a_dropped_model_question_keeps_the_list(
     assert body["assist"]["question"] == CLARIFY_TEMPLATE
 
 
-def test_existence_question_keeps_the_grouped_list_with_the_model_question_last(
+def test_existence_question_keeps_the_grouped_list_and_ends_with_the_fixed_question(
     client: TestClient,
     db_session: Session,
     admin_user: User,
@@ -682,17 +685,18 @@ def test_existence_question_keeps_the_grouped_list_with_the_model_question_last(
     ek_f_on: None,
 ) -> None:
     """10.10.2026 decision unchanged: "var mı / nerede / ne demek" asks *for documents* — the
-    project-headed list is the answer, the model's question closes it."""
+    project-headed list is the answer. İş Emri 2026-10-15A2L2: the model is no longer asked
+    at all on this path, so the fixed template closes the list (there is no model question)."""
     a, b = _two_contracts(db_session)
-    question = "Hangi dönemi kastediyorsunuz?"
-    fake_llm.replies = [f"{NO_ANSWER_TEXT}\nSORU: {question}"]
+    fake_llm.replies = [f"{NO_ANSWER_TEXT}\nSORU: Hangi dönemi kastediyorsunuz?"]  # unused
 
     body = _ask(client, "Kredi sözleşmesi var mı?")
 
+    assert fake_llm.requests == []
     lines = body["answer"].splitlines()
     assert NO_DATA_VERDICT in lines and "Elimde konuyla ilgili şunlar var:" in lines
     assert any(a.title in line and b.title in line for line in lines)
-    assert lines[-1] == question and body["assist"]["question"] == question
+    assert lines[-1] == CLARIFY_TEMPLATE and body["assist"]["question"] == CLARIFY_TEMPLATE
 
 
 def test_flag_off_value_question_with_a_model_question_is_byte_identical(

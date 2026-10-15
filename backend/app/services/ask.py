@@ -30,6 +30,7 @@ from app.services.assist import (
     build_zero_chunk_assist,
     classify_project_axis,
     downgrade_existence_disambiguate,
+    is_existence_question,
     named_project_codes,
     project_distribution,
     render_no_data,
@@ -297,6 +298,47 @@ def answer_question(
                 retrieved_document_ids=retrieved_ids,
                 chunks=chunks,
                 assist=disambiguate_assist,
+            )
+        elif is_existence_question(request.question):
+            # İş Emri 2026-10-15A2L2 (Tansu GEN-DSC-013, 10.10.2026 grouped list; Ortak Not
+            # 15.10 §5 ilke 1): an existence / definition question ("var mı", "nerede", "ne
+            # demek") is answered by the F-3 list of the user's own documents and one
+            # question — the model is not asked, so no definition sentence can ever be
+            # composed and the reply no longer depends on whether the model declines. The
+            # list is the same code the model-declined path builds (narrowed candidates,
+            # metadata matches, project groups); without the assist computations the
+            # fixed sentence stands alone, as it does on every other no-answer.
+            existence_assist = (
+                build_insufficient_assist(
+                    session,
+                    allowed,
+                    request.question,
+                    documents=by_id,
+                    chunks=chunks,
+                    model_question=None,
+                    ek_f=settings.ek_f_enabled,
+                    axis_decision=axis_decision,
+                    disambig_spread=settings.project_axis_disambig_spread,
+                    dominant_share=settings.project_axis_dominant_share,
+                    candidate_ids=scoped,
+                )
+                if settings.assist_computations
+                else None
+            )
+            log.info(
+                "existence question, answer model skipped",
+                extra={"listed": len(existence_assist.available) if existence_assist else 0},
+            )
+            result = AskResult(
+                answer=(
+                    render_no_data(existence_assist, request.question)
+                    if settings.ek_f_enabled and existence_assist is not None
+                    else answer_prompt.NO_ANSWER_TEXT
+                ),
+                answered=False,
+                retrieved_document_ids=retrieved_ids,
+                chunks=chunks,
+                assist=existence_assist,
             )
         else:
             now = temporal_today(settings)
