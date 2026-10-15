@@ -10,6 +10,7 @@ from app.models.document import (
     DocumentStatus,
     FileKind,
     IngestionStatus,
+    ProjectScope,
 )
 from app.models.document_metadata_suggestion import SuggestionStatus
 from app.models.document_review_event import ReviewEventKind
@@ -37,6 +38,8 @@ class DocumentListItem(BaseModel):
     department: str | None
     subdepartment: str | None
     project_id: UUID | None
+    # ADR-031 (Şart 1): `project` | `group` — explicit on the wire, never inferred from NULL.
+    project_scope: ProjectScope
     confidentiality: Confidentiality
     external_ref: str | None
     created_at: datetime

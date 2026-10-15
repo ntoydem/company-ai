@@ -41,6 +41,9 @@ services:
       - ./backend:/app
       - ./seed_data:/app/seed_data
       - ./scripts:/app/scripts
+      # Eval results live at the repo root and are committed (İş Emri 2026-10-15F0 C);
+      # run_eval/rescore inside the container write here.
+      - ./results:/app/results
       - ${DATA_ROOT}/documents:/data/documents
       - ${DATA_ROOT}/excel:/data/excel
       - ${DATA_ROOT}/app-data:/data/app-data

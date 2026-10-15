@@ -118,6 +118,9 @@ class AssistAvailableDocument(BaseModel):
     document_date: date
     project_code: str | None = None
     page_number: int | None = None
+    # ADR-031 (Şart 1): "project" (belongs to `project_code`) or "group" (company-level,
+    # in scope for every project).
+    project_scope: Literal["project", "group"] = "project"
 
 
 class AssistAvailableGroup(BaseModel):
@@ -196,6 +199,9 @@ class SourceCard(BaseModel):
     # for project-less corporate documents. Not an authorization input (ADR-004).
     project_code: str | None = None
     project_name: str | None = None
+    # ADR-031 (Şart 1): the explicit nature of the project link — `group` for a
+    # company-level document that is in scope for every project.
+    project_scope: Literal["project", "group"] = "project"
 
 
 class AskResponse(BaseModel):

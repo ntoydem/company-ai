@@ -3,7 +3,7 @@ import uuid
 from datetime import date, datetime
 from typing import Any, Literal
 
-from sqlalchemy import Boolean, Date, DateTime, Enum, ForeignKey, Integer, String, Text, Uuid
+from sqlalchemy import Boolean, Date, DateTime, Enum, ForeignKey, Integer, String, Text, Uuid, event
 from sqlalchemy import false as sa_false
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -66,6 +66,18 @@ class IngestionStatus(enum.StrEnum):
     failed = "failed"
 
 
+class ProjectScope(enum.StrEnum):
+    """İş Emri 2026-10-15A2 (Şart 1, ADR-031): what a document's project link *means*.
+    `project` — the document belongs to the one project in `project_id`; `group` — a
+    company-level (group) document that is in scope for every project (`project_id` NULL).
+    Explicit on the row (and on every card) rather than inferred from a NULL, guarded by the
+    DB CHECK `(project_scope = 'group') = (project_id IS NULL)` and kept in step by the
+    mapper hook below, so the search filter can read it directly."""
+
+    project = "project"
+    group = "group"
+
+
 class Document(TimestampMixin, Base):
     """Master document metadata (SPEC_02 §2). `department` stays a denormalized slug
     string with no FK — existing rows/tests predate the `departments` table and use
@@ -88,6 +100,14 @@ class Document(TimestampMixin, Base):
     # B-20/6 (Aşama D): the source card names the project without a second request from
     # the UI. Organisational only — permission still comes from `department` (ADR-004).
     project: Mapped[Project | None] = relationship("Project")
+    # ADR-031 (Şart 1): derived from `project_id` on every insert/update (see the mapper
+    # hook at the bottom of this module); `server_default 'project'` keeps older writers
+    # valid, the CHECK keeps the pair consistent. Not an authorization input (ADR-004).
+    project_scope: Mapped[ProjectScope] = mapped_column(
+        Enum(ProjectScope, name="project_scope", values_callable=lambda e: [m.value for m in e]),
+        default=ProjectScope.project,
+        server_default="project",
+    )
     # B-26 (Aşama E, ADR-023): the folder the document lives in; its `department` is the
     # folder owner's slug. NULL only for documents without a department (invisible to every
     # employee) or after their folder was deleted (SET NULL — folders with documents cannot
@@ -202,3 +222,16 @@ class Document(TimestampMixin, Base):
 
     def __repr__(self) -> str:
         return f"Document(title={self.title!r}, ingestion_status={self.ingestion_status.value!r})"
+
+
+def scope_for(project_id: uuid.UUID | None) -> ProjectScope:
+    return ProjectScope.group if project_id is None else ProjectScope.project
+
+
+@event.listens_for(Document, "before_insert")
+@event.listens_for(Document, "before_update")
+def _sync_project_scope(mapper: object, connection: object, document: Document) -> None:
+    """`project_id` governs; `project_scope` is its explicit, queryable restatement. Every
+    creation/update path (upload API, seed, metadata edit, tests) stays valid without
+    naming the new column — the CHECK constraint would otherwise reject the row."""
+    document.project_scope = scope_for(document.project_id)

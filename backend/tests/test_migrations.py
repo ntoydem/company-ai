@@ -24,7 +24,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
     assert "users" not in inspect(engine).get_table_names()
 
     command.upgrade(cfg, "head")
-    assert _current_revision() == "0015"
+    assert _current_revision() == "0016"
     tables = inspect(engine).get_table_names()
     assert "users" in tables
     assert "documents" in tables
@@ -88,7 +88,7 @@ def test_downgrade_to_empty_then_upgrade_head() -> None:
 
 def test_upgrade_head_is_idempotent() -> None:
     command.upgrade(alembic_config(), "head")
-    assert _current_revision() == "0015"
+    assert _current_revision() == "0016"
 
 
 def test_0010_corrects_an_existing_phase_1_2_tree_and_backfills_users() -> None:

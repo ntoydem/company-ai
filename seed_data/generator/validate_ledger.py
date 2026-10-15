@@ -957,10 +957,12 @@ def check_questions(
     ids: set[str] = set()
     doc_names: set[str] = set()
     doc_types: set[str] = set()
+    doc_ids: set[str] = set()
     for ledger in ledgers.values():
         for doc in ledger.documents:
             doc_names.add(str(doc.name.value))
             doc_types.add(doc.type)
+            doc_ids.add(str(doc.id))
     project_names = set(QUOTAS)
     project_counts = dict.fromkeys(QUOTAS, 0)
     category_counts: dict[str, int] = {}
@@ -1027,9 +1029,18 @@ def check_questions(
                     f, f"{p}.required_sources[{j}]", f"Q4: {source!r} is not a document name/type"
                 )
         for j, source in enumerate(q.forbidden_sources):
-            if source not in doc_names and source not in doc_types and source not in project_names:
+            # İş Emri 2026-10-15A2: a forbidden source may also be a document *identity*
+            # (`DOC-…`, the scorer's A4 reading) — a name, a type, or a project as before.
+            if (
+                source not in doc_names
+                and source not in doc_types
+                and source not in project_names
+                and source not in doc_ids
+            ):
                 report.error(
-                    f, f"{p}.forbidden_sources[{j}]", f"Q4: {source!r} is not a document or project"
+                    f,
+                    f"{p}.forbidden_sources[{j}]",
+                    f"Q4: {source!r} is not a document name/id, type or project",
                 )
     if len(qs.questions) < MIN_QUESTIONS:
         report.error(f, "questions", f"Q2: {len(qs.questions)} questions, need >= {MIN_QUESTIONS}")
