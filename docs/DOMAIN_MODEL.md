@@ -85,6 +85,15 @@ contract price and COD must be consistent across linked documents; links are sto
 
 ## 8. Demo projects (structure only; figures in the ledger)
 
+**Project count (İş Emri 2026-10-15F0 D, 15.10.2026):** the ledger defines **7 projects**
+(`seed_data/master/company.yaml`: Karatepe RES, Kızılova RES, Yeşilova RES, Boztepe RES,
+Güneşalan GES, Akyar GES, Demirci RES); **6 of them have documents** in the library (113
+documents, library H). **Güneşalan GES has no documents** — its ledger (`gunesalan_ges.yaml`)
+exists for facts only, no PDF/Excel is generated for it and it has no row in the `projects`
+table (the seed creates projects from the manifest's `project_code`s). No document is produced
+for it by decision; a question naming Güneşalan is therefore an "unknown project" to the
+search (see the F0 report, Şart 1 design).
+
 | | Ankara RES | İzmir RES |
 |---|---|---|
 | Stage | operation (in its third operating year on `DEMO_TODAY`) | development |

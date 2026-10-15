@@ -78,7 +78,15 @@ def test_align_requires_matching_question_and_answer_text() -> None:
 
 def test_outcome_is_rebuilt_from_the_audit_sources() -> None:
     audit = _audit_row(
-        sources=[{"title": "Facility Agreement", "document_id": "doc-1", "page_number": 3}],
+        sources=[
+            {
+                "kind": "document",
+                "title": "Facility Agreement",
+                "document_id": "doc-1",
+                "page_number": 3,
+            },
+            {"kind": "excel", "file": "Covenant_Report.xlsx", "sheet": "Q2_2026", "range": "D14"},
+        ],
         excel_files_used=["Covenant_Report.xlsx"],
     )
     outcome = rescore.outcome_from(_old_row(answered=True, answer_text=_Q), audit)

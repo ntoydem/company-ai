@@ -80,12 +80,18 @@ def align(
 
 
 def outcome_from(old: dict[str, Any], audit: dict[str, Any]) -> AskOutcome:
-    sources = list(audit.get("sources") or [])
+    # The audit row keeps document cards (`kind: document`, with title/page) and Excel cells
+    # (`kind: excel`, with file/sheet/range) in one `sources` list; `/api/ask` returns them
+    # as `sources` and `excel_sources` — rebuild that split.
+    sources = [s for s in audit.get("sources") or [] if s.get("kind", "document") == "document"]
+    excel = [s for s in audit.get("sources") or [] if s.get("kind") == "excel"]
+    files = {str(f) for f in audit.get("excel_files_used") or []}
+    files |= {str(s["file"]) for s in excel if s.get("file")}
     return AskOutcome(
         answered=bool(old["answered"]),
         answer_text=old["answer_text"],
         cited_titles=tuple(str(s["title"]) for s in sources),
-        cited_files=tuple(str(f) for f in audit.get("excel_files_used") or []),
+        cited_files=tuple(sorted(files)),
         query_type=audit.get("query_type") or old.get("query_type"),
         model=old.get("model"),
         tokens_in=int(old.get("tokens_in") or 0),
@@ -178,8 +184,8 @@ def render_diff(
     new_report: eval_lib.EvalReport,
     rows: list[tuple[dict[str, Any], QuestionResult, list[str]]],
     source_sets: dict[str, eval_lib.SourceExpectation],
+    required_by_id: dict[str, list[str]],
 ) -> str:
-    old_q = {q["id"]: q for q in old_report["questions"]}
     old_pass = sum(1 for q in old_report["questions"] if q["passed"])
     new_pass = sum(1 for r in new_report.results if r.passed)
     n = len(new_report.results)
@@ -260,7 +266,7 @@ def render_diff(
         if se is None or new is None:
             continue
         rule = "tam belge" if se.strict else "küme"
-        members = sorted(se.titles) if not se.strict else old_q[qid].get("required_sources", [])
+        members = sorted(se.titles) if not se.strict else required_by_id.get(qid, [])
         verdict = "✅" if new.passed else "❌ " + "; ".join(failure_reasons(new))
         cited = list(new.cited_titles)
         lines.append(f"| {qid} | {rule} ({se.derivation}) | {members} | {cited} | {verdict} |")
@@ -379,7 +385,8 @@ def main(argv: list[str] | None = None) -> int:
         json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8"
     )
     (args.out / "results.md").write_text(eval_lib.render_markdown(report), encoding="utf-8")
-    diff = render_diff(old_report, report, rows, source_sets)
+    required_by_id = {q.id: list(q.required_sources) for q in questions.values()}
+    diff = render_diff(old_report, report, rows, source_sets, required_by_id)
     (args.out / "rescore_diff.md").write_text(diff, encoding="utf-8")
 
     if args.llm_log is not None:

@@ -1,4 +1,7 @@
 # Güneşalan GES — truth ledger (Adım 5 Aşama C, 10.10.2026, NACI_CEVAP_2026-10-08.md §3)
+# İş Emri 2026-10-15F0 D (15.10.2026): 7 projects are defined in the ledger, 6 have documents —
+# Güneşalan GES is the one WITHOUT documents (facts only; no PDF/Excel generated, no `projects`
+# row seeded). Deliberate; no document is produced for it.
 # Kredisiz, özkaynakla finanse edilmiş işletme-aşaması GES; dava yok (NACI_CEVAP §3.7).
 meta:
   schema_version: 1
