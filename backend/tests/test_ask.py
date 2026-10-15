@@ -28,6 +28,7 @@ from app.services.llm import LLMNotConfiguredError, LLMRateLimitError, LLMReques
 from tests.department_fixtures import add_user_to_department, make_department
 from tests.fakes import FakeLLMClient
 from tests.ledger_fixtures import ensure_generated_documents, load_ledger_documents
+from tests.project_fixtures import ensure_projects
 
 SENTINEL = "SENTINEL-GIZLI-HUKUK-METNI"
 
@@ -49,6 +50,13 @@ def _document(
     session.add(DocumentChunk(document_id=document.id, chunk_index=0, page_number=page, text=text))
     session.commit()
     return document
+
+
+@pytest.fixture(autouse=True)
+def _demo_projects(db_session: Session) -> None:
+    """ADR-031: the questions below name Karatepe/Kızılova RES; without the project rows the
+    narrowing would (rightly) refuse them as unknown projects."""
+    ensure_projects(db_session)
 
 
 def _ask(client: TestClient, question: str, **extra: object) -> dict[str, object]:
@@ -144,11 +152,7 @@ def test_sources_come_from_citations_with_page_and_chain(
 
     facility_page = facility_entry["page_map"]["1. Background"]
     amendment_page = amendment_entry["page_map"]["2. Amendments to the Original Agreement"]
-    from app.models.project import Project, ProjectStage
-
-    ankara = Project(name="Karatepe RES", code="ANK_RES", stage=ProjectStage.operation)
-    db_session.add(ankara)
-    db_session.flush()
+    ankara = ensure_projects(db_session)["ANK_RES"]  # seeded by the module fixture (ADR-031)
     amendment.project_id = ankara.id  # the facility agreement stays project-less on purpose
     db_session.commit()
 
@@ -238,7 +242,7 @@ def test_no_answer_reply_is_canonicalized(
     _document(db_session, title="A", department=None, text="Ankara RES DSCR covenant 1,25x")
     fake_llm.replies = ["Üzgünüm, mevcut şirket kaynaklarında yeterli bilgi bulamadım."]
 
-    body = _ask(client, "İzmir RES DSCR covenant nedir?")
+    body = _ask(client, "Kızılova RES DSCR covenant nedir?")
     assert fake_llm.requests, "chunks were retrieved, so the model was consulted"
     assert body["answered"] is False and body["answer"] == NO_ANSWER_TEXT
     assert body["sources"] == []

@@ -9,6 +9,7 @@ import json
 import re
 from collections.abc import Callable
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -36,11 +37,18 @@ from app.services.llm import LLMRateLimitError, LLMRequest
 from app.services.router import ROUTER_SYSTEM_PROMPT
 from tests.fakes import FakeLLMClient, FakeRouter
 from tests.ledger_fixtures import ensure_generated_documents, load_ledger_documents
+from tests.project_fixtures import ensure_projects
 from tests.test_excel_api import _publish, _upload_workbook
 
 AMBIGUOUS_DSCR = "Güncel DSCR kaç?"
 COVENANT_SUBQUESTION = "Kredi sözleşmesindeki güncel minimum DSCR covenant'ı nedir?"
 ACTUAL_SUBQUESTION = "En son çeyreğin gerçekleşen DSCR değeri kaç?"
+
+
+@pytest.fixture(autouse=True)
+def _demo_projects(db_session: Session) -> None:
+    """ADR-031: project-named questions need their project on the `projects` table."""
+    ensure_projects(db_session)
 
 
 def _ask(client: TestClient, question: str, **extra: object) -> dict[str, object]:
@@ -178,19 +186,19 @@ def test_budget_variance_with_reason_only_from_documents(
         db_session,
         title="Production Report Q3 2024",
         department=None,
-        text="Ankara RES Q3 2024 bütçe 26.000.000 TRY, gerçekleşen 25.106.000 TRY.",
+        text="Karatepe RES Q3 2024 bütçe 26.000.000 TRY, gerçekleşen 25.106.000 TRY.",
     )
     _publish(db_session, _upload_workbook(client, "Budget_vs_Actual_2026.xlsx"))
     fake_router.query_type = "MIXED_QUERY"
     fake_router.document_question = "Q3 2024 bütçe sapmasının sebebi belgelerde belirtilmiş mi?"
-    fake_router.data_question = "Ankara RES Q3 2024 bütçe sapması kaç?"
+    fake_router.data_question = "Karatepe RES Q3 2024 bütçe sapması kaç?"
     fake_llm.reply_fn = _reply_by_pipeline(
         document_reply=f"{NO_REASON_TEXT} [K1].",
         plan={"kind": "function", "name": "budget_variance", "params": {"period": "Q3_2024"}},
         excel_reply="Q3 2024 sapması yaklaşık -0,9 milyon TRY.",  # altered → template wins
     )
 
-    body = _ask(client, "Ankara RES Q3 2024 bütçe sapması neydi ve sebebi belgelerde yazıyor mu?")
+    body = _ask(client, "Karatepe RES Q3 2024 bütçe sapması neydi ve sebebi belgelerde yazıyor mu?")
 
     assert body["query_type"] == "MIXED_QUERY" and body["answered"] is True
     answer = str(body["answer"])
@@ -233,7 +241,7 @@ def test_data_question_runs_the_excel_pipeline_through_api_ask(
         json.dumps({"kind": "function", "name": "dscr", "params": {"period": "Q2_2026"}}),
         "Ankara RES'in 2026 Q2 DSCR değeri 1,37x.",
     ]
-    body = _ask(client, "Ankara RES 2026 Q2 DSCR kaç?")
+    body = _ask(client, "Karatepe RES 2026 Q2 DSCR kaç?")
     assert body["query_type"] == "DATA_QUERY" and body["answered"] is True
     assert body["notice"] == EXCEL_NOTICE
     assert body["sources"] == []
@@ -271,7 +279,7 @@ def test_data_miss_falls_back_to_the_document_pipeline(
         json.dumps({"kind": "none", "reason": "not in workbooks"}),
         "Yerli banka kredisi 20.400.000 EUR'dur [K1].",
     ]
-    body = _ask(client, "Ankara RES finansmanında yerli banka kredisi ne kadar?")
+    body = _ask(client, "Karatepe RES finansmanında yerli banka kredisi ne kadar?")
     assert body["query_type"] == "DOCUMENT_QUERY" and body["answered"] is True
     assert body["notice"] == NO_INTERPRETATION_NOTICE
     assert body["sources"][0]["title"] == "Facility Agreement"  # type: ignore[index]
@@ -286,7 +294,7 @@ def test_data_miss_without_documents_is_the_plain_no_answer(
     client: TestClient, admin_user: User, fake_llm: FakeLLMClient, fake_router: FakeRouter
 ) -> None:
     fake_router.query_type = "DATA_QUERY"
-    body = _ask(client, "Ankara RES 2026 Q2 DSCR kaç?")  # no workbook, no document
+    body = _ask(client, "Karatepe RES 2026 Q2 DSCR kaç?")  # no workbook, no document
     assert body["answered"] is False and body["answer"] == NO_ANSWER_TEXT
     assert body["query_type"] == "DOCUMENT_QUERY" and fake_llm.requests == []
 
@@ -369,7 +377,7 @@ def test_answer_returns_the_id_of_its_single_audit_row_with_product_level(
         json.dumps({"kind": "function", "name": "dscr", "params": {"period": "Q2_2026"}}),
         "Ankara RES'in 2026 Q2 DSCR değeri 1,37x.",
     ]
-    body = _ask(client, "Ankara RES 2026 Q2 DSCR kaç?")
+    body = _ask(client, "Karatepe RES 2026 Q2 DSCR kaç?")
     rows = _audit_rows(db_session)
     assert len(rows) == 1
     assert body["audit_log_id"] == str(rows[0].id)
@@ -400,7 +408,7 @@ def test_product_level_follows_the_final_query_type(
         json.dumps({"kind": "none", "reason": "not in workbooks"}),
         "Yerli banka kredisi 20.400.000 EUR'dur [K1].",
     ]
-    body = _ask(client, "Ankara RES finansmanında yerli banka kredisi ne kadar?")
+    body = _ask(client, "Karatepe RES finansmanında yerli banka kredisi ne kadar?")
     assert body["query_type"] == "DOCUMENT_QUERY" and body["product_level"] == "P1"
     rows = _audit_rows(db_session)
     assert [row.product_level for row in rows] == ["P1", "P1"]
@@ -409,7 +417,7 @@ def test_product_level_follows_the_final_query_type(
 def test_no_answer_carries_a_missing_data_warning_with_the_request_data_action(
     client: TestClient, admin_user: User, fake_llm: FakeLLMClient
 ) -> None:
-    body = _ask(client, "İzmir RES'in COD tarihi nedir?")  # nothing to retrieve
+    body = _ask(client, "Kızılova RES'in COD tarihi nedir?")  # nothing to retrieve
     assert body["answered"] is False
     assert body["warnings"] == [
         {"kind": "missing_data", "message": MISSING_DATA_WARNING, "action": "request_data"}
@@ -439,9 +447,9 @@ def test_p1_only_degrades_a_data_routing_to_documents_with_a_product_limit_warni
     fake_router.query_type = "DATA_QUERY"
     fake_llm.replies = ["2026 Q2 DSCR 1,37x'tir [K1]."]
 
-    body = _ask(client, "Ankara RES 2026 Q2 DSCR kaç?")
+    body = _ask(client, "Karatepe RES 2026 Q2 DSCR kaç?")
 
-    assert fake_router.questions == ["Ankara RES 2026 Q2 DSCR kaç?"]  # still classified
+    assert fake_router.questions == ["Karatepe RES 2026 Q2 DSCR kaç?"]  # still classified
     assert body["query_type"] == "DOCUMENT_QUERY" and body["product_level"] == "P1"
     assert body["answered"] is True and body["excel_sources"] == []
     assert body["sources"][0]["title"] == "Covenant Report Q2 2026"  # type: ignore[index]
@@ -488,7 +496,7 @@ def test_insufficient_data_when_documents_were_retrieved_but_the_model_declined(
     rows = _audit_rows(db_session)
     assert rows[-1].warnings[0]["kind"] == "insufficient_data"
 
-    body = _ask(client, "İzmir RES'in COD tarihi nedir?")  # nothing retrieved at all
+    body = _ask(client, "Kızılova RES'in COD tarihi nedir?")  # nothing retrieved at all
     assert body["retrieved_document_ids"] == [] and body["warnings"][0]["kind"] == "missing_data"
 
 

@@ -147,11 +147,18 @@ def test_zero_chunks_clarify_without_any_llm_call(
 
     # An unknown word (not in the corpus, not in the glossary) is a term mismatch even with
     # nothing else to show.
+    body = _ask(client, "DSKO kaç?")
+    assert fake_llm.requests == []
+    assert body["assist"]["kind"] == "term_mismatch"
+    assert body["assist"]["unmatched_terms"] == ["DSKO"]
+    assert body["assist"]["question"] == term_mismatch_template(["DSKO"])
+    # ADR-031: an unknown *project* ("Bursa RES") is refused before retrieval — term_mismatch
+    # with the mention as the unmatched term and the fixed project question, still no LLM.
     body = _ask(client, "Bursa RES DSKO kaç?")
     assert fake_llm.requests == []
     assert body["assist"]["kind"] == "term_mismatch"
-    assert body["assist"]["unmatched_terms"] == ["Bursa", "DSKO"]
-    assert body["assist"]["question"] == term_mismatch_template(["Bursa", "DSKO"])
+    assert body["assist"]["unmatched_terms"] == ["Bursa RES"]
+    assert body["assist"]["question"].startswith("Bu adda bir proje kayıtlı değil")
 
 
 def test_zero_chunks_term_mismatch_lists_metadata_matches_from_allowed_documents(
