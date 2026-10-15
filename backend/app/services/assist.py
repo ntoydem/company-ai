@@ -567,20 +567,41 @@ def available_from_metadata(
     return [_available_card(document, None) for document in ordered]
 
 
+# İş Emri 2026-10-15A2L3 (ADR-032): "<X> var mı / mevcut mu" asks for a *document* only when
+# X is a document word — "amendment var mı", "bütçe dosyası var mı", "finansal modeli var
+# mı". A fact phrased the same way ("ECA katılımı var mı", "yapı ruhsatı var mı") is a value
+# question and takes the normal path. Suffixes are free (`\w*`): "modeli", "dosyası",
+# "sözleşmesi", "belgeleri". "lisans", "ruhsat", "katılım", "teminat" are facts the project
+# has, not files — "ruhsat *belgesi* var mı" is the document form.
+_DOCUMENT_WORD = (
+    r"(?:sözleşme|anlaşma|amendment|tadil|model|dosya|belge|rapor|plan|bütçe|poliçe|tablo"
+    r"|protokol|tutana[kğ]|dilekçe|yazı|evrak|doküman|döküman|kopya|nüsha|taslak|versiyon"
+    r"|sürüm|teklif|fatura|sertifika|mektup|bildirim)\w*"
+)
 _EXISTENCE_RE = re.compile(
-    r"\b(var m[ıi]|yüklü m[üu]|mevcut m[uü]|nerede|neler|hangi dosya|hangisi|hangileri"
+    r"\b(?:"
+    rf"{_DOCUMENT_WORD}\s+(?:hiç\s+)?(?:var m[ıi]|mevcut m[uü])"
+    # "yüklü mü" can only ask about an uploaded file; "nerede / neler / hangi dosya" ask
+    # where / which files — unconditional.
+    r"|yüklü m[üu]|nerede|neler|hangi dosya\w*"
+    # "hangisi / hangileri" alone is a comparison or a fact ("güncel FA hangisi?", "hangisi
+    # daha önce?") — only "son hali / versiyonu / sürümü / nüshası hangisi" asks for a file.
+    r"|(?:hal[ıi]|halleri|versiyon[uü]?|sürüm[uü]?|nüsha(?:sı|ları)?)\s+hangi(?:si|leri)"
     # İş Emri 2026-10-12H Adım 2 (GEN-DSC-013, Ç-3): a term-definition question ("amendment
     # ne demek biliyor musun?") is answered the same way — the documents that carry the
     # term are listed and a question asked; no definition sentence is composed.
-    r"|ne demek(tir)?|biliyor mu[sş]un|tan[ıi]m[ıi] ne(dir)?|anlam[ıi] ne(dir)?)\b",
+    r"|ne demek(?:tir)?|biliyor mu[sş]un|tan[ıi]m[ıi] ne(?:dir)?|anlam[ıi] ne(?:dir)?"
+    r")\b",
     re.IGNORECASE,
 )
 
 
 def is_existence_question(text: str) -> bool:
-    """Adım 2 D5: "X var mı / yüklü mü / nerede / neler" asks *whether and where* something
-    exists — the answer is a list of the user's own documents, never a value. Term-definition
-    phrasings ("ne demek", "tanımı ne") take the same path (İş Emri 2026-10-12H)."""
+    """Adım 2 D5: "<belge> var mı / yüklü mü / nerede / neler" asks *whether and where* a
+    document exists — the answer is a list of the user's own documents, never a value.
+    Term-definition phrasings ("ne demek", "tanımı ne") take the same path (İş Emri
+    2026-10-12H). A fact asked with "var mı" / "hangisi" is not an existence question
+    (İş Emri 2026-10-15A2L3, ADR-032)."""
     return bool(_EXISTENCE_RE.search(turkish_lower(text)))
 
 

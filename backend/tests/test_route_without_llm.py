@@ -81,6 +81,23 @@ def test_route_without_llm_decides_only_the_two_shapes(db_session: Session) -> N
     assert route_without_llm(db_session, "Karatepe RES'in kapasitesi nedir?") is None
 
 
+def test_route_without_llm_leaves_fact_questions_to_the_router(db_session: Session) -> None:
+    """İş Emri 2026-10-15A2L3: a fact asked with "var mı" or "hangisi" is a value question
+    (ANK-FIN-004, IZM-DEV-004, ANK-EPC-002, GEN-CMP-003 shapes) — the router decides; only
+    the document forms stay on the list path (GEN-DSC-005/009)."""
+    ensure_projects(db_session)
+    for question in (
+        "Karatepe RES finansmanında ECA katılımı var mı?",
+        "Kızılova RES'in yapı ruhsatı var mı?",
+        "Karatepe RES'in güncel EPC sözleşmesi hangisi?",
+        "Karatepe RES ile Kızılova RES'in kurulu gücü hangisi daha büyük?",
+    ):
+        assert route_without_llm(db_session, question) is None, question
+    for question in ("Amendment var mı?", "Kredi sözleşmesinin son hali hangisi?"):
+        routed = route_without_llm(db_session, question)
+        assert routed is not None and routed.reason == "existence_question", question
+
+
 # ---------------------------------------------------------------- 1. unknown project
 
 
@@ -203,6 +220,32 @@ def test_plain_definition_question_still_goes_through_router_and_model(
     body = _ask(client, "DSCR nedir?")
 
     assert fake_router.questions == ["DSCR nedir?"]
+    assert len(fake_llm.requests) == 1
+    assert body["answered"] is True and body["model"] == "fake-model"
+
+
+def test_fact_question_with_var_mi_goes_through_router_and_model(
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+    fake_router: FakeRouter,
+    ek_f_on: None,
+) -> None:
+    """İş Emri 2026-10-15A2L3 (ANK-FIN-004 shape): "ECA katılımı var mı?" expects a cited
+    answer, not the document list — the normal path, flag on."""
+    ensure_projects(db_session)
+    _document(
+        db_session,
+        title="Facility Agreement",
+        department=None,
+        text="The facility includes an ECA covered tranche of 5,000,000 USD.",
+    )
+    fake_llm.replies = ["Evet, ECA katılımı vardır: 5.000.000 USD'lik ECA dilimi [K1]."]
+
+    body = _ask(client, "Karatepe RES finansmanında ECA katılımı var mı?")
+
+    assert fake_router.questions == ["Karatepe RES finansmanında ECA katılımı var mı?"]
     assert len(fake_llm.requests) == 1
     assert body["answered"] is True and body["model"] == "fake-model"
 

@@ -600,6 +600,8 @@ Postgres portu host'a açılmaz; `make psql` kullanın. Backend'in 8000 portu da
 açık değildir (`BACKEND_PORT` yalnızca compose ağı içindir); her şey Caddy'nin `CADDY_PORT`'u (8080) üzerinden.
 
 ## Backup / restore (Phase 5.3)
+Bir migration'ı ya da sürümü geri alma (örn. 0016 → 0015) ve yalnız-Postgres dump'tan canlıya
+dokunmadan prova: `docs/OPERATIONS.md`.
 ```bash
 make backup                        # $DATA_ROOT/backups/<bugün>/: postgres.dump, documents.tar.gz,
                                     # excel.tar.gz, app-data.tar.gz, env.backup — 14 gün rotasyon

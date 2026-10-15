@@ -80,6 +80,39 @@ def test_existence_question_patterns() -> None:
     assert not is_existence_question("Kredi sözleşmesinin vadesi kaç yıl?")
 
 
+def test_fact_questions_phrased_with_var_mi_or_hangisi_are_not_existence_questions() -> None:
+    """İş Emri 2026-10-15A2L3 (ADR-032): "var mı / mevcut mu" lists documents only after a
+    document word; "hangisi / hangileri" alone is a fact or a comparison. The 7 eval questions
+    that A2L2 wrongly sent to the list path, plus the document forms that must stay."""
+    for question in (
+        "Karatepe RES finansmanında ECA (ihracat kredi kurumu) katılımı var mı?",
+        "Karatepe RES finansmanında ihracat kredi kurumu katılımı var mı?",
+        "Kızılova RES'in yapı ruhsatı var mı?",
+        "Kızılova RES için üretim lisansı mevcut mu?",
+        "Karatepe RES'in güncel (yürürlükteki) Facility Agreement'ı hangisi?",
+        "Karatepe RES'in güncel EPC sözleşmesi hangisi?",
+        "Karatepe RES üretim lisansı ile Kızılova RES önlisansı — hangisi daha önce alındı?",
+        "Karatepe RES ile Kızılova RES'in kurulu gücü hangisi daha büyük?",
+        "Hangileri 2025'te imzalandı?",
+        "Karatepe RES'in DSCR covenant'ı ne zaman ve hangi belgeyle değişti?",
+    ):
+        assert not is_existence_question(question), question
+    for question in (
+        "Amendment var mı?",
+        "peki amendment var mı hiç?",
+        "Sözleşme var mı?",
+        "Bütçe dosyası var mı?",
+        "Karatepe'nin finansal modeli var mı?",
+        "Ruhsat belgesi yüklü mü?",
+        "Yapı ruhsatı belgesi var mı?",
+        "ÇED raporu mevcut mu?",
+        "Kredi sözleşmesinin son hali hangisi?",
+        "Facility Agreement'ın güncel versiyonu hangisi?",
+        "Hangi dosyada yazıyor?",
+    ):
+        assert is_existence_question(question), question
+
+
 def test_definition_question_patterns_are_existence_questions() -> None:
     """İş Emri 2026-10-12H Adım 2 (GEN-DSC-013): term-definition phrasings list documents."""
     for question in (
