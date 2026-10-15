@@ -1,5 +1,5 @@
 {
-  "version": 12,
+  "version": 13,
   "demo_today": "2026-10-06",
   "questions": [
     {
@@ -647,11 +647,13 @@
       "required_sources": [],
       "forbidden_sources": [
         "Facility Agreement",
+        "Facility Agreement Amendment 01",
+        "Facility Agreement Amendment 02",
         "Karatepe RES"
       ],
       "ask_as_user": "finans",
       "expect_no_answer": true,
-      "notes": "Kızılova'da finansman yok; Karatepe Facility Agreement'ı kullanılmamalı"
+      "notes": "v13 (İş Emri 2026-10-15F0 B, Tansu onayı; IZM-ISO-004 ile aynı kök): Kızılova'da kullandırılmış kredi/faiz oranı yok → cevap beklenmez; yasak kaynak Karatepe FA zinciri kimlik bazlı (DOC-ANK-FIN-004/005/006 + Karatepe RES). Kızılova'nın kendi 2026-KZ sözleşmesinin listelenmesi serbest (tür eşleşmesi kalktı, A4)."
     },
     {
       "id": "IZM-ISO-001",
@@ -714,19 +716,24 @@
       "id": "IZM-ISO-004",
       "category": "isolation",
       "question": "Kızılova RES için finansman sözleşmesi imzalandı mı?",
-      "expected_answer": "ledger:izmir_res.project.timeline.financing_signed",
-      "expected_answer_aliases": [],
+      "expected_answer": "2026-KZ",
+      "expected_answer_aliases": [
+        "İmzalı-Kullanılmamış Kredi Sözleşmesi"
+      ],
       "expected_project": "Kızılova RES",
       "expected_department": "finans",
-      "required_sources": [],
+      "required_sources": [
+        "Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ)"
+      ],
       "forbidden_sources": [
         "Facility Agreement",
         "Facility Agreement Amendment 01",
-        "Facility Agreement Amendment 02"
+        "Facility Agreement Amendment 02",
+        "Karatepe RES"
       ],
       "ask_as_user": "finans",
-      "expect_no_answer": true,
-      "notes": "finans kullanıcısı Karatepe Facility Agreement'ını görebilir; Kızılova'ya atfetmemeli"
+      "expect_no_answer": false,
+      "notes": "v13 (İş Emri 2026-10-15F0 B, Tansu onayı): İş Emri H kütüphanesinden beri Kızılova'nın kendi imzalı-kullanılmamış kredi sözleşmesi (2026-KZ, DOC-IZM-FIN-004) var → cevap beklenir (\"Evet, 2026-KZ …\"), kaynak Kızılova'nın kendi sözleşmesi. Yasak kaynaklar kimlik bazlı (A4): Karatepe FA zinciri (DOC-ANK-FIN-004/005/006) ve Karatepe RES belgeleri; tür eşleşmesi yok. Eski beklenti (07.10.2026): expect_no_answer — finans Karatepe FA'sını görür, Kızılova'ya atfetmemeli."
     },
     {
       "id": "ANK-AUT-001",

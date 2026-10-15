@@ -68,11 +68,26 @@ def test_load_questions_returns_the_committed_questions() -> None:
     # v12 (İş Emri 2026-10-14B2a, Tansu madde 13): GEN-AMB-003-F ve ANK-NEG-003 beklentisi
     # netleştirme (expect_no_answer + expect_assist clarify, 113 belgelik kütüphane); başka
     # soru değişmedi, soru sayısı değişmedi (99)
+    # v13 (İş Emri 2026-10-15F0 B, Tansu'nun onayladığı iki değişiklik): IZM-ISO-004 artık
+    # cevap bekler (Kızılova'nın kendi 2026-KZ sözleşmesi, İş Emri H'den beri kütüphanede);
+    # GEN-HAL-004 aynı kök — yasak kaynak Karatepe FA zinciri kimlik bazlı, Kızılova'nın
+    # kendi sözleşmesi serbest. Başka soru değişmedi, soru sayısı değişmedi (99)
     assert len(question_set.questions) == 99
-    assert question_set.version == 12
+    assert question_set.version == 13
     by_id = {q.id: q for q in question_set.questions}
     for qid in ("GEN-AMB-003-F", "ANK-NEG-003"):
         assert by_id[qid].expect_no_answer and by_id[qid].expect_assist == "clarify"
+    iso = by_id["IZM-ISO-004"]
+    assert not iso.expect_no_answer and iso.expected_answer == "2026-KZ"
+    assert iso.required_sources == ["Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ)"]
+    assert "Karatepe RES" in iso.forbidden_sources
+    hal = by_id["GEN-HAL-004"]
+    assert hal.expect_no_answer and hal.forbidden_sources == [
+        "Facility Agreement",
+        "Facility Agreement Amendment 01",
+        "Facility Agreement Amendment 02",
+        "Karatepe RES",
+    ]
 
 
 def test_build_document_catalog_maps_title_type_and_project() -> None:
