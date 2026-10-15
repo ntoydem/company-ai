@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "description": "Live smoke after a backend restart (İş Emri 2026-10-15A2L). Nine questions, one attempt each; a row passes only when HTTP is 200 AND every expectation holds (Ortak Not 15.10 §5 ilke 5: a successful request is not a correct answer). Expected values are written the F-8 way (thousands dot, decimal comma) and must appear in the answer exactly so; an English thousands spelling anywhere in the answer fails the row. Scripts: scripts/smoke_live.py, schema + evaluator tests: backend/tests/test_smoke_live.py.",
+  "questions": [
+    {
+      "letter": "a",
+      "user": "finans",
+      "question": "Karatepe RES kredisinde fiilen kullandırılan toplam tutar nedir?",
+      "expect": {
+        "answered": true,
+        "value": "13.600.000",
+        "sources_min": 1
+      }
+    },
+    {
+      "letter": "b",
+      "user": "finans_mudur",
+      "question": "Karatepe RES kredi sözleşmesine göre fiilen kullandırılan toplam kredi tutarı kaç USD?",
+      "expect": {
+        "answered": true,
+        "value": "13.600.000 USD",
+        "sources_min": 1
+      }
+    },
+    {
+      "letter": "c",
+      "user": "admin",
+      "question": "Yeşilova RES arazi tahsisi tazminat davasında davacı kimdir?",
+      "expect": {
+        "answered": true,
+        "contains": ["Hasan Çelik"],
+        "sources_min": 1
+      }
+    },
+    {
+      "letter": "d",
+      "user": "enerji",
+      "question": "Boztepe RES imar planı davasında yürütmeyi durdurma talebi ne oldu?",
+      "expect": {
+        "answered": false,
+        "sources_empty": true,
+        "response_excludes": [
+          "BOZ-LEG",
+          "BOZ_RES",
+          "İmar Planı Değişikliği İptali Davası",
+          "Yürütmeyi Durdurma Talebinin Reddi"
+        ]
+      }
+    },
+    {
+      "letter": "e",
+      "user": "finans",
+      "question": "Amendment ne demek biliyor musun?",
+      "expect": {
+        "answered": false,
+        "no_definition": true,
+        "assist_available_min": 1,
+        "question_fact_free": true
+      }
+    },
+    {
+      "letter": "f",
+      "user": "yonetim",
+      "question": "Sözleşmenin vadesi ne zaman doluyor?",
+      "expect": {
+        "answered": false,
+        "single_question": true,
+        "question_fact_free": true
+      }
+    },
+    {
+      "letter": "g",
+      "user": "finans",
+      "question": "Karatepe için bankaya hâlâ ne kadar borcumuz var?",
+      "expect": {
+        "answered": true,
+        "value": "11.671.800"
+      }
+    },
+    {
+      "letter": "h",
+      "user": "finans",
+      "question": "Kızılova RES kredi sözleşmesi kaç USD?",
+      "expect": {
+        "answered": true,
+        "sources_min": 1,
+        "sources_projects": ["IZM_RES"],
+        "answer_excludes": ["Karatepe"]
+      }
+    },
+    {
+      "letter": "i",
+      "user": "enerji",
+      "question": "Bursa RES'in kapasitesi nedir?",
+      "expect": {
+        "answered": false,
+        "sources_empty": true,
+        "assist_kind": "term_mismatch",
+        "unmatched_terms": ["Bursa RES"],
+        "contains": ["Bu adda bir proje kayıtlı değil"],
+        "no_llm": true,
+        "question_fact_free": true
+      }
+    }
+  ]
+}
