@@ -26,6 +26,7 @@ from app.services.assist import (
     available_from_chunks,
     build_disambiguate_assist,
     build_insufficient_assist,
+    build_unknown_project_assist,
     build_zero_chunk_assist,
     classify_project_axis,
     downgrade_existence_disambiguate,
@@ -37,6 +38,13 @@ from app.services.assist import (
 from app.services.audit_writer import write_audit_row
 from app.services.authorization import allowed_document_ids
 from app.services.llm import LLMClient, LLMError, LLMRequest
+from app.services.project_narrowing import (
+    narrow_allowed,
+    narrow_chunks,
+    unknown_project_names,
+    unknown_project_question,
+    visible_project_names,
+)
 from app.services.retrieval import retrieve
 from app.services.search_query import build_search_query
 from app.services.temporal import today as temporal_today
@@ -103,6 +111,7 @@ def _source_cards(
                 is_initial=source.position.is_initial,
                 project_code=document.project.code if document.project else None,
                 project_name=document.project.name if document.project else None,
+                project_scope=document.project_scope.value,
             )
         )
     return cards, unknown
@@ -173,21 +182,81 @@ def answer_question(
     settings: Settings,
     *,
     write_audit: bool = True,
+    original_question: str | None = None,
 ) -> AskResult:
     """`write_audit=False` (Phase 4.3): the caller — the router — owns the one audit row of
-    the call and writes it from the returned `AskResult` (SORU 2: one row per call)."""
+    the call and writes it from the returned `AskResult` (SORU 2: one row per call).
+    `original_question` (ADR-031): the user's own wording when `request.question` is the
+    router's rewritten sub-question — project names are read from what the user typed."""
     started = time.perf_counter()
+    naming_text = original_question or request.question
+    scope = AuthorizationScope(department=request.department)
+    allowed = allowed_document_ids(user, scope, SqlDocumentIdsProvider(session))
+
+    # ADR-031 (Şart 1, İş Emri 2026-10-15A2), before anything else and regardless of flags:
+    # a project the `projects` table does not know is answered without retrieval or the LLM
+    # — the dominant-project guess ("Karatepe RES projesine ait olduğu varsayıldı") must
+    # never fire for "Bursa RES". Only the projects the user can see are offered back.
+    unknown = unknown_project_names(session, naming_text)
+    if unknown:
+        unknown_assist = build_unknown_project_assist(
+            unknown, unknown_project_question(unknown, visible_project_names(session, allowed))
+        )
+        result = AskResult(
+            answer=(
+                render_no_data(unknown_assist, request.question)
+                if settings.ek_f_enabled
+                else f"{answer_prompt.NO_ANSWER_TEXT}\n{unknown_assist.question}"
+            ),
+            answered=False,
+            assist=unknown_assist,
+        )
+        log.info("unknown project named", extra={"mentions": unknown})
+        if write_audit:
+            _write_audit_log(
+                session,
+                user,
+                request,
+                retrieved_ids=[],
+                chunks=[],
+                answer=result.answer,
+                sources=[],
+                model=None,
+                tokens_in=0,
+                tokens_out=0,
+                execution_ms=round((time.perf_counter() - started) * 1000),
+                error=None,
+                assist=unknown_assist,
+                previous_question=request.previous_question if settings.ek_f_enabled else None,
+            )
+        return result
+
     filters = RetrievalFilters(department=request.department)
     query = build_search_query(request.question)
     chunks = retrieve(session, user, query, filters, raw_question=request.question) if query else []
+    # ADR-031 (Şart 1): after the gate, the named project(s) + group documents are the whole
+    # candidate package — prompt, F-3 list and audit alike; no project named → unchanged.
+    named = named_project_codes(session, naming_text)
+    narrowing = narrow_allowed(session, allowed, named)
+    if narrowing.active:
+        before = len(chunks)
+        chunks = narrow_chunks(chunks, narrowing.scoped)
+        log.info(
+            "project narrowing",
+            extra={
+                "named": sorted(narrowing.named_codes),
+                "chunks_before": before,
+                "chunks_after": len(chunks),
+                "documents_dropped": narrowing.dropped,
+            },
+        )
+    scoped: set[UUID] = set(narrowing.scoped)
     retrieved_ids = list(dict.fromkeys(chunk.document_id for chunk in chunks))
 
     if not chunks:
         result = _no_answer()
         if settings.assist_computations:
             # ADR-027/ADR-021: still no LLM here — every lookup stays inside `allowed`.
-            scope = AuthorizationScope(department=request.department)
-            allowed = allowed_document_ids(user, scope, SqlDocumentIdsProvider(session))
             zero_assist = build_zero_chunk_assist(
                 session,
                 allowed,
@@ -195,15 +264,14 @@ def answer_question(
                 ek_f=settings.ek_f_enabled,
                 disambig_spread=settings.project_axis_disambig_spread,
                 dominant_share=settings.project_axis_dominant_share,
+                candidate_ids=scoped,
             )
             result = replace(result, assist=zero_assist)
             if settings.ek_f_enabled:
                 # ADR-030 F-5: the pattern replaces the fixed sentence for the user.
                 result = replace(result, answer=render_no_data(zero_assist, request.question))
     else:
-        scope = AuthorizationScope(department=request.department)
-        allowed = allowed_document_ids(user, scope, SqlDocumentIdsProvider(session))
-        documents = document_repo.load_with_chains(session, retrieved_ids, allowed_ids=allowed)
+        documents = document_repo.load_with_chains(session, retrieved_ids, allowed_ids=scoped)
         by_id = {document.id: document for document in documents}
         # Adım 4 (ADR-030, 09.10.2026): the project axis is classified from these same
         # retrieved documents *before* the prompt is built — a genuinely ambiguous question
@@ -213,7 +281,6 @@ def answer_question(
         # carried forward and reused if the model ends up declining anyway.
         axis_decision: ProjectAxisDecision | None = None
         if settings.ek_f_enabled:
-            named = named_project_codes(session, request.question)
             chunk_cards = available_from_chunks(by_id, chunks, limit=50)
             axis_decision = classify_project_axis(
                 project_distribution(chunk_cards),
@@ -281,6 +348,7 @@ def answer_question(
                         axis_decision=axis_decision,
                         disambig_spread=settings.project_axis_disambig_spread,
                         dominant_share=settings.project_axis_dominant_share,
+                        candidate_ids=scoped,
                     )
                     if settings.assist_computations
                     else None

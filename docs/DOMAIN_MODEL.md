@@ -27,7 +27,7 @@ User ──< AuditLog
 | Department | `departments` | Organisation tree: Enerji Grubu (Geliştirme, EPC/İnşaat, Bakım), Finans, Hukuk, Mali İşler, İdari İşler | 1.2 |
 | UserDepartment | `user_departments` | Membership; a user may belong to several departments | 1.2 |
 | Project | `projects` | `name`, `code` (e.g. `ANK_RES`, `IZM_RES`), `stage`, `is_active`, linked departments. Not hard-coded; admin CRUD | 1.2 |
-| Document | `documents` | Master metadata of one file (see §3). `department`, `project_id`, `confidentiality` exist from the first migration with defaults | 0.2 |
+| Document | `documents` | Master metadata of one file (see §3). `department`, `project_id`, `confidentiality` exist from the first migration with defaults; `project_scope` (`project` \| `group`, ADR-031, migration 0016) states the nature of the project link explicitly — `group` ⇔ `project_id IS NULL` (CHECK + ORM hook) | 0.2 / A2 |
 | DocumentPage | `document_pages` | `page_number`, `text` per page (PyMuPDF after OCR) | 0.2 |
 | DocumentChunk | `document_chunks` | `chunk_index`, `page_number` (NOT NULL), `text`, `tsv` (FTS), `embedding` (pgvector, NULL unless enabled) | 0.2 |
 | IngestionJob | `ingestion_jobs` | Postgres-backed work queue polled by `ocr-worker`: status, attempts, error, lock | 0.2 |
@@ -57,6 +57,7 @@ User ──< AuditLog
 | `document_review_event_kind` | `uploaded`, `auto_approved`, `field_edited`, `field_confirmed`, `submitted`, `resubmitted`, `approved`, `changes_requested`, `metadata_changed_after_approval` | append-only intake ledger (`document_review_events`), admin-only read |
 | `ingestion_job_status` | `queued`, `running`, `done`, `failed` | queue state |
 | `project_stage` | `development`, `construction`, `operation` | |
+| `project_scope` | `project`, `group` | ADR-031: a `group` (company-level) document is in scope for every project; the `/api/ask` narrowing keeps `named project ∪ group` after the gate |
 | `query_type` | `DOCUMENT_QUERY`, `DATA_QUERY`, `MIXED_QUERY`, `GENERAL_QUERY` | router output (ADR-010, Phase 4.3): stored on every `audit_log` row and returned by `/api/ask`; `/api/excel/ask` always writes `DATA_QUERY` |
 | `ledger_tag` | `USER_FACT`, `AI_ASSUMPTION` | truth ledger only, never in the app DB |
 
@@ -67,7 +68,7 @@ User ──< AuditLog
 - `management`: every department, every confidentiality level.
 - `admin`: everything plus administration.
 - **Publication filter (B-28):** every rule above applies to `review_status = approved` documents only. With `AuthorizationScope.include_pending` (document-handling endpoints) the result also contains the pending documents the caller may handle: own uploads (everyone), the managed departments' pending documents (`department_manager`), every pending document (`admin`); `management` none.
-- A project may span departments; a document's permission comes from its department, never from its project.
+- A project may span departments; a document's permission comes from its department, never from its project. The project is a *narrowing* input only (ADR-031): after `allowed_document_ids`, a question naming a project keeps that project's documents plus `group` documents; a project name the `projects` table does not know is refused without the LLM.
 - Step 0 (single admin): the gate returns all documents. Step 1.2: the rules above.
 
 ## 6. Version chain and temporal truth

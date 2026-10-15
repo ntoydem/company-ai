@@ -189,6 +189,8 @@ class AvailableDocument:
     document_date: date
     project_code: str | None
     page_number: int | None
+    # ADR-031 (Şart 1): "project" | "group" — a group document is in scope for every project.
+    project_scope: str = "project"
 
 
 @dataclass(frozen=True)
@@ -241,6 +243,9 @@ class Assist:
     # validated `SORU:` line (rule 11/12), not a code template. `render_no_data` then shows
     # a *value* question only the verdict and that question — no list (F-4).
     model_question: bool = False
+    # ADR-031 (Şart 1): the question named a project the `projects` table does not know
+    # ("Bursa RES"); answered without the LLM — verdict + one question, no list, no guess.
+    unknown_project: str | None = None
 
 
 # ---------------------------------------------------------------- code-side lookups
@@ -254,6 +259,7 @@ def _available_card(document: Document, page_number: int | None) -> AvailableDoc
         document_date=document.document_date,
         project_code=document.project.code if document.project else None,
         page_number=page_number,
+        project_scope=document.project_scope.value,
     )
 
 
@@ -419,6 +425,19 @@ def build_disambiguate_assist(session: Session, decision: ProjectAxisDecision) -
         kind="disambiguate",
         question=disambiguate_question(session, decision.codes),
         axis="project",
+    )
+
+
+def build_unknown_project_assist(unknown: list[str], question: str) -> Assist:
+    """ADR-031 (Şart 1): the question names a project the `projects` table does not know.
+    No LLM, no list, no dominant-project guess — `term_mismatch` with the unknown mention
+    as the unmatched term and one question naming only the projects the user can see
+    (built by `project_narrowing.unknown_project_question`)."""
+    return Assist(
+        kind="term_mismatch",
+        question=question,
+        unmatched_terms=tuple(unknown),
+        unknown_project=unknown[0],
     )
 
 
@@ -677,12 +696,17 @@ def build_zero_chunk_assist(
     ek_f: bool = False,
     disambig_spread: float = DEFAULT_DISAMBIG_SPREAD,
     dominant_share: float = DEFAULT_DOMINANT_SHARE,
+    candidate_ids: set[UUID] | frozenset[UUID] | None = None,
 ) -> Assist:
     """Nothing retrieved: no LLM (ADR-021). Everything here is a lookup inside `allowed`.
+    `candidate_ids` (ADR-031, Şart 1): the project-narrowed subset of `allowed` the *lists*
+    are drawn from (defaults to `allowed`); the terminology probes keep the whole allowed
+    set — a word missing from the named project's documents is not a missing word.
     Adım 4: `ek_f` also classifies the project axis of the metadata candidates — a `named`
     or `dominant` project narrows the list (the latter also sets `inferred_project` so the
     caller states the assumption); `disambiguate` returns the fixed clarifying question
     directly (still 0 LLM calls, same as every other zero-chunk reply, ADR-021)."""
+    pool: set[UUID] = set(candidate_ids) if candidate_ids is not None else allowed
     terms = question_terms(question)
     unmatched = unmatched_terms(session, allowed, terms)
     mismatched = mismatch_terms(unmatched, terms, excluded=project_words(session))
@@ -692,7 +716,7 @@ def build_zero_chunk_assist(
     inferred_project: str | None = None
     if ek_f:
         candidates_all = available_from_metadata(
-            session, allowed, terms, limit=50, common_threshold=MAX_AVAILABLE
+            session, pool, terms, limit=50, common_threshold=MAX_AVAILABLE
         )
         named = named_project_codes(session, question)
         decision = classify_project_axis(
@@ -719,7 +743,7 @@ def build_zero_chunk_assist(
         available = candidates_all[:MAX_AVAILABLE_EKF]
         more = len(candidates_all) - len(available)
     else:
-        available = available_from_metadata(session, allowed, terms)
+        available = available_from_metadata(session, pool, terms)
     kind = _kind_for(mismatched)
     text = term_mismatch_template(mismatched) if kind == "term_mismatch" else CLARIFY_TEMPLATE
     return Assist(
@@ -747,6 +771,7 @@ def build_insufficient_assist(
     axis_decision: ProjectAxisDecision | None = None,
     disambig_spread: float = DEFAULT_DISAMBIG_SPREAD,
     dominant_share: float = DEFAULT_DOMINANT_SHARE,
+    candidate_ids: set[UUID] | frozenset[UUID] | None = None,
 ) -> Assist:
     """Chunks reached the prompt, the model still declined: list what was retrieved (code),
     detect unmatched terms (code), keep the model's one question only if it passes
@@ -760,7 +785,11 @@ def build_insufficient_assist(
     in here is only ever `named`/`dominant`/`none`. When not given (standalone/unit-test
     use), it is computed here from the same chunk-vouched candidates the list uses; a
     `disambiguate` result in that path is treated as `none` — this function never asks a
-    question of its own, it only narrows a list."""
+    question of its own, it only narrows a list.
+
+    `candidate_ids` (ADR-031, Şart 1): the project-narrowed subset of `allowed` the metadata
+    places of the list are drawn from; `chunks` arrive already narrowed by the caller."""
+    pool: set[UUID] = set(candidate_ids) if candidate_ids is not None else allowed
     terms = question_terms(question)
     unmatched = unmatched_terms(session, allowed, terms)
     mismatched = mismatch_terms(unmatched, terms, excluded=project_words(session))
@@ -793,7 +822,7 @@ def build_insufficient_assist(
             if decision.kind == "dominant":
                 inferred_project = effective_project
         available, more = _quota_list(
-            session, allowed, terms, documents, vouched_chunks, named_project=effective_project
+            session, pool, terms, documents, vouched_chunks, named_project=effective_project
         )
     else:
         available = available_from_chunks(documents, vouched_chunks)
@@ -803,7 +832,7 @@ def build_insufficient_assist(
         # when the chunk list is empty. Chunk-vouched documents stay first.
         if is_existence_question(question) or not available:
             seen = {card.document_id for card in available}
-            for card in available_from_metadata(session, allowed, terms):
+            for card in available_from_metadata(session, pool, terms):
                 if card.document_id not in seen and len(available) < MAX_AVAILABLE:
                     available.append(card)
                     seen.add(card.document_id)
@@ -926,6 +955,10 @@ def render_no_data(assist: Assist, question: str) -> str:
     out loud right after the verdict — never silently (Naci 09.10.2026)."""
     if assist.kind == "disambiguate":
         return assist.question or CLARIFY_TEMPLATE
+    if assist.unknown_project is not None:
+        # ADR-031 (Şart 1): verdict + the one question — no list (there is no project to list
+        # for), no "varsayıldı" line (the guess is exactly what this path prevents).
+        return f"{NO_DATA_VERDICT}\n{assist.question or CLARIFY_TEMPLATE}"
     if assist.model_question and assist.question and not is_existence_question(question):
         # İş Emri 2026-10-14B2a (Tansu madde 12, rule 12): the model asked which document,
         # project or period is meant — a value question gets the verdict and that one
@@ -1003,6 +1036,7 @@ def assist_block(assist: Assist | None) -> AssistBlock | None:
                 document_date=a.document_date,
                 project_code=a.project_code,
                 page_number=a.page_number,
+                project_scope=a.project_scope,
             )
             for a in assist.available
         ],
@@ -1018,6 +1052,7 @@ def assist_block(assist: Assist | None) -> AssistBlock | None:
                         document_date=a.document_date,
                         project_code=a.project_code,
                         page_number=a.page_number,
+                        project_scope=a.project_scope,
                     )
                     for a in g.documents
                 ],

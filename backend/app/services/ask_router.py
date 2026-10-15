@@ -165,6 +165,9 @@ def _run(
             llm,
             settings,
             write_audit=False,
+            # ADR-031 (Şart 1): the project the *user* named decides the narrowing, even
+            # when the router's rewritten sub-question dropped the name.
+            original_question=request.question,
         )
     if routed.data_question is not None:
         data = answer_data_question(
