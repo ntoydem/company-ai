@@ -20,7 +20,8 @@ __pycache__/
 # Generated demo data (built, not committed). seed_data/excel/ IS committed (Phase 4.2 SORU 2):
 # the recalculated workbooks are small and the prod clone has no LibreOffice.
 seed_data/documents/
-seed_data/evaluation/results/
+# Eval results live in results/ at the repo root and ARE committed (İş Emri 2026-10-15F0 C):
+# a measurement is evidence; run_eval/rescore write there by default.
 
 # Node / frontend
 node_modules/

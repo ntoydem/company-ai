@@ -522,7 +522,7 @@ bozan bir düzenleme lint'i kırar.
 ## Eval (Phase 4.1)
 `scripts/run_eval.py`: `seed_data/evaluation/questions.json` (v4: 64 soru — 01.10.2026'da `comparison` kategorisi (3 soru, eşik %100: projeler arası karşılaştırma yasağı, `required_phrases`/`forbidden_phrases` metin kontrolü, `expected_answer` iki ledger yolu); v3: 61 soru — Phase 5.1'de `general` kategorisi ve
 yeni belgelere değen 13 soru eklendi) → gerçek `/api/ask` çağrıları (`ask_as_user` ile giriş yapılmış demo kullanıcı) → skor →
-`seed_data/evaluation/results/<model>_<tarih>/results.{md,json}` (git-ignored). Kaynak (required/forbidden)
+`results/<model>_<tarih>/results.{md,json}` + `cost.json` (repo kökü, **commit edilir** — İş Emri 2026-10-15F0 C; puanlayıcı sürümü `results.json.scorer_version`, kural geçmişi `scripts/eval_lib.py::SCORER_CHANGELOG`). Bitmiş bir koşu LLM'siz yeniden puanlanır: `python -m scripts.rescore --results results/<koşu> --audit <audit.jsonl> [--llm-log <backend.log>] --out results/<koşu>_rescored` (eval projesinin backend container'ında; `rescore_diff.md`, `kontrolor_20.md`, `cost.json` üretir). Kaynak (required/forbidden)
 kontrolü `seed_data/documents/manifest.json` + `seed_data/excel/manifest.json`'dan (`excel_sources[].file` →
 workbook başlığı); beklenen değer,
 ledger yolunu `seed_data/generator/facts.py::format_ledger_leaf` ile demo belgelere gömülen **aynı** biçimde
