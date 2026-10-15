@@ -1,0 +1,3440 @@
+{
+ "rules": {
+  "A1": [
+   [
+    "ANK-ISO-003",
+    false,
+    false
+   ],
+   [
+    "GEN-GEN-002",
+    false,
+    true
+   ],
+   [
+    "GEN-AMB-002",
+    false,
+    true
+   ],
+   [
+    "GEN-AMB-003",
+    false,
+    true
+   ],
+   [
+    "GEN-AMB-004",
+    false,
+    true
+   ],
+   [
+    "GEN-AMB-005",
+    false,
+    true
+   ],
+   [
+    "GEN-AMB-006",
+    false,
+    true
+   ],
+   [
+    "ANK-NEG-003",
+    false,
+    true
+   ],
+   [
+    "GEN-AMB-003-F",
+    false,
+    true
+   ],
+   [
+    "GEN-DSC-004",
+    false,
+    false
+   ],
+   [
+    "GEN-DSC-011-K",
+    false,
+    false
+   ]
+  ],
+  "A2": [
+   [
+    "GEN-DSC-001-M",
+    false,
+    true
+   ],
+   [
+    "GEN-DSC-006-M",
+    false,
+    false
+   ]
+  ],
+  "A3": [
+   [
+    "ANK-NEG-003",
+    false,
+    true
+   ]
+  ],
+  "A4": [
+   [
+    "GEN-HAL-004",
+    false,
+    true
+   ],
+   [
+    "IZM-ISO-004",
+    false,
+    true
+   ]
+  ],
+  "A5": [
+   [
+    "GEN-CMP-003",
+    false,
+    false
+   ]
+  ],
+  "B": [
+   [
+    "GEN-HAL-004",
+    false,
+    true
+   ],
+   [
+    "IZM-ISO-004",
+    false,
+    true
+   ]
+  ]
+ },
+ "set_rule_ids": [
+  "ANK-DEV-001",
+  "ANK-DEV-002",
+  "ANK-DEV-003",
+  "ANK-DEV-004",
+  "ANK-DEV-005",
+  "ANK-FIN-001",
+  "ANK-FIN-002",
+  "ANK-FIN-003",
+  "ANK-FIN-004",
+  "ANK-FIN-005",
+  "ANK-FIN-006",
+  "ANK-FIN-007",
+  "ANK-FIN-008",
+  "ANK-FIN-009",
+  "ANK-EPC-001",
+  "ANK-EPC-002",
+  "ANK-EPC-003",
+  "ANK-OPS-001",
+  "ANK-FIN-010",
+  "ANK-FIN-011",
+  "ANK-FIN-012",
+  "ANK-FIN-013",
+  "ANK-EPC-004",
+  "IZM-DEV-001",
+  "IZM-DEV-002",
+  "IZM-DEV-003",
+  "IZM-DEV-004",
+  "IZM-DEV-005",
+  "IZM-DEV-006",
+  "IZM-DEV-007",
+  "IZM-DEV-008",
+  "IZM-DEV-009",
+  "IZM-ISO-001",
+  "ANK-ISO-002",
+  "ANK-ISO-003",
+  "IZM-ISO-004",
+  "ANK-DAT-001",
+  "ANK-DAT-002",
+  "ANK-DAT-003",
+  "ANK-MIX-001",
+  "ANK-MIX-002",
+  "ANK-MIX-003",
+  "GEN-CMP-001",
+  "GEN-CMP-002",
+  "GEN-CMP-003",
+  "ANK-OPS-004",
+  "ANK-NEG-001",
+  "ANK-NEG-002",
+  "ANK-NEG-004",
+  "CO-NEG-005"
+ ],
+ "passed": {
+  "ANK-DEV-001": {
+   "category": "document",
+   "user": "enerji",
+   "question": "Karatepe RES'in development süreci ne zaman başladı?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.timeline.development_start.date",
+   "expected_spellings": [
+    [
+     "01.03.2018",
+     "2018-03-01",
+     "March 1, 2018"
+    ]
+   ],
+   "expected_raw": [
+    "project.timeline.development_start.date = datetime.date(2018, 3, 1)"
+   ],
+   "required_sources": [
+    "Karatepe RES Üretim Lisansı"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES'in geliştirme süreci 01.03.2018 tarihinde başlamıştır [K11].",
+   "cited_titles": [
+    "Karatepe RES Üretim Lisansı"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Karatepe RES Üretim Lisansı"
+   ],
+   "source_hits": [
+    "Karatepe RES Üretim Lisansı"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "ANK-DEV-002": {
+   "category": "document",
+   "user": "enerji",
+   "question": "Karatepe RES üretim lisansı ne zaman alındı?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.timeline.licence.date",
+   "expected_spellings": [
+    [
+     "15.06.2020",
+     "2020-06-15",
+     "June 15, 2020"
+    ]
+   ],
+   "expected_raw": [
+    "project.timeline.licence.date = datetime.date(2020, 6, 15)"
+   ],
+   "required_sources": [
+    "Karatepe RES Üretim Lisansı"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES Üretim Lisansı 15.06.2020 tarihlidir ve yürürlük tarihi de 15.06.2020'dir [K17][K44]. Lisans, Karatepe RES Enerji Üretim A.Ş. unvanlı tüzel kişiliğe verilmiştir [K17]. Faaliyetlerin 15.06.2020 itibarıyla geçerlilik kazandığı resmen ilan edilmiştir [K17].",
+   "cited_titles": [
+    "Karatepe RES Üretim Lisansı"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Karatepe RES Üretim Lisansı"
+   ],
+   "source_hits": [
+    "Karatepe RES Üretim Lisansı"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "ANK-DEV-003": {
+   "category": "document",
+   "user": "enerji",
+   "question": "Karatepe RES'in güncel kurulu gücü (kapasitesi) nedir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.capacity_mw.current.value",
+   "expected_spellings": [
+    [
+     "24 MW"
+    ]
+   ],
+   "expected_raw": [
+    "project.capacity_mw.current.value = 24"
+   ],
+   "required_sources": [
+    "Licence Amendment 01 (Kapasite Tadili)"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Belgelere göre:\nKaratepe RES'in güncel kurulu gücü 24 MW'tır. Lisans tadil belgesinde (Licence Amendment 01, Kapasite Tadili) proje başlangıcında 21 MW olan toplam kurulu güç kapasitesi 24 MW seviyesine güncellenmiştir [K10]. Bu değer Licence Amendment 01 (Kapasite Tadili) ile önceki 21 MW seviyesinden değiştirilmiştir. Üretim Lisansı belgesinde tesisin toplam kurulu gücü 21 MW olarak kaydedilmiştir [K45]; bu değer tadilden önceki tarihsel değerdir.\n\nExcel verisine göre:\nErişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+   "cited_titles": [
+    "Karatepe RES Üretim Lisansı",
+    "Licence Amendment 01 (Kapasite Tadili)"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Karatepe RES Performance Test Results Report",
+    "Licence Amendment 01 (Kapasite Tadili)",
+    "Provisional Acceptance & COD Certificate"
+   ],
+   "source_hits": [
+    "Licence Amendment 01 (Kapasite Tadili)"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "MIXED_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:G1 yalnız DOCUMENT_QUERY'de; bu MIXED_QUERY"
+   ]
+  },
+  "ANK-DEV-004": {
+   "category": "temporal",
+   "user": "enerji",
+   "question": "Karatepe RES'in ilk lisans kapasitesi neydi?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.capacity_mw.initial.value",
+   "expected_spellings": [
+    [
+     "21 MW"
+    ]
+   ],
+   "expected_raw": [
+    "project.capacity_mw.initial.value = 21"
+   ],
+   "required_sources": [
+    "Karatepe RES Üretim Lisansı"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES Üretim Lisansı'nda tesisin toplam kurulu gücü 21 MW olarak resmi kayıtlara geçirilmiştir [K76].\n\nBu değer Licence Amendment 01 (Kapasite Tadili) ile önceki 21 MW seviyesinden değiştirilmiştir. Tadil sonrası kurulu güç 24 MW olarak güncellenmiştir [K42].",
+   "cited_titles": [
+    "Karatepe RES Üretim Lisansı",
+    "Licence Amendment 01 (Kapasite Tadili)"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Karatepe RES ÇED Olumlu Kararı",
+    "Karatepe RES Üretim Lisansı",
+    "Licence Amendment 01 (Kapasite Tadili)"
+   ],
+   "source_hits": [
+    "Karatepe RES Üretim Lisansı",
+    "Licence Amendment 01 (Kapasite Tadili)"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "ANK-DEV-005": {
+   "category": "temporal",
+   "user": "enerji",
+   "question": "Karatepe RES'in kapasite tadili (licence amendment) ne zaman yapıldı?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.timeline.licence_amendment.date",
+   "expected_spellings": [
+    [
+     "10.02.2021",
+     "2021-02-10",
+     "February 10, 2021"
+    ]
+   ],
+   "expected_raw": [
+    "project.timeline.licence_amendment.date = datetime.date(2021, 2, 10)"
+   ],
+   "required_sources": [
+    "Licence Amendment 01 (Kapasite Tadili)"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES kapsamındaki kapasite tadili (Licence Amendment 01) 10.02.2021 tarihinde düzenlenmiş ve aynı tarihte yürürlüğe girmiştir [K1][K4]. Belge bu tarih itibarıyla imzalanmıştır [K70].",
+   "cited_titles": [
+    "Licence Amendment 01 (Kapasite Tadili)"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Licence Amendment 01 (Kapasite Tadili)"
+   ],
+   "source_hits": [
+    "Licence Amendment 01 (Kapasite Tadili)"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "ANK-FIN-001": {
+   "category": "document",
+   "user": "finans",
+   "question": "Karatepe RES'in financial close tarihi nedir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.timeline.financial_close.date",
+   "expected_spellings": [
+    [
+     "08.07.2022",
+     "2022-07-08",
+     "July 8, 2022"
+    ]
+   ],
+   "expected_raw": [
+    "project.timeline.financial_close.date = datetime.date(2022, 7, 8)"
+   ],
+   "required_sources": [
+    "Facility Agreement"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES'in finansal kapanış tarihi 08.07.2022'dir. Bu tarih, orijinal sözleşme kapsamında gerçekleşen finansal kapanış için verilmiştir [K7].",
+   "cited_titles": [
+    "Facility Agreement Amendment 02"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Facility Agreement",
+    "Facility Agreement Amendment 02"
+   ],
+   "source_hits": [
+    "Facility Agreement Amendment 02"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "a:beklenen belge değil, küme üyesi gösterildi",
+    "b:set kuralıyla geçti, required_sources tam gösterilmedi"
+   ]
+  },
+  "ANK-FIN-002": {
+   "category": "document",
+   "user": "finans",
+   "question": "Karatepe RES'in toplam finansman (kredi) tutarı nedir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.finance.total_debt.value",
+   "expected_spellings": [
+    [
+     "13.600.000 USD",
+     "13,600,000 USD"
+    ]
+   ],
+   "expected_raw": [
+    "project.finance.total_debt.value = 13600000"
+   ],
+   "required_sources": [
+    "Facility Agreement"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES'in toplam finansman tutarı 14.000.000 USD'dir; bu tutar Facility Agreement belgesinde \"toplam finansman\" olarak yazmaktadır [K68]. Sonraki tadil belgelerinde bu tutara ilişkin bir değişiklik yer almamaktadır [K70][K60].\n\nGüncel Covenant Compliance Report Q2 2026 belgesinde kullanılan (utilised) tutar 13.600.000 USD'dir [K36]. Aynı belgede dönem sonu itibarıyla kalan bakiye (outstanding balance) 11.671.800 USD olarak ayrıca belirtilmiştir [K36]. Belge bu iki tutarın birbirinden türetilmediğini de belirtmektedir [K36].",
+   "cited_titles": [
+    "Covenant Compliance Report Q2 2026",
+    "Facility Agreement",
+    "Facility Agreement Amendment 01",
+    "Facility Agreement Amendment 02"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Covenant Compliance Report Q2 2026",
+    "Facility Agreement",
+    "Facility Agreement Amendment 02"
+   ],
+   "source_hits": [
+    "Covenant Compliance Report Q2 2026",
+    "Facility Agreement",
+    "Facility Agreement Amendment 02"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "ANK-FIN-003": {
+   "category": "document",
+   "user": "finans",
+   "question": "Karatepe RES finansmanında yerli banka kredisi ne kadar?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.finance.local_debt.value",
+   "expected_spellings": [
+    [
+     "13.600.000 USD",
+     "13,600,000 USD"
+    ]
+   ],
+   "expected_raw": [
+    "project.finance.local_debt.value = 13600000"
+   ],
+   "required_sources": [
+    "Facility Agreement"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Kaynaklara göre Karatepe RES'in yerli banka kredisi Garanti BBVA'dan kullandırılmıştır. Güncel Covenant Compliance Report Q2 2026 belgesinde kullandırılan toplam kredi tutarı 13.600.000 USD'dir ve tamamı Garanti BBVA tarafından yerel banka olarak sağlanmıştır [K44]. Aynı belgede kalan bakiye 11.671.800 USD olarak yazılmıştır [K44].\n\nKredi sözleşmesinin toplam finansman tutarı 14.000.000 USD olarak belirtilmiş ve bu tutarın tamamının Garanti BBVA tarafından yerel banka olarak sağlandığı, ECA tranşı bulunmadığı yazılmıştır [K65]. Bu belge 20.06.2022 tarihli, sürümü 4 olan ve durumu \"superseded\" (önceki sürüm) olan Facility Agreement belgesidir [K65]. Kaynaklardaki güncel tadil metinleri (K56, K58) bu tutarı değiştirmediğini belirtmez, ancak tutarı da yazmaz.",
+   "cited_titles": [
+    "Covenant Compliance Report Q2 2026",
+    "Facility Agreement"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Facility Agreement",
+    "Facility Agreement Amendment 02"
+   ],
+   "source_hits": [
+    "Facility Agreement"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "ANK-FIN-005": {
+   "category": "document",
+   "user": "finans",
+   "question": "Karatepe RES kredisinin güncel faiz bazı ve marjı nedir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.finance.interest.margin_pct.current.value",
+   "expected_spellings": [
+    [
+     "%2,9",
+     "%2.9"
+    ]
+   ],
+   "expected_raw": [
+    "project.finance.interest.margin_pct.current.value = 2.9"
+   ],
+   "required_sources": [
+    "Facility Agreement"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES kredisinde güncel marj %2,9'dur [K1][K47]. Bu değer Facility Agreement Amendment 02 ile önceki %3,25 seviyesinden değiştirilmiştir [K64][K47].\n\nGüncel taban endeksin adı ve değeri kaynaklarda belirtilmemiştir. Bu nedenle güncel faiz oranı toplamı hesaplanamamaktadır.",
+   "cited_titles": [
+    "Facility Agreement",
+    "Facility Agreement Amendment 02",
+    "Garanti BBVA Faiz Belirleme Bildirimi"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Facility Agreement",
+    "Facility Agreement Amendment 02",
+    "Garanti BBVA Faiz Belirleme Bildirimi"
+   ],
+   "source_hits": [
+    "Facility Agreement",
+    "Facility Agreement Amendment 02",
+    "Garanti BBVA Faiz Belirleme Bildirimi"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "ANK-FIN-006": {
+   "category": "temporal",
+   "user": "finans",
+   "question": "Karatepe RES'in güncel minimum DSCR covenant'ı nedir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.finance.dscr_covenant.current.value",
+   "expected_spellings": [
+    [
+     "1,20x",
+     "1.20x"
+    ]
+   ],
+   "expected_raw": [
+    "project.finance.dscr_covenant.current.value = 1.2"
+   ],
+   "required_sources": [
+    "Facility Agreement Amendment 02"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES için güncel minimum DSCR covenant'ı 1,20x'tir ve 15.03.2025 tarihinden itibaren geçerlidir [K41].\n\nBu değer Facility Agreement Amendment 02 ile önceki 1,25x seviyesinden değiştirilmiştir. 1,25x değeri, 20.06.2022 tarihli Facility Agreement belgesinde yazmaktadır [K65].",
+   "cited_titles": [
+    "Facility Agreement",
+    "Facility Agreement Amendment 02"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Facility Agreement Amendment 02"
+   ],
+   "source_hits": [
+    "Facility Agreement Amendment 02"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "ANK-FIN-007": {
+   "category": "temporal",
+   "user": "finans",
+   "question": "Karatepe RES'in ilk (orijinal) DSCR covenant'ı neydi?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.finance.dscr_covenant.initial.value",
+   "expected_spellings": [
+    [
+     "1,25x",
+     "1.25x"
+    ]
+   ],
+   "expected_raw": [
+    "project.finance.dscr_covenant.initial.value = 1.25"
+   ],
+   "required_sources": [
+    "Facility Agreement"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES'in ilk (İLK HALKA) belgesi olan \"Facility Agreement — Draft\" (15.03.2022) hükmüne göre, borçlunun kredi süresince tutması gereken minimum DSCR 1.25x'tir [K78]. Bu belge taslak (Draft) durumundadır [K74].\n\nGüncel minimum DSCR 1.20x'tir. Bu değer Facility Agreement Amendment 02 ile önceki 1.25x seviyesinden değiştirilmiştir [K55].",
+   "cited_titles": [
+    "Facility Agreement Amendment 02",
+    "Facility Agreement — Draft"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Facility Agreement",
+    "Facility Agreement Amendment 02"
+   ],
+   "source_hits": [
+    "Facility Agreement Amendment 02"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "a:beklenen belge değil, küme üyesi gösterildi",
+    "b:set kuralıyla geçti, required_sources tam gösterilmedi"
+   ]
+  },
+  "ANK-FIN-008": {
+   "category": "temporal",
+   "user": "finans",
+   "question": "Karatepe RES'in güncel (yürürlükteki) Facility Agreement'ı hangisi?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.finance.facility_chain[-1]",
+   "expected_spellings": null,
+   "expected_raw": [
+    "project.finance.facility_chain[-1] = 'DOC-ANK-FIN-006'"
+   ],
+   "required_sources": [
+    "Facility Agreement Amendment 02"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES'in güncel Facility Agreement zincirindeki son belge Facility Agreement Amendment 02'dir (Belge No DOC-ANK-FIN-006, sürüm AMD02, durum Executed, tarih 15.03.2025) [K7]. Belge, Karatepe RES Facility Agreement'ın 2. tadilidir [K7] ve \"Facility Agreement Amendment 01\" belgesini değiştirir [K7].",
+   "cited_titles": [
+    "Facility Agreement Amendment 02"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Facility Agreement Amendment 02"
+   ],
+   "source_hits": [
+    "Facility Agreement Amendment 02"
+   ],
+   "value_check": "skipped",
+   "value_check_reason": "unformattable expected_answer type: str",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (unformattable expected_answer type: str)"
+   ]
+  },
+  "ANK-FIN-009": {
+   "category": "document",
+   "user": "finans",
+   "question": "Karatepe RES Facility Agreement'ında kaç amendment var?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.finance.facility_chain",
+   "expected_spellings": null,
+   "expected_raw": [
+    "project.finance.facility_chain = ['DOC-ANK-FIN-001', 'DOC-ANK-FIN-002', 'DOC-ANK-FIN-003', 'DOC-ANK-FIN-004', 'DOC-ANK-FIN-005', 'DOC-ANK-FIN-006']"
+   ],
+   "required_sources": [
+    "Facility Agreement Amendment 01",
+    "Facility Agreement Amendment 02"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Kaynaklarda Karatepe RES Facility Agreement'a ilişkin iki amendment bulunmaktadır.\n\nFacility Agreement Amendment 01 (DOC-ANK-FIN-005), 12.01.2024 tarihli ve durumu superseded (önceki sürüm) olan belgedir [K62]. Amendment 02 tarafından değiştirilmiştir [K62].\n\nFacility Agreement Amendment 02 (DOC-ANK-FIN-006), 15.03.2025 tarihli ve durumu executed olan güncel belgedir [K4]. Amendment 01'i değiştirmektedir [K4].",
+   "cited_titles": [
+    "Facility Agreement Amendment 01",
+    "Facility Agreement Amendment 02"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Facility Agreement Amendment 01",
+    "Facility Agreement Amendment 02"
+   ],
+   "source_hits": [
+    "Facility Agreement Amendment 01",
+    "Facility Agreement Amendment 02"
+   ],
+   "value_check": "skipped",
+   "value_check_reason": "unformattable expected_answer type: list",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "b:soru belgeyi adıyla anıyor olabilir (14 işaret dışı kalıp)",
+    "d:cevap var, değer doğrulanmadı (unformattable expected_answer type: list)"
+   ]
+  },
+  "ANK-EPC-001": {
+   "category": "document",
+   "user": "enerji",
+   "question": "Karatepe RES EPC sözleşme bedeli nedir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.construction.epc_contract_price.value",
+   "expected_spellings": [
+    [
+     "14.500.000 EUR",
+     "14,500,000 EUR"
+    ]
+   ],
+   "expected_raw": [
+    "project.construction.epc_contract_price.value = 14500000"
+   ],
+   "required_sources": [
+    "EPC Contract"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "EPC sözleşmesinde toplam finansal karşılık 14.500.000 EUR olarak belirlenmiştir [K21].",
+   "cited_titles": [
+    "EPC Contract"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "EPC Contract"
+   ],
+   "source_hits": [
+    "EPC Contract"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "ANK-EPC-002": {
+   "category": "document",
+   "user": "enerji",
+   "question": "Karatepe RES'in güncel EPC sözleşmesi hangisi?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.construction.epc_contract_current_doc",
+   "expected_spellings": null,
+   "expected_raw": [
+    "project.construction.epc_contract_current_doc = 'DOC-ANK-EPC-001'"
+   ],
+   "required_sources": [
+    "EPC Contract"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES'in güncel EPC sözleşmesi, \"EPC Contract\" başlıklı, DOC-ANK-EPC-001 numaralı ve 20.10.2021 tarihli belgedir [K3]. Belgenin durumu \"Amended\" olarak kayıtlıdır [K3].",
+   "cited_titles": [
+    "EPC Contract"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "EPC Contract"
+   ],
+   "source_hits": [
+    "EPC Contract"
+   ],
+   "value_check": "skipped",
+   "value_check_reason": "unformattable expected_answer type: str",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (unformattable expected_answer type: str)"
+   ]
+  },
+  "ANK-EPC-003": {
+   "category": "document",
+   "user": "enerji",
+   "question": "Karatepe RES'in COD (ticari işletme) tarihi nedir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.timeline.cod_actual.date",
+   "expected_spellings": [
+    [
+     "15.10.2023",
+     "2023-10-15",
+     "October 15, 2023"
+    ]
+   ],
+   "expected_raw": [
+    "project.timeline.cod_actual.date = datetime.date(2023, 10, 15)"
+   ],
+   "required_sources": [
+    "Provisional Acceptance & COD Certificate"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES'in ticari işletme (COD) tarihi 15.10.2023'tür [K2][K54].\n\nBu tarih, başlangıçta beklenen 30.06.2023 tarihinden ertelenmiştir [K2]. Bu değer EPC Change Order 01 (COD Deferral) ile önceki 30.06.2023 seviyesinden değiştirilmiştir [K50]. Belgede kaydedilen sebep: \"COD deferral: grid connection works\" [K2].",
+   "cited_titles": [
+    "EPC Change Order 01 (COD Deferral)",
+    "Provisional Acceptance & COD Certificate"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "EPC Change Order 01 (COD Deferral)",
+    "Provisional Acceptance & COD Certificate"
+   ],
+   "source_hits": [
+    "EPC Change Order 01 (COD Deferral)",
+    "Provisional Acceptance & COD Certificate"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "ANK-FIN-010": {
+   "category": "data",
+   "user": "finans",
+   "question": "Karatepe RES'in son covenant testi sonucu nedir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.finance.covenant_tests[-1].result",
+   "expected_spellings": null,
+   "expected_raw": [
+    "project.finance.covenant_tests[-1].result = 'pass'"
+   ],
+   "required_sources": [
+    "Covenant Report (workbook)"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Belgelere göre:\nKaratepe RES için güncel minimum borç servis karşılama oranı (DSCR) eşiği 1,20x'tir ve 15.03.2025 tarihinden itibaren geçerlidir [K42].\n\nBu değer Facility Agreement Amendment 02 ile önceki 1,25x seviyesinden değiştirilmiştir [K42]. Önceki 1,25x eşiği Facility Agreement (20.06.2022) belgesinde yer almaktadır [K76].\n\nExcel verisine göre:\nKaratepe RES'in son covenant testinde (Q2_2026) gerçekleşen DSCR değeri 1,37x'tir. Diğer covenant değerleri bu sonuçta yer almadığı için aktarılamamaktadır.",
+   "cited_titles": [
+    "Covenant Report (workbook)",
+    "Facility Agreement",
+    "Facility Agreement Amendment 02"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Covenant Report (workbook)"
+   ],
+   "source_hits": [
+    "Covenant Report (workbook)"
+   ],
+   "value_check": "skipped",
+   "value_check_reason": "unformattable expected_answer type: str",
+   "safety_check": "pass",
+   "query_type": "MIXED_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (unformattable expected_answer type: str)",
+    "d:G1 yalnız DOCUMENT_QUERY'de; bu MIXED_QUERY"
+   ]
+  },
+  "ANK-FIN-011": {
+   "category": "document",
+   "user": "finans",
+   "question": "Karatepe RES'in güncel outstanding (kalan) borcu nedir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.finance.outstanding_debt_as_of_demo_today.value",
+   "expected_spellings": [
+    [
+     "11.671.800 USD",
+     "11,671,800 USD"
+    ]
+   ],
+   "expected_raw": [
+    "project.finance.outstanding_debt_as_of_demo_today.value = 11671800"
+   ],
+   "required_sources": [
+    "Covenant Compliance Report Q2 2026"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Belgelere göre:\nKaratepe RES finansman sözleşmesinin toplam kredi tutarı kaynaklarda 14.000.000 USD olarak yazılıdır. Bu değer 20.06.2022 tarihli Facility Agreement belgesindedir ve belge önceki sürüm olarak işaretlidir [K75]. Güncel tadil belgesi (Facility Agreement Amendment 02) kredi tutarını içermediği için bu değer geçerli kabul edilmiştir. Aynı belgede faiz oranı baseline endeks + %3,25 olarak yazılmıştır [K75]. Güncel tadilde marj %2,9 olarak yer almaktadır [K55]. Bu değer Facility Agreement Amendment 02 ile önceki %3,25 seviyesinden değiştirilmiştir.\n\nGüncel Covenant Compliance Report Q2 2026 belgesine göre kullandırılan (utilised) toplam kredi tutarı 13.600.000 USD'dir ve bu tutar tamamen Garanti BBVA tarafından sağlanmıştır [K42]. Aynı belgede kalan bakiye 11.671.800 USD olarak yazılmıştır [K42].\n\nKaynaklarda bulunan tek tranş, 8.000.000 USD tutarındaki Tranche 1'dir. Bu tranş 15.07.2022 tarihinde talep edilmiştir [K14][K40]. Diğer tranşlara ilişkin bilgi kaynaklarda yer almamaktadır.\n\nGeri ödeme takvimi için kaynaklarda sınırlı bilgi vardır. 20.06.2022 tarihli Facility Agreement belgesine göre geri ödeme takvimi 10 ay sonra başlamaktadır ve vade 13 yıl olarak tanımlanmıştır [K76]. Facility Agreement Amendment 01 belgesinde geri ödeme yapısı \"Sculpted (variable), semi-annual instalments after grace\", yani grace döneminden sonra değişken yapılı, yarı yıllık taksitler olarak yazılmıştır [K79]. Bu tadil belgesi de önceki sürümdür ve taksit tutarı ile tarihleri belirtilmemiştir. Ödeme planının ayrıntıları ayrıca iletilen ödeme planı belgelerinde yer aldığı belirtilmiştir [K41], ancak bu belgeler kaynaklarda bulunmamaktadır.\n\nExcel verisine göre:\nKaratepe RES için 6 Ekim 2026 itibarıyla kalan kredi bakiyesi 11.671.800 USD'dir.",
+   "cited_titles": [
+    "Covenant Compliance Report Q2 2026",
+    "Facility Agreement",
+    "Facility Agreement Amendment 01",
+    "Facility Agreement Amendment 02",
+    "Financial Model 2026",
+    "Garanti BBVA Faiz Belirleme Bildirimi",
+    "Karatepe RES Drawdown Notice — Tranche 1"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Covenant Compliance Report Q2 2026"
+   ],
+   "source_hits": [
+    "Covenant Compliance Report Q2 2026"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "MIXED_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "a:çok kaynak (7)",
+    "d:G1 yalnız DOCUMENT_QUERY'de; bu MIXED_QUERY"
+   ]
+  },
+  "ANK-FIN-012": {
+   "category": "temporal",
+   "user": "finans",
+   "question": "Karatepe RES'in DSCR covenant'ı ne zaman ve hangi belgeyle değişti?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.finance.dscr_covenant.changed_by",
+   "expected_spellings": null,
+   "expected_raw": [
+    "project.finance.dscr_covenant.changed_by = 'DOC-ANK-FIN-006'"
+   ],
+   "required_sources": [
+    "Facility Agreement Amendment 02"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES'in minimum DSCR covenant'ı 15.03.2025 tarihinde Facility Agreement Amendment 02 (DOC-ANK-FIN-006) ile 1,20x olarak belirlenmiştir [K63][K32]. Bu değer Facility Agreement (DOC-ANK-FIN-004, 20.06.2022) ile önceki 1,25x seviyesinden değiştirilmiştir [K69].",
+   "cited_titles": [
+    "Facility Agreement",
+    "Facility Agreement Amendment 02"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Facility Agreement Amendment 02"
+   ],
+   "source_hits": [
+    "Facility Agreement Amendment 02"
+   ],
+   "value_check": "skipped",
+   "value_check_reason": "unformattable expected_answer type: str",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (unformattable expected_answer type: str)"
+   ]
+  },
+  "ANK-EPC-004": {
+   "category": "temporal",
+   "user": "enerji",
+   "question": "Karatepe RES'in COD'u ilk beklenen tarihe göre sapmış mı? Belgelerde sebep yazıyor mu?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.construction.change_orders[0].subject.value",
+   "expected_spellings": null,
+   "expected_raw": [
+    "project.construction.change_orders[0].subject.value = 'COD deferral: grid connection works'"
+   ],
+   "required_sources": [
+    "EPC Contract",
+    "Provisional Acceptance & COD Certificate"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Belgelere göre:\nİlk beklenen COD tarihi 30.06.2023'tür [K75]. EPC Change Order 01 (COD Deferral) belgesinde de orijinal takvimin bu tarihe kadar tamamlanmayı öngördüğü yazmaktadır [K23].\n\nGerçekleşen COD 15.10.2023'tür [K3]. Bu değer EPC Change Order 01 (COD Deferral) ile önceki 30.06.2023 seviyesinden değiştirilmiştir [K48].\n\nSapmanın sebebi olarak belgelerde iki ayrı açıklama yer almaktadır. Provisional Acceptance & COD Certificate'te kaydedilen sebep \"COD ertelemesi: şebeke bağlantı işleri\" olarak belirtilmiştir [K3]. EPC Change Order 01 (COD Deferral) belgesinde ise öngörülemeyen saha koşullarının kritik yolu etkilediği yazmaktadır [K23].\n\nExcel verisine göre:\nErişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+   "cited_titles": [
+    "EPC Change Order 01 (COD Deferral)",
+    "EPC Contract",
+    "Provisional Acceptance & COD Certificate"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "EPC Contract",
+    "Provisional Acceptance & COD Certificate"
+   ],
+   "source_hits": [
+    "EPC Contract",
+    "Provisional Acceptance & COD Certificate"
+   ],
+   "value_check": "skipped",
+   "value_check_reason": "unformattable expected_answer type: str",
+   "safety_check": "pass",
+   "query_type": "MIXED_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (unformattable expected_answer type: str)",
+    "d:G1 yalnız DOCUMENT_QUERY'de; bu MIXED_QUERY"
+   ]
+  },
+  "IZM-DEV-001": {
+   "category": "document",
+   "user": "enerji",
+   "question": "Kızılova RES projesi hangi aşamada?",
+   "expected_project": "Kızılova RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:izmir_res.project.stage",
+   "expected_spellings": null,
+   "expected_raw": [
+    "project.stage = 'development'"
+   ],
+   "required_sources": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "forbidden_sources": [
+    "Karatepe RES"
+   ],
+   "answered": true,
+   "answer_text": "Kızılova RES için en güncel durum, 27.08.2026 tarihli ÇED Süreci Durum Yazısı'nda yer alıyor: ÇED çalışmaları \"devam ediyor\" durumunda ve bu durum geçerliliğini koruyor [K1]. Belgede 12.09.2026 tarihli bir gelişmenin resmi kayıtlara geçtiği belirtiliyor, ancak gelişmenin içeriği yazılmamış [K1].\n\nBelgeye göre tamamlanan adımlar şunlardır: önlisans (15.01.2025) ve arazi edinimi (20.01.2025 itibarıyla) [K1]. Önlisans belgesinin tarihi ise 18.01.2024 olarak kayıtlı [K9].\n\nKamu duyurusu ve halkın katılımı toplantısı 20.08.2025 tarihinde tamamlanmıştır [K8]. Bağlantı görüşü başvurusu 10.06.2025 tarihinde yapılmıştır [K2]. Bu başvuruya ilişkin değerlendirme süreci sürdürülmekte olup nihai bağlantı görüşünün resmi olarak yayımlanması beklenmektedir [K56].",
+   "cited_titles": [
+    "Kamu Duyurusu ve Halkın Katılımı Toplantısı Tutanağı",
+    "Kızılova RES Bağlantı Görüşü Başvurusu",
+    "Kızılova RES Önlisans Belgesi",
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "cited_projects": [
+    "Kızılova RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "source_hits": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "value_check": "skipped",
+   "value_check_reason": "unformattable expected_answer type: str",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (unformattable expected_answer type: str)"
+   ]
+  },
+  "IZM-DEV-002": {
+   "category": "document",
+   "user": "enerji",
+   "question": "Kızılova RES'in ÇED süreci ne durumda?",
+   "expected_project": "Kızılova RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:izmir_res.project.development.ced_status.value",
+   "expected_spellings": [
+    [
+     "devam ediyor"
+    ]
+   ],
+   "expected_raw": [
+    "project.development.ced_status.value = 'ongoing'"
+   ],
+   "required_sources": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "forbidden_sources": [
+    "Karatepe RES"
+   ],
+   "answered": true,
+   "answer_text": "Kızılova RES ÇED süreci, güncel ÇED Süreci Durum Yazısı'na (27.08.2026) göre \"devam ediyor\" durumundadır [K1]. Aynı belgede 12.09.2026 tarihli bir gelişmenin resmi kayıtlara intikal ettiği belirtilmektedir [K1]. Bekleyen adım olarak MNO Teknik Danışmanlık Ltd. nezdindeki onay süreçlerinin tamamlanması beklenmektedir; 27.08.2026 tarihli mutabakat metni çerçevesinde yeni bir aşamaya geçilmesi öngörülmektedir [K41]. Belgede yürürlük tarihi henüz belirlenmemiştir [K2].",
+   "cited_titles": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "cited_projects": [
+    "Kızılova RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "source_hits": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "IZM-DEV-003": {
+   "category": "document",
+   "user": "enerji",
+   "question": "Kızılova RES için ÇED süreci tamamlandı mı?",
+   "expected_project": "Kızılova RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:izmir_res.project.development.ced_status.value",
+   "expected_spellings": [
+    [
+     "devam ediyor"
+    ]
+   ],
+   "expected_raw": [
+    "project.development.ced_status.value = 'ongoing'"
+   ],
+   "required_sources": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "forbidden_sources": [
+    "Karatepe RES"
+   ],
+   "answered": true,
+   "answer_text": "Kaynaklara göre Kızılova RES için ÇED süreci henüz tamamlanmamıştır. Belgede \"Mevcut aşamada devam ediyor durumu geçerliliğini korumakta\" ifadesi yer almaktadır (ÇED Süreci Durum Yazısı, 27.08.2026) [K1]. Aynı belgenin bekleyen adımlar bölümünde, MNO Teknik Danışmanlık Ltd. nezdindeki onay süreçlerinin tamamlanmasının beklendiği yazılıdır [K64].",
+   "cited_titles": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "cited_projects": [
+    "Kızılova RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "source_hits": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "IZM-DEV-008": {
+   "category": "document",
+   "user": "enerji",
+   "question": "Kızılova RES'te hangi kritik adımlar bekliyor?",
+   "expected_project": "Kızılova RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:izmir_res.project.development.pending_steps",
+   "expected_spellings": null,
+   "expected_raw": [
+    "project.development.pending_steps = [{'step': 'ÇED', 'expected': 'İDK toplantısı bekleniyor (ÇED-2026-057). Ayrıca Orman Ön İzni devam (30.06.2026 itibarıyla); Mera Tahsis Değişikliği talebi 21.08.2026, komisyon sonraki toplantısı 12.11.2026.', 'tag': 'USER_FACT'}, {'step': 'İmar Kesinleşme', 'expected': None, 'tag': 'USER_FACT'}, {'step': \"Kat'i Proje Onayı\", 'expected': None, 'tag': 'USER_FACT'}, {'step': 'Bağlantı Anlaşması', 'expected': None, 'tag': 'USER_FACT'}, {'step': 'Yapı Ruhsatı', 'expected': 'Henüz alınmamıştır.', 'tag': 'AI_ASSUMPTION'}, {'step': 'Üretim Lisansı', 'expected': 'Henüz alınmamıştır — bugüne kadar yalnızca önlisans (15.01.2025) alınmıştır.', 'tag': 'AI_ASSUMPTION'}, {'step': 'İnşaat Başlangıcı', 'expected': 'Henüz başlanmamıştır.', 'tag': 'AI_ASSUMPTION'}]"
+   ],
+   "required_sources": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "forbidden_sources": [
+    "Karatepe RES"
+   ],
+   "answered": true,
+   "answer_text": "Kaynaklara göre Kızılova RES için bekleyen başlıca adımlar şunlardır:\n\nÇED süreci devam ediyor. Güncel ÇED durum yazısında süreç \"devam ediyor\" durumundadır ve 12.09.2026 tarihli bir gelişme resmi kayıtlara intikal etmiştir, ancak bu gelişmenin içeriği belirtilmemiştir [K1].\n\nTEİAŞ bağlantı görüşü süreci değerlendirme aşamasındadır. Komisyon incelemesi sonucunda projenin uygunluk durumu tespit edilecek, eksik bilgi veya belge tespit edilirse TEİAŞ bildirimi üzerine revizyonlar yapılacak ve sürecin sonunda nihai bağlantı görüşünün resmi olarak yayımlanması beklenmektedir [K74].\n\nMSB ile askeri yasak bölgeler konusunda ön görüş alınması gerekmektedir. Proje sahasının coğrafi konumu ve stratejik durumu, makamların değerlendirmesini gerektirmektedir [K3].\n\nRüzgar Kaynağı ve Ön Fizibilite Teknik Raporu, belgede önerilen şu adımları içermektedir: mevzuat değişikliklerinin yakından takip edilmesi, tedarik zinciri planlamasının bu doğrultuda revize edilmesi, finansman ve ortaklık yapıları için MNO Teknik Danışmanlık Ltd. ile müzakerelerin hızlandırılması, uzun vadeli bakım ve işletme stratejilerinin erken safhada kurgulanması, Çevresel Etki Değerlendirme süreçlerinin eksiksiz tamamlanması ve yerel paydaş ilişkilerinin şeffaf yürütülmesi [K12].",
+   "cited_titles": [
+    "Askeri Yasak Bölgeler Ön Görüş Talebi",
+    "Kızılova RES Bağlantı Görüşü Başvurusu",
+    "Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu",
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "cited_projects": [
+    "Kızılova RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "source_hits": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "value_check": "skipped",
+   "value_check_reason": "unformattable expected_answer type: list",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (unformattable expected_answer type: list)"
+   ]
+  },
+  "IZM-DEV-009": {
+   "category": "document",
+   "user": "enerji",
+   "question": "Kızılova RES ile ilgili en son gelişme nedir?",
+   "expected_project": "Kızılova RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:izmir_res.project.development.latest_event.date",
+   "expected_spellings": [
+    [
+     "12.09.2026",
+     "2026-09-12",
+     "September 12, 2026"
+    ]
+   ],
+   "expected_raw": [
+    "project.development.latest_event.date = datetime.date(2026, 9, 12)"
+   ],
+   "required_sources": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "forbidden_sources": [
+    "Karatepe RES"
+   ],
+   "answered": true,
+   "answer_text": "Kaynaklardaki en son Kızılova RES gelişmesi, 12.09.2026 tarihinde resmi kayıtlara intikal eden bir gelişmedir. Bu bilgi ÇED Süreci Durum Yazısı'nda (27.08.2026) yer almaktadır, ancak gelişmenin içeriği belgede belirtilmemiştir [K1]. Aynı belgeye göre mevcut aşamada süreç \"devam ediyor\" durumundadır [K1].",
+   "cited_titles": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "cited_projects": [
+    "Kızılova RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "source_hits": [
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "GEN-HAL-001": {
+   "category": "hallucination",
+   "user": "enerji",
+   "question": "Kızılova RES'in COD tarihi nedir?",
+   "expected_project": "Kızılova RES",
+   "expect_no_answer": true,
+   "expect_assist": null,
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [
+    "Karatepe RES",
+    "Provisional Acceptance & COD Certificate"
+   ],
+   "answered": false,
+   "answer_text": "«cod» ifadesini ticari işletme tarihi (COD) olarak anladım.\nBu konuda kesin bilgi bulamadım.\nElimde konuyla ilgili şunlar var:\nKızılova RES: ÇED Süreci Durum Yazısı (27.08.2026); Askeri Yasak Bölgeler Ön Görüş Talebi (01.09.2025); Kamu Duyurusu ve Halkın Katılımı Toplantısı Tutanağı (20.08.2025); Kızılova RES Bağlantı Görüşü Başvurusu (10.06.2025); Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu (20.01.2025); Arazi Edinim Durum Raporu (30.09.2024); Rüzgar Ölçüm Kampanyası Raporu (15.06.2024)\n… ve 1 belge daha.\nİsterseniz açayım.\nHangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "clarify",
+   "assist_question": "Hangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?",
+   "assist_available": [
+    "Kızılova RES Bağlantı Görüşü Başvurusu",
+    "Askeri Yasak Bölgeler Ön Görüş Talebi",
+    "Rüzgar Ölçüm Kampanyası Raporu",
+    "Arazi Edinim Durum Raporu",
+    "ÇED Süreci Durum Yazısı",
+    "Kamu Duyurusu ve Halkın Katılımı Toplantısı Tutanağı",
+    "Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu"
+   ],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "c:netleştirmeyle geçti (kategori hallucination, ledger yolu yok)",
+    "d:cevapsız yanıt metninde rakam/tarih var"
+   ]
+  },
+  "GEN-HAL-002": {
+   "category": "hallucination",
+   "user": "enerji",
+   "question": "Karatepe RES'in ikinci EPC yüklenicisi kim?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": true,
+   "expect_assist": null,
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [],
+   "answered": false,
+   "answer_text": "Bu konuda kesin bilgi bulamadım.\n\"İkinci EPC yüklenici\" ile hangi sözleşmedeki ya da hangi işin yürütülmesindeki yükleniciyi kastettiğinizi belirtir misiniz?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "term_mismatch",
+   "assist_question": "\"İkinci EPC yüklenici\" ile hangi sözleşmedeki ya da hangi işin yürütülmesindeki yükleniciyi kastettiğinizi belirtir misiniz?",
+   "assist_available": [
+    "Karatepe RES Şebeke Bağlantı Tamamlama Belgesi",
+    "Karatepe RES Independent Engineer's Completion Report",
+    "Karatepe RES Warranty & Defects Liability Certificate",
+    "Provisional Acceptance & COD Certificate",
+    "Karatepe RES Performance Test Results Report",
+    "EPC Change Order 01 (COD Deferral)",
+    "Karatepe RES Construction All Risks Insurance Policy Summary"
+   ],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "GEN-HAL-004": {
+   "category": "hallucination",
+   "user": "finans",
+   "question": "Kızılova RES'in kredi faiz oranı nedir?",
+   "expected_project": "Kızılova RES",
+   "expect_no_answer": true,
+   "expect_assist": null,
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [
+    "Facility Agreement",
+    "Facility Agreement Amendment 01",
+    "Facility Agreement Amendment 02",
+    "Karatepe RES"
+   ],
+   "answered": false,
+   "answer_text": "Bu konuda kesin bilgi bulamadım.\nElimde konuyla ilgili şunlar var:\nKızılova RES: Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ) (05.10.2026); Avans Faturası — ABC2026000000184 (05.10.2026); Taahhüt Komisyonu Bildirimi (01.10.2026); EPC Avans Teminat Mektubu (20.09.2026)\nİsterseniz açayım.\nHangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "clarify",
+   "assist_question": "Hangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?",
+   "assist_available": [
+    "Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ)",
+    "Avans Faturası — ABC2026000000184",
+    "EPC Avans Teminat Mektubu",
+    "Taahhüt Komisyonu Bildirimi"
+   ],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": false,
+   "flags": [
+    "c:netleştirmeyle geçti (kategori hallucination, ledger yolu yok)",
+    "d:cevapsız yanıt metninde rakam/tarih var"
+   ]
+  },
+  "IZM-ISO-001": {
+   "category": "isolation",
+   "user": "enerji",
+   "question": "Kızılova RES'in kapasitesi nedir?",
+   "expected_project": "Kızılova RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:izmir_res.project.capacity_mw.target.value",
+   "expected_spellings": [
+    [
+     "42 MW"
+    ]
+   ],
+   "expected_raw": [
+    "project.capacity_mw.target.value = 42"
+   ],
+   "required_sources": [
+    "Kızılova RES Önlisans Belgesi",
+    "Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu"
+   ],
+   "forbidden_sources": [
+    "Karatepe RES",
+    "Karatepe RES Üretim Lisansı",
+    "Licence Amendment 01 (Kapasite Tadili)"
+   ],
+   "answered": true,
+   "answer_text": "Kaynaklarda Kızılova RES için planlanan kapasite 42 MW olarak geçiyor [K5]. Rüzgar ölçüm kampanyası raporunda ölçüm direkleri 42 MW hedef değerine ulaşmak üzere planlanmıştır [K4]. Ayrıca 42 MW kapasite beklentisi [K6] ve hedeflenen 42 MW kapasitesi [K12] ifadeleriyle de yer alıyor.",
+   "cited_titles": [
+    "Kızılova RES Önlisans Belgesi",
+    "Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu",
+    "Rüzgar Ölçüm Kampanyası Raporu"
+   ],
+   "cited_projects": [
+    "Kızılova RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Kızılova RES Önlisans Belgesi",
+    "Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu",
+    "Rüzgar Ölçüm Kampanyası Raporu"
+   ],
+   "source_hits": [
+    "Kızılova RES Önlisans Belgesi",
+    "Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu",
+    "Rüzgar Ölçüm Kampanyası Raporu"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "IZM-ISO-004": {
+   "category": "isolation",
+   "user": "finans",
+   "question": "Kızılova RES için finansman sözleşmesi imzalandı mı?",
+   "expected_project": "Kızılova RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "2026-KZ",
+   "expected_spellings": [
+    [
+     "2026-KZ",
+     "İmzalı-Kullanılmamış Kredi Sözleşmesi"
+    ]
+   ],
+   "expected_raw": [
+    "'2026-KZ'"
+   ],
+   "required_sources": [
+    "Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ)"
+   ],
+   "forbidden_sources": [
+    "Facility Agreement",
+    "Facility Agreement Amendment 01",
+    "Facility Agreement Amendment 02",
+    "Karatepe RES"
+   ],
+   "answered": true,
+   "answer_text": "Evet. \"Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ)\" 05.10.2026 tarihli ve durumu Executed olarak kayıtlıdır; taraflar Kızılova RES Enerji Üretim A.Ş. ve Garanti BBVA'dır [K2]. Sözleşmenin yürürlük tarihi de 05.10.2026'dır [K1]. Sözleşme kapsamında toplam 30.000.000 USD'lik bir tesis sağlanmaktadır [K4].",
+   "cited_titles": [
+    "Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ)"
+   ],
+   "cited_projects": [
+    "Kızılova RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ)"
+   ],
+   "source_hits": [
+    "Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ)"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": false,
+   "flags": []
+  },
+  "ANK-AUT-001": {
+   "category": "authorization",
+   "user": "enerji",
+   "question": "Karatepe RES'in güncel minimum DSCR covenant'ı nedir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": true,
+   "expect_assist": null,
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [
+    "Facility Agreement Amendment 01"
+   ],
+   "answered": false,
+   "answer_text": "«covenant» ifadesini finansal taahhüt (covenant) olarak anladım. «dscr» ifadesini borç servisi karşılama oranı (DSCR) olarak anladım.\nBu konuda kesin bilgi bulamadım.\nElimde konuyla ilgili bir kayıt bulunmuyor.\nHangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "clarify",
+   "assist_question": "Hangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?",
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "c:netleştirmeyle geçti (kategori authorization, ledger yolu yok)"
+   ]
+  },
+  "ANK-AUT-002": {
+   "category": "authorization",
+   "user": "enerji",
+   "question": "Karatepe RES'in toplam kredi tutarı nedir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": true,
+   "expect_assist": null,
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [
+    "Facility Agreement"
+   ],
+   "answered": false,
+   "answer_text": "Bu konuda kesin bilgi bulamadım.\nElimde konuyla ilgili bir kayıt bulunmuyor.\nAradığınız bilgi genellikle kredi sözleşmesi (facility agreement) içinde olur; yüklenirse cevaplayabilirim.\nHangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "clarify",
+   "assist_question": "Hangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?",
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "c:netleştirmeyle geçti (kategori authorization, ledger yolu yok)"
+   ]
+  },
+  "ANK-AUT-003": {
+   "category": "authorization",
+   "user": "enerji",
+   "question": "Karatepe RES'in son covenant testi sonucu nedir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": true,
+   "expect_assist": null,
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [
+    "Covenant Compliance Report Q2 2026"
+   ],
+   "answered": false,
+   "answer_text": "Belgelere göre:\n«covenant» ifadesini finansal taahhüt (covenant) olarak anladım. «dscr» ifadesini borç servisi karşılama oranı (DSCR) olarak anladım.\nBu konuda kesin bilgi bulamadım.\nElimde konuyla ilgili şunlar var:\nKaratepe RES: Sigorta Yenileme Bildirimi — İşletme Dönemi (10.01.2024); Karatepe RES O&M Agreement (15.10.2023); Karatepe RES Şebeke Bağlantı Tamamlama Belgesi (01.09.2023); EPC Contract (20.10.2021); Karatepe RES Bağlantı Anlaşması (10.05.2021); Karatepe RES ÇED Olumlu Kararı (05.11.2019); Karatepe RES Saha Kullanım Hakkı Sözleşmesi (01.03.2019)\n… ve 9 belge daha.\nİsterseniz açayım.\nŞu ifadeyi belgelerde bu haliyle bulamadım: «eşik». Ne demek istediğinizi açar mısınız?\n\nExcel verisine göre:\nErişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "MIXED_QUERY",
+   "assist_kind": "term_mismatch",
+   "assist_question": "Şu ifadeyi belgelerde bu haliyle bulamadım: «eşik». Ne demek istediğinizi açar mısınız?",
+   "assist_available": [
+    "EPC Contract",
+    "Karatepe RES O&M Agreement",
+    "Karatepe RES Saha Kullanım Hakkı Sözleşmesi",
+    "Karatepe RES ÇED Olumlu Kararı",
+    "Karatepe RES Bağlantı Anlaşması",
+    "Karatepe RES Şebeke Bağlantı Tamamlama Belgesi",
+    "Sigorta Yenileme Bildirimi — İşletme Dönemi"
+   ],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevapsız yanıt metninde rakam/tarih var"
+   ]
+  },
+  "ANK-DAT-001": {
+   "category": "data",
+   "user": "finans",
+   "question": "Karatepe RES 2026 Q2 DSCR kaç?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.finance.covenant_tests[10].dscr",
+   "expected_spellings": [
+    [
+     "1,37x",
+     "1.37x"
+    ]
+   ],
+   "expected_raw": [
+    "project.finance.covenant_tests[10].dscr = 1.37"
+   ],
+   "required_sources": [
+    "Covenant Report (workbook)"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Belgelere göre:\nKaratepe RES için güncel DSCR minimum eşiği 1,20x'tir; bu değer 15.03.2025 tarihinden itibaren geçerlidir [K28].\n\nBu değer Facility Agreement Amendment 02 ile önceki 1,25x seviyesinden değiştirilmiştir [K28]. Önceki seviye, Facility Agreement belgesinde 1,25x olarak yazmaktadır [K69]. Eski değer tarihsel değerdir.\n\nExcel verisine göre:\nKaratepe RES için 2026 Q2 dönemine ait gerçekleşen DSCR değeri 1,37x'tir.",
+   "cited_titles": [
+    "Covenant Report (workbook)",
+    "Facility Agreement",
+    "Facility Agreement Amendment 02"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Covenant Compliance Report Q2 2026",
+    "Covenant Report (workbook)"
+   ],
+   "source_hits": [
+    "Covenant Report (workbook)"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "MIXED_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:G1 yalnız DOCUMENT_QUERY'de; bu MIXED_QUERY"
+   ]
+  },
+  "ANK-DAT-002": {
+   "category": "data",
+   "user": "enerji",
+   "question": "Karatepe RES Ağustos 2026 üretimi kaç MWh?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.operations.monthly_production[33].mwh",
+   "expected_spellings": [
+    [
+     "13538 MWh",
+     "13.538 MWh"
+    ]
+   ],
+   "expected_raw": [
+    "project.operations.monthly_production[33].mwh = 13538"
+   ],
+   "required_sources": [
+    "Monthly Production 2026"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES'in Ağustos 2026 üretimi 13.538 MWh'tir.",
+   "cited_titles": [
+    "Monthly Production 2026"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Aylık Üretim Raporu — Ağustos 2026",
+    "Monthly Production 2026"
+   ],
+   "source_hits": [
+    "Monthly Production 2026"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DATA_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:G1 yalnız DOCUMENT_QUERY'de; bu DATA_QUERY"
+   ]
+  },
+  "ANK-DAT-003": {
+   "category": "data",
+   "user": "yonetim",
+   "question": "Karatepe RES'in bugün itibarıyla kalan kredi borcu kaç?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.finance.outstanding_debt_as_of_demo_today.value",
+   "expected_spellings": [
+    [
+     "11.671.800 USD",
+     "11,671,800 USD"
+    ]
+   ],
+   "expected_raw": [
+    "project.finance.outstanding_debt_as_of_demo_today.value = 11671800"
+   ],
+   "required_sources": [
+    "Financial Model 2026"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Belgelere göre:\n**Kredi tutarı:** Toplam finansman tutarı 14.000.000 USD'dir ve tamamı Garanti BBVA tarafından sağlanmaktadır; yapıda ayrı bir ihracat kredi kurumu (ECA) tranşı yoktur [K80]. Bu değer 20.06.2022 tarihli Facility Agreement belgesinde yazmaktadır. Güncel Amendment 02 belgesinde (15.03.2025) kredi tutarı yer almamaktadır [K16, K25].\n\n**Vade:** Kredi vadesi 13 yıldır [K73]. Bu değer de 20.06.2022 tarihli Facility Agreement belgesinden alınmıştır; güncel Amendment 02 belgesinde vade yer almamaktadır [K16, K25].\n\n**Geri ödeme takvimi:** 20.06.2022 tarihli Facility Agreement belgesinde geri ödeme takviminin 10 ay sonra başlayacağı yazmaktadır [K73]. Taksit tutarları, ödeme tarihleri ve tam ödeme planı kaynaklarda yer almamaktadır.\n\nExcel verisine göre:\nKaratepe RES için 06.10.2026 tarihi itibarıyla kalan kredi bakiyesi (borç anapara) 11.671.800 USD'dir.",
+   "cited_titles": [
+    "Facility Agreement",
+    "Facility Agreement Amendment 02",
+    "Financial Model 2026"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Covenant Compliance Report Q2 2026",
+    "Financial Model 2026"
+   ],
+   "source_hits": [
+    "Financial Model 2026"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "MIXED_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:G1 yalnız DOCUMENT_QUERY'de; bu MIXED_QUERY"
+   ]
+  },
+  "ANK-MIX-002": {
+   "category": "mixed",
+   "user": "enerji",
+   "question": "Karatepe RES'te Temmuz 2024'te üretim kaybına yol açan olay neydi ve bu dönemin (Q3 2024) bütçe sapması ne kadardı?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.operations.budget_vs_actual[3]",
+   "expected_spellings": null,
+   "expected_raw": [
+    "project.operations.budget_vs_actual[3] = {'period': 'Q3_2024', 'budget': {'value': 26000000, 'currency': 'TRY', 'tag': 'USER_FACT'}, 'actual': {'value': 25106000, 'currency': 'TRY', 'tag': 'USER_FACT'}, 'tag': 'USER_FACT'}"
+   ],
+   "required_sources": [
+    "Bakım Raporu — Temmuz 2024 (Türbin T-07 Arızası)",
+    "Budget vs Actual 2026"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Belgelere göre:\nTemmuz 2024'te Karatepe RES'te yaşanan olay Türbin T-07 arızasıdır [K41]. Bakım raporuna göre rutin operasyonlar sırasında tesiste plan dışı bir duruş kaydedilmiş, ilk incelemede arızanın Türbin dişli kutusu arızası (T-07) olduğu ve 11 gün duruşa yol açtığı tespit edilmiştir [K49]. Arıza, rapor döneminde 12553 MWh üretim kaybına yol açmış ve tesisin genel verimlilik oranı olan %91,4 metriği üzerinde geçici bir düşüş gözlemlenmiştir [K75].\n\nExcel verisine göre:\nKaratepe RES için Q3 2024 (Temmuz–Eylül 2024) döneminde bütçe sapması -894.000 TL'dir.",
+   "cited_titles": [
+    "Bakım Raporu — Temmuz 2024 (Türbin T-07 Arızası)",
+    "Budget vs Actual 2026"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Bakım Raporu — Temmuz 2024 (Türbin T-07 Arızası)",
+    "Budget vs Actual 2026"
+   ],
+   "source_hits": [
+    "Bakım Raporu — Temmuz 2024 (Türbin T-07 Arızası)",
+    "Budget vs Actual 2026"
+   ],
+   "value_check": "skipped",
+   "value_check_reason": "unformattable expected_answer type: dict",
+   "safety_check": "pass",
+   "query_type": "MIXED_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (unformattable expected_answer type: dict)",
+    "d:G1 yalnız DOCUMENT_QUERY'de; bu MIXED_QUERY"
+   ]
+  },
+  "GEN-GEN-001": {
+   "category": "document",
+   "user": "yonetim",
+   "question": "DSCR (Debt Service Coverage Ratio) ne demek?",
+   "expected_project": null,
+   "expect_no_answer": true,
+   "expect_assist": null,
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [],
+   "answered": false,
+   "answer_text": "«dscr» ifadesini borç servisi karşılama oranı (DSCR) olarak anladım.\nBu konuda kesin bilgi bulamadım.\nElimde konuyla ilgili şunlar var:\nKaratepe RES: Covenant Compliance Report Q2 2026 (20.07.2026); Facility Agreement Amendment 02 (15.03.2025); Karatepe RES Covenant Compliance Report — Q4 2024 (10.01.2025); Facility Agreement (20.06.2022); Facility Agreement — Draft (15.03.2022)\nYeşilova RES: Yeşilova RES Facility Agreement (2023-YS) (03.06.2023)\nŞirket geneli: Grup İlişkili Taraf Hizmet Sözleşmesi (10.01.2022)\n… ve 6 belge daha.\nİsterseniz açayım.\nHangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "clarify",
+   "assist_question": "Hangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?",
+   "assist_available": [
+    "Grup İlişkili Taraf Hizmet Sözleşmesi",
+    "Facility Agreement",
+    "Facility Agreement Amendment 02",
+    "Facility Agreement — Draft",
+    "Covenant Compliance Report Q2 2026",
+    "Yeşilova RES Facility Agreement (2023-YS)",
+    "Karatepe RES Covenant Compliance Report — Q4 2024"
+   ],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "c:netleştirmeyle geçti (kategori document, ledger yolu yok)",
+    "d:cevapsız yanıt metninde rakam/tarih var"
+   ]
+  },
+  "GEN-GEN-002": {
+   "category": "document",
+   "user": "yonetim",
+   "question": "ÇED (Çevresel Etki Değerlendirmesi) süreci nedir?",
+   "expected_project": null,
+   "expect_no_answer": true,
+   "expect_assist": null,
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [],
+   "answered": false,
+   "answer_text": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Kızılova RES mi?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "disambiguate",
+   "assist_question": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Kızılova RES mi?",
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": false,
+   "flags": [
+    "c:netleştirmeyle geçti (kategori document, ledger yolu yok)"
+   ]
+  },
+  "ANK-MIX-003": {
+   "category": "mixed",
+   "user": "enerji",
+   "question": "Karatepe RES Q1 2025 bütçe sapması neydi ve sebebi belgelerde yazıyor mu?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.operations.budget_vs_actual[5]",
+   "expected_spellings": null,
+   "expected_raw": [
+    "project.operations.budget_vs_actual[5] = {'period': 'Q1_2025', 'budget': {'value': 34500000, 'currency': 'TRY', 'tag': 'USER_FACT'}, 'actual': {'value': 34871000, 'currency': 'TRY', 'tag': 'USER_FACT'}, 'tag': 'USER_FACT'}"
+   ],
+   "required_sources": [
+    "Budget vs Actual 2026"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES'in 2025 1. çeyrek bütçe sapması 371.000 TL'dir.",
+   "cited_titles": [
+    "Budget vs Actual 2026"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Budget vs Actual 2026"
+   ],
+   "source_hits": [
+    "Budget vs Actual 2026"
+   ],
+   "value_check": "skipped",
+   "value_check_reason": "unformattable expected_answer type: dict",
+   "safety_check": "pass",
+   "query_type": "MIXED_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (unformattable expected_answer type: dict)",
+    "d:G1 yalnız DOCUMENT_QUERY'de; bu MIXED_QUERY"
+   ]
+  },
+  "ANK-FIN-014": {
+   "category": "document",
+   "user": "finans",
+   "question": "Karatepe RES'in Q4 2024 covenant compliance raporunda DSCR değeri kaç olarak belirtilmiştir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.finance.covenant_tests[4].dscr",
+   "expected_spellings": [
+    [
+     "1,24x",
+     "1.24x"
+    ]
+   ],
+   "expected_raw": [
+    "project.finance.covenant_tests[4].dscr = 1.24"
+   ],
+   "required_sources": [
+    "Karatepe RES Covenant Compliance Report — Q4 2024"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Belgelere göre:\nKaratepe RES Covenant Compliance Report — Q4 2024 belgesinde DSCR değeri 1,24x olarak yazmaktadır [K9].\n\nExcel verisine göre:\nKaratepe RES'in Q4 2024 DSCR değeri 1,24x olarak gerçekleşmiştir.",
+   "cited_titles": [
+    "Covenant Report (workbook)",
+    "Karatepe RES Covenant Compliance Report — Q4 2024"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "strict",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "MIXED_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:G1 yalnız DOCUMENT_QUERY'de; bu MIXED_QUERY"
+   ]
+  },
+  "ANK-FIN-015": {
+   "category": "document",
+   "user": "finans",
+   "question": "Karatepe RES'in ilk kredi çekim bildiriminde (drawdown notice) belirtilen tutar nedir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.finance.drawdowns[0].amount.value",
+   "expected_spellings": null,
+   "expected_raw": [
+    "project.finance.drawdowns[0].amount.value = 8000000"
+   ],
+   "required_sources": [
+    "Karatepe RES Drawdown Notice — Tranche 1"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES Drawdown Notice — Tranche 1 belgesinde (DOC-ANK-FIN-014, 15.07.2022) belirtilen tutar 8.000.000 USD'dir [K1]. Bu tutarın 15.07.2022 tarihinde kullandırılması talep edilmiştir [K1].",
+   "cited_titles": [
+    "Karatepe RES Drawdown Notice — Tranche 1"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "strict",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "unformattable expected_answer type: int",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (unformattable expected_answer type: int)"
+   ]
+  },
+  "ANK-DEV-006": {
+   "category": "document",
+   "user": "enerji",
+   "question": "Karatepe RES'in ÇED olumlu kararında belirtilen kapasite kaç MW'tır?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.capacity_mw.initial.value",
+   "expected_spellings": [
+    [
+     "21 MW"
+    ]
+   ],
+   "expected_raw": [
+    "project.capacity_mw.initial.value = 21"
+   ],
+   "required_sources": [
+    "Karatepe RES ÇED Olumlu Kararı"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "ÇED Olumlu Kararında belirtilen planlanan kurulu güç 21 MW'tır [K1].",
+   "cited_titles": [
+    "Karatepe RES ÇED Olumlu Kararı"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "strict",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "ANK-OPS-002": {
+   "category": "document",
+   "user": "enerji",
+   "question": "Karatepe RES'te Temmuz 2024'te üretimi etkileyen olay bakım raporuna göre neydi?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.operations.incidents[0].type.value",
+   "expected_spellings": null,
+   "expected_raw": [
+    "project.operations.incidents[0].type.value = 'Türbin dişli kutusu arızası (T-07), 11 gün duruş'"
+   ],
+   "required_sources": [
+    "Bakım Raporu — Temmuz 2024 (Türbin T-07 Arızası)"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Bakım raporuna göre olay, Karatepe RES'te plan dışı bir duruştu. İlk incelemelerde arıza Türbin dişli kutusu arızası (T-07) olarak tespit edilmiş ve 11 gün duruşa yol açmıştır [K53]. Rapor, Bakım Raporu — Temmuz 2024 (Türbin T-07 Arızası) başlığını taşımaktadır [K6].",
+   "cited_titles": [
+    "Bakım Raporu — Temmuz 2024 (Türbin T-07 Arızası)"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "strict",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "unformattable expected_answer type: str",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (unformattable expected_answer type: str)"
+   ]
+  },
+  "ANK-EPC-005": {
+   "category": "document",
+   "user": "enerji",
+   "question": "Karatepe RES performans testi raporuna göre teyit edilen kapasite kaç MW'tır?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.capacity_mw.current.value",
+   "expected_spellings": [
+    [
+     "24 MW"
+    ]
+   ],
+   "expected_raw": [
+    "project.capacity_mw.current.value = 24"
+   ],
+   "required_sources": [
+    "Karatepe RES Performance Test Results Report"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Performans test raporuna göre tesis, pik üretim aralıklarında hedeflenen 24 MW eşiğine ulaşmıştır [K68].",
+   "cited_titles": [
+    "Karatepe RES Performance Test Results Report"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "strict",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "IZM-DEV-010": {
+   "category": "document",
+   "user": "enerji",
+   "question": "Kızılova RES için hedeflenen kapasite, rüzgar ölçüm kampanyası raporunda kaç MW olarak belirtilmiştir?",
+   "expected_project": "Kızılova RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:izmir_res.project.capacity_mw.target.value",
+   "expected_spellings": [
+    [
+     "42 MW"
+    ]
+   ],
+   "expected_raw": [
+    "project.capacity_mw.target.value = 42"
+   ],
+   "required_sources": [
+    "Rüzgar Ölçüm Kampanyası Raporu"
+   ],
+   "forbidden_sources": [
+    "Karatepe RES"
+   ],
+   "answered": true,
+   "answer_text": "Kızılova RES için hedeflenen kapasite, Rüzgar Ölçüm Kampanyası Raporu'nda 42 MW olarak belirtilmiştir [K1]. Raporun sonuçlar bölümü de 42 MW kapasite beklentisine işaret etmektedir [K2].",
+   "cited_titles": [
+    "Rüzgar Ölçüm Kampanyası Raporu"
+   ],
+   "cited_projects": [
+    "Kızılova RES"
+   ],
+   "source_rule": "strict",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "IZM-DEV-011": {
+   "category": "temporal",
+   "user": "hukuk",
+   "question": "Kızılova RES'in önlisans süre uzatımı hukuki değerlendirmesinde referans alınan önlisans tarihi nedir?",
+   "expected_project": "Kızılova RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:izmir_res.project.timeline.pre_licence.date",
+   "expected_spellings": [
+    [
+     "15.01.2025",
+     "2025-01-15",
+     "January 15, 2025"
+    ]
+   ],
+   "expected_raw": [
+    "project.timeline.pre_licence.date = datetime.date(2025, 1, 15)"
+   ],
+   "required_sources": [
+    "Önlisans Süre Uzatımı Hukuki Değerlendirmesi"
+   ],
+   "forbidden_sources": [
+    "Karatepe RES"
+   ],
+   "answered": true,
+   "answer_text": "Projenin önlisans tarihi 15.01.2025'dir [K1].",
+   "cited_titles": [
+    "Önlisans Süre Uzatımı Hukuki Değerlendirmesi"
+   ],
+   "cited_projects": [
+    "Kızılova RES"
+   ],
+   "source_rule": "strict",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "GEN-CMP-001": {
+   "category": "comparison",
+   "user": "enerji",
+   "question": "Karatepe RES üretim lisansı ne zaman alındı, Kızılova RES önlisansı ne zaman alındı?",
+   "expected_project": null,
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": [
+    "ledger:ankara_res.project.timeline.licence.date",
+    "ledger:izmir_res.project.timeline.pre_licence.date"
+   ],
+   "expected_spellings": [
+    [
+     "15.06.2020",
+     "2020-06-15",
+     "June 15, 2020"
+    ],
+    [
+     "15.01.2025",
+     "2025-01-15",
+     "January 15, 2025"
+    ]
+   ],
+   "expected_raw": [
+    "project.timeline.licence.date = datetime.date(2020, 6, 15)",
+    "project.timeline.pre_licence.date = datetime.date(2025, 1, 15)"
+   ],
+   "required_sources": [
+    "Karatepe RES Üretim Lisansı",
+    "Kızılova RES Önlisans Belgesi"
+   ],
+   "forbidden_sources": [],
+   "answered": true,
+   "answer_text": "Karatepe RES Üretim Lisansı 15.06.2020 tarihlidir ve yürürlük tarihi de 15.06.2020'dir [K22]. Aynı bilgi başka bir kopyada da yer almaktadır [K54].\n\nKızılova RES Önlisans Belgesi'nin tarihi ve yürürlük tarihi 18.01.2024'tür [K33]. Aynı belgenin başka bir kopyasında da bu tarihler yer almaktadır [K65]. ÇED Süreci Durum Yazısında ise önlisans adımının 15.01.2025 tarihinde tamamlandığı belirtilmektedir [K15].",
+   "cited_titles": [
+    "Karatepe RES Üretim Lisansı",
+    "Kızılova RES Önlisans Belgesi",
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "cited_projects": [
+    "Karatepe RES",
+    "Kızılova RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Karatepe RES Üretim Lisansı",
+    "Kızılova RES Önlisans Belgesi",
+    "ÇED Süreci Durum Yazısı",
+    "Önlisans Süre Uzatımı Hukuki Değerlendirmesi"
+   ],
+   "source_hits": [
+    "Karatepe RES Üretim Lisansı",
+    "Kızılova RES Önlisans Belgesi",
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "GEN-CMP-002": {
+   "category": "comparison",
+   "user": "enerji",
+   "question": "Karatepe RES üretim lisansı ile Kızılova RES önlisansı — hangisi daha önce alındı?",
+   "expected_project": null,
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": [
+    "ledger:ankara_res.project.timeline.licence.date",
+    "ledger:izmir_res.project.timeline.pre_licence.date"
+   ],
+   "expected_spellings": [
+    [
+     "15.06.2020",
+     "2020-06-15",
+     "June 15, 2020"
+    ],
+    [
+     "15.01.2025",
+     "2025-01-15",
+     "January 15, 2025"
+    ]
+   ],
+   "expected_raw": [
+    "project.timeline.licence.date = datetime.date(2020, 6, 15)",
+    "project.timeline.pre_licence.date = datetime.date(2025, 1, 15)"
+   ],
+   "required_sources": [
+    "Karatepe RES Üretim Lisansı",
+    "Kızılova RES Önlisans Belgesi"
+   ],
+   "forbidden_sources": [],
+   "answered": true,
+   "answer_text": "Projeler arası karşılaştırma bu üründe yapılmaz; değerler ayrı ayrı aşağıdadır.\n\nKaratepe RES Üretim Lisansı 15.06.2020 tarihlidir ve yürürlük tarihi 15.06.2020'dir [K22].\n\nKızılova RES Önlisans Belgesi 18.01.2024 tarihlidir ve yürürlük tarihi 18.01.2024'tür [K33].\n\nÇED Süreci Durum Yazısı'nda Kızılova RES için \"önlisans (15.01.2025)\" ifadesi geçmektedir [K15].",
+   "cited_titles": [
+    "Karatepe RES Üretim Lisansı",
+    "Kızılova RES Önlisans Belgesi",
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "cited_projects": [
+    "Karatepe RES",
+    "Kızılova RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Karatepe RES Üretim Lisansı",
+    "Kızılova RES Önlisans Belgesi",
+    "ÇED Süreci Durum Yazısı",
+    "Önlisans Süre Uzatımı Hukuki Değerlendirmesi"
+   ],
+   "source_hits": [
+    "Karatepe RES Üretim Lisansı",
+    "Kızılova RES Önlisans Belgesi",
+    "ÇED Süreci Durum Yazısı"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "GEN-AMB-001": {
+   "category": "ambiguous",
+   "user": "yonetim",
+   "question": "Sözleşmenin vadesi ne zaman doluyor?",
+   "expected_project": null,
+   "expect_no_answer": true,
+   "expect_assist": "clarify",
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [],
+   "answered": false,
+   "answer_text": "Bu konuda kesin bilgi bulamadım.\nHangi sözleşmenin vadesini soruyorsunuz?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "clarify",
+   "assist_question": "Hangi sözleşmenin vadesini soruyorsunuz?",
+   "assist_available": [
+    "Boztepe RES Facility Agreement (2024-BZ)",
+    "EPC Contract",
+    "Facility Agreement",
+    "Yüklenici İhtilafı — Noter İhtarnamesi",
+    "Önlisans Süre Uzatımı Hukuki Değerlendirmesi",
+    "Şirket Yapısı Hukuki Görüşü — Kızılova SPV",
+    "Arazi Kullanım Hakkı Hukuki İnceleme Notu"
+   ],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "GEN-AMB-002": {
+   "category": "ambiguous",
+   "user": "finans",
+   "question": "Raporda belirtilen DSCR değeri kaç?",
+   "expected_project": null,
+   "expect_no_answer": true,
+   "expect_assist": "clarify",
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [],
+   "answered": false,
+   "answer_text": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Yeşilova RES mi?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "disambiguate",
+   "assist_question": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Yeşilova RES mi?",
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": false,
+   "flags": []
+  },
+  "GEN-AMB-003": {
+   "category": "ambiguous",
+   "user": "yonetim",
+   "question": "Son tadil neyi değiştirdi?",
+   "expected_project": null,
+   "expect_no_answer": true,
+   "expect_assist": "clarify",
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [],
+   "answered": false,
+   "answer_text": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Kızılova RES mi?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "disambiguate",
+   "assist_question": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Kızılova RES mi?",
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": false,
+   "flags": []
+  },
+  "GEN-AMB-004": {
+   "category": "ambiguous",
+   "user": "enerji",
+   "question": "Lisans ne zaman alındı?",
+   "expected_project": null,
+   "expect_no_answer": true,
+   "expect_assist": "clarify",
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [],
+   "answered": false,
+   "answer_text": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Kızılova RES mi?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "disambiguate",
+   "assist_question": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Kızılova RES mi?",
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": false,
+   "flags": []
+  },
+  "GEN-AMB-005": {
+   "category": "ambiguous",
+   "user": "yonetim",
+   "question": "Toplantıda ne karar alındı?",
+   "expected_project": null,
+   "expect_no_answer": true,
+   "expect_assist": "clarify",
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [],
+   "answered": false,
+   "answer_text": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Kızılova RES mi?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "disambiguate",
+   "assist_question": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Kızılova RES mi?",
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": false,
+   "flags": []
+  },
+  "GEN-AMB-006": {
+   "category": "ambiguous",
+   "user": "hukuk",
+   "question": "Hukuki inceleme notunda ne tespit edildi?",
+   "expected_project": null,
+   "expect_no_answer": true,
+   "expect_assist": "disambiguate",
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [],
+   "answered": false,
+   "answer_text": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Kızılova RES mi?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "disambiguate",
+   "assist_question": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Kızılova RES mi?",
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": false,
+   "flags": []
+  },
+  "GEN-TRM-001": {
+   "category": "term_mismatch",
+   "user": "enerji",
+   "question": "Karatepe RES sigorta primi ne kadar?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": true,
+   "expect_assist": "term_mismatch",
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": false,
+   "answer_text": "Bu konuda kesin bilgi bulamadım.\nElimde konuyla ilgili şunlar var:\nKaratepe RES: Sigorta Yenileme Bildirimi — İşletme Dönemi (10.01.2024); Karatepe RES Construction All Risks Insurance Policy Summary (05.01.2022)\nİsterseniz açayım.\nŞu ifadeyi belgelerde bu haliyle bulamadım: «primi». Ne demek istediğinizi açar mısınız?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "term_mismatch",
+   "assist_question": "Şu ifadeyi belgelerde bu haliyle bulamadım: «primi». Ne demek istediğinizi açar mısınız?",
+   "assist_available": [
+    "Karatepe RES Construction All Risks Insurance Policy Summary",
+    "Sigorta Yenileme Bildirimi — İşletme Dönemi"
+   ],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevapsız yanıt metninde rakam/tarih var"
+   ]
+  },
+  "GEN-TRM-002": {
+   "category": "term_mismatch",
+   "user": "enerji",
+   "question": "Kızılova RES türbin tedarikçisi kim?",
+   "expected_project": "Kızılova RES",
+   "expect_no_answer": true,
+   "expect_assist": "term_mismatch",
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [
+    "Karatepe RES"
+   ],
+   "answered": false,
+   "answer_text": "Bu konuda kesin bilgi bulamadım.\nElimde konuyla ilgili şunlar var:\nKızılova RES: ÇED Süreci Durum Yazısı (27.08.2026); Askeri Yasak Bölgeler Ön Görüş Talebi (01.09.2025); Kamu Duyurusu ve Halkın Katılımı Toplantısı Tutanağı (20.08.2025); Kızılova RES Bağlantı Görüşü Başvurusu (10.06.2025); Arazi Edinim Durum Raporu (30.09.2024); Rüzgar Ölçüm Kampanyası Raporu (15.06.2024); Kızılova RES Önlisans Belgesi (18.01.2024)\n… ve 1 belge daha.\nİsterseniz açayım.\nŞu ifadeyi belgelerde bu haliyle bulamadım: «tedarikçisi». Ne demek istediğinizi açar mısınız?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "term_mismatch",
+   "assist_question": "Şu ifadeyi belgelerde bu haliyle bulamadım: «tedarikçisi». Ne demek istediğinizi açar mısınız?",
+   "assist_available": [
+    "Kızılova RES Bağlantı Görüşü Başvurusu",
+    "Askeri Yasak Bölgeler Ön Görüş Talebi",
+    "ÇED Süreci Durum Yazısı",
+    "Kamu Duyurusu ve Halkın Katılımı Toplantısı Tutanağı",
+    "Rüzgar Ölçüm Kampanyası Raporu",
+    "Arazi Edinim Durum Raporu",
+    "Kızılova RES Önlisans Belgesi"
+   ],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevapsız yanıt metninde rakam/tarih var"
+   ]
+  },
+  "GEN-TRM-004": {
+   "category": "term_mismatch",
+   "user": "enerji",
+   "question": "Karatepe RES EPC sözleşmesinde cezai şart tutarı nedir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": true,
+   "expect_assist": "term_mismatch",
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": false,
+   "answer_text": "«epc» ifadesini anahtar teslim yüklenici sözleşmesi (EPC) olarak anladım.\nBu konuda kesin bilgi bulamadım.\nElimde konuyla ilgili şunlar var:\nKaratepe RES: Karatepe RES Warranty & Defects Liability Certificate (15.10.2024); Provisional Acceptance & COD Certificate (15.10.2023); Karatepe RES O&M Agreement (15.10.2023); Karatepe RES Independent Engineer's Completion Report (25.09.2023); Karatepe RES Şebeke Bağlantı Tamamlama Belgesi (01.09.2023); EPC Contract (20.10.2021); Karatepe RES Saha Kullanım Hakkı Sözleşmesi (01.03.2019)\n… ve 7 belge daha.\nİsterseniz açayım.\nŞu ifadeyi belgelerde bu haliyle bulamadım: «cezai». Ne demek istediğinizi açar mısınız?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "term_mismatch",
+   "assist_question": "Şu ifadeyi belgelerde bu haliyle bulamadım: «cezai». Ne demek istediğinizi açar mısınız?",
+   "assist_available": [
+    "EPC Contract",
+    "Karatepe RES O&M Agreement",
+    "Karatepe RES Saha Kullanım Hakkı Sözleşmesi",
+    "Karatepe RES Warranty & Defects Liability Certificate",
+    "Karatepe RES Independent Engineer's Completion Report",
+    "Provisional Acceptance & COD Certificate",
+    "Karatepe RES Şebeke Bağlantı Tamamlama Belgesi"
+   ],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevapsız yanıt metninde rakam/tarih var"
+   ]
+  },
+  "GEN-TRM-005": {
+   "category": "term_mismatch",
+   "user": "enerji",
+   "question": "Karatepe RES santralinin emre amadelik bedeli nedir?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": true,
+   "expect_assist": "term_mismatch",
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": false,
+   "answer_text": "Bu konuda kesin bilgi bulamadım.\n\"Emre amadelik\" ile kullanılabilirlik garantisini mi kastediyorsunuz?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "term_mismatch",
+   "assist_question": "\"Emre amadelik\" ile kullanılabilirlik garantisini mi kastediyorsunuz?",
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "ANK-OPS-004": {
+   "category": "temporal",
+   "user": "enerji",
+   "question": "Karatepe RES sigorta poliçesi bitmiş mi?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.documents[36].expiration_date.value",
+   "expected_spellings": [
+    [
+     "09.01.2025",
+     "2025-01-09",
+     "January 9, 2025"
+    ]
+   ],
+   "expected_raw": [
+    "documents[36].expiration_date.value = datetime.date(2025, 1, 9)"
+   ],
+   "required_sources": [
+    "Sigorta Yenileme Bildirimi — İşletme Dönemi"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Kaynaklardaki sigorta yenileme bildirimine göre süre 09.01.2025 tarihinde sona ermiştir [K79]. Bildirim \"YÜRÜRLÜKTE DEĞİL\" zincir durumunda kayıtlıdır [K79].\nSüre: 09.01.2025 tarihinde sona erdi (1 yıl 9 ay önce) [K80]",
+   "cited_titles": [
+    "Sigorta Yenileme Bildirimi — İşletme Dönemi"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Sigorta Yenileme Bildirimi — İşletme Dönemi"
+   ],
+   "source_hits": [
+    "Sigorta Yenileme Bildirimi — İşletme Dönemi"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "ANK-NEG-001": {
+   "category": "document",
+   "user": "finans",
+   "question": "Karatepe RES kredisinin vadesi kaç yıl?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:ankara_res.project.finance.tenor_years.current.value",
+   "expected_spellings": [
+    [
+     "13 yıl"
+    ]
+   ],
+   "expected_raw": [
+    "project.finance.tenor_years.current.value = 13"
+   ],
+   "required_sources": [
+    "Facility Agreement"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe RES kredisinin vadesi 13 yıldır [K77]. Güncel belge olan Facility Agreement Amendment 02 vadeyi belirtmiyor [K59]. Bu nedenle, güncel belgede yer almayan vade değeri, tadillerden önceki Facility Agreement belgesindeki değer olarak geçerlidir [K77].",
+   "cited_titles": [
+    "Facility Agreement",
+    "Facility Agreement Amendment 02"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Facility Agreement",
+    "Facility Agreement Amendment 02"
+   ],
+   "source_hits": [
+    "Facility Agreement",
+    "Facility Agreement Amendment 02"
+   ],
+   "value_check": "pass",
+   "value_check_reason": null,
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": []
+  },
+  "ANK-NEG-003": {
+   "category": "document",
+   "user": "finans",
+   "question": "Kredi sözleşmesinin vadesi kaç yıl?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": true,
+   "expect_assist": "clarify",
+   "expected_answer": "ledger:ankara_res.project.finance.tenor_years.current.value",
+   "expected_spellings": null,
+   "expected_raw": [
+    "project.finance.tenor_years.current.value = 13"
+   ],
+   "required_sources": [
+    "Facility Agreement"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": false,
+   "answer_text": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Yeşilova RES mi?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer + expect_assist",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "disambiguate",
+   "assist_question": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Yeşilova RES mi?",
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": false,
+   "flags": [
+    "c:netleştirmeyle geçti (kategori document, ledger yolu var)"
+   ]
+  },
+  "CO-NEG-005": {
+   "category": "document",
+   "user": "yonetim",
+   "question": "Denetim komitesi üyeleri hangi kararla atandı?",
+   "expected_project": null,
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": "ledger:company.documents[7].id",
+   "expected_spellings": null,
+   "expected_raw": [
+    "documents[7].id = 'DOC-CO-ADM-008'"
+   ],
+   "required_sources": [
+    "Yönetim Kurulu Kararı — Denetim Komitesi Ataması"
+   ],
+   "forbidden_sources": [],
+   "answered": true,
+   "answer_text": "Denetim komitesi üyeleri, 01.03.2022 tarihli \"Yönetim Kurulu Kararı — Denetim Komitesi Ataması\" (DOC-CO-ADM-008) ile atanmıştır. Yönetim Kurulu, XYZ Enerji A.Ş. bünyesinde bir Denetim Komitesi kurulmasına ve komite üyelerinin görevlendirilmesine oybirliği ile karar vermiştir [K2]. Karar, 01.03.2022 tarihinde yapılan değerlendirmeler esas alınarak hazırlanmıştır [K1].",
+   "cited_titles": [
+    "Yönetim Kurulu Kararı — Denetim Komitesi Ataması"
+   ],
+   "cited_projects": [
+    "—"
+   ],
+   "source_rule": "set",
+   "authoritative_sources": [
+    "Yönetim Kurulu Kararı — Denetim Komitesi Ataması"
+   ],
+   "source_hits": [
+    "Yönetim Kurulu Kararı — Denetim Komitesi Ataması"
+   ],
+   "value_check": "skipped",
+   "value_check_reason": "unformattable expected_answer type: str",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (unformattable expected_answer type: str)"
+   ]
+  },
+  "GEN-AMB-003-F": {
+   "category": "document",
+   "user": "finans",
+   "question": "Son tadil neyi değiştirdi?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": true,
+   "expect_assist": "clarify",
+   "expected_answer": "ledger:ankara_res.project.finance.facility_chain",
+   "expected_spellings": null,
+   "expected_raw": [
+    "project.finance.facility_chain = ['DOC-ANK-FIN-001', 'DOC-ANK-FIN-002', 'DOC-ANK-FIN-003', 'DOC-ANK-FIN-004', 'DOC-ANK-FIN-005', 'DOC-ANK-FIN-006']"
+   ],
+   "required_sources": [
+    "Facility Agreement Amendment 02"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": false,
+   "answer_text": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Yeşilova RES mi?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer + expect_assist",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "disambiguate",
+   "assist_question": "Hangi projeyi kastediyorsunuz: Karatepe RES mi, Yeşilova RES mi?",
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": false,
+   "flags": [
+    "c:netleştirmeyle geçti (kategori document, ledger yolu var)"
+   ]
+  },
+  "GEN-DSC-001": {
+   "category": "discovery",
+   "user": "finans",
+   "question": "Karatepe'nin finansal modeli var mı?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [
+    "Financial Model 2026"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Karatepe'nin finansal modeli mevcut; değer 13600000 olarak hesaplandı.",
+   "cited_titles": [
+    "Financial Model 2026"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "n/a",
+   "authoritative_sources": [
+    "Financial Model 2026"
+   ],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DATA_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "fail",
+   "format_check_reason": "gruplanmamış sayı",
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (expect_no_answer)",
+    "d:G1 yalnız DOCUMENT_QUERY'de; bu DATA_QUERY",
+    "d:F-8 biçim hatası puana girmiyor (gruplanmamış sayı)"
+   ]
+  },
+  "GEN-DSC-003": {
+   "category": "discovery",
+   "user": "enerji",
+   "question": "Sigorta ne zaman bitiyor?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [
+    "Sigorta Yenileme Bildirimi — İşletme Dönemi"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Yenileme bildirimine göre sigorta sona erdi. Belgedeki satır:\nSüre: 09.01.2025 tarihinde sona erdi (1 yıl 9 ay önce) [K3]\n\nBu belge \"YÜRÜRLÜKTE DEĞİL\" olarak işaretlidir [K3]. Güncel poliçe özetinde (DOC-ANK-EPC-007) bitiş tarihi yazmamaktadır; yalnızca yürürlük tarihi 05.01.2022 olarak belirtilmiştir [K2].",
+   "cited_titles": [
+    "Karatepe RES Construction All Risks Insurance Policy Summary",
+    "Sigorta Yenileme Bildirimi — İşletme Dönemi"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "n/a",
+   "authoritative_sources": [
+    "Sigorta Yenileme Bildirimi — İşletme Dönemi"
+   ],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (expect_no_answer)"
+   ]
+  },
+  "GEN-DSC-005": {
+   "category": "discovery",
+   "user": "yonetim",
+   "question": "Amendment var mı?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [
+    "Facility Agreement Amendment 01"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": false,
+   "answer_text": "«amendment» ifadesini tadil (değişiklik sözleşmesi) olarak anladım.\nBu konuda kesin bilgi bulamadım.\nElimde konuyla ilgili şunlar var:\nKaratepe RES: Facility Agreement Amendment 02 (15.03.2025); Facility Agreement Amendment 01 (12.01.2024); Licence Amendment 01 (Kapasite Tadili) (10.02.2021)\nİsterseniz açayım.\nHangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [
+    "Facility Agreement Amendment 01"
+   ],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "clarify",
+   "assist_question": "Hangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?",
+   "assist_available": [
+    "Facility Agreement Amendment 01",
+    "Facility Agreement Amendment 02",
+    "Licence Amendment 01 (Kapasite Tadili)"
+   ],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "c:netleştirmeyle geçti (kategori discovery, ledger yolu yok)"
+   ]
+  },
+  "GEN-DSC-012": {
+   "category": "discovery",
+   "user": "yonetim",
+   "question": "peki amendment var mı hiç?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [
+    "Facility Agreement Amendment 01"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Evet, kaynaklarda üç tadil belgesi geçiyor:\n\n1. Facility Agreement Amendment 02 (Belge No DOC-ANK-FIN-006, versiyon AMD02, durum executed, yürürlük tarihi 15.03.2025, taraflar Karatepe RES Enerji Üretim A.Ş. ve Garanti BBVA) güncel belgedir ve \"Facility Agreement Amendment 01\" belgesini değiştirir [K1]. Bu belge finansal kovenantları değiştirmektedir [K5].\n\n2. Licence Amendment 01 (Kapasite Tadili) (Belge No DOC-ANK-DEV-002, versiyon AMD01, belge tarihi 10.02.2021, durum yürürlükte, taraflar Karatepe RES Enerji Üretim A.Ş. ve EPDK) [K2]. Bu tadil ile proje kapasitesi 21 MW'dan 24 MW'a güncellenmiş, türbin sayısı 7'den 8'e çıkarılmıştır [K4].\n\n3. Facility Agreement Amendment 01 (Belge No DOC-ANK-FIN-005, versiyon AMD01, belge tarihi 12.01.2024, durum superseded) [K7]. Bu belge \"Facility Agreement Amendment 02\" tarafından değiştirilmiştir [K7].",
+   "cited_titles": [
+    "Facility Agreement Amendment 01",
+    "Facility Agreement Amendment 02",
+    "Licence Amendment 01 (Kapasite Tadili)"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "n/a",
+   "authoritative_sources": [
+    "Facility Agreement Amendment 01"
+   ],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (expect_no_answer)"
+   ]
+  },
+  "GEN-DSC-013": {
+   "category": "discovery",
+   "user": "yonetim",
+   "question": "amendment ne demek biliyor musun?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [
+    "Facility Agreement Amendment 01"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": true,
+   "answer_text": "Kaynaklarda \"amendment\", bir ana sözleşmenin (ör. Facility Agreement) koşullarını değiştiren ek anlaşma olarak geçiyor. Örneğin \"Amendment No. 2 to the Karatepe RES Facility Agreement\" ifadesi bu belgenin ana sözleşmeye yapılan 2 numaralı tadil olduğunu gösteriyor [K1]. Tarafların finansal koşulları değiştirmek üzere anlaştığı da belirtiliyor [K5]. Bir tadil belgesinde ana metindeki bir bölümün değiştirildiği de yazıyor [K9].",
+   "cited_titles": [
+    "Facility Agreement Amendment 01",
+    "Facility Agreement Amendment 02"
+   ],
+   "cited_projects": [
+    "Karatepe RES"
+   ],
+   "source_rule": "n/a",
+   "authoritative_sources": [
+    "Facility Agreement Amendment 01"
+   ],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": null,
+   "assist_question": null,
+   "assist_available": [],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": true,
+   "flags": [
+    "d:cevap var, değer doğrulanmadı (expect_no_answer)"
+   ]
+  },
+  "GEN-DSC-001-M": {
+   "category": "discovery",
+   "user": "finans_mudur",
+   "question": "Karatepe'nin finansal modeli var mı?",
+   "expected_project": "Karatepe RES",
+   "expect_no_answer": false,
+   "expect_assist": null,
+   "expected_answer": null,
+   "expected_spellings": null,
+   "expected_raw": [],
+   "required_sources": [
+    "Financial Model 2026"
+   ],
+   "forbidden_sources": [
+    "Kızılova RES"
+   ],
+   "answered": false,
+   "answer_text": "«finansal model» ifadesini finansal model (Financial Model workbook'u) olarak anladım.\nBu konuda kesin bilgi bulamadım.\nElimde konuyla ilgili şunlar var:\nKaratepe RES: Financial Model 2026 (01.09.2026)\nİsterseniz açayım.\nHangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?",
+   "cited_titles": [],
+   "cited_projects": [],
+   "source_rule": "n/a",
+   "authoritative_sources": [
+    "Financial Model 2026"
+   ],
+   "source_hits": [],
+   "value_check": "skipped",
+   "value_check_reason": "expect_no_answer",
+   "safety_check": "pass",
+   "query_type": "DOCUMENT_QUERY",
+   "assist_kind": "clarify",
+   "assist_question": "Hangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?",
+   "assist_available": [
+    "Financial Model 2026"
+   ],
+   "format_check": "pass",
+   "format_check_reason": null,
+   "old_passed": false,
+   "flags": [
+    "c:netleştirmeyle geçti (kategori discovery, ledger yolu yok)"
+   ]
+  }
+ }
+}

@@ -1,0 +1,2172 @@
+[
+ {
+  "ref": "DOC-CO-ADM-001",
+  "title": "Yönetim Kurulu Kararı — Karatepe RES Finansman Onayı",
+  "file_name": "",
+  "type": "Board Resolution",
+  "scope": "group",
+  "code": "-",
+  "department": "idari_isler",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "karşı taraf",
+    "sayfa1"
+   ]
+  },
+  "verdict": "⚠",
+  "note": "grup işaretli, metin tek projeyi anıyor: ANK_RES",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-CO-ADM-002",
+  "title": "Yönetim Kurulu Kararı — Kızılova RES Geliştirme Bütçesi Onayı",
+  "file_name": "",
+  "type": "Board Resolution",
+  "scope": "group",
+  "code": "-",
+  "department": "idari_isler",
+  "status": "executed",
+  "found": {
+   "IZM_RES": [
+    "başlık",
+    "extra",
+    "karşı taraf",
+    "sayfa1"
+   ]
+  },
+  "verdict": "⚠",
+  "note": "grup işaretli, metin tek projeyi anıyor: IZM_RES",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-CO-ADM-003",
+  "title": "Pay Sahipleri Kararı — GHI Yatırım A.Ş. Ortaklık Onayı",
+  "file_name": "",
+  "type": "Shareholder Resolution",
+  "scope": "group",
+  "code": "-",
+  "department": "idari_isler",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "extra"
+   ]
+  },
+  "verdict": "⚠",
+  "note": "grup işaretli, metin tek projeyi anıyor: ANK_RES",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-CO-ADM-004",
+  "title": "Sigorta Programı Özeti (Şirketler Grubu)",
+  "file_name": "",
+  "type": "Insurance Summary",
+  "scope": "group",
+  "code": "-",
+  "department": "idari_isler",
+  "status": "active",
+  "found": {},
+  "verdict": "✓",
+  "note": "grup; proje adı yok",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-CO-ADM-005",
+  "title": "Yıllık Yönetim Raporu — 2025",
+  "file_name": "",
+  "type": "Management Report",
+  "scope": "group",
+  "code": "-",
+  "department": "idari_isler",
+  "status": "active",
+  "found": {},
+  "verdict": "✓",
+  "note": "grup; proje adı yok",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-CO-ADM-006",
+  "title": "Grup İlişkili Taraf Hizmet Sözleşmesi",
+  "file_name": "",
+  "type": "Service Agreement",
+  "scope": "group",
+  "code": "-",
+  "department": "idari_isler",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "karşı taraf",
+    "sayfa1"
+   ],
+   "IZM_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "grup; birden çok proje anılıyor ['ANK_RES', 'IZM_RES']",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-CO-ADM-007",
+  "title": "Kurumsal Yönetim ve Uyum Politikası",
+  "file_name": "",
+  "type": "Governance Policy",
+  "scope": "group",
+  "code": "-",
+  "department": "idari_isler",
+  "status": "active",
+  "found": {},
+  "verdict": "✓",
+  "note": "grup; proje adı yok",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-CO-ADM-008",
+  "title": "Yönetim Kurulu Kararı — Denetim Komitesi Ataması",
+  "file_name": "",
+  "type": "Board Resolution",
+  "scope": "group",
+  "code": "-",
+  "department": "idari_isler",
+  "status": "executed",
+  "found": {},
+  "verdict": "✓",
+  "note": "grup; proje adı yok",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-CO-ADM-009",
+  "title": "Grup Risk Raporu — 2026",
+  "file_name": "",
+  "type": "Risk Report",
+  "scope": "group",
+  "code": "-",
+  "department": "idari_isler",
+  "status": "active",
+  "found": {},
+  "verdict": "✓",
+  "note": "grup; proje adı yok",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-CO-ADM-010",
+  "title": "Pay Sahipleri Kararı — Kâr Dağıtım Politikası",
+  "file_name": "",
+  "type": "Shareholder Resolution",
+  "scope": "group",
+  "code": "-",
+  "department": "idari_isler",
+  "status": "executed",
+  "found": {},
+  "verdict": "✓",
+  "note": "grup; proje adı yok",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-AKY-LEG-001",
+  "title": "Kamulaştırma Ön Değerlendirme Notu",
+  "file_name": "",
+  "type": "Assessment Memo",
+  "scope": "project",
+  "code": "AKY_GES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "AKY_GES": [
+    "extra",
+    "karşı taraf",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-ADM-001",
+  "title": "Yıllık İşletme Bütçesi Onayı — 2026",
+  "file_name": "",
+  "type": "Budget Approval",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "mali_isler",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "karşı taraf",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-ADM-002",
+  "title": "Sigorta Programı Yıllık Gözden Geçirme Notu",
+  "file_name": "",
+  "type": "Insurance Review Memo",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "idari_isler",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-DEV-001",
+  "title": "Karatepe RES Üretim Lisansı",
+  "file_name": "",
+  "type": "Üretim Lisansı",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "amended",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-DEV-002",
+  "title": "Licence Amendment 01 (Kapasite Tadili)",
+  "file_name": "",
+  "type": "Licence Amendment",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-DEV-003",
+  "title": "Karatepe RES Bağlantı Anlaşması",
+  "file_name": "",
+  "type": "Bağlantı Anlaşması",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-DEV-004",
+  "title": "Karatepe RES Yapı Ruhsatı",
+  "file_name": "",
+  "type": "Yapı Ruhsatı",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-DEV-005",
+  "title": "Karatepe RES ÇED Olumlu Kararı",
+  "file_name": "",
+  "type": "ÇED Olumlu Kararı",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-DEV-006",
+  "title": "Karatepe RES Saha Kullanım Hakkı Sözleşmesi",
+  "file_name": "",
+  "type": "Saha Kullanım Hakkı Sözleşmesi",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "karşı taraf",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-EPC-001",
+  "title": "EPC Contract",
+  "file_name": "",
+  "type": "EPC Contract",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "amended",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-EPC-002",
+  "title": "Provisional Acceptance & COD Certificate",
+  "file_name": "",
+  "type": "COD Documentation",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-EPC-003",
+  "title": "EPC Change Order 01 (COD Deferral)",
+  "file_name": "",
+  "type": "Change Order",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-EPC-004",
+  "title": "Karatepe RES Mechanical Completion Certificate",
+  "file_name": "",
+  "type": "Completion Certificate",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-EPC-005",
+  "title": "Karatepe RES Independent Engineer's Completion Report",
+  "file_name": "",
+  "type": "Completion Report",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-EPC-006",
+  "title": "Karatepe RES Punch List Closure Confirmation",
+  "file_name": "",
+  "type": "Punch List Closure",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-EPC-007",
+  "title": "Karatepe RES Construction All Risks Insurance Policy Summary",
+  "file_name": "",
+  "type": "Insurance Policy",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-EPC-008",
+  "title": "Karatepe RES Performance Test Results Report",
+  "file_name": "",
+  "type": "Performance Test Report",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-EPC-009",
+  "title": "Karatepe RES Warranty & Defects Liability Certificate",
+  "file_name": "",
+  "type": "Warranty Certificate",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-EPC-010",
+  "title": "Karatepe RES Şebeke Bağlantı Tamamlama Belgesi",
+  "file_name": "",
+  "type": "Grid Connection Certificate",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-001",
+  "title": "Facility Agreement — Draft",
+  "file_name": "",
+  "type": "Facility Agreement",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "draft",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-002",
+  "title": "Facility Agreement — V01",
+  "file_name": "",
+  "type": "Facility Agreement",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "superseded",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-003",
+  "title": "Facility Agreement — V02",
+  "file_name": "",
+  "type": "Facility Agreement",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "superseded",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-004",
+  "title": "Facility Agreement",
+  "file_name": "",
+  "type": "Facility Agreement",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "superseded",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-005",
+  "title": "Facility Agreement Amendment 01",
+  "file_name": "",
+  "type": "Facility Agreement",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "superseded",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-006",
+  "title": "Facility Agreement Amendment 02",
+  "file_name": "",
+  "type": "Facility Agreement",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-007",
+  "title": "Covenant Compliance Report Q2 2026",
+  "file_name": "",
+  "type": "Covenant Report",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-008",
+  "title": "Financial Model 2026",
+  "file_name": "Financial_Model_2026.xlsx",
+  "type": "Financial Model",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "karşı taraf"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": false
+ },
+ {
+  "ref": "DOC-ANK-FIN-009",
+  "title": "Covenant Report (workbook)",
+  "file_name": "Covenant_Report.xlsx",
+  "type": "Covenant Report",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "karşı taraf"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": false
+ },
+ {
+  "ref": "DOC-ANK-FIN-010",
+  "title": "Karatepe RES Common Terms Agreement",
+  "file_name": "",
+  "type": "Common Terms Agreement",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-011",
+  "title": "Karatepe RES Security Agreement (Share Pledge)",
+  "file_name": "",
+  "type": "Share Pledge",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-012",
+  "title": "Karatepe RES Account Pledge Agreement",
+  "file_name": "",
+  "type": "Account Pledge",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-013",
+  "title": "Karatepe RES Insurance Assignment Agreement",
+  "file_name": "",
+  "type": "Assignment Agreement",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-014",
+  "title": "Karatepe RES Drawdown Notice — Tranche 1",
+  "file_name": "",
+  "type": "Drawdown Notice",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-015",
+  "title": "Karatepe RES Waiver Letter — Q4 2024 Covenant Test",
+  "file_name": "",
+  "type": "Waiver Letter",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-016",
+  "title": "Karatepe RES Covenant Compliance Report — Q4 2024",
+  "file_name": "",
+  "type": "Covenant Report",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-017",
+  "title": "Garanti BBVA Faiz Belirleme Bildirimi",
+  "file_name": "",
+  "type": "Bank Interest Notice",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-FIN-018",
+  "title": "Teminat Mektubu Yenileme Bildirimi — Orman İzni",
+  "file_name": "",
+  "type": "Guarantee Renewal Notice",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-LEG-001",
+  "title": "Hukuki Görüş — Finansman Ön Koşulları",
+  "file_name": "",
+  "type": "Legal Opinion",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-LEG-002",
+  "title": "Arazi Kullanım Hakkı Hukuki İnceleme Notu",
+  "file_name": "",
+  "type": "Legal Review Memo",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-LEG-003",
+  "title": "Sözleşme Uyum Değerlendirmesi — EPC ve Finansman Sözleşmeleri",
+  "file_name": "",
+  "type": "Legal Review Memo",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-LEG-004",
+  "title": "Kamulaştırma ve İrtifak Bedeli Tespiti Davası — Dava Dilekçesi",
+  "file_name": "",
+  "type": "Lawsuit Petition",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-LEG-005",
+  "title": "Kamulaştırma ve İrtifak Bedeli Tespiti Davası — İdare Savunması",
+  "file_name": "",
+  "type": "Defense Brief",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-LEG-006",
+  "title": "Kamulaştırma ve İrtifak Bedeli Tespiti Davası — Bilirkişi Raporu",
+  "file_name": "",
+  "type": "Expert Report",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-LEG-007",
+  "title": "Kamulaştırma ve İrtifak Bedeli Tespiti Davası — Duruşma Tutanağı",
+  "file_name": "",
+  "type": "Hearing Record",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-LEG-008",
+  "title": "Mahkeme Kalemi E-postası — Dava Süreci Güncellemesi",
+  "file_name": "",
+  "type": "Court Clerk Email",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-LEG-009",
+  "title": "Karşı Taraf Vekili E-postası — Dava Dosyası Güncellemesi",
+  "file_name": "",
+  "type": "Opposing Counsel Email",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-LEG-010",
+  "title": "Elektrik Direği İhlali Davası — Dava Dilekçesi",
+  "file_name": "",
+  "type": "Lawsuit Petition",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-OPS-001",
+  "title": "Aylık Üretim Raporu — Ağustos 2026",
+  "file_name": "",
+  "type": "Production Report",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "karşı taraf",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-OPS-002",
+  "title": "Budget vs Actual 2026",
+  "file_name": "Budget_vs_Actual_2026.xlsx",
+  "type": "Budget vs Actual",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "karşı taraf"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": false
+ },
+ {
+  "ref": "DOC-ANK-OPS-003",
+  "title": "Monthly Production 2026",
+  "file_name": "Monthly_Production_2026.xlsx",
+  "type": "Monthly Production",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "karşı taraf"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": false
+ },
+ {
+  "ref": "DOC-ANK-OPS-004",
+  "title": "Karatepe RES O&M Agreement",
+  "file_name": "",
+  "type": "O&M Agreement",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-OPS-005",
+  "title": "Bakım Raporu — Temmuz 2024 (Türbin T-07 Arızası)",
+  "file_name": "",
+  "type": "Maintenance Report",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-OPS-006",
+  "title": "Aylık Üretim Raporu — Aralık 2023",
+  "file_name": "",
+  "type": "Production Report",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "karşı taraf",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-OPS-007",
+  "title": "Aylık Üretim Raporu — Haziran 2025",
+  "file_name": "",
+  "type": "Production Report",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "karşı taraf",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-OPS-008",
+  "title": "Yıllık Performans Değerlendirme Notu — 2024-2025 Dönemi",
+  "file_name": "",
+  "type": "Performance Review",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "karşı taraf",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-OPS-009",
+  "title": "Sigorta Yenileme Bildirimi — İşletme Dönemi",
+  "file_name": "",
+  "type": "Insurance Notice",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-OPS-010",
+  "title": "Karatepe RES Kullanılabilirlik Garantisi Uyum Raporu",
+  "file_name": "",
+  "type": "Availability Report",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-OPS-011",
+  "title": "Karatepe RES Yedek Parça Tedarik Sözleşmesi",
+  "file_name": "",
+  "type": "Spare Parts Agreement",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "executed",
+  "found": {
+   "ANK_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-ANK-OPS-012",
+  "title": "Yıllık Bakım Planı — 2026",
+  "file_name": "",
+  "type": "Maintenance Plan",
+  "scope": "project",
+  "code": "ANK_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "ANK_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-BOZ-FIN-001",
+  "title": "Boztepe RES Facility Agreement (2024-BZ)",
+  "file_name": "",
+  "type": "Facility Agreement",
+  "scope": "project",
+  "code": "BOZ_RES",
+  "department": "finans",
+  "status": "executed",
+  "found": {
+   "BOZ_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-BOZ-FIN-002",
+  "title": "Aylık Faiz Bildirimi — Ekim 2026 Taksidi",
+  "file_name": "",
+  "type": "Bank Interest Notice",
+  "scope": "project",
+  "code": "BOZ_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "BOZ_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-BOZ-FIN-003",
+  "title": "DSRA Hesap Ekstresi — Ekim 2026",
+  "file_name": "",
+  "type": "DSRA Account Statement",
+  "scope": "project",
+  "code": "BOZ_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "BOZ_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-BOZ-FIN-004",
+  "title": "Anapara Geri Ödeme Planı (84 Taksit)",
+  "file_name": "Boztepe_Repayment_Schedule_84_Instalments.xlsx",
+  "type": "Repayment Schedule",
+  "scope": "project",
+  "code": "BOZ_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "BOZ_RES": [
+    "dosya",
+    "extra",
+    "karşı taraf"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": false
+ },
+ {
+  "ref": "DOC-BOZ-FIN-005",
+  "title": "Boztepe RES — Covenant Compliance Report Q3 2026",
+  "file_name": "",
+  "type": "Covenant Report",
+  "scope": "project",
+  "code": "BOZ_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "BOZ_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-BOZ-LEG-001",
+  "title": "İmar Planı Değişikliği İptali Davası — Dava Dilekçesi",
+  "file_name": "",
+  "type": "Lawsuit Petition",
+  "scope": "project",
+  "code": "BOZ_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "BOZ_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-BOZ-LEG-002",
+  "title": "İmar Planı Değişikliği İptali Davası — Belediye Savunması",
+  "file_name": "",
+  "type": "Defense Brief",
+  "scope": "project",
+  "code": "BOZ_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "BOZ_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-BOZ-LEG-003",
+  "title": "İmar Planı Değişikliği İptali Davası — Yürütmeyi Durdurma Talebinin Reddi",
+  "file_name": "",
+  "type": "Interim Decision",
+  "scope": "project",
+  "code": "BOZ_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "BOZ_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-BOZ-LEG-004",
+  "title": "İmar Planı Değişikliği İptali Davası — Bilirkişi Keşif Tutanağı",
+  "file_name": "",
+  "type": "Site Visit Record",
+  "scope": "project",
+  "code": "BOZ_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "BOZ_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-DMR-LEG-001",
+  "title": "TEA Olumsuz Görüşüne İtiraz Dilekçesi",
+  "file_name": "",
+  "type": "Regulatory Objection Letter",
+  "scope": "project",
+  "code": "DMR_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "DMR_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-ADM-001",
+  "title": "Kızılova RES Geliştirme Bütçesi Onayı",
+  "file_name": "",
+  "type": "Budget Approval",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "mali_isler",
+  "status": "executed",
+  "found": {
+   "IZM_RES": [
+    "başlık",
+    "extra",
+    "karşı taraf",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-ADM-002",
+  "title": "Saha Güvenliği ve İdari Düzenlemeler Notu",
+  "file_name": "",
+  "type": "Site Security Memo",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "idari_isler",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "karşı taraf",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-ADM-003",
+  "title": "Proje Maliyet Takip Notu — Geliştirme Aşaması",
+  "file_name": "",
+  "type": "Cost Tracking Memo",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "mali_isler",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "karşı taraf",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-DEV-001",
+  "title": "Kızılova RES Önlisans Belgesi",
+  "file_name": "",
+  "type": "Önlisans",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-DEV-002",
+  "title": "Arazi Edinim Durum Raporu",
+  "file_name": "",
+  "type": "Arazi Edinim Raporu",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-DEV-003",
+  "title": "ÇED Süreci Durum Yazısı",
+  "file_name": "",
+  "type": "ÇED Durum Yazısı",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-DEV-004",
+  "title": "Rüzgar Kaynağı ve Ön Fizibilite Teknik Raporu",
+  "file_name": "",
+  "type": "Teknik Rapor",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-DEV-005",
+  "title": "Kızılova RES Bağlantı Görüşü Başvurusu",
+  "file_name": "",
+  "type": "Bağlantı Görüşü Başvurusu",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-DEV-006",
+  "title": "Kamu Duyurusu ve Halkın Katılımı Toplantısı Tutanağı",
+  "file_name": "",
+  "type": "Toplantı Tutanağı",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-DEV-007",
+  "title": "Rüzgar Ölçüm Kampanyası Raporu",
+  "file_name": "",
+  "type": "Teknik Rapor",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-DEV-008",
+  "title": "Askeri Yasak Bölgeler Ön Görüş Talebi",
+  "file_name": "",
+  "type": "Ön Görüş Talebi",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "enerji_grubu",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-FIN-001",
+  "title": "Taahhüt Komisyonu Bildirimi",
+  "file_name": "",
+  "type": "Commitment Fee Notice",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-FIN-002",
+  "title": "EPC Avans Teminat Mektubu",
+  "file_name": "",
+  "type": "Advance Guarantee Letter",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-FIN-003",
+  "title": "Avans Faturası — ABC2026000000184",
+  "file_name": "",
+  "type": "Invoice",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-FIN-004",
+  "title": "Kızılova RES İmzalı-Kullanılmamış Kredi Sözleşmesi (2026-KZ)",
+  "file_name": "",
+  "type": "Facility Agreement",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "finans",
+  "status": "executed",
+  "found": {
+   "IZM_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-LEG-001",
+  "title": "Arazi Mülkiyeti Hukuki İnceleme Notu",
+  "file_name": "",
+  "type": "Legal Review Memo",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-LEG-002",
+  "title": "Kira/İrtifak Hakkı Sözleşmesi Taslağı",
+  "file_name": "",
+  "type": "Lease Agreement Draft",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "hukuk",
+  "status": "draft",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-LEG-003",
+  "title": "Şirket Yapısı Hukuki Görüşü — Kızılova SPV",
+  "file_name": "",
+  "type": "Legal Opinion",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-LEG-004",
+  "title": "Önlisans Süre Uzatımı Hukuki Değerlendirmesi",
+  "file_name": "",
+  "type": "Legal Review Memo",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-LEG-005",
+  "title": "Yüklenici İhtilafı — Noter İhtarnamesi",
+  "file_name": "",
+  "type": "Notary Notice",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-IZM-LEG-006",
+  "title": "Mera Tahsis Değişikliği Talebi",
+  "file_name": "",
+  "type": "Request Letter",
+  "scope": "project",
+  "code": "IZM_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "IZM_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-YSV-FIN-001",
+  "title": "Taksit #11 Banka Faiz Bildirimi",
+  "file_name": "",
+  "type": "Bank Interest Notice",
+  "scope": "project",
+  "code": "YSV_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "YSV_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-YSV-FIN-002",
+  "title": "Annex F Talep E-postası",
+  "file_name": "",
+  "type": "Reporting Request",
+  "scope": "project",
+  "code": "YSV_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "YSV_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-YSV-FIN-003",
+  "title": "DSRA Hesap Ekstresi",
+  "file_name": "",
+  "type": "Account Statement",
+  "scope": "project",
+  "code": "YSV_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "YSV_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-YSV-FIN-004",
+  "title": "Borç Servis Hesabı Ekstresi",
+  "file_name": "",
+  "type": "Account Statement",
+  "scope": "project",
+  "code": "YSV_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "YSV_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-YSV-FIN-005",
+  "title": "Sigorta Zeyilnamesi — Ara Dönem",
+  "file_name": "",
+  "type": "Insurance Notice",
+  "scope": "project",
+  "code": "YSV_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "YSV_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-YSV-FIN-006",
+  "title": "Bankaya Giden İşletme Bütçesi",
+  "file_name": "",
+  "type": "Budget",
+  "scope": "project",
+  "code": "YSV_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "YSV_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-YSV-FIN-007",
+  "title": "Ödeme Planı — Güncel",
+  "file_name": "Yesilova_Repayment_Schedule_2026-09.xlsx",
+  "type": "Repayment Schedule",
+  "scope": "project",
+  "code": "YSV_RES",
+  "department": "finans",
+  "status": "active",
+  "found": {
+   "YSV_RES": [
+    "dosya",
+    "extra",
+    "karşı taraf"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": false
+ },
+ {
+  "ref": "DOC-YSV-FIN-008",
+  "title": "Ödeme Planı — Mart 2026",
+  "file_name": "Yesilova_Repayment_Schedule_2026-03.xlsx",
+  "type": "Repayment Schedule",
+  "scope": "project",
+  "code": "YSV_RES",
+  "department": "finans",
+  "status": "superseded",
+  "found": {
+   "YSV_RES": [
+    "dosya",
+    "extra",
+    "karşı taraf"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": false
+ },
+ {
+  "ref": "DOC-YSV-FIN-009",
+  "title": "Yeşilova RES Facility Agreement (2023-YS)",
+  "file_name": "",
+  "type": "Facility Agreement",
+  "scope": "project",
+  "code": "YSV_RES",
+  "department": "finans",
+  "status": "executed",
+  "found": {
+   "YSV_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-YSV-FIN-010",
+  "title": "Yeşilova RES Annex F Raporu (2025)",
+  "file_name": "",
+  "type": "Covenant Report",
+  "scope": "project",
+  "code": "YSV_RES",
+  "department": "finans",
+  "status": "draft",
+  "found": {
+   "YSV_RES": [
+    "başlık",
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-YSV-LEG-001",
+  "title": "Arazi Tahsisi Tazminat Davası — Hukuk Danışmanı Yazışması",
+  "file_name": "",
+  "type": "Legal Counsel Correspondence",
+  "scope": "project",
+  "code": "YSV_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "YSV_RES": [
+    "extra",
+    "karşı taraf",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-YSV-LEG-002",
+  "title": "Arazi Tahsisi Tazminat Davası — Dava Dilekçesi",
+  "file_name": "",
+  "type": "Lawsuit Petition",
+  "scope": "project",
+  "code": "YSV_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "YSV_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ },
+ {
+  "ref": "DOC-YSV-LEG-003",
+  "title": "Sınır İhlali Davası — Dava Dilekçesi",
+  "file_name": "",
+  "type": "Lawsuit Petition",
+  "scope": "project",
+  "code": "YSV_RES",
+  "department": "hukuk",
+  "status": "active",
+  "found": {
+   "YSV_RES": [
+    "extra",
+    "sayfa1"
+   ]
+  },
+  "verdict": "✓",
+  "note": "",
+  "has_page1": true
+ }
+]

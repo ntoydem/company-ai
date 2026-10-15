@@ -1,0 +1,1228 @@
+{
+ "summary": {
+  "named_questions": 67,
+  "with_group_doc_in_chunks": 3,
+  "with_group_doc_in_list": 3,
+  "with_any_group_doc_allowed": 3,
+  "group_doc_chunk_hits": {
+   "DOC-CO-ADM-001": 2,
+   "DOC-CO-ADM-006": 1,
+   "DOC-CO-ADM-003": 1,
+   "DOC-CO-ADM-010": 1
+  },
+  "group_doc_list_hits": {
+   "Yönetim Kurulu Kararı — Karatepe RES Finansman Onayı": 2,
+   "Grup İlişkili Taraf Hizmet Sözleşmesi": 1,
+   "Pay Sahipleri Kararı — GHI Yatırım A.Ş. Ortaklık Onayı": 1,
+   "Pay Sahipleri Kararı — Kâr Dağıtım Politikası": 1
+  },
+  "group_docs": [
+   "DOC-CO-ADM-001",
+   "DOC-CO-ADM-002",
+   "DOC-CO-ADM-003",
+   "DOC-CO-ADM-004",
+   "DOC-CO-ADM-005",
+   "DOC-CO-ADM-006",
+   "DOC-CO-ADM-007",
+   "DOC-CO-ADM-008",
+   "DOC-CO-ADM-009",
+   "DOC-CO-ADM-010"
+  ]
+ },
+ "rows": [
+  {
+   "id": "ANK-DEV-001",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 67,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-DEV-002",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 69,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-DEV-003",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 69,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 3,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-DEV-004",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 69,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 2,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-DEV-005",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 69,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 3,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-FIN-001",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 44,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 6,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-FIN-002",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 52,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-FIN-003",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 55,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 6,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-FIN-004",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 54,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-FIN-005",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 52,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-FIN-006",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 52,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-FIN-007",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 52,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-FIN-008",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 47,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-FIN-009",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 51,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-EPC-001",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 70,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-EPC-002",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 70,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-EPC-003",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 65,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-OPS-001",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 70,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-FIN-010",
+   "user": "finans",
+   "named": [
+    "ANK_RES",
+    "TEST_PRJ"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 51,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "none",
+   "list_len": 5,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-FIN-011",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 53,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 1,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-FIN-012",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 49,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-FIN-013",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 51,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-EPC-004",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 64,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 3,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "IZM-DEV-001",
+   "user": "enerji",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 36,
+   "scoped": 8,
+   "allowed_group_docs": [],
+   "chunks_after": 23,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "IZM-DEV-002",
+   "user": "enerji",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 36,
+   "scoped": 8,
+   "allowed_group_docs": [],
+   "chunks_after": 25,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "IZM-DEV-003",
+   "user": "enerji",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 36,
+   "scoped": 8,
+   "allowed_group_docs": [],
+   "chunks_after": 24,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "IZM-DEV-004",
+   "user": "enerji",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 36,
+   "scoped": 8,
+   "allowed_group_docs": [],
+   "chunks_after": 23,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "IZM-DEV-005",
+   "user": "enerji",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 36,
+   "scoped": 8,
+   "allowed_group_docs": [],
+   "chunks_after": 20,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "IZM-DEV-006",
+   "user": "enerji",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 36,
+   "scoped": 8,
+   "allowed_group_docs": [],
+   "chunks_after": 22,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "IZM-DEV-007",
+   "user": "enerji",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 36,
+   "scoped": 8,
+   "allowed_group_docs": [],
+   "chunks_after": 24,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "IZM-DEV-008",
+   "user": "enerji",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 36,
+   "scoped": 8,
+   "allowed_group_docs": [],
+   "chunks_after": 23,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "IZM-DEV-009",
+   "user": "enerji",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 36,
+   "scoped": 8,
+   "allowed_group_docs": [],
+   "chunks_after": 22,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "GEN-HAL-001",
+   "user": "enerji",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 36,
+   "scoped": 8,
+   "allowed_group_docs": [],
+   "chunks_after": 23,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "GEN-HAL-002",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 69,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "GEN-HAL-004",
+   "user": "finans",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 37,
+   "scoped": 4,
+   "allowed_group_docs": [],
+   "chunks_after": 14,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 4,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "IZM-ISO-001",
+   "user": "enerji",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 36,
+   "scoped": 8,
+   "allowed_group_docs": [],
+   "chunks_after": 22,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "IZM-ISO-004",
+   "user": "finans",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 37,
+   "scoped": 4,
+   "allowed_group_docs": [],
+   "chunks_after": 10,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 4,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-AUT-001",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 68,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 0,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-AUT-002",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 70,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 0,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-AUT-003",
+   "user": "enerji",
+   "named": [
+    "ANK_RES",
+    "TEST_PRJ"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 70,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "none",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-DAT-001",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 53,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 4,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-DAT-002",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 69,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-DAT-003",
+   "user": "yonetim",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 113,
+   "scoped": 68,
+   "allowed_group_docs": [
+    "DOC-CO-ADM-001",
+    "DOC-CO-ADM-002",
+    "DOC-CO-ADM-003",
+    "DOC-CO-ADM-004",
+    "DOC-CO-ADM-005",
+    "DOC-CO-ADM-006",
+    "DOC-CO-ADM-007",
+    "DOC-CO-ADM-008",
+    "DOC-CO-ADM-009",
+    "DOC-CO-ADM-010"
+   ],
+   "chunks_after": 73,
+   "group_chunks": 1,
+   "group_docs_in_chunks": [
+    "DOC-CO-ADM-001"
+   ],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": [
+    "Yönetim Kurulu Kararı — Karatepe RES Finansman Onayı"
+   ]
+  },
+  {
+   "id": "ANK-MIX-002",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 69,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "GEN-GEN-003",
+   "user": "yonetim",
+   "named": [
+    "TEST_PRJ"
+   ],
+   "expected_project": null,
+   "allowed": 113,
+   "scoped": 10,
+   "allowed_group_docs": [
+    "DOC-CO-ADM-001",
+    "DOC-CO-ADM-002",
+    "DOC-CO-ADM-003",
+    "DOC-CO-ADM-004",
+    "DOC-CO-ADM-005",
+    "DOC-CO-ADM-006",
+    "DOC-CO-ADM-007",
+    "DOC-CO-ADM-008",
+    "DOC-CO-ADM-009",
+    "DOC-CO-ADM-010"
+   ],
+   "chunks_after": 1,
+   "group_chunks": 1,
+   "group_docs_in_chunks": [
+    "DOC-CO-ADM-006"
+   ],
+   "decision": "named",
+   "list_len": 1,
+   "group_docs_in_list": [
+    "Grup İlişkili Taraf Hizmet Sözleşmesi"
+   ]
+  },
+  {
+   "id": "ANK-MIX-003",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 65,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 4,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-FIN-014",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 50,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-FIN-015",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 51,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-DEV-006",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 70,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 5,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-OPS-002",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 67,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-EPC-005",
+   "user": "enerji",
+   "named": [
+    "ANK_RES",
+    "TEST_PRJ"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 70,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "none",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-OPS-003",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 68,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-COR-001",
+   "user": "yonetim",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 113,
+   "scoped": 68,
+   "allowed_group_docs": [
+    "DOC-CO-ADM-001",
+    "DOC-CO-ADM-002",
+    "DOC-CO-ADM-003",
+    "DOC-CO-ADM-004",
+    "DOC-CO-ADM-005",
+    "DOC-CO-ADM-006",
+    "DOC-CO-ADM-007",
+    "DOC-CO-ADM-008",
+    "DOC-CO-ADM-009",
+    "DOC-CO-ADM-010"
+   ],
+   "chunks_after": 80,
+   "group_chunks": 7,
+   "group_docs_in_chunks": [
+    "DOC-CO-ADM-001",
+    "DOC-CO-ADM-003",
+    "DOC-CO-ADM-010"
+   ],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": [
+    "Pay Sahipleri Kararı — GHI Yatırım A.Ş. Ortaklık Onayı",
+    "Pay Sahipleri Kararı — Kâr Dağıtım Politikası",
+    "Yönetim Kurulu Kararı — Karatepe RES Finansman Onayı"
+   ]
+  },
+  {
+   "id": "IZM-DEV-010",
+   "user": "enerji",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 36,
+   "scoped": 8,
+   "allowed_group_docs": [],
+   "chunks_after": 21,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "IZM-DEV-011",
+   "user": "hukuk",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 7,
+   "scoped": 4,
+   "allowed_group_docs": [],
+   "chunks_after": 13,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 4,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "GEN-CMP-001",
+   "user": "enerji",
+   "named": [
+    "ANK_RES",
+    "IZM_RES"
+   ],
+   "expected_project": null,
+   "allowed": 36,
+   "scoped": 36,
+   "allowed_group_docs": [],
+   "chunks_after": 80,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "none",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "GEN-CMP-002",
+   "user": "enerji",
+   "named": [
+    "ANK_RES",
+    "IZM_RES"
+   ],
+   "expected_project": null,
+   "allowed": 36,
+   "scoped": 36,
+   "allowed_group_docs": [],
+   "chunks_after": 80,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "none",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "GEN-CMP-003",
+   "user": "enerji",
+   "named": [
+    "ANK_RES",
+    "IZM_RES"
+   ],
+   "expected_project": null,
+   "allowed": 36,
+   "scoped": 36,
+   "allowed_group_docs": [],
+   "chunks_after": 80,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "none",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "GEN-TRM-001",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 68,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 2,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "GEN-TRM-002",
+   "user": "enerji",
+   "named": [
+    "IZM_RES"
+   ],
+   "expected_project": "Kızılova RES",
+   "allowed": 36,
+   "scoped": 8,
+   "allowed_group_docs": [],
+   "chunks_after": 22,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "GEN-TRM-004",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 70,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "GEN-TRM-005",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 68,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 0,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-OPS-004",
+   "user": "enerji",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 36,
+   "scoped": 28,
+   "allowed_group_docs": [],
+   "chunks_after": 68,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 2,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-NEG-001",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 53,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "ANK-NEG-002",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 54,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 7,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "GEN-DSC-001",
+   "user": "finans",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 63,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 1,
+   "group_docs_in_list": []
+  },
+  {
+   "id": "GEN-DSC-001-M",
+   "user": "finans_mudur",
+   "named": [
+    "ANK_RES"
+   ],
+   "expected_project": "Karatepe RES",
+   "allowed": 37,
+   "scoped": 18,
+   "allowed_group_docs": [],
+   "chunks_after": 63,
+   "group_chunks": 0,
+   "group_docs_in_chunks": [],
+   "decision": "named",
+   "list_len": 1,
+   "group_docs_in_list": []
+  }
+ ]
+}
