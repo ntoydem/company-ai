@@ -45,7 +45,7 @@ from app.services.search_glossary import (
     typical_document_type,
     understood_terms,
 )
-from app.services.search_query import question_terms, turkish_lower
+from app.services.search_query import question_terms, turkish_fold, turkish_lower
 
 log = logging.getLogger(__name__)
 
@@ -332,18 +332,33 @@ def project_words(session: Session) -> set[str]:
     return words
 
 
+# RES/GES/"Santral(i)" are shared generic qualifiers in this company's project names — never
+# distinctive on their own, even when (by accident of which projects currently exist) only one
+# active project happens to carry a given suffix (İş Emri 2026-10-16T3, ADR-033): otherwise
+# "X GES" names the one GES-suffixed project (Akyar) regardless of what "X" actually is.
+_GENERIC_PROJECT_SUFFIXES = frozenset({"res", "ges", "santral", "santrali"})
+
+
 def named_project_codes(session: Session, question: str) -> set[str]:
     """Project codes whose name is actually used in the question ("İzmir RES'in COD tarihi
     nedir?" → `{IZM_RES}`), word-level (≥ 3 chars) — but only on words that are *specific*
-    to one project: a suffix every project's name shares ("RES", "GES") names nothing on
-    its own and is dropped first (bug found while fixing ADR-030/GEN-HAL-001: "İzmir RES'in
-    …" matched Ankara RES too, through "res" alone). ADR-030 fix (09.10.2026, GEN-HAL-001):
-    when exactly one project is named, callers narrow the F-3 list to it — otherwise a
-    kısaltma sondası (e.g. "COD") pulls in the *other* project's documents next to the one
-    the question actually names (Ü-3)."""
-    lowered_question = turkish_lower(question)
+    to one project: a suffix every project's name shares, or could share ("RES", "GES",
+    "Santral(i)", `_GENERIC_PROJECT_SUFFIXES`), names nothing on its own and is excluded
+    first (bug found while fixing ADR-030/GEN-HAL-001: "İzmir RES'in …" matched Ankara RES
+    too, through "res" alone). ADR-030 fix (09.10.2026, GEN-HAL-001): when exactly one
+    project is named, callers narrow the F-3 list to it — otherwise a kısaltma sondası (e.g.
+    "COD") pulls in the *other* project's documents next to the one the question actually
+    names (Ü-3).
+
+    Matching is case/ASCII-fold-insensitive and word-bounded (ADR-033, İş Emri
+    2026-10-16T3): `turkish_fold` normalises both sides ("Kizilova" ⇄ "Kızılova"), and
+    tokens are compared as whole words, not substrings, so "test" never matches inside
+    "testi" — splitting on non-word characters also drops Turkish possessive/locative
+    suffixes written with an apostrophe ("Karatepe'nin" → {"karatepe", "nin"}), so those
+    keep matching without extra handling."""
+    question_tokens = {w for w in re.split(r"[^\w]+", turkish_fold(question)) if w}
     words_by_code: dict[str, list[str]] = {
-        project.code: [w for w in re.split(r"[^\w]+", turkish_lower(project.name)) if len(w) >= 3]
+        project.code: [w for w in re.split(r"[^\w]+", turkish_fold(project.name)) if len(w) >= 3]
         for project in session.scalars(select(Project).where(Project.is_active.is_(True))).all()
     }
     counts: dict[str, int] = {}
@@ -352,8 +367,8 @@ def named_project_codes(session: Session, question: str) -> set[str]:
             counts[word] = counts.get(word, 0) + 1
     codes: set[str] = set()
     for code, words in words_by_code.items():
-        specific = [w for w in words if counts[w] == 1]
-        if any(w in lowered_question for w in specific):
+        specific = [w for w in words if counts[w] == 1 and w not in _GENERIC_PROJECT_SUFFIXES]
+        if any(w in question_tokens for w in specific):
             codes.add(code)
     return codes
 

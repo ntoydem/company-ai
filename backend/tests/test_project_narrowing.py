@@ -336,6 +336,27 @@ def test_unknown_project_is_refused_without_the_llm(
     assert row.chunks_retrieved == [] and row.assist["kind"] == "term_mismatch"
 
 
+@pytest.mark.parametrize("question", ["Bursa RES", "bursa RES", "BURSA RES", "Bursa Res"])
+def test_unknown_project_is_refused_regardless_of_case(
+    question: str,
+    client: TestClient,
+    db_session: Session,
+    admin_user: User,
+    fake_llm: FakeLLMClient,
+) -> None:
+    """İş Emri 2026-10-16T3 (ADR-033): a lower/mixed-case spelling of an unknown project
+    name must be refused exactly like the canonical-case one — it must never slip through
+    unrecognised to the router/LLM."""
+    _corpus(db_session)
+
+    body = _ask(client, f"{question}'in kredi vadesi kaç yıl?")
+
+    assert fake_llm.requests == []
+    assert body["answered"] is False
+    assert body["assist"]["kind"] == "term_mismatch"
+    assert body["assist"]["unmatched_terms"] == [question]
+
+
 def test_unknown_project_question_offers_only_the_projects_the_user_can_see(
     client: TestClient,
     db_session: Session,

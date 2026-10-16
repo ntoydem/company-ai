@@ -28,15 +28,21 @@ from sqlalchemy.orm import Session
 from app.models.document import Document, ProjectScope
 from app.models.project import Project
 from app.repositories.document_chunk_repo import RetrievedChunk
-from app.services.search_query import QUESTION_STOPWORDS, turkish_lower
+from app.services.search_query import QUESTION_STOPWORDS, turkish_fold
 
-# "<Özel Ad> RES/GES" — the project-naming pattern of this company's library. The word
-# before the suffix must be a proper noun: capitalised, not a question word/determiner.
-_PROJECT_MENTION = re.compile(r"(?<![\w'’])([A-ZÇĞİÖŞÜ][\wçğıöşüâîû]*)\s+(RES|GES)(?![\w])")
+# "<Özel Ad> RES/GES" — the project-naming pattern of this company's library. The name word
+# before the suffix may be any case (ADR-033, İş Emri 2026-10-16T3: "bursa RES"/"Bursa Res"
+# must be seen as a project mention too, not silently pass through unrecognised) — case only
+# ever decided whether the *rest* of the pipeline treated it as a proper noun, and
+# `_NOT_A_NAME`/`known` already filter case-insensitively below. The RES/GES suffix itself
+# is matched case-insensitively too (scoped `(?i:...)`, so the captured text still carries
+# the question's own casing for the mention string).
+_PROJECT_MENTION = re.compile(r"(?<![\w'’])(\w[\wçğıöşüâîû]*)\s+(?i:(RES|GES))(?![\w])")
 # Determiners and question words that may precede "RES" at the start of a sentence
 # ("Hangi RES …", "Bu RES …") — never a project name.
 _NOT_A_NAME = frozenset(
-    QUESTION_STOPWORDS
+    turkish_fold(w)
+    for w in QUESTION_STOPWORDS
     | {
         "her",
         "iki",
@@ -109,16 +115,18 @@ def narrow_chunks(chunks: list[RetrievedChunk], scoped: frozenset[UUID]) -> list
 def unknown_project_names(session: Session, question: str) -> list[str]:
     """Project mentions ("Bursa RES") whose name word belongs to no row of the `projects`
     table — the words of every project name and code are the reference, so a renamed
-    project's old name counts as unknown too (the table is the single source)."""
+    project's old name counts as unknown too (the table is the single source). Comparison
+    is case/ASCII-fold-insensitive (ADR-033): "Kizilova RES" folds to the same word as
+    "Kızılova RES" and is recognised as known, not refused."""
     known: set[str] = set()
     for project in session.scalars(select(Project).where(Project.is_active.is_(True))).all():
         for raw in (project.name, project.code):
-            known.update(w for w in re.split(r"[^\w]+", turkish_lower(raw)) if w)
+            known.update(w for w in re.split(r"[^\w]+", turkish_fold(raw)) if w)
     out: list[str] = []
     for match in _PROJECT_MENTION.finditer(question):
         word, suffix = match.group(1), match.group(2)
-        lowered = turkish_lower(word)
-        if lowered in _NOT_A_NAME or lowered in known:
+        folded = turkish_fold(word)
+        if folded in _NOT_A_NAME or folded in known:
             continue
         mention = f"{word} {suffix}"
         if mention not in out:

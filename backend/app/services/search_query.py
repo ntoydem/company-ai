@@ -10,6 +10,7 @@ configurations), which keeps the query consistent with how the chunks were index
 from __future__ import annotations
 
 import re
+import unicodedata
 
 from app.services.search_glossary import expand_terms
 
@@ -73,6 +74,18 @@ QUESTION_STOPWORDS = frozenset(
 def turkish_lower(text: str) -> str:
     """Locale-independent Turkish lower-casing (`str.lower` maps "I" to "i", not "ı")."""
     return text.replace("İ", "i").replace("I", "ı").lower()
+
+
+_ASCII_FOLD_MAP = str.maketrans({"ı": "i", "ş": "s", "ğ": "g", "ü": "u", "ö": "o", "ç": "c"})
+
+
+def turkish_fold(text: str) -> str:
+    """`turkish_lower` plus ASCII-folding of the remaining Turkish letters, NFC-normalised
+    first so a decomposed accent doesn't escape the fold (ADR-033). For *matching* a user's
+    possibly ASCII-only or differently-cased spelling against a known name (project name
+    words) — never for FTS query text, which stays as typed (Postgres's `turkish`
+    configuration handles accents there)."""
+    return turkish_lower(unicodedata.normalize("NFC", text)).translate(_ASCII_FOLD_MAP)
 
 
 def build_search_query(question: str) -> str:

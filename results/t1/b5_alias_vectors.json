@@ -90,11 +90,10 @@
   ],
   "expected_unknown": [],
   "actual_named": [
-   "AKY_GES",
    "ANK_RES"
   ],
   "actual_unknown": [],
-  "ok": false
+  "ok": true
  },
  {
   "question": "Karatepe Res. kapasitesi nedir?",
@@ -162,11 +161,11 @@
    "IZM_RES"
   ],
   "expected_unknown": [],
-  "actual_named": [],
-  "actual_unknown": [
-   "Kizilova RES"
+  "actual_named": [
+   "IZM_RES"
   ],
-  "ok": false
+  "actual_unknown": [],
+  "ok": true
  },
  {
   "question": "KIZILOVA RES COD tarihi nedir?",
@@ -199,11 +198,10 @@
   ],
   "expected_unknown": [],
   "actual_named": [
-   "AKY_GES",
    "IZM_RES"
   ],
   "actual_unknown": [],
-  "ok": false
+  "ok": true
  },
  {
   "question": "Yeşilova RES'in kredi bakiyesi nedir?",
@@ -223,11 +221,11 @@
    "YSV_RES"
   ],
   "expected_unknown": [],
-  "actual_named": [],
-  "actual_unknown": [
-   "Yesilova RES"
+  "actual_named": [
+   "YSV_RES"
   ],
-  "ok": false
+  "actual_unknown": [],
+  "ok": true
  },
  {
   "question": "YEŞİLOVA RES kredi bakiyesi nedir?",
@@ -284,11 +282,10 @@
   ],
   "expected_unknown": [],
   "actual_named": [
-   "AKY_GES",
    "BOZ_RES"
   ],
   "actual_unknown": [],
-  "ok": false
+  "ok": true
  },
  {
   "question": "Akyar GES kamulaştırma notu nerede?",
@@ -317,14 +314,14 @@
  {
   "question": "Güneşalan GES'in belgeleri var mı?",
   "expected_named": [],
-  "expected_unknown": [],
-  "actual_named": [
-   "AKY_GES"
+  "expected_unknown": [
+   "Güneşalan GES"
   ],
+  "actual_named": [],
   "actual_unknown": [
    "Güneşalan GES"
   ],
-  "ok": false
+  "ok": true
  },
  {
   "question": "Bursa RES'in kapasitesi nedir?",
@@ -344,13 +341,11 @@
   "expected_unknown": [
    "Bursa GES"
   ],
-  "actual_named": [
-   "AKY_GES"
-  ],
+  "actual_named": [],
   "actual_unknown": [
    "Bursa GES"
   ],
-  "ok": false
+  "ok": true
  },
  {
   "question": "bursa RES'in kapasitesi nedir?",
@@ -359,8 +354,10 @@
    "bursa RES"
   ],
   "actual_named": [],
-  "actual_unknown": [],
-  "ok": false
+  "actual_unknown": [
+   "bursa RES"
+  ],
+  "ok": true
  },
  {
   "question": "BURSA RES kapasitesi nedir?",
@@ -381,8 +378,10 @@
    "Bursa Res"
   ],
   "actual_named": [],
-  "actual_unknown": [],
-  "ok": false
+  "actual_unknown": [
+   "Bursa Res"
+  ],
+  "ok": true
  },
  {
   "question": "Bursa'nın kapasitesi nedir?",
@@ -448,13 +447,11 @@
  },
  {
   "question": "Test Project belgeleri nerede?",
-  "expected_named": [
-   "TEST_PRJ"
-  ],
+  "expected_named": [],
   "expected_unknown": [],
   "actual_named": [],
   "actual_unknown": [],
-  "ok": false
+  "ok": true
  },
  {
   "question": "Ankara RES'in kapasitesi nedir?",
@@ -483,9 +480,13 @@
  {
   "question": "Kara tepe RES kapasitesi nedir?",
   "expected_named": [],
-  "expected_unknown": [],
+  "expected_unknown": [
+   "tepe RES"
+  ],
   "actual_named": [],
-  "actual_unknown": [],
+  "actual_unknown": [
+   "tepe RES"
+  ],
   "ok": true
  },
  {
@@ -518,6 +519,182 @@
    "ANK_RES"
   ],
   "actual_unknown": [],
+  "ok": true
+ },
+ {
+  "question": "Kızılova'daki ÇED durumu nedir?",
+  "expected_named": [
+   "IZM_RES"
+  ],
+  "expected_unknown": [],
+  "actual_named": [
+   "IZM_RES"
+  ],
+  "actual_unknown": [],
+  "ok": true
+ },
+ {
+  "question": "Yeşilova'nın kredi bakiyesi nedir?",
+  "expected_named": [
+   "YSV_RES"
+  ],
+  "expected_unknown": [],
+  "actual_named": [
+   "YSV_RES"
+  ],
+  "actual_unknown": [],
+  "ok": true
+ },
+ {
+  "question": "Boztepe'de DSRA bakiyesi nedir?",
+  "expected_named": [
+   "BOZ_RES"
+  ],
+  "expected_unknown": [],
+  "actual_named": [
+   "BOZ_RES"
+  ],
+  "actual_unknown": [],
+  "ok": true
+ },
+ {
+  "question": "Akyar'ın kamulaştırma notu nerede?",
+  "expected_named": [
+   "AKY_GES"
+  ],
+  "expected_unknown": [],
+  "actual_named": [
+   "AKY_GES"
+  ],
+  "actual_unknown": [],
+  "ok": true
+ },
+ {
+  "question": "Demirci'nin TEA itirazı nerede?",
+  "expected_named": [
+   "DMR_RES"
+  ],
+  "expected_unknown": [],
+  "actual_named": [
+   "DMR_RES"
+  ],
+  "actual_unknown": [],
+  "ok": true
+ },
+ {
+  "question": "Karatepe projesinde kaç çalışan var?",
+  "expected_named": [
+   "ANK_RES"
+  ],
+  "expected_unknown": [],
+  "actual_named": [
+   "ANK_RES"
+  ],
+  "actual_unknown": [],
+  "ok": true
+ },
+ {
+  "question": "Kizilova RES COD tarihi nedir?",
+  "expected_named": [
+   "IZM_RES"
+  ],
+  "expected_unknown": [],
+  "actual_named": [
+   "IZM_RES"
+  ],
+  "actual_unknown": [],
+  "ok": true
+ },
+ {
+  "question": "yesilova RES'in kredi bakiyesi nedir?",
+  "expected_named": [
+   "YSV_RES"
+  ],
+  "expected_unknown": [],
+  "actual_named": [
+   "YSV_RES"
+  ],
+  "actual_unknown": [],
+  "ok": true
+ },
+ {
+  "question": "Bursa Res'in kapasitesi nedir?",
+  "expected_named": [],
+  "expected_unknown": [
+   "Bursa Res"
+  ],
+  "actual_named": [],
+  "actual_unknown": [
+   "Bursa Res"
+  ],
+  "ok": true
+ },
+ {
+  "question": "bursa ges'in kapasitesi nedir?",
+  "expected_named": [],
+  "expected_unknown": [
+   "bursa ges"
+  ],
+  "actual_named": [],
+  "actual_unknown": [
+   "bursa ges"
+  ],
+  "ok": true
+ },
+ {
+  "question": "BOZTEPE res kapasitesi nedir?",
+  "expected_named": [
+   "BOZ_RES"
+  ],
+  "expected_unknown": [],
+  "actual_named": [
+   "BOZ_RES"
+  ],
+  "actual_unknown": [],
+  "ok": true
+ },
+ {
+  "question": "Karatepe (RES) kapasitesi nedir?",
+  "expected_named": [
+   "ANK_RES"
+  ],
+  "expected_unknown": [],
+  "actual_named": [
+   "ANK_RES"
+  ],
+  "actual_unknown": [],
+  "ok": true
+ },
+ {
+  "question": "Kredi covenant testi sonucu nedir?",
+  "expected_named": [],
+  "expected_unknown": [],
+  "actual_named": [],
+  "actual_unknown": [],
+  "ok": true
+ },
+ {
+  "question": "Performans testi raporu nerede?",
+  "expected_named": [],
+  "expected_unknown": [],
+  "actual_named": [],
+  "actual_unknown": [],
+  "ok": true
+ },
+ {
+  "question": "Karatepe RES ile BURSA RES'in kapasitesi nedir?",
+  "expected_named": [
+   "ANK_RES"
+  ],
+  "expected_unknown": [
+   "BURSA RES"
+  ],
+  "actual_named": [
+   "ANK_RES"
+  ],
+  "actual_unknown": [
+   "BURSA RES"
+  ],
   "ok": true
  }
 ]
