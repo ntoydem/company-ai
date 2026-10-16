@@ -86,6 +86,6 @@ Makefile      up, down, logs, test, eval, seed, reset-demo, backup, restore, lin
 ```
 
 ## Demo sabitleri
-- İki demo proje: **Ankara RES** (işletmede, 2026'da 3. işletme yılı) ve **İzmir RES** (development, ÇED tamamlanmamış). İkisi ASLA karıştırılmaz.
-- `DEMO_TODAY=15.09.2026` — "güncel", "şu anda", "kaçıncı yıl" hesapları bu tarihe göre, gerçek takvime göre değil.
+- Yedi demo proje (ledger'da tanımlı; dosya adları eski kalmıştır): işletmede **Karatepe RES** (`ANK_RES`, `ankara_res.yaml`; 2026'da 3. işletme yılı), **Boztepe RES** (`BOZ_RES`), **Yeşilova RES** (`YSV_RES`), **Güneşalan GES** (`GNS_GES`; belgesiz, yalnız ledger); development'ta **Kızılova RES** (`IZM_RES`, `izmir_res.yaml`; ÇED tamamlanmamış), **Demirci RES** (`DMR_RES`), **Akyar GES** (`AKY_GES`). Projeler ASLA birbirine karıştırılmaz.
+- `DEMO_TODAY=06.10.2026` (`DEMO_MODE=true` iken; ADR-026) — "güncel", "şu anda", "kaçıncı yıl" hesapları bu tarihe göre, gerçek takvime göre değil.
 - Rakamlar (kapasite, capex, kredi tutarları, tarihler) yalnızca `seed_data/master/*.yaml` truth ledger'dan gelir. Ledger'da olmayan rakamı UYDURMA; `SORU:` ile sor.
