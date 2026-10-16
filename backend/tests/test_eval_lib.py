@@ -80,9 +80,14 @@ def test_load_questions_returns_the_committed_questions() -> None:
     # cevap bekler (Kızılova'nın kendi 2026-KZ sözleşmesi, İş Emri H'den beri kütüphanede);
     # GEN-HAL-004 aynı kök — yasak kaynak Karatepe FA zinciri kimlik bazlı, Kızılova'nın
     # kendi sözleşmesi serbest. Başka soru değişmedi, soru sayısı değişmedi (99)
+    # v14 (İş Emri 2026-10-16V14, Tansu 16.10 kontrolör önerisi): ANK-ISO-002 yasak kaynak
+    # kaldırıldı (proje proje cevap serbest); GEN-DSC-013, GEN-CMP-003, IZM-DEV-007/008
+    # yalnız `notes`. GEN-GEN-001/002/003 v2.1 alanlarıyla ifade edilemediği için
+    # değişmedi (rapor §3). Soru sayısı değişmedi (99)
     assert len(question_set.questions) == 99
-    assert question_set.version == 13
+    assert question_set.version == 14
     by_id = {q.id: q for q in question_set.questions}
+    assert by_id["ANK-ISO-002"].forbidden_sources == []
     for qid in ("GEN-AMB-003-F", "ANK-NEG-003"):
         assert by_id[qid].expect_no_answer and by_id[qid].expect_assist == "clarify"
     iso = by_id["IZM-ISO-004"]

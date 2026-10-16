@@ -1,0 +1,19 @@
+{
+  "spent_usd": 0.5418,
+  "budget_usd": null,
+  "unpriced_model_calls": 0,
+  "by_model": {
+    "claude-haiku-5-5": {
+      "calls": 194,
+      "tokens_in": 3278928,
+      "tokens_out": 95963,
+      "usd": 0.3759
+    },
+    "claude-sonnet-5-5": {
+      "calls": 24,
+      "tokens_in": 72529,
+      "tokens_out": 2084,
+      "usd": 0.1659
+    }
+  }
+}

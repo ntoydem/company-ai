@@ -1,5 +1,5 @@
 {
-  "version": 13,
+  "version": 14,
   "demo_today": "2026-10-06",
   "questions": [
     {
@@ -550,7 +550,7 @@
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
-      "notes": null
+      "notes": "Ledger `permits_completed` içindeki 'Askeri Yasak Yazısı' (30.08.2025) ve 'TEA Yazısı' (25.10.2025) hiçbir belgede yok (`doc: null`); cevapta beklenmez, eksikliği hata sayılmaz. Belgede yalnız Askeri Yasak Bölgeler Ön Görüş **Talebi** var; 'bekliyor' demek belgeye sadıktır."
     },
     {
       "id": "IZM-DEV-008",
@@ -568,7 +568,7 @@
       ],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
-      "notes": null
+      "notes": "Kapsam beklentisi (puanlayıcı v2.1 liste ölçüsü): ÇED süreci (İDK) ve Mera Tahsis Değişikliği (DOC-IZM-LEG-006) zorunlu. Ledger'da `AI_ASSUMPTION` etiketli adımlar (yapı ruhsatı, üretim lisansı, inşaat) ve belgesiz adımlar zorunlu değildir; söylenirse doğru kabul edilir."
     },
     {
       "id": "IZM-DEV-009",
@@ -687,12 +687,10 @@
       "required_sources": [
         "Karatepe RES Üretim Lisansı"
       ],
-      "forbidden_sources": [
-        "ÇED Süreci Durum Yazısı"
-      ],
+      "forbidden_sources": [],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
-      "notes": "Yalnızca Karatepe; Kızılova'nın yalnızca önlisansı var"
+      "notes": "Adsız soru (15.10 kararı): proje proje cevap beklenir. Geçer: Karatepe'de üretim lisansı var (zorunlu). Kızılova için 'yalnız önlisans var, üretim lisansı yok' demek doğrudur, izolasyon ihlali değildir. Geçmez: Kızılova'ya üretim lisansı varmış gibi bir bilgi."
     },
     {
       "id": "ANK-ISO-003",
@@ -1187,7 +1185,7 @@
       "forbidden_sources": [],
       "ask_as_user": "enerji",
       "expect_no_answer": false,
-      "notes": "Ü-3 yasak davranış (kapasite). Değer beklentisi GÜNCEL Karatepe kapasitesi (60 MW, lisans tadili): value_check düşerse temporal sorundur, phrase_check ayrı okunur (plan SORU 2).",
+      "notes": "Ü-3 yasak davranış (kapasite). Değer beklentisi GÜNCEL Karatepe kapasitesi (24 MW, lisans tadili): value_check düşerse temporal sorundur, phrase_check ayrı okunur (plan SORU 2).",
       "required_phrases": [
         "Projeler arası karşılaştırma bu üründe yapılmaz"
       ],
@@ -1726,7 +1724,7 @@
       ],
       "ask_as_user": "yonetim",
       "expect_no_answer": false,
-      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. Tansu §C.2 (06.10): terim sorusu; Ç-3 kararı Tansu'da — beklenen: tadil belgelerini gösterip sor, tanım cümlesi kurma."
+      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. Tansu §C.2 (06.10): terim sorusu; Ç-3 kararı Tansu'da — Tadil belgelerini gösterip sor (mevcut beklenti). Kaynaklı kısa tanım eklemek serbest; kaynaksız tanım KY."
     },
     {
       "id": "GEN-DSC-001-M",

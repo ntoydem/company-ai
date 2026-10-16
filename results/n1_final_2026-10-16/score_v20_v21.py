@@ -1,8 +1,12 @@
 """N1 — score one run's raw answers with v2.0 (all V21 flags off) and v2.1 (defaults)."""
-import dataclasses, json, sys
+
+import dataclasses
+import json
+import sys
 from pathlib import Path
+
 from scripts import eval_lib
-from scripts.rescore import load_audit_rows, align, outcome_from
+from scripts.rescore import align, load_audit_rows, outcome_from
 from scripts.run_eval import SafetyIndex
 
 run, audit, out = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
@@ -20,11 +24,23 @@ for label, flags in (("v20", v20), ("v21", eval_lib.DEFAULT_FLAGS)):
     for o, a in pairs:
         q = questions[o["id"]]
         outcome = outcome_from(o, a)
-        r = eval_lib.score_question(q, eval_lib.resolve_expected(q, raws, flags), catalog, outcome,
+        r = eval_lib.score_question(
+            q,
+            eval_lib.resolve_expected(q, raws, flags),
+            catalog,
+            outcome,
             safety_index.context(q.ask_as_user, outcome),
-            eval_lib.authoritative_sources(q, raws, catalog), flags)
+            eval_lib.authoritative_sources(q, raws, catalog),
+            flags,
+        )
         per[r.id] = {"passed": r.passed, "safety": r.safety_check}
     res[label] = per
-    print(label, sum(v["passed"] for v in per.values()), "/", len(per),
-          "safety_pass", sum(v["safety"] == "pass" for v in per.values()))
+    print(
+        label,
+        sum(v["passed"] for v in per.values()),
+        "/",
+        len(per),
+        "safety_pass",
+        sum(v["safety"] == "pass" for v in per.values()),
+    )
 out.write_text(json.dumps(res, indent=1, ensure_ascii=False), encoding="utf-8")
