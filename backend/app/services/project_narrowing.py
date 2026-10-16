@@ -111,7 +111,7 @@ def unknown_project_names(session: Session, question: str) -> list[str]:
     table — the words of every project name and code are the reference, so a renamed
     project's old name counts as unknown too (the table is the single source)."""
     known: set[str] = set()
-    for project in session.scalars(select(Project)).all():
+    for project in session.scalars(select(Project).where(Project.is_active.is_(True))).all():
         for raw in (project.name, project.code):
             known.update(w for w in re.split(r"[^\w]+", turkish_lower(raw)) if w)
     out: list[str] = []
@@ -134,7 +134,7 @@ def visible_project_names(session: Session, allowed: set[UUID]) -> list[str]:
     stmt = (
         select(Project.name)
         .join(Document, Document.project_id == Project.id)
-        .where(Document.id.in_(list(allowed)))
+        .where(Document.id.in_(list(allowed)), Project.is_active.is_(True))
         .distinct()
         .order_by(Project.name)
     )

@@ -452,11 +452,9 @@
    "TEST_PRJ"
   ],
   "expected_unknown": [],
-  "actual_named": [
-   "TEST_PRJ"
-  ],
+  "actual_named": [],
   "actual_unknown": [],
-  "ok": true
+  "ok": false
  },
  {
   "question": "Ankara RES'in kapasitesi nedir?",

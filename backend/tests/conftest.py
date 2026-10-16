@@ -49,6 +49,16 @@ def _reset_login_rate_limiter() -> None:
 
 
 @pytest.fixture(autouse=True)
+def _pin_ek_f_default(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The test container inherits the live `.env` (EK_F_MODE=true in production since
+    ADR-030) — pin the documented default so "flag off" tests stay environment-independent
+    (İş Emri 2026-10-16T2; previously diagnosed in IS_EMRI_2026-10-14S2c §4, never fixed).
+    A test that wants the flag on sets it itself afterwards (e.g. the `ek_f_on` fixtures),
+    which — same `monkeypatch`, later in fixture setup order — simply overrides this."""
+    monkeypatch.setattr(get_settings(), "ek_f_enabled", False)
+
+
+@pytest.fixture(autouse=True)
 def _clean_tables() -> Iterator[None]:
     yield
     with get_engine().begin() as conn:

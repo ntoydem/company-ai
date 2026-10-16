@@ -344,7 +344,7 @@ def named_project_codes(session: Session, question: str) -> set[str]:
     lowered_question = turkish_lower(question)
     words_by_code: dict[str, list[str]] = {
         project.code: [w for w in re.split(r"[^\w]+", turkish_lower(project.name)) if len(w) >= 3]
-        for project in session.scalars(select(Project)).all()
+        for project in session.scalars(select(Project).where(Project.is_active.is_(True))).all()
     }
     counts: dict[str, int] = {}
     for words in words_by_code.values():

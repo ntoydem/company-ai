@@ -24,6 +24,7 @@ from app.models.user import User
 from app.repositories import audit_log_repo
 from app.services import project_narrowing as narrowing
 from app.services.answer_prompt import NO_ANSWER_TEXT, NO_DATA_VERDICT
+from app.services.assist import named_project_codes
 from tests.conftest import alembic_config
 from tests.fakes import FakeLLMClient, FakeRouter
 from tests.test_ask import _ask, _document
@@ -162,6 +163,26 @@ def test_unknown_project_names_reads_the_projects_table(db_session: Session) -> 
     assert narrowing.unknown_project_names(db_session, "res kelimesi geçen cümle") == []
     # a renamed project's old name is unknown too — the table is the single source
     assert narrowing.unknown_project_names(db_session, "Ankara RES'in lisansı?") == ["Ankara RES"]
+
+
+def test_inactive_project_is_never_named_known_or_visible(db_session: Session) -> None:
+    """İş Emri 2026-10-16T2: a deactivated project (the live TEST_PRJ fix) is not namable by
+    its own name, does not swallow unrelated substrings ("testi"), and is never offered in
+    the "which project?" list — even when one of its documents is otherwise visible."""
+    _projects(db_session)
+    inactive = Project(name="Test Project", code="TEST_PRJ", is_active=False)
+    db_session.add(inactive)
+    db_session.commit()
+    doc = _document(db_session, title="Test Project Notu", department=None, text="not")
+    doc.project_id = inactive.id
+    db_session.commit()
+
+    assert named_project_codes(db_session, "Test Project belgeleri nerede?") == set()
+    assert named_project_codes(db_session, "Kredi covenant testi sonucu nedir?") == set()
+    assert named_project_codes(db_session, "Performans testi raporu nerede?") == set()
+
+    assert narrowing.unknown_project_names(db_session, "Karatepe RES'in kapasitesi nedir?") == []
+    assert narrowing.visible_project_names(db_session, {doc.id}) == []
 
 
 def test_unknown_project_question_names_only_visible_projects() -> None:
