@@ -67,6 +67,18 @@ Geri dönmek (ileri almak) için: `git checkout feat/adim5-veri-kutuphanesi && m
 verirse): §2'deki yalnız-Postgres geri yüklemeyi kullan; dump migration öncesi alınmış olmalıdır
 (`alembic_version` dump'la birlikte gelir).
 
+**S1 raporundaki "Gemini'ye dönüş" tek satırı artık tek başına yetmez** (İş Emri 2026-10-16M1
+madde 6). `docs/reports/IS_EMRI_2026-10-13S1.md` §8'deki komut
+(`install -m 600 "$HOME/.env.bak.2026-10-13S1" .env && make restart-backend`) yalnız `.env`'i
+13.10 haline getirir; kod ve şema bugünkü halinde kalır. S1 anındaki duruma (Gemini + 13.10 kodu,
+yani 0016 öncesi commit) tam dönüş isteniyorsa şema o kodun bilmediği `0016`'dadır: önce bu
+bölümün (§1) sırası uygulanır — `alembic downgrade 0015` kod hâlâ 0016 dosyasını içerirken, sonra
+`git checkout`, sonra `.env` + `make restart-backend`; ters sırada entrypoint açılışta `upgrade
+head` ile 0016'yı yeniden uygular ya da alembic 0016 script'ini bulamaz. Yalnız model/sağlayıcıyı
+Gemini'ye çevirmek (kod HEAD'de kalacaksa) için şema geri alması gerekmez; o durumda S1 yedeğinde
+bulunmayan dört satır (`LLM_MODEL_EXCEL_PLAN`, `ANSWER_THINKING*`, `ANTHROPIC_THINKING`)
+varsayılana döner, `EK_F_MODE=false` olur.
+
 ## 2. Yalnız-Postgres dump'tan geri yükleme (`data/backups/live_pre_*.dump`)
 
 Canlıya alma öncesi alınan dump'lar yalnız veritabanını içerir (`pg_dump -Fc`); belge dosyaları
