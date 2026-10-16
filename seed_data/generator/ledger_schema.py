@@ -948,6 +948,10 @@ class Question(_Strict):
     # inner list per item = that item's acceptable spellings (same shape as
     # `expected_answer_aliases`). Coverage is reported, never gates `passed` (IZM-DEV-008).
     expected_items: list[list[str]] | None = None
+    # İş Emri 2026-10-16V22 (scorer v2.2, Tansu 16.10 S1): "either" = a sourced answer OR the
+    # fixed not-found verdict both pass, a clarifying question does not (GEN-GEN definition
+    # questions). Default "single": `expect_no_answer` alone decides, as before V22.
+    answer_policy: Literal["single", "either"] = "single"
 
 
 class QuestionSet(_Strict):

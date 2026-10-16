@@ -895,7 +895,8 @@
       "forbidden_sources": [],
       "ask_as_user": "yonetim",
       "expect_no_answer": true,
-      "notes": "30.09.2026 (GENERAL_QUERY kaldırıldı): artık DOCUMENT_QUERY'e yönlendiriliyor. Korpus DSCR'ı hiçbir yerde genel biçimde tanımlamıyor (yalnızca covenant/gerçekleşen değerlerini belirtiyor), bu yüzden dürüst sonuç sabit 'bilgi bulamadım' metnidir — modelin kendi dünya bilgisinden tanım uydurmadığının regresyon testi."
+      "notes": "30.09.2026 (GENERAL_QUERY kaldırıldı): artık DOCUMENT_QUERY'e yönlendiriliyor. Korpus DSCR'ı hiçbir yerde genel biçimde tanımlamıyor (yalnızca covenant/gerçekleşen değerlerini belirtiyor), bu yüzden dürüst sonuç sabit 'bilgi bulamadım' metnidir — modelin kendi dünya bilgisinden tanım uydurmadığının regresyon testi. v2.2 (İş Emri 2026-10-16V22, Tansu 16.10 S1): answer_policy=either — geçer: kaynağı gösterilmiş tanım VEYA sabit 'bulamadım' cümlesi; netleştirici soru ('Hangi proje için…?') geçmez.",
+      "answer_policy": "either"
     },
     {
       "id": "GEN-GEN-002",
@@ -909,7 +910,8 @@
       "forbidden_sources": [],
       "ask_as_user": "yonetim",
       "expect_no_answer": true,
-      "notes": "30.09.2026 (GENERAL_QUERY kaldırıldı): artık DOCUMENT_QUERY'e yönlendiriliyor. Korpus ÇED sürecini genel biçimde tanımlamıyor (yalnızca Kızılova RES'in kendi ÇED durumunu anlatıyor), bu yüzden dürüst sonuç sabit 'bilgi bulamadım' metnidir; Kızılova RES'in kendi durumuna atıf yaparak cevap vermek de yanlış olur (soru genel süreci soruyor)."
+      "notes": "30.09.2026 (GENERAL_QUERY kaldırıldı): artık DOCUMENT_QUERY'e yönlendiriliyor. Korpus ÇED sürecini genel biçimde tanımlamıyor (yalnızca Kızılova RES'in kendi ÇED durumunu anlatıyor), bu yüzden dürüst sonuç sabit 'bilgi bulamadım' metnidir; Kızılova RES'in kendi durumuna atıf yaparak cevap vermek de yanlış olur (soru genel süreci soruyor). v2.2 (İş Emri 2026-10-16V22, Tansu 16.10 S1): answer_policy=either — geçer: kaynağı gösterilmiş tanım VEYA sabit 'bulamadım' cümlesi; netleştirici soru ('Hangi proje için…?') geçmez.",
+      "answer_policy": "either"
     },
     {
       "id": "GEN-GEN-003",
@@ -923,7 +925,8 @@
       "forbidden_sources": [],
       "ask_as_user": "yonetim",
       "expect_no_answer": true,
-      "notes": "30.09.2026 (GENERAL_QUERY kaldırıldı): artık DOCUMENT_QUERY'e yönlendiriliyor. Korpus covenant testinin genel amacını tanımlamıyor (yalnızca Karatepe RES'in kendi covenant değerlerini belirtiyor), bu yüzden dürüst sonuç sabit 'bilgi bulamadım' metnidir."
+      "notes": "30.09.2026 (GENERAL_QUERY kaldırıldı): artık DOCUMENT_QUERY'e yönlendiriliyor. Korpus covenant testinin genel amacını tanımlamıyor (yalnızca Karatepe RES'in kendi covenant değerlerini belirtiyor), bu yüzden dürüst sonuç sabit 'bilgi bulamadım' metnidir. v2.2 (İş Emri 2026-10-16V22, Tansu 16.10 S1): answer_policy=either — geçer: kaynağı gösterilmiş tanım VEYA sabit 'bulamadım' cümlesi; netleştirici soru ('Hangi proje için…?') geçmez.",
+      "answer_policy": "either"
     },
     {
       "id": "ANK-MIX-003",
@@ -1565,6 +1568,35 @@
       "forbidden_phrases": [
         "Kızılova",
         "Yeşilova",
+        "Boztepe",
+        "Güneşalan",
+        "Akyar",
+        "Demirci"
+      ],
+      "expect_assist": "disambiguate",
+      "clarify_kind": "project"
+    },
+    {
+      "id": "GEN-DSC-003-F",
+      "category": "ambiguous",
+      "question": "Sigorta ne zaman bitiyor?",
+      "expected_answer": null,
+      "expected_answer_aliases": [],
+      "expected_project": null,
+      "expected_department": null,
+      "required_sources": [],
+      "forbidden_sources": [
+        "Kızılova RES"
+      ],
+      "ask_as_user": "finans",
+      "expect_no_answer": true,
+      "notes": "Tansu 16.10 S11 (b): çok projeli sigorta vakası; daraltma (Madde 1) bitene kadar ❌ beklenir, bilinen durum. Veri (finans yetki kümesi içinde, belge düzeyi, eval DB SELECT 16.10.2026): sigorta belgesi Karatepe RES (Karatepe RES Insurance Assignment Agreement) ve Yeşilova RES (Sigorta Zeyilnamesi — Ara Dönem); diğer projelerde yok. Ölçüt GEN-DSC-003 (v14.1) ile aynı: tek proje netleştirmesi, seçenekler yalnız bu iki proje. GEN-DSC-003 (enerji) yetki sızıntısı testi olarak aynen kalır.",
+      "required_phrases": [
+        "Karatepe",
+        "Yeşilova"
+      ],
+      "forbidden_phrases": [
+        "Kızılova",
         "Boztepe",
         "Güneşalan",
         "Akyar",

@@ -198,7 +198,7 @@ def test_no_db_rescore_end_to_end(tmp_path: Path) -> None:
     )
     assert code == 0
     payload = json.loads((out / "results.json").read_text(encoding="utf-8"))
-    assert payload["scorer_version"] == "2.1"
+    assert payload["scorer_version"] == "2.2"
     row = payload["questions"][0]
     assert row["passed"] is True and row["value_check"] == "skipped"
     assert row["safety_check"] == "skipped"  # --no-db
@@ -209,3 +209,49 @@ def test_no_db_rescore_end_to_end(tmp_path: Path) -> None:
     cost = json.loads((out / "cost.json").read_text(encoding="utf-8"))
     assert cost["by_model"]["claude-haiku-5-5"]["calls"] == 1
     assert (out / "kontrolor_1.md").exists()
+
+
+def test_ablation_covers_r10_and_attributes_its_flip() -> None:
+    """İş Emri 2026-10-16V22 — `run_ablation` turns every ScorerFlags field off once,
+    R10 included: a GEN-GEN-style bare project clarification fails with the rule (v2.2)
+    and passes without it (v2.1); `changed_rules` tags the row R10."""
+    from scripts import eval_lib
+
+    question = eval_lib.ls.Question.model_validate(
+        {
+            "id": "GEN-GEN-009",
+            "category": "document",
+            "question": "Kredi sözleşmesinin vadesi kaç yıl?",
+            "expected_answer": None,
+            "expected_answer_aliases": [],
+            "expected_project": None,
+            "expected_department": None,
+            "required_sources": [],
+            "forbidden_sources": [],
+            "ask_as_user": "finans",
+            "expect_no_answer": True,
+            "answer_policy": "either",
+        }
+    )
+    old = _old_row(id="GEN-GEN-009", passed=True)
+    pairs = [(old, _audit_row())]
+    ablation = rescore.run_ablation(
+        pairs,
+        {question.id: question},
+        {},
+        eval_lib.DocumentCatalog(title_to_type={}, title_to_project={}),
+        None,
+    )
+    assert "r10_answer_policy_either" in ablation["rules"]
+    r10 = ablation["rules"]["r10_answer_policy_either"]
+    assert r10["delta"] == -1 and r10["changed_questions"] == [
+        {"id": "GEN-GEN-009", "with_rule": False, "without_rule": True}
+    ]
+    assert "r10_answer_policy_either" in rescore.render_ablation_markdown(ablation, label="x")
+    result = eval_lib.score_question(
+        question,
+        eval_lib.resolve_expected(question, {}),
+        eval_lib.DocumentCatalog(title_to_type={}, title_to_project={}),
+        rescore.outcome_from(old, _audit_row()),
+    )
+    assert "R10" in rescore.changed_rules(old, result, question_changed=False)

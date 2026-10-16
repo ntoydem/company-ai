@@ -5,6 +5,7 @@ themselves."""
 
 from __future__ import annotations
 
+from app.services.answer_prompt import NO_ANSWER_TEXT, NO_DATA_VERDICT
 from scripts.eval_lib import (
     SCORER_VERSION,
     AskOutcome,
@@ -87,11 +88,20 @@ def test_load_questions_returns_the_committed_questions() -> None:
     # v14.1 eki (İş Emri 2026-10-16V141; `version: int` olduğu için sayı 14 kaldı): adsız değer
     # sorusu ortak ölçütü GEN-DSC-003/004 ve ANK-MIX-001'e (tek netleştirici soru, seçenekler
     # yalnız veriye sahip projeler); GEN-DSC-011/011-K metni "karatepenin …" (adlı soru)
-    assert len(question_set.questions) == 99
+    # V22 (İş Emri 2026-10-16V22, puanlayıcı v2.2; sayı yine 14): GEN-GEN-001/002/003
+    # answer_policy=either; + GEN-DSC-003-F (finans, çok projeli sigorta, Tansu 16.10 S11 b)
+    assert len(question_set.questions) == 100
     assert question_set.version == 14
     by_id = {q.id: q for q in question_set.questions}
     assert by_id["ANK-ISO-002"].forbidden_sources == []
-    for qid in ("GEN-DSC-003", "GEN-DSC-004", "ANK-MIX-001"):
+    for qid in ("GEN-GEN-001", "GEN-GEN-002", "GEN-GEN-003"):
+        assert by_id[qid].answer_policy == "either" and by_id[qid].expect_no_answer
+    variant = by_id["GEN-DSC-003-F"]
+    assert variant.question == by_id["GEN-DSC-003"].question and variant.ask_as_user == "finans"
+    assert variant.required_phrases == ["Karatepe", "Yeşilova"]
+    assert "Kızılova" in variant.forbidden_phrases
+    assert by_id["GEN-DSC-003"].ask_as_user == "enerji"  # unchanged (yetki sızıntısı testi)
+    for qid in ("GEN-DSC-003", "GEN-DSC-004", "ANK-MIX-001", "GEN-DSC-003-F"):
         q = by_id[qid]
         assert q.expect_no_answer and q.expect_assist == "disambiguate"
         assert q.clarify_kind == "project" and q.required_phrases and q.forbidden_phrases
@@ -1341,8 +1351,8 @@ def test_f0_a6_discovery_counters_and_their_summary_lines() -> None:
 # ==================================================================
 
 
-def test_scorer_version_is_v21() -> None:
-    assert SCORER_VERSION == "2.1"
+def test_scorer_version_is_v22() -> None:
+    assert SCORER_VERSION == "2.2"
 
 
 # ---- R1: contradicting percent (ANK-FIN-013 class) -----------------------------------
@@ -1915,3 +1925,136 @@ def test_r9_ablation_flag_off_keeps_the_old_skip() -> None:
     )
     expected = resolve_expected(money_q, raws, flags=ScorerFlags(r9_ledger_formatter=False))
     assert expected.skip and "unformattable" in (expected.skip_reason or "")
+
+
+# ==================================================================
+# İş Emri 2026-10-16V22 — puanlayıcı v2.2 (R10: answer_policy "either")
+# ==================================================================
+
+_NO_SKIP = ExpectedValue(skip=True, skip_reason="no_literal_expected_answer")
+_PROJECT_Q = "Hangi proje için sormak istiyorsunuz (Karatepe RES, Yeşilova RES)?"
+
+
+def _either_question(**overrides: object) -> ls.Question:
+    defaults: dict[str, object] = {
+        "id": "GEN-GEN-009",
+        "question": "DSCR ne demek?",
+        "expected_project": None,
+        "expected_department": None,
+        "ask_as_user": "yonetim",
+        "expect_no_answer": True,
+        "answer_policy": "either",
+    }
+    defaults.update(overrides)
+    return _question(**defaults)
+
+
+def _bare_project_question() -> AskOutcome:
+    return AskOutcome(
+        answered=False,
+        answer_text=_PROJECT_Q,
+        query_type="DOCUMENT_QUERY",
+        assist={"kind": "disambiguate", "question": _PROJECT_Q, "available": []},
+    )
+
+
+def test_r10_either_passes_a_sourced_answer() -> None:
+    outcome = AskOutcome(
+        answered=True,
+        answer_text="DSCR, borç servisi karşılama oranıdır [K1].",
+        cited_titles=("Facility Agreement",),
+        query_type="DOCUMENT_QUERY",
+    )
+    result = score_question(_either_question(), _NO_SKIP, _mini_catalog(), outcome)
+    assert result.answered_ok and result.passed and result.answer_policy == "either"
+
+
+def test_r10_either_passes_the_fixed_not_found_verdict_with_its_help_block() -> None:
+    for text in (
+        NO_ANSWER_TEXT,
+        "«dscr» ifadesini DSCR olarak anladım.\n"
+        + NO_DATA_VERDICT
+        + "\nElimde konuyla ilgili şunlar var:\nKaratepe RES: Facility Agreement\n"
+        "Hangi belge, proje veya konu hakkında olduğunu belirtebilir misiniz?",
+    ):
+        outcome = AskOutcome(answered=False, answer_text=text, query_type="DOCUMENT_QUERY")
+        result = score_question(_either_question(), _NO_SKIP, _mini_catalog(), outcome)
+        assert result.answered_ok and result.passed, text
+
+
+def test_r10_either_fails_a_bare_project_clarification() -> None:
+    result = score_question(_either_question(), _NO_SKIP, _mini_catalog(), _bare_project_question())
+    assert not result.answered_ok and not result.passed
+    assert "netleştirici soru" in (result.answer_policy_reason or "")
+
+
+def test_r10_either_fails_an_unsourced_answer() -> None:
+    outcome = AskOutcome(
+        answered=True, answer_text="DSCR bir orandır.", query_type="DOCUMENT_QUERY"
+    )
+    result = score_question(_either_question(), _NO_SKIP, _mini_catalog(), outcome)
+    assert not result.answered_ok and not result.passed
+    assert "kaynak" in (result.answer_policy_reason or "")
+
+
+def test_r10_either_keeps_safety_and_phrase_checks() -> None:
+    """A sourced answer still fails on G1 (number absent from the grounding text) and on a
+    forbidden phrase — "either" only widens `answered_ok`."""
+    outcome = AskOutcome(
+        answered=True,
+        answer_text="DSCR eşiği 1,45x'tir [K1].",
+        cited_titles=("Facility Agreement",),
+        query_type="DOCUMENT_QUERY",
+    )
+    ctx = SafetyContext(grounding_text="DSCR tanımı", visible_document_ids=frozenset())
+    g1 = score_question(_either_question(), _NO_SKIP, _mini_catalog(), outcome, ctx)
+    assert g1.answered_ok and g1.safety_check == "fail" and not g1.passed
+    phrase = score_question(
+        _either_question(forbidden_phrases=["eşiği"]), _NO_SKIP, _mini_catalog(), outcome
+    )
+    assert phrase.answered_ok and phrase.phrase_check == "fail" and not phrase.passed
+
+
+def test_r10_single_policy_is_unchanged() -> None:
+    """Default "single": a sourced answer to an expect_no_answer question still fails, a bare
+    clarification still passes `answered_ok` — the v2.1 reading for every other question."""
+    sourced = AskOutcome(
+        answered=True,
+        answer_text="DSCR, borç servisi karşılama oranıdır [K1].",
+        cited_titles=("Facility Agreement",),
+        query_type="DOCUMENT_QUERY",
+    )
+    single = _either_question(answer_policy="single")
+    assert not score_question(single, _NO_SKIP, _mini_catalog(), sourced).answered_ok
+    bare = score_question(single, _NO_SKIP, _mini_catalog(), _bare_project_question())
+    assert bare.answered_ok and bare.answer_policy == "single"
+
+
+def test_r10_ablation_flag_off_is_v21() -> None:
+    """Flag off = v2.1: `answer_policy` ignored, `answered_ok` back to the strict
+    expect_no_answer comparison (GEN-GEN-003 M1: sourced definition ❌; N1: bare ✅)."""
+    off = ScorerFlags(r10_answer_policy_either=False)
+    sourced = AskOutcome(
+        answered=True,
+        answer_text="DSCR, borç servisi karşılama oranıdır [K1].",
+        cited_titles=("Facility Agreement",),
+        query_type="DOCUMENT_QUERY",
+    )
+    q = _either_question()
+    on_sourced = score_question(q, _NO_SKIP, _mini_catalog(), sourced)
+    off_sourced = score_question(q, _NO_SKIP, _mini_catalog(), sourced, flags=off)
+    assert on_sourced.passed and not off_sourced.passed
+    assert off_sourced.answer_policy == "single" and off_sourced.answer_policy_reason is None
+    bare = _bare_project_question()
+    assert not score_question(q, _NO_SKIP, _mini_catalog(), bare).passed
+    assert score_question(q, _NO_SKIP, _mini_catalog(), bare, flags=off).answered_ok
+
+
+def test_r10_result_fields_reach_results_json() -> None:
+    result = score_question(_either_question(), _NO_SKIP, _mini_catalog(), _bare_project_question())
+    report = build_report(
+        [result], model="m", date_str="d", demo_today="x", embeddings_enabled=False
+    )
+    row = report_to_json(report)["questions"][0]
+    assert row["answer_policy"] == "either" and "netleştirici" in row["answer_policy_reason"]
+    assert "netleştirici soru" in render_markdown(report)

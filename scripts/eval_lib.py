@@ -27,7 +27,7 @@ DEFAULT_RESULTS_DIR = DEFAULT_MASTER.parent.parent / "results"
 
 # Scorer contract version — bump with every scoring-rule change and add a CHANGELOG line, so a
 # results.json can always be read against the rules that produced it (İş Emri 2026-10-15F0 A).
-SCORER_VERSION = "2.1"
+SCORER_VERSION = "2.2"
 SCORER_CHANGELOG: tuple[str, ...] = (
     "1.x (Phase 4.1 … İş Emri 2026-10-14B2a): value/source/phrase checks, G1–G3, assist, "
     "discovery, F-8 format; clarify ≡ disambiguate.",
@@ -103,6 +103,14 @@ SCORER_CHANGELOG: tuple[str, ...] = (
     "covered (no verified Turkish rendering exists anywhere in the generated documents). "
     "M1/S3r +0 (ANK-FIN-015, ANK-OPS-002 newly verified AND correct in both runs — zero newly "
     "verified-and-failing) — see docs/reports/assets/V21_item9_ledger_formatter.md.",
+    # İş Emri 2026-10-16V22 — Tansu 16.10 S1 (ftansu/AI-BalBal
+    # docs/yazismalar/2026-10-16_naciye-2044-sorularina-cevap.md), V14 report §3 option 1.
+    "2.2 (V22 R10): opt-in question.answer_policy == 'either' (default 'single') — the "
+    "question passes with EITHER a sourced answer (answered + at least one cited document or "
+    "workbook; value/source/phrase/G1–G3/F-8 checks unchanged) OR the fixed not-found verdict "
+    "(not answered, opens with NO_ANSWER_TEXT/NO_DATA_VERDICT — the same `_starts_with_verdict` "
+    "rule G2 uses). A clarifying question instead of either (a bare 'Hangi proje için…?') does "
+    "NOT pass. Set on GEN-GEN-001/002/003 only; flag r10_answer_policy_either off = v2.1.",
 )
 
 
@@ -120,6 +128,8 @@ class ScorerFlags:
     r7_g3_all_projects: bool = True
     r8_g1_mixed_data: bool = True
     r9_ledger_formatter: bool = True
+    # İş Emri 2026-10-16V22 (v2.2) — off: `answer_policy` is ignored, i.e. v2.1 behaviour.
+    r10_answer_policy_either: bool = True
 
 
 DEFAULT_FLAGS = ScorerFlags()
@@ -1206,6 +1216,29 @@ def clarify_relevance_check(
     return "pass", None
 
 
+def answer_policy_either_check(outcome: AskOutcome) -> tuple[bool, str | None]:
+    """V22 R10 — `answer_policy == "either"` (Tansu 16.10 S1): `answered_ok` when the
+    response is (a) an answer with at least one cited document/workbook, or (b) the fixed
+    not-found verdict (G2's own rule: opens with it; a MIXED no-answer carries it inside its
+    two headings). A trailing help block after the verdict (ADR-030 F-3 list/offer) is still
+    (b). Anything else unanswered — a bare clarifying question above all — is neither and
+    fails. Every other check (value, sources, phrases, G1–G3, F-8) runs as before."""
+    if outcome.answered:
+        if outcome.cited_titles or outcome.cited_files:
+            return True, None
+        return False, "either: cevap var, kaynak gösterilmemiş"
+    text = outcome.answer_text
+    if outcome.query_type == "MIXED_QUERY":
+        has_verdict = NO_ANSWER_TEXT in text or NO_DATA_VERDICT in text
+    else:
+        has_verdict = _starts_with_verdict(text)
+    if has_verdict:
+        return True, None
+    if (outcome.assist or {}).get("question"):
+        return False, "either: netleştirici soru — kaynaklı cevap da sabit cümle de değil"
+    return False, "either: cevapsız yanıt sabit cümleyle başlamıyor"
+
+
 def list_coverage(
     question: ls.Question, outcome: AskOutcome, flags: ScorerFlags = DEFAULT_FLAGS
 ) -> tuple[int | None, int | None, tuple[str, ...]]:
@@ -1291,6 +1324,10 @@ class QuestionResult:
     list_coverage_found: int | None = None
     list_coverage_total: int | None = None
     list_coverage_missing: tuple[str, ...] = ()
+    # V22 R10: the question's answer policy as scored ("single" also when the flag is off)
+    # and why `answered_ok` failed under "either".
+    answer_policy: str = "single"
+    answer_policy_reason: str | None = None
 
 
 def phrase_check_passes(question: ls.Question, answer_text: str) -> tuple[bool, str | None]:
@@ -1348,6 +1385,11 @@ def score_question(
         # Either an answer with citations or the fixed sentence with a list + question is
         # acceptable; `discovery_check` is the whole criterion.
         answered_ok = True
+    answer_policy = "single"
+    answer_policy_reason: str | None = None
+    if flags.r10_answer_policy_either and question.answer_policy == "either":
+        answer_policy = "either"
+        answered_ok, answer_policy_reason = answer_policy_either_check(outcome)
 
     missing_required: tuple[str, ...] = ()
     source_rule = "n/a"
@@ -1467,6 +1509,8 @@ def score_question(
         list_coverage_found=coverage_found,
         list_coverage_total=coverage_total,
         list_coverage_missing=coverage_missing,
+        answer_policy=answer_policy,
+        answer_policy_reason=answer_policy_reason,
     )
 
 
@@ -1673,6 +1717,8 @@ def report_to_json(report: EvalReport) -> dict[str, Any]:
                 "list_coverage_found": r.list_coverage_found,
                 "list_coverage_total": r.list_coverage_total,
                 "list_coverage_missing": list(r.list_coverage_missing),
+                "answer_policy": r.answer_policy,
+                "answer_policy_reason": r.answer_policy_reason,
                 "passed": r.passed,
                 "error": r.error,
                 "latency_ms": r.latency_ms,
@@ -1761,7 +1807,9 @@ def render_markdown(report: EvalReport) -> str:
         lines += ["", "## Başarısız sorular", ""]
         for r in failed:
             reasons = []
-            if not r.answered_ok:
+            if not r.answered_ok and r.answer_policy_reason:
+                reasons.append(r.answer_policy_reason)
+            elif not r.answered_ok:
                 reasons.append(f"answered={r.answered} bekleniyordu={not r.expect_no_answer}")
             if r.required_sources_missing and r.source_rule == "set":
                 kume = list(r.authoritative_sources)

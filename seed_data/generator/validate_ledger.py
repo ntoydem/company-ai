@@ -1023,6 +1023,21 @@ def check_questions(
                 report.error(f, f"{p}.expect_assist", f"Q7: {q.category} needs expect_assist")
         if q.expect_assist is not None and not q.expect_no_answer:
             report.error(f, f"{p}.expect_assist", "Q7: expect_assist requires expect_no_answer")
+        # Q9 (İş Emri 2026-10-16V22): "either" rides on a plain no-answer question — no
+        # ledger value, no assist kind (a clarification never passes it), not an assist or
+        # discovery category — so the flag-off (v2.1) reading stays the fixed sentence.
+        if q.answer_policy == "either" and (
+            not q.expect_no_answer
+            or q.expect_assist is not None
+            or q.expected_answer is not None
+            or q.category in ("discovery", "ambiguous", "term_mismatch")
+        ):
+            report.error(
+                f,
+                f"{p}.answer_policy",
+                "Q9: answer_policy 'either' needs expect_no_answer, no expect_assist, no "
+                "expected_answer and a non-assist, non-discovery category",
+            )
         for j, source in enumerate(q.required_sources):
             if source not in doc_names and source not in doc_types:
                 report.error(

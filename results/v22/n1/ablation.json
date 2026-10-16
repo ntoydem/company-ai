@@ -1,0 +1,83 @@
+{
+  "total": 99,
+  "v21_pass": 68,
+  "rules": {
+    "r1_contradicting_percent": {
+      "v21_pass": 68,
+      "without_rule_pass": 69,
+      "delta": -1,
+      "changed_questions": [
+        {
+          "id": "ANK-FIN-005",
+          "with_rule": false,
+          "without_rule": true
+        }
+      ]
+    },
+    "r2_format_gates": {
+      "v21_pass": 68,
+      "without_rule_pass": 68,
+      "delta": 0,
+      "changed_questions": []
+    },
+    "r3_skip_reason_label": {
+      "v21_pass": 68,
+      "without_rule_pass": 68,
+      "delta": 0,
+      "changed_questions": []
+    },
+    "r4_mixed_completeness": {
+      "v21_pass": 68,
+      "without_rule_pass": 68,
+      "delta": 0,
+      "changed_questions": []
+    },
+    "r5_clarify_relevance": {
+      "v21_pass": 68,
+      "without_rule_pass": 68,
+      "delta": 0,
+      "changed_questions": []
+    },
+    "r6_list_coverage": {
+      "v21_pass": 68,
+      "without_rule_pass": 68,
+      "delta": 0,
+      "changed_questions": []
+    },
+    "r7_g3_all_projects": {
+      "v21_pass": 68,
+      "without_rule_pass": 68,
+      "delta": 0,
+      "changed_questions": []
+    },
+    "r8_g1_mixed_data": {
+      "v21_pass": 68,
+      "without_rule_pass": 68,
+      "delta": 0,
+      "changed_questions": []
+    },
+    "r9_ledger_formatter": {
+      "v21_pass": 68,
+      "without_rule_pass": 68,
+      "delta": 0,
+      "changed_questions": []
+    },
+    "r10_answer_policy_either": {
+      "v21_pass": 68,
+      "without_rule_pass": 70,
+      "delta": -2,
+      "changed_questions": [
+        {
+          "id": "GEN-GEN-002",
+          "with_rule": false,
+          "without_rule": true
+        },
+        {
+          "id": "GEN-GEN-003",
+          "with_rule": false,
+          "without_rule": true
+        }
+      ]
+    }
+  }
+}

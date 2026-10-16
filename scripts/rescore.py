@@ -45,6 +45,7 @@ RULE_LABELS = {
     "R7": "V21 — G3 tüm projeler",
     "R8": "V21 — G1 MIXED/DATA'ya genişledi",
     "R9": "V21 — ledger biçimlendirici genişledi",
+    "R10": "V22 — answer_policy=either (kaynaklı cevap ya da sabit cümle)",
 }
 
 # İş Emri 2026-10-16V21 — kontrolör #42'nin bağımsız 20 soru karar sütunu, birebir
@@ -94,7 +95,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--ablation",
         action="store_true",
-        help="per-rule standalone effect (9 ScorerFlags, one at a time)",
+        help="per-rule standalone effect (every ScorerFlags field, one at a time)",
     )
     parser.add_argument(
         "--controller-42",
@@ -222,12 +223,17 @@ def changed_rules(old: dict[str, Any], new: QuestionResult, question_changed: bo
         rules.append("R8")
     if old.get("value_check") == "skipped" and new.value_check != "skipped":
         rules.append("R9")
+    # V22: R10 decides answered_ok for an "either" question, so tag it whenever it applied.
+    if new.answer_policy == "either":
+        rules.append("R10")
     return rules
 
 
 def failure_reasons(r: QuestionResult) -> list[str]:
     reasons = []
-    if not r.answered_ok:
+    if not r.answered_ok and r.answer_policy_reason:
+        reasons.append(f"{r.answer_policy_reason} (V22 R10)")
+    elif not r.answered_ok:
         reasons.append(f"answered={r.answered}, beklenen {not r.expect_no_answer}")
     if r.required_sources_missing:
         if r.source_rule == "set":
@@ -415,9 +421,11 @@ def run_ablation(
     catalog: eval_lib.DocumentCatalog,
     safety_index: Any | None,
 ) -> dict[str, Any]:
-    """V21 — the standalone effect of each of the 9 rules: rescore the whole run once per
-    rule turned off (every other rule stays on, i.e. the v2.1 baseline minus one), diff the
-    pass count against the all-on v2.1 baseline. `safety_index` may be `None` (--no-db)."""
+    """V21 — the standalone effect of each rule (V21's 9 + V22's R10): rescore the whole run
+    once per rule turned off (every other rule stays on, i.e. the current-version baseline
+    minus one), diff the pass count against the all-on baseline. The `v21_pass` key name is
+    kept for V21's committed ablation.json files; it is the all-on pass count of the current
+    scorer version. `safety_index` may be `None` (--no-db)."""
 
     def score_all(flags: eval_lib.ScorerFlags) -> list[QuestionResult]:
         results = []
@@ -457,10 +465,10 @@ def run_ablation(
 
 def render_ablation_markdown(ablation: dict[str, Any], *, label: str) -> str:
     lines = [
-        f"# V21 ablasyon — madde başına tek başına etki ({label})",
+        f"# Ablasyon — madde başına tek başına etki ({label})",
         "",
-        f"v2.1 (hepsi açık): {ablation['v21_pass']}/{ablation['total']}. Her satır bir kuralı "
-        "TEK BAŞINA kapatıp (diğer 8'i açık kalarak) yeniden puanlar.",
+        f"v{eval_lib.SCORER_VERSION} (hepsi açık): {ablation['v21_pass']}/{ablation['total']}. "
+        "Her satır bir kuralı TEK BAŞINA kapatıp (diğerleri açık kalarak) yeniden puanlar.",
         "",
         "| Kural | Kapalıyken geçen | Delta (kuralın etkisi) | Değişen sorular |",
         "|---|---|---|---|",

@@ -279,6 +279,38 @@ def test_comparison_questions_need_two_facts_no_project_and_forbidden_phrases(
         assert _has(_run(vl.DEFAULT_MASTER, _mutated_questions(tmp_path, mutate)), "Q6")
 
 
+def test_answer_policy_either_rides_only_on_a_plain_no_answer_question(tmp_path: Path) -> None:
+    """İş Emri 2026-10-16V22 Q9: "either" needs expect_no_answer, no expect_assist, no
+    expected_answer and a non-assist, non-discovery category; the three GEN-GEN questions
+    validate clean (`test_master_ledger_validates_clean`)."""
+
+    def _gen_gen(data: dict[str, Any]) -> dict[str, Any]:
+        return next(q for q in data["questions"] if q["id"] == "GEN-GEN-001")
+
+    def answer_expected(data: dict[str, Any]) -> None:
+        _gen_gen(data)["expect_no_answer"] = False
+        _gen_gen(data)["expected_answer"] = "ledger:ankara_res.project.capacity_mw.current.value"
+
+    def with_assist(data: dict[str, Any]) -> None:
+        _gen_gen(data)["expect_assist"] = "disambiguate"
+
+    def on_ambiguous(data: dict[str, Any]) -> None:
+        q = next(q for q in data["questions"] if q["category"] == "ambiguous")
+        q["answer_policy"] = "either"
+
+    for mutate in (answer_expected, with_assist, on_ambiguous):
+        assert _has(_run(vl.DEFAULT_MASTER, _mutated_questions(tmp_path, mutate)), "Q9")
+
+
+def test_answer_policy_defaults_to_single() -> None:
+    questions = ls.QuestionSet.model_validate(
+        json.loads(vl.DEFAULT_QUESTIONS.read_text(encoding="utf-8"))
+    ).questions
+    either = sorted(q.id for q in questions if q.answer_policy == "either")
+    assert either == ["GEN-GEN-001", "GEN-GEN-002", "GEN-GEN-003"]
+    assert all(q.answer_policy == "single" for q in questions if q.id not in either)
+
+
 def test_list_expected_answer_paths_are_each_checked(tmp_path: Path) -> None:
     def bad_second(data: dict[str, Any]) -> None:
         q = next(q for q in data["questions"] if q["category"] == "comparison")
