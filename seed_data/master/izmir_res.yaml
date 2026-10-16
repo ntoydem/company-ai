@@ -140,8 +140,11 @@ documents:
     folder: development
     type: Önlisans
     name: {value: "Kızılova RES Önlisans Belgesi", tag: USER_FACT}
-    document_date: {value: 2024-01-18, tag: USER_FACT}
-    effective_date: {value: 2024-01-18, tag: USER_FACT}
+    # İş Emri 2026-10-16K2 (K1, Tansu 16.10 WA madde 4 + 16.10 notu S2): belge tarihi
+    # timeline.pre_licence.date (2025-01-15, ÖL/13085-3) ile eşitlendi; eski 2024-01-18,
+    # 11.10 takvim düzeltmesinden (871bbc1) önceki önlisans tarihiydi.
+    document_date: {value: 2025-01-15, tag: USER_FACT}
+    effective_date: {value: 2025-01-15, tag: USER_FACT}
     expiration_date: null
     version: EXECUTED
     status: active
@@ -397,7 +400,13 @@ documents:
     folder: legal
     type: Legal Review Memo
     name: {value: "Önlisans Süre Uzatımı Hukuki Değerlendirmesi", tag: AI_ASSUMPTION}
-    document_date: {value: 2023-11-01, tag: AI_ASSUMPTION}
+    # İş Emri 2026-10-16K2 (Tansu 16.10 notu S3): eski 2023-11-01, önlisans başvurusundan
+    # (2023-10-04) 4 hafta sonra ve önlisanstan (timeline.pre_licence 2025-01-15, USER_FACT)
+    # önceydi — verilmemiş önlisansın süre uzatımı. Yanlış olan bu AI_ASSUMPTION belge
+    # tarihi; önlisans tarihi USER_FACT ve 4 yerde kanonik. Yeni tarih ledger'da yok, seçildi:
+    # ÇED ek bilgi talebinden (18.07.2026) sonra, ÇED durum yazısı (27.08.2026) ve
+    # latest_event'ten (12.09.2026) önce — "en son gelişme" kümesi değişmez.
+    document_date: {value: 2026-08-10, tag: AI_ASSUMPTION}
     effective_date: null
     expiration_date: null
     version: EXECUTED
