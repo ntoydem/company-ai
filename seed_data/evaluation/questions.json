@@ -843,16 +843,26 @@
       "expected_answer_aliases": [],
       "expected_project": "Karatepe RES",
       "expected_department": "finans",
-      "required_sources": [
-        "Facility Agreement Amendment 01",
-        "Covenant Report (workbook)"
-      ],
+      "required_sources": [],
       "forbidden_sources": [
         "Kızılova RES"
       ],
       "ask_as_user": "finans",
-      "expect_no_answer": false,
-      "notes": "MIXED (belirsiz): covenant 1,20x belgeden + gerçekleşen 1,37x Excel'den; iki kaynak türü zorunlu"
+      "expect_no_answer": true,
+      "notes": "v14.1 (kontrolör, Tansu onayı 16.10.2026; kontrolor/soru-seti/2026-10-16_v14-1_ek.md, karar 7(i)): adsız değer sorusu, ortak geçme ölçütü: tek netleştirici soru; seçenekler yalnız sorulan veriye sahip projeler (kalem adıyla, rakam/tarih yok — G1). Geçmez: projesiz tek rakam/tarih (KY); verisi olmayan projeyi saymak (T-2); veriye sahip projeyi düşürmek (T-2). İfade (v2.1 alanları): expect_no_answer + expect_assist=disambiguate (≡ clarify) + clarify_kind=project; required_phrases = veriye sahip projeler, forbidden_phrases = verisi olmayan projeler. Veri (finans yetki kümesi içinde, belge düzeyi, eval DB 16.10.2026): DSCR (covenant/gerçekleşen) Karatepe RES, Boztepe RES ve Yeşilova RES belgelerinde; Kızılova RES'te (finans 4 belge görür) DSCR yok. Proje seçildikten sonraki MIXED cevap bu sorunun kapsamı dışında: required_sources (belge + workbook) boşaltıldı; expected_answer bilgi için kaldı (expect_no_answer + expect_assist → değer kontrolü skip, F0 A3). Önceki beklenti: MIXED — covenant 1,20x belgeden + gerçekleşen 1,37x Excel'den; iki kaynak türü zorunlu.",
+      "required_phrases": [
+        "Boztepe",
+        "Karatepe",
+        "Yeşilova"
+      ],
+      "forbidden_phrases": [
+        "Kızılova",
+        "Güneşalan",
+        "Akyar",
+        "Demirci"
+      ],
+      "expect_assist": "disambiguate",
+      "clarify_kind": "project"
     },
     {
       "id": "ANK-MIX-002",
@@ -1534,7 +1544,7 @@
     },
     {
       "id": "GEN-DSC-003",
-      "category": "discovery",
+      "category": "ambiguous",
       "question": "Sigorta ne zaman bitiyor?",
       "expected_answer": null,
       "expected_answer_aliases": [],
@@ -1547,12 +1557,25 @@
         "Kızılova RES"
       ],
       "ask_as_user": "enerji",
-      "expect_no_answer": false,
-      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. §3.1; ADR-026 'Süre:' satırı var."
+      "expect_no_answer": true,
+      "notes": "v14.1 (kontrolör, Tansu onayı 16.10.2026; kontrolor/soru-seti/2026-10-16_v14-1_ek.md, karar 7(i)): adsız değer sorusu, ortak geçme ölçütü: tek netleştirici soru; seçenekler yalnız sorulan veriye sahip projeler (kalem adıyla, rakam/tarih yok — G1). Geçmez: projesiz tek rakam/tarih (KY); verisi olmayan projeyi saymak (T-2); veriye sahip projeyi düşürmek (T-2). İfade (v2.1 alanları): expect_no_answer + expect_assist=disambiguate (≡ clarify) + clarify_kind=project; required_phrases = veriye sahip projeler, forbidden_phrases = verisi olmayan projeler. Veri (enerji yetki kümesi içinde, belge düzeyi, eval DB 16.10.2026): sigorta belgesi yalnız Karatepe RES'te (Construction All Risks Insurance Policy Summary, Sigorta Yenileme Bildirimi). Yeşilova Sigorta Zeyilnamesi, Karatepe Insurance Assignment Agreement, Sigorta Programı notları ve grup özeti enerji'ye kapalı; bu yüzden enerji için seçenek tek proje (tek aday da sorulur — 16.10 kararı madde 2). Önceki beklenti: discovery, belge(ler) gösterilir + soru/seçenek (Tansu Ürün 1 §B, 08.10.2026).",
+      "required_phrases": [
+        "Karatepe"
+      ],
+      "forbidden_phrases": [
+        "Kızılova",
+        "Yeşilova",
+        "Boztepe",
+        "Güneşalan",
+        "Akyar",
+        "Demirci"
+      ],
+      "expect_assist": "disambiguate",
+      "clarify_kind": "project"
     },
     {
       "id": "GEN-DSC-004",
-      "category": "discovery",
+      "category": "ambiguous",
       "question": "Lisans durumu ne?",
       "expected_answer": null,
       "expected_answer_aliases": [],
@@ -1563,8 +1586,21 @@
       ],
       "forbidden_sources": [],
       "ask_as_user": "enerji",
-      "expect_no_answer": false,
-      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. §3.1; enerji Kızılova önlisansını da görür — belirsizlik kabul (liste + soru)."
+      "expect_no_answer": true,
+      "notes": "v14.1 (kontrolör, Tansu onayı 16.10.2026; kontrolor/soru-seti/2026-10-16_v14-1_ek.md, karar 7(i)): adsız değer sorusu, ortak geçme ölçütü: tek netleştirici soru; seçenekler yalnız sorulan veriye sahip projeler (kalem adıyla, rakam/tarih yok — G1). Geçmez: projesiz tek rakam/tarih (KY); verisi olmayan projeyi saymak (T-2); veriye sahip projeyi düşürmek (T-2). İfade (v2.1 alanları): expect_no_answer + expect_assist=disambiguate (≡ clarify) + clarify_kind=project; required_phrases = veriye sahip projeler, forbidden_phrases = verisi olmayan projeler. Veri (enerji yetki kümesi içinde, belge düzeyi, eval DB 16.10.2026): Karatepe RES Üretim Lisansı (+ Licence Amendment 01) ve Kızılova RES Önlisans Belgesi; diğer projelerde lisans belgesi yok. Önceki beklenti: discovery, belge(ler) gösterilir + soru/seçenek (Tansu Ürün 1 §B, 08.10.2026).",
+      "required_phrases": [
+        "Karatepe",
+        "Kızılova"
+      ],
+      "forbidden_phrases": [
+        "Yeşilova",
+        "Boztepe",
+        "Güneşalan",
+        "Akyar",
+        "Demirci"
+      ],
+      "expect_assist": "disambiguate",
+      "clarify_kind": "project"
     },
     {
       "id": "GEN-DSC-005",
@@ -1675,20 +1711,20 @@
     {
       "id": "GEN-DSC-011",
       "category": "discovery",
-      "question": "ankaranın ilk kredi ödemesi ne zaman ne kadar?",
+      "question": "karatepenin ilk kredi ödemesi ne zaman ne kadar?",
       "expected_answer": null,
       "expected_answer_aliases": [],
       "expected_project": "Karatepe RES",
       "expected_department": "finans",
       "required_sources": [
-        "Facility Agreement"
+        "Financial Model 2026"
       ],
       "forbidden_sources": [
         "Kızılova RES"
       ],
       "ask_as_user": "yonetim",
       "expect_no_answer": false,
-      "notes": "DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. Tansu §C.2 (06.10): ilk taksit yalnızca Financial Model Debt sayfasında; PDF'lerde yok — beklenen: kredi belgelerini gösterip sor."
+      "notes": "v14.1 (kontrolör, Tansu onayı 16.10.2026; kontrolor/soru-seti/2026-10-16_v14-1_ek.md, karar 7(i)): soru metni 'ankaranın…' → 'karatepenin ilk kredi ödemesi ne zaman ne kadar?' (küçük harf ve iyelik eki korunur — yazım toleransı ölçülür); proje adı geçtiği için adlı soru. Beklenen = GEN-DSC-011-K düzeltilmiş kriteri: geri ödeme planı yalnız Financial Model 2026 (Debt) içinde (required_sources Facility Agreement → Financial Model 2026). Önceki not: DISCOVERY (Tansu Ürün 1 notu §B, Naci onayı 08.10.2026, B ölçümü Adım 1): beklenen = ilgili belge(ler) gösterilir + soru/seçenek; sabit cümle tek başına başarısız. Tansu §C.2 (06.10): ilk taksit yalnızca Financial Model Debt sayfasında; PDF'lerde yok — beklenen: kredi belgelerini gösterip sor."
     },
     {
       "id": "GEN-DSC-012",
@@ -1800,7 +1836,7 @@
     {
       "id": "GEN-DSC-011-K",
       "category": "discovery",
-      "question": "ankaranın ilk kredi ödemesi ne zaman ne kadar?",
+      "question": "karatepenin ilk kredi ödemesi ne zaman ne kadar?",
       "expected_answer": null,
       "expected_answer_aliases": [],
       "expected_project": "Karatepe RES",
@@ -1813,7 +1849,7 @@
       ],
       "ask_as_user": "yonetim",
       "expect_no_answer": false,
-      "notes": "DÜZELTİLMİŞ TEŞHİS (Naci 08.10.2026, resmi sonuç değil): GEN-DSC-011 kriter düzeltmesi — geri ödeme planı yalnızca Financial Model 2026 (Debt) içinde; beklenen kaynak o."
+      "notes": "v14.1 (kontrolör, Tansu onayı 16.10.2026; kontrolor/soru-seti/2026-10-16_v14-1_ek.md, karar 7(i)): soru metni GEN-DSC-011 ile aynı değişiklik ('ankaranın…' → 'karatepenin ilk kredi ödemesi ne zaman ne kadar?'); kriter aynı. Önceki not: DÜZELTİLMİŞ TEŞHİS (Naci 08.10.2026, resmi sonuç değil): GEN-DSC-011 kriter düzeltmesi — geri ödeme planı yalnızca Financial Model 2026 (Debt) içinde; beklenen kaynak o."
     }
   ],
   "held_out": [

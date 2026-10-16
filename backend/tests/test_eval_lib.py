@@ -84,10 +84,20 @@ def test_load_questions_returns_the_committed_questions() -> None:
     # kaldırıldı (proje proje cevap serbest); GEN-DSC-013, GEN-CMP-003, IZM-DEV-007/008
     # yalnız `notes`. GEN-GEN-001/002/003 v2.1 alanlarıyla ifade edilemediği için
     # değişmedi (rapor §3). Soru sayısı değişmedi (99)
+    # v14.1 eki (İş Emri 2026-10-16V141; `version: int` olduğu için sayı 14 kaldı): adsız değer
+    # sorusu ortak ölçütü GEN-DSC-003/004 ve ANK-MIX-001'e (tek netleştirici soru, seçenekler
+    # yalnız veriye sahip projeler); GEN-DSC-011/011-K metni "karatepenin …" (adlı soru)
     assert len(question_set.questions) == 99
     assert question_set.version == 14
     by_id = {q.id: q for q in question_set.questions}
     assert by_id["ANK-ISO-002"].forbidden_sources == []
+    for qid in ("GEN-DSC-003", "GEN-DSC-004", "ANK-MIX-001"):
+        q = by_id[qid]
+        assert q.expect_no_answer and q.expect_assist == "disambiguate"
+        assert q.clarify_kind == "project" and q.required_phrases and q.forbidden_phrases
+    for qid in ("GEN-DSC-011", "GEN-DSC-011-K"):
+        assert by_id[qid].question == "karatepenin ilk kredi ödemesi ne zaman ne kadar?"
+        assert by_id[qid].required_sources == ["Financial Model 2026"]
     for qid in ("GEN-AMB-003-F", "ANK-NEG-003"):
         assert by_id[qid].expect_no_answer and by_id[qid].expect_assist == "clarify"
     iso = by_id["IZM-ISO-004"]
