@@ -1,0 +1,1 @@
+{"source": "logs/n1_eval_backend.log llm call lines, 99 audit request_ids (scripts.run_eval.cost_from_llm_log)", "spent_usd": 0.3547, "unpriced_model_calls": 0, "by_model": {"claude-haiku-5-5": {"calls": 142, "tokens_in": 1966657, "tokens_out": 72881, "usd": 0.2331}, "claude-sonnet-5-5": {"calls": 19, "tokens_in": 52755, "tokens_out": 1610, "usd": 0.1216}}}
