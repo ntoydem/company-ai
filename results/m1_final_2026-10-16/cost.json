@@ -1,0 +1,26 @@
+{
+  "spent_usd": 0.2896,
+  "budget_usd": 5.0,
+  "unpriced_model_calls": 16,
+  "by_model": {
+    "claude-haiku-5-5": {
+      "calls": 81,
+      "tokens_in": 2190578,
+      "tokens_out": 86832,
+      "usd": 0.2625
+    },
+    "claude-sonnet-5-5": {
+      "calls": 2,
+      "tokens_in": 10363,
+      "tokens_out": 637,
+      "usd": 0.0271
+    }
+  },
+  "visibility_resolved": {
+    "enerji": 36,
+    "finans": 37,
+    "finans_mudur": 37,
+    "hukuk": 7,
+    "yonetim": 113
+  }
+}
