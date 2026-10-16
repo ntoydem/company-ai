@@ -27,6 +27,7 @@ from app.services.assist import (
     build_disambiguate_assist,
     build_insufficient_assist,
     build_unknown_project_assist,
+    build_unnamed_project_assist,
     build_zero_chunk_assist,
     classify_project_axis,
     downgrade_existence_disambiguate,
@@ -44,6 +45,7 @@ from app.services.project_narrowing import (
     narrow_chunks,
     unknown_project_names,
     unknown_project_question,
+    unnamed_value_clarification,
     visible_project_names,
 )
 from app.services.retrieval import retrieve
@@ -175,6 +177,29 @@ def _answer_request(settings: Settings, user_prompt: str) -> LLMRequest:
     )
 
 
+def project_question_for(session: Session, user: User, request: AskRequest) -> str | None:
+    """İş Emri 2026-10-16N1: for a question `route_without_llm` classified as an unnamed value
+    question — the one project question, or None when there is no project to ask about (no
+    project document visible, or the best chunk is a company document) and the router
+    decides as before. Same gate and retrieval as `answer_question` (ADR-004 first)."""
+    allowed = allowed_document_ids(
+        user, AuthorizationScope(department=request.department), SqlDocumentIdsProvider(session)
+    )
+    query = build_search_query(request.question)
+    chunks = (
+        retrieve(
+            session,
+            user,
+            query,
+            RetrievalFilters(department=request.department),
+            raw_question=request.question,
+        )
+        if query
+        else []
+    )
+    return unnamed_value_clarification(session, allowed, chunks)
+
+
 def answer_question(
     session: Session,
     user: User,
@@ -184,11 +209,14 @@ def answer_question(
     *,
     write_audit: bool = True,
     original_question: str | None = None,
+    project_question: str | None = None,
 ) -> AskResult:
     """`write_audit=False` (Phase 4.3): the caller — the router — owns the one audit row of
     the call and writes it from the returned `AskResult` (SORU 2: one row per call).
     `original_question` (ADR-031): the user's own wording when `request.question` is the
-    router's rewritten sub-question — project names are read from what the user typed."""
+    router's rewritten sub-question — project names are read from what the user typed.
+    `project_question` (İş Emri 2026-10-16N1): the router decided this is an unnamed value
+    question (`project_question_for`) — that sentence is the whole answer."""
     started = time.perf_counter()
     naming_text = original_question or request.question
     scope = AuthorizationScope(department=request.department)
@@ -254,7 +282,24 @@ def answer_question(
     scoped: set[UUID] = set(narrowing.scoped)
     retrieved_ids = list(dict.fromkeys(chunk.document_id for chunk in chunks))
 
-    if not chunks:
+    if project_question is not None:
+        # İş Emri 2026-10-16N1 (Tansu 16.10 madde 7, ADR-032 pattern): no project named and
+        # a value asked → one question, which project; no model, no list, flag-independent.
+        # Retrieval ran only for the audit row, as on the existence path.
+        unnamed_assist = build_unnamed_project_assist(project_question)
+        log.info("unnamed value question, answer model skipped")
+        result = AskResult(
+            answer=(
+                render_no_data(unnamed_assist, request.question)
+                if settings.ek_f_enabled
+                else f"{answer_prompt.NO_ANSWER_TEXT}\n{project_question}"
+            ),
+            answered=False,
+            retrieved_document_ids=retrieved_ids,
+            chunks=chunks,
+            assist=unnamed_assist,
+        )
+    elif not chunks:
         result = _no_answer()
         if settings.assist_computations:
             # ADR-027/ADR-021: still no LLM here — every lookup stays inside `allowed`.

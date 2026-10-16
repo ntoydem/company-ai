@@ -456,6 +456,12 @@ def build_unknown_project_assist(unknown: list[str], question: str) -> Assist:
     )
 
 
+def build_unnamed_project_assist(question: str) -> Assist:
+    """İş Emri 2026-10-16N1: an unnamed value question — no LLM, no list; the project axis's
+    one-question shape (`disambiguate`), so `render_no_data` shows the question alone."""
+    return Assist(kind="disambiguate", question=question, axis="project")
+
+
 def downgrade_existence_disambiguate(
     decision: ProjectAxisDecision, question: str
 ) -> ProjectAxisDecision:

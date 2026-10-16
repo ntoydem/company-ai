@@ -1,0 +1,61 @@
+OK  Karatepe RES'in kapasitesi nedir? | named ['ANK_RES'] | unknown [] | route router
+OK  Karatepe RES kapasitesi nedir? | named ['ANK_RES'] | unknown [] | route router
+OK  Karatepe A.Ş.'nin kurulu gücü nedir? | named ['ANK_RES'] | unknown [] | route router
+OK  KARATEPE RES kapasitesi nedir? | named ['ANK_RES'] | unknown [] | route router
+OK  KARATEPE res kapasitesi nedir? | named ['ANK_RES'] | unknown [] | route router
+OK  karatepe kapasitesi nedir? | named ['ANK_RES'] | unknown [] | route router
+OK  Karatepe'nin kapasitesi nedir? | named ['ANK_RES'] | unknown [] | route router
+OK  Karatepe GES kapasitesi nedir? | named ['ANK_RES'] | unknown [] | route router
+OK  Karatepe Res. kapasitesi nedir? | named ['ANK_RES'] | unknown [] | route router
+OK  Karatepe  RES  kapasitesi nedir? | named ['ANK_RES'] | unknown [] | route router
+OK  Karatepe-RES kapasitesi nedir? | named ['ANK_RES'] | unknown [] | route router
+OK  Karatepe RES'in, kapasitesi nedir? | named ['ANK_RES'] | unknown [] | route router
+OK  Kızılova RES'in COD tarihi nedir? | named ['IZM_RES'] | unknown [] | route router
+OK  Kizilova RES'in COD tarihi nedir? | named ['IZM_RES'] | unknown [] | route router
+OK  KIZILOVA RES COD tarihi nedir? | named ['IZM_RES'] | unknown [] | route router
+OK  kızılova COD tarihi nedir? | named ['IZM_RES'] | unknown [] | route router
+OK  Kızılova GES COD tarihi nedir? | named ['IZM_RES'] | unknown [] | route router
+OK  Yeşilova RES'in kredi bakiyesi nedir? | named ['YSV_RES'] | unknown [] | route router
+OK  Yesilova RES'in kredi bakiyesi nedir? | named ['YSV_RES'] | unknown [] | route router
+OK  YEŞİLOVA RES kredi bakiyesi nedir? | named ['YSV_RES'] | unknown [] | route router
+OK  yeşilova kredi bakiyesi nedir? | named ['YSV_RES'] | unknown [] | route router
+OK  Boztepe RES'in DSRA bakiyesi nedir? | named ['BOZ_RES'] | unknown [] | route router
+OK  boztepe DSRA bakiyesi nedir? | named ['BOZ_RES'] | unknown [] | route router
+OK  Boztepe GES DSRA bakiyesi nedir? | named ['BOZ_RES'] | unknown [] | route router
+OK  Akyar GES kamulaştırma notu nerede? | named ['AKY_GES'] | unknown [] | route existence_question
+OK  Demirci RES TEA itirazı nerede? | named ['DMR_RES'] | unknown [] | route existence_question
+OK  Güneşalan GES'in belgeleri var mı? | named [] | unknown ['Güneşalan GES'] | route unknown_project
+OK  Bursa RES'in kapasitesi nedir? | named [] | unknown ['Bursa RES'] | route unknown_project
+OK  Bursa GES'in kapasitesi nedir? | named [] | unknown ['Bursa GES'] | route unknown_project
+OK  bursa RES'in kapasitesi nedir? | named [] | unknown ['bursa RES'] | route unknown_project
+OK  BURSA RES kapasitesi nedir? | named [] | unknown ['BURSA RES'] | route unknown_project
+OK  Bursa Res kapasitesi nedir? | named [] | unknown ['Bursa Res'] | route unknown_project
+OK  Bursa'nın kapasitesi nedir? | named [] | unknown [] | route router
+OK  Karatepe RES ile Bursa RES'in kapasitesi nedir? | named ['ANK_RES'] | unknown ['Bursa RES'] | route unknown_project
+OK  Karatepe RES ile Kızılova RES'in kapasitesi nedir? | named ['ANK_RES', 'IZM_RES'] | unknown [] | route router
+OK  Hangi RES projesinde ÇED tamamlandı? | named [] | unknown [] | route router
+OK  Bu RES'in kapasitesi nedir? | named [] | unknown [] | route router
+OK  Tüm RES projelerinin kapasitesi nedir? | named [] | unknown [] | route router
+OK  Test Project belgeleri nerede? | named [] | unknown [] | route existence_question
+OK  Ankara RES'in kapasitesi nedir? | named [] | unknown ['Ankara RES'] | route unknown_project
+OK  İzmir RES'in kapasitesi nedir? | named [] | unknown ['İzmir RES'] | route unknown_project
+OK  Kara tepe RES kapasitesi nedir? | named [] | unknown ['tepe RES'] | route unknown_project
+OK  Karatepe Rüzgar Enerji Santrali'nin kapasitesi nedir? | named ['ANK_RES'] | unknown [] | route router
+OK  ANK_RES kapasitesi nedir? | named [] | unknown [] | route router
+OK  Karatepe RES Enerji Üretim A.Ş. unvanı nedir? | named ['ANK_RES'] | unknown [] | route router
+OK  Kızılova'daki ÇED durumu nedir? | named ['IZM_RES'] | unknown [] | route router
+OK  Yeşilova'nın kredi bakiyesi nedir? | named ['YSV_RES'] | unknown [] | route router
+OK  Boztepe'de DSRA bakiyesi nedir? | named ['BOZ_RES'] | unknown [] | route router
+OK  Akyar'ın kamulaştırma notu nerede? | named ['AKY_GES'] | unknown [] | route existence_question
+OK  Demirci'nin TEA itirazı nerede? | named ['DMR_RES'] | unknown [] | route existence_question
+OK  Karatepe projesinde kaç çalışan var? | named ['ANK_RES'] | unknown [] | route router
+OK  Kizilova RES COD tarihi nedir? | named ['IZM_RES'] | unknown [] | route router
+OK  yesilova RES'in kredi bakiyesi nedir? | named ['YSV_RES'] | unknown [] | route router
+OK  Bursa Res'in kapasitesi nedir? | named [] | unknown ['Bursa Res'] | route unknown_project
+OK  bursa ges'in kapasitesi nedir? | named [] | unknown ['bursa ges'] | route unknown_project
+OK  BOZTEPE res kapasitesi nedir? | named ['BOZ_RES'] | unknown [] | route router
+OK  Karatepe (RES) kapasitesi nedir? | named ['ANK_RES'] | unknown [] | route router
+OK  Kredi covenant testi sonucu nedir? | named [] | unknown [] | route router
+OK  Performans testi raporu nerede? | named [] | unknown [] | route existence_question
+OK  Karatepe RES ile BURSA RES'in kapasitesi nedir? | named ['ANK_RES'] | unknown ['BURSA RES'] | route unknown_project
+total 60 ok 60

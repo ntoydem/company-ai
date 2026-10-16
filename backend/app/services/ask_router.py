@@ -50,12 +50,12 @@ from app.schemas.excel import NO_INTERPRETATION_NOTICE as EXCEL_NOTICE
 from app.schemas.excel import ExcelAskRequest, ExcelSourceCard
 from app.services import pending_documents, tr_format
 from app.services.answer_prompt import NO_DATA_VERDICT
-from app.services.ask import answer_question
+from app.services.ask import answer_question, project_question_for
 from app.services.assist import Assist, excel_choice_question, is_existence_question
 from app.services.audit_writer import write_audit_row
 from app.services.excel_ask import answer_data_question, excel_document_ids
 from app.services.llm import LLMClient, LLMError
-from app.services.project_narrowing import unknown_project_names
+from app.services.project_narrowing import is_unnamed_value_question, unknown_project_names
 from app.services.router import RoutedQuestion, Router
 
 log = logging.getLogger(__name__)
@@ -140,16 +140,22 @@ def degrade_for_products(
     return degraded, [product_limit_warning()]
 
 
-def route_without_llm(session: Session, question: str) -> RoutedQuestion | None:
-    """İş Emri 2026-10-15A2L2 (Ortak Not 15.10 §5 ilke 1, "politika kodda"): two question
-    shapes are decided by code before — instead of — the router's classification call:
+def route_without_llm(
+    session: Session, question: str, previous_question: str | None = None
+) -> RoutedQuestion | None:
+    """İş Emri 2026-10-15A2L2 (Ortak Not 15.10 §5 ilke 1, "politika kodda"): question shapes
+    decided by code before — instead of — the router's classification call:
 
     - a project name the `projects` table does not know ("Bursa RES", ADR-031): the document
       pipeline refuses it without retrieval or the LLM, so classifying it first was a wasted
       call and the one thing that made the audit row's token count non-zero;
     - an existence / definition question (`is_existence_question`: "var mı", "nerede",
       "ne demek", …): the answer is the F-3 document list, never a value — it is always the
-      DOCUMENT path and the answer model is never called (`ask.answer_question`).
+      DOCUMENT path and the answer model is never called (`ask.answer_question`);
+    - İş Emri 2026-10-16N1: a value question naming no project (`is_unnamed_value_question`,
+      the previous question counts): the document pipeline asks which project and never
+      calls the model — unless `project_question_for` finds no project to ask about, then
+      `answer_routed_question` drops this pre-route and the router decides as before.
 
     `None` → the router decides as before. The returned route carries no `fallback_reason`:
     this is a decision, not a degraded one."""
@@ -157,6 +163,8 @@ def route_without_llm(session: Session, question: str) -> RoutedQuestion | None:
         reason = "unknown_project"
     elif is_existence_question(question):
         reason = "existence_question"
+    elif is_unnamed_value_question(session, question, previous_question):
+        reason = "unnamed_value_question"
     else:
         return None
     log.info("routed without llm", extra={"reason": reason})
@@ -174,6 +182,7 @@ def _run(
     settings: Settings,
     engine: CalculationEngine,
     warnings: list[AskWarning],
+    project_question: str | None = None,
 ) -> RoutedAnswer:
     query_type = routed.query_type
     notice = NOTICE_BY_TYPE[query_type]
@@ -194,6 +203,7 @@ def _run(
             # ADR-031 (Şart 1): the project the *user* named decides the narrowing, even
             # when the router's rewritten sub-question dropped the name.
             original_question=request.question,
+            project_question=project_question,
         )
     if routed.data_question is not None:
         data = answer_data_question(
@@ -329,7 +339,15 @@ def answer_routed_question(
     started = time.perf_counter()
     enabled_products = company_settings_repo.enabled_products(session)
     warnings: list[AskWarning] = []
-    pre_routed = route_without_llm(session, request.question)
+    pre_routed = route_without_llm(session, request.question, request.previous_question)
+    project_question: str | None = None
+    if pre_routed is not None and pre_routed.reason == "unnamed_value_question":
+        # İş Emri 2026-10-16N1: the text says "no project, a value"; the user's documents
+        # decide whether there is a project to ask about. None (a company question, or no
+        # project visible) → the pre-route is dropped and nothing changes for the question.
+        project_question = project_question_for(session, user, request)
+        if project_question is None:
+            pre_routed = None
     if pre_routed is not None:
         routed = pre_routed
     else:
@@ -346,7 +364,9 @@ def answer_routed_question(
         return round((time.perf_counter() - started) * 1000)
 
     try:
-        result = _run(session, user, request, routed, llm, settings, engine, warnings)
+        result = _run(
+            session, user, request, routed, llm, settings, engine, warnings, project_question
+        )
     except LLMError as exc:
         write_audit_row(
             session,

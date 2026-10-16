@@ -19,6 +19,7 @@ import json
 from pathlib import Path
 
 from app.core.db import get_session_factory
+from app.services.ask_router import route_without_llm
 from app.services.assist import named_project_codes
 from app.services.project_narrowing import unknown_project_names
 
@@ -112,6 +113,8 @@ def main() -> None:
         for text, exp_named, exp_unknown in VECTORS:
             named = named_project_codes(session, text)
             unknown = unknown_project_names(session, text)
+            # İş Emri 2026-10-16N1: the pre-route reason (information only, not in `ok`).
+            routed = route_without_llm(session, text)
             rows.append(
                 {
                     "question": text,
@@ -120,13 +123,23 @@ def main() -> None:
                     "actual_named": sorted(named),
                     "actual_unknown": unknown,
                     "ok": named == exp_named and unknown == exp_unknown,
+                    "route": routed.reason if routed is not None else "router",
                 }
             )
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUT_PATH.write_text(json.dumps(rows, ensure_ascii=False, indent=1), encoding="utf-8")
     for r in rows:
         mark = "OK " if r["ok"] else "XX "
-        print(mark, r["question"], "| named", r["actual_named"], "| unknown", r["actual_unknown"])
+        print(
+            mark,
+            r["question"],
+            "| named",
+            r["actual_named"],
+            "| unknown",
+            r["actual_unknown"],
+            "| route",
+            r["route"],
+        )
     print("total", len(rows), "ok", sum(r["ok"] for r in rows))
 
 

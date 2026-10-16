@@ -36,6 +36,8 @@ from app.models.project import Project
 from app.repositories import document_repo, user_repo
 from app.repositories.document_repo import SqlDocumentIdsProvider
 from app.schemas.authorization import AuthorizationScope
+from app.services import project_narrowing
+from app.services.ask_router import route_without_llm
 from app.services.assist import (
     available_from_chunks,
     available_from_metadata,
@@ -81,6 +83,11 @@ class Row:
     list_foreign_after: bool | None
     target_in_top80_before: bool | None
     target_in_top80_after: bool | None
+    # İş Emri 2026-10-16N1: what `ask_router.route_without_llm` decides for the question
+    # ("router" = no pre-route), and for an unnamed value question whether the code asks
+    # the one project question ("…→soru") or the group-document exemption hands it to the
+    # model ("…→model").
+    route: str = "router"
 
 
 def _code_of(session: Session) -> dict[Any, str]:
@@ -150,6 +157,19 @@ def _decided_project(decision: Any, named: set[str]) -> str | None:
     if len(named) == 1:
         return next(iter(named))
     return None
+
+
+def _route(session: Session, question: str, allowed: set, chunks: list) -> str:
+    """The pre-route decision, LLM-free. Works on code before İş Emri 2026-10-16N1 too (no
+    `unnamed_value_clarification` there → only the A2L2/A2L3 reasons can appear)."""
+    routed = route_without_llm(session, question)
+    if routed is None:
+        return "router"
+    clarification = getattr(project_narrowing, "unnamed_value_clarification", None)
+    if routed.reason != "unnamed_value_question" or clarification is None:
+        return routed.reason
+    asks = clarification(session, allowed, chunks) is not None
+    return f"{routed.reason}→{'soru' if asks else 'model'}"
 
 
 def _foreign_in_list(cards: list, expected_code: str | None) -> bool | None:
@@ -229,6 +249,7 @@ def measure(session: Session, targets: _Targets, questions: list) -> list[Row]:
                 list_foreign_after=_foreign_in_list(list_after, expected_code),
                 target_in_top80_before=hit_before,
                 target_in_top80_after=hit_after,
+                route=_route(session, q.question, allowed, chunks),
             )
         )
     return rows
@@ -330,6 +351,19 @@ def render(rows: list[Row], syn: list[dict[str, Any]]) -> str:
             f"{_mark(r.list_foreign_before)}→{_mark(r.list_foreign_after)} | "
             f"{_mark(r.target_in_top80_before)}→{_mark(r.target_in_top80_after)} |"
         )
+    routes = Counter(r.route for r in rows)
+    lines += [
+        "",
+        "## Yönlendirme — `route_without_llm` (İş Emri 2026-10-16N1)",
+        "",
+        "Dağılım: " + ", ".join(f"{k} {v}" for k, v in sorted(routes.items())),
+        "",
+        "| Soru | Adlı | Yönlendirme |",
+        "|---|---|---|",
+    ]
+    lines += [
+        f"| {r.id} | {','.join(r.named) or '—'} | {r.route} |" for r in rows if r.route != "router"
+    ] or ["| — | — | hepsi router |"]
     lines += [
         "",
         "## (d) Sentetik olmayan proje soruları",

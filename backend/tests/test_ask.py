@@ -464,7 +464,8 @@ def test_legacy_project_id_is_ignored_not_rejected(
     """An older client (AI-BalBal's department tab at b219600) still sends `project_id`;
     Pydantic's default `extra="ignore"` keeps that a 200, and the field no longer narrows
     retrieval: documents of *both* projects reach the prompt and the audit row records no
-    project scope."""
+    project scope. (İş Emri 2026-10-16N1: asked for every project, so that the unnamed
+    value question's project question does not answer it instead.)"""
     from app.models.project import Project, ProjectStage
 
     ankara = Project(name="Ankara RES", code="ANK", stage=ProjectStage.operation)
@@ -478,7 +479,8 @@ def test_legacy_project_id_is_ignored_not_rejected(
     fake_llm.replies = ["Ankara 1,25x [K1], İzmir 1,30x [K2]."]
 
     response = client.post(
-        "/api/ask", json={"question": "DSCR covenant nedir?", "project_id": str(ankara.id)}
+        "/api/ask",
+        json={"question": "Her projenin DSCR covenant değeri nedir?", "project_id": str(ankara.id)},
     )
 
     assert response.status_code == 200, response.text

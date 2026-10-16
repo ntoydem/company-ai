@@ -9,7 +9,9 @@ ADR-031). Runs **after** `allowed_document_ids` (ADR-004) and only ever removes 
   (`dominant` / `disambiguate` / `none`) decides as before;
 - the question names a project that the `projects` table does not know ("Bursa RES") →
   the caller answers without the LLM (`term_mismatch` + the fixed verdict + one question
-  naming only the projects the user can see), so the dominant-project guess never fires.
+  naming only the projects the user can see), so the dominant-project guess never fires;
+- the question names no project and asks for a value (İş Emri 2026-10-16N1) → the caller
+  asks which project, one sentence, without the LLM (`unnamed_value_clarification`).
 
 Flag-independent by design (Şart 1 is a standing principle, not an Ek-F presentation): the
 same narrowing applies with `EK_F_MODE` on or off.
@@ -28,7 +30,8 @@ from sqlalchemy.orm import Session
 from app.models.document import Document, ProjectScope
 from app.models.project import Project
 from app.repositories.document_chunk_repo import RetrievedChunk
-from app.services.search_query import QUESTION_STOPWORDS, turkish_fold
+from app.services.assist import is_existence_question, named_project_codes
+from app.services.search_query import QUESTION_STOPWORDS, turkish_fold, turkish_lower
 
 # "<Özel Ad> RES/GES" — the project-naming pattern of this company's library. The name word
 # before the suffix may be any case (ADR-033, İş Emri 2026-10-16T3: "bursa RES"/"Bursa Res"
@@ -165,3 +168,71 @@ def unknown_project_question(unknown: list[str], visible: list[str]) -> str:
         + ", ".join(visible[:-1])
         + f" yoksa {visible[-1]} mi?"
     )
+
+
+# İş Emri 2026-10-16N1 (Tansu 16.10, madde 7): a question that names no project and asks for
+# a value (a figure, a date, a condition) is answered by code with one question — which
+# project — and no model call. Discovery questions (`is_existence_question`) keep the F-3
+# grouped list; a question about the projects themselves or across them ("hangi projenin",
+# "her proje için ayrı ayrı", "tüm projeler") or about the company keeps today's path (the
+# per-project full answer is Ürün 2, not built here).
+UNNAMED_PROJECT_QUESTION = "Hangi proje için sormak istiyorsunuz?"
+_ACROSS_PROJECTS = re.compile(
+    r"\b(?:hangi\s+(?:(?:res|ges|santral)\w*\s+)?proje\w*|hangi\s+(?:res|ges|santral)\w*"
+    r"|(?:her|tüm|bütün|iki|diğer|başka)\s+(?:bir\s+)?(?:(?:res|ges)\s+)?proje\w*"
+    r"|proje\s+proje|projeler\w*|ayrı\s+ayrı|şirket\w*|holding\w*)\b"
+)
+# A question at all: a question mark, an interrogative or the yes/no particle. Chit-chat
+# without one ("merhaba", "teşekkürler") is not a value question.
+_VALUE_SIGNAL = re.compile(
+    r"\?|\b(?:kaç\w*|ne|neyi|neye|nedir|neydi|neden|niçin|niye|nasıl|kim\w*|hangi\w*"
+    r"|m[ıiuü](?:dır|dir|dur|dür|ydı|ydi|ydu|ydü)?)\b"
+)
+
+
+def asks_across_projects(question: str) -> bool:
+    """The project is the subject ("Hangi projenin üretim lisansı var?") or the user asked for
+    every project / the company — not a question missing its project."""
+    return bool(_ACROSS_PROJECTS.search(turkish_lower(question)))
+
+
+def is_unnamed_value_question(
+    session: Session, question: str, previous_question: str | None = None
+) -> bool:
+    """No project named — in the question or in the previous question it follows (Ç-2
+    context), known or unknown — and a value is asked: not a discovery question, not a
+    question across projects. Text and the `projects` table only; the caller still applies
+    `unnamed_value_clarification` after retrieval."""
+    if not _VALUE_SIGNAL.search(turkish_lower(question)):
+        return False
+    if is_existence_question(question) or asks_across_projects(question):
+        return False
+    return not any(
+        text and (named_project_codes(session, text) or unknown_project_names(session, text))
+        for text in (question, previous_question)
+    )
+
+
+def unnamed_project_question(visible: list[str]) -> str:
+    """The one sentence, with the user's own projects in brackets (G1: names, no digits)."""
+    if not visible:
+        return UNNAMED_PROJECT_QUESTION
+    return f"{UNNAMED_PROJECT_QUESTION[:-1]} ({', '.join(visible)})?"
+
+
+def unnamed_value_clarification(
+    session: Session, allowed: set[UUID], chunks: list[RetrievedChunk]
+) -> str | None:
+    """The project question for an unnamed value question — or None when there is no project
+    to ask about: the user sees no project document, or the best-ranked retrieved chunk is a
+    group document (a company question: "Denetim komitesi üyeleri hangi kararla atandı?").
+    Only `allowed` and the already-gated chunks are read (T-5)."""
+    visible = visible_project_names(session, allowed)
+    if not visible:
+        return None
+    if chunks:
+        top = max(chunks, key=lambda chunk: chunk.rank)
+        scope = session.scalar(select(Document.project_scope).where(Document.id == top.document_id))
+        if scope == ProjectScope.group:
+            return None
+    return unnamed_project_question(visible)

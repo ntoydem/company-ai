@@ -463,7 +463,10 @@ def test_disambiguate_fires_before_any_llm_call_on_a_close_split(
 ) -> None:
     """GEN-AMB-00x shape: no project named, retrieval splits close to evenly between the two
     projects → the LLM is never called (same ADR-021 guarantee as the zero-chunk path), the
-    answer is the fixed question alone — no verdict, no list (F-4: "içerik sıralamaz")."""
+    answer is the fixed question alone — no verdict, no list (F-4: "içerik sıralamaz").
+    İş Emri 2026-10-16N1: an unnamed *value question* is now asked its project before this
+    axis is reached (`test_unnamed_value_question.py`); the axis still decides a phrase
+    that is not a question, which is what this test exercises."""
     projects = _projects(db_session)
     ankara_docs = [
         _document(
@@ -483,7 +486,7 @@ def test_disambiguate_fires_before_any_llm_call_on_a_close_split(
         doc.project_id = projects["IZM_RES"].id
     db_session.commit()
 
-    body = _ask(client, "Sözleşmenin vadesi ne zaman doluyor?")
+    body = _ask(client, "Sözleşmenin vade maddesi")
 
     assert fake_llm.requests == []  # no LLM call at all
     assert body["answered"] is False
@@ -572,7 +575,8 @@ def test_insufficient_dominant_project_is_stated_explicitly_and_the_minority_is_
 ) -> None:
     """ANK-NEG-004 shape end to end: chunks exist (so the LLM is called normally, the axis
     is `dominant` not `disambiguate`), the model declines, and *then* the list narrows to
-    the majority project with the assumption stated — İzmir never appears."""
+    the majority project with the assumption stated — İzmir never appears. (İş Emri
+    2026-10-16N1: phrased as a request, not a value question, so the axis still decides.)"""
     projects = _projects(db_session)
     ankara_docs = [
         _document(db_session, title=f"Belge {i}", department=None, text="üretim lisansı bilgisi")
@@ -589,7 +593,7 @@ def test_insufficient_dominant_project_is_stated_explicitly_and_the_minority_is_
     monkeypatch.setattr(assist_module, "specific_matched_terms", lambda *a, **k: {"lisansı": ids})
     fake_llm.replies = [NO_ANSWER_TEXT]
 
-    body = _ask(client, "Üretim lisansı ne zaman alındı?")
+    body = _ask(client, "Üretim lisansı bilgisini göster")
 
     assert len(fake_llm.requests) == 1  # LLM was called — axis was dominant, not disambiguate
     assert body["answered"] is False

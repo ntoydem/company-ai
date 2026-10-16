@@ -69,7 +69,7 @@ def _last_audit_row(session: Session) -> tuple[str | None, int, int]:
 # ---------------------------------------------------------------- the pre-route itself
 
 
-def test_route_without_llm_decides_only_the_two_shapes(db_session: Session) -> None:
+def test_route_without_llm_decides_only_its_shapes(db_session: Session) -> None:
     ensure_projects(db_session)
     unknown = route_without_llm(db_session, "Bursa RES'in kapasitesi nedir?")
     assert unknown is not None and unknown.reason == "unknown_project"
@@ -77,7 +77,9 @@ def test_route_without_llm_decides_only_the_two_shapes(db_session: Session) -> N
     existence = route_without_llm(db_session, "Amendment ne demek biliyor musun?")
     assert existence is not None and existence.reason == "existence_question"
     assert existence.document_question == "Amendment ne demek biliyor musun?"
-    assert route_without_llm(db_session, "DSCR nedir?") is None
+    # İş Emri 2026-10-16N1: an unnamed value question is the third shape.
+    unnamed = route_without_llm(db_session, "DSCR nedir?")
+    assert unnamed is not None and unnamed.reason == "unnamed_value_question"
     assert route_without_llm(db_session, "Karatepe RES'in kapasitesi nedir?") is None
 
 
