@@ -10,16 +10,24 @@ from scripts.eval_lib import (
     AskOutcome,
     DiscoveryCounters,
     DocumentCatalog,
+    ExpectedValue,
     SafetyContext,
+    ScorerFlags,
     _classify_and_format,
+    _literal_text_groups,
     _normalize,
     _source_satisfied,
+    _structural_money,
     assist_check,
     build_document_catalog,
     build_report,
+    clarify_relevance_check,
+    contradicting_value_reason,
     fact_tokens,
+    list_coverage,
     load_ledger_raws,
     load_questions,
+    mixed_completeness_check,
     phrase_check_passes,
     render_markdown,
     report_to_json,
@@ -260,7 +268,10 @@ def test_resolve_expected_none_answer_skips_value_check() -> None:
     question = _question(id="GEN-HAL-001", expected_answer=None, expect_no_answer=True)
     expected = resolve_expected(question, {})
     assert expected.skip
-    assert expected.skip_reason == "expect_no_answer"
+    # V21 R3: this reason used to be mislabeled "expect_no_answer" — that string is reserved
+    # for the real A3 rule (expect_no_answer + expect_assist) a few lines below; "there is no
+    # ledger path at all" is a different condition and GEN-DSC-011-K has expect_no_answer=False.
+    assert expected.skip_reason == "no_literal_expected_answer"
 
 
 def test_resolve_expected_literal_answer_accepts_its_own_aliases() -> None:
@@ -740,14 +751,16 @@ def test_safety_g1_flags_a_number_absent_from_the_cited_text() -> None:
     )
     reasons = safety_checks(question, fabricated, _mini_catalog(), ctx)
     assert len(reasons) == 1 and reasons[0].startswith("G1") and "2031" in reasons[0]
-    # DATA answers carry DuckDB's figure, not chunk text — G1's number check does not apply.
+    # DATA answers carry DuckDB's figure, not chunk text — passing `expected` (V21 R8) keeps
+    # that own figure out of G1's flag even though it's absent from `grounding_text`.
     excel = AskOutcome(
         answered=True,
         answer_text="DSCR 1,37x.",
         cited_files=("Covenant_Report.xlsx",),
         query_type="DATA_QUERY",
     )
-    assert safety_checks(question, excel, _mini_catalog(), ctx) == ()
+    dscr_expected = ExpectedValue(required=(("1,37x",),))
+    assert safety_checks(question, excel, _mini_catalog(), ctx, dscr_expected) == ()
 
 
 def test_safety_g2_requires_citations_or_the_fixed_sentence() -> None:
@@ -1306,3 +1319,584 @@ def test_f0_a6_discovery_counters_and_their_summary_lines() -> None:
     assert "beklenen belge gösterildi (discovery):** 1/1" in markdown
     assert "listede yabancı proje var (discovery):** 1/1" in markdown
     assert report_to_json(report)["scorer_version"] == SCORER_VERSION
+
+
+# ==================================================================
+# İş Emri 2026-10-16V21 — puanlayıcı v2.1
+# ==================================================================
+
+
+def test_scorer_version_is_v21() -> None:
+    assert SCORER_VERSION == "2.1"
+
+
+# ---- R1: contradicting percent (ANK-FIN-013 class) -----------------------------------
+
+
+def test_r1_contradicting_percent_flags_a_wrong_figure_near_the_keyword() -> None:
+    expected = ExpectedValue(required=(("%3,25",), ("%2,90",)), concept_field="margin_pct")
+    answer = (
+        "Belgelere göre:\nİlk marj %3,25 idi, şimdi %2,90.\n\n"
+        "Excel verisine göre:\nGüncel marj %6,5 olarak hesaplanmıştır."
+    )
+    reason = contradicting_value_reason(expected, answer)
+    assert reason is not None and "çelişen rakam" in reason and "6.5" in reason
+
+
+def test_r1_contradicting_percent_passes_when_every_percent_matches() -> None:
+    expected = ExpectedValue(required=(("%3,25",), ("%2,90",)), concept_field="margin_pct")
+    answer = "İlk marj %3,25 idi, şimdi %2,90'dır."
+    assert contradicting_value_reason(expected, answer) is None
+
+
+def test_r1_contradicting_percent_ignores_a_different_sentence() -> None:
+    """A percentage with no concept keyword in its own sentence (capacity factor, say) is a
+    different concept — not a contradiction, even though it isn't one of the accepted margin
+    spellings (the whole point of scoping to the same sentence)."""
+    expected = ExpectedValue(required=(("%2,90",),), concept_field="margin_pct")
+    answer = "Güncel marj %2,90'dır. Kapasite faktörü %91,4 olarak ölçülmüştür."
+    assert contradicting_value_reason(expected, answer) is None
+
+
+def test_r1_contradicting_percent_scoped_to_known_concepts_only() -> None:
+    """A field with no `_CONCEPT_KEYWORDS` entry (e.g. a ratio like DSCR) is never scanned —
+    this is an opt-in, not a blanket "every percent in the answer" check."""
+    expected = ExpectedValue(required=(("1,20x",),), concept_field="dscr_covenant")
+    answer = "DSCR eşiği 1,20x'tir. Marj %99,9'dur."
+    assert contradicting_value_reason(expected, answer) is None
+
+
+def test_r1_ablation_flag_off_keeps_the_old_pass() -> None:
+    question = _question(category="temporal")
+    expected = ExpectedValue(required=(("%3,25",), ("%2,90",)), concept_field="margin_pct")
+    answer = "İlk marj %3,25 idi, şimdi %2,90. Excel verisine göre marj %6,5."
+    outcome = AskOutcome(answered=True, answer_text=answer, cited_titles=())
+    gated = score_question(question, expected, _mini_catalog(), outcome)
+    assert gated.value_check == "fail" and gated.passed is False
+    ungated = score_question(
+        question,
+        expected,
+        _mini_catalog(),
+        outcome,
+        flags=ScorerFlags(r1_contradicting_percent=False),
+    )
+    assert ungated.value_check == "pass" and ungated.passed is True
+
+
+# ---- R2: F-8 format failure gates `passed` --------------------------------------------
+
+
+def test_r2_format_check_gates_passed() -> None:
+    question = _question()
+    isoish = AskOutcome(answered=True, answer_text="Tarih 2026-01-15 [K1].", cited_titles=())
+    gated = score_question(question, ExpectedValue(skip=True), _mini_catalog(), isoish)
+    assert gated.format_check == "fail" and gated.passed is False
+
+
+def test_r2_format_check_ablation_flag_off_reports_only() -> None:
+    question = _question()
+    isoish = AskOutcome(answered=True, answer_text="Tarih 2026-01-15 [K1].", cited_titles=())
+    ungated = score_question(
+        question,
+        ExpectedValue(skip=True),
+        _mini_catalog(),
+        isoish,
+        flags=ScorerFlags(r2_format_gates=False),
+    )
+    assert ungated.format_check == "fail" and ungated.passed is True
+
+
+def test_r2_format_check_clean_answer_passes() -> None:
+    question = _question()
+    clean = AskOutcome(answered=True, answer_text="Tarih 15.01.2026 [K1].", cited_titles=())
+    ok = score_question(question, ExpectedValue(skip=True), _mini_catalog(), clean)
+    assert ok.format_check == "pass" and ok.passed is True
+
+
+# ---- R3: the "no ledger path at all" skip reason is distinct from the real A3 rule ----
+
+
+def test_r3_no_literal_path_label_distinct_from_real_a3_rule() -> None:
+    # GEN-DSC-011-K's actual shape: expect_no_answer=False, no ledger path was ever attached.
+    no_path = _question(expected_answer=None, expect_no_answer=False, expect_assist=None)
+    r_no_path = resolve_expected(no_path, {})
+    assert r_no_path.skip_reason == "no_literal_expected_answer"
+    # The real A3 rule: expect_no_answer AND expect_assist both set.
+    real_a3 = _question(
+        expected_answer="ledger:x.y", expect_no_answer=True, expect_assist="clarify"
+    )
+    r_real_a3 = resolve_expected(real_a3, {})
+    assert r_real_a3.skip_reason == "expect_no_answer + expect_assist"
+    assert r_no_path.skip_reason != r_real_a3.skip_reason
+
+
+def test_r3_label_fix_has_zero_score_effect_on_discovery() -> None:
+    """The mislabel never changed a verdict — discovery's own `discovery_check` is the whole
+    criterion regardless of `value_check`'s skip reason."""
+    question = _question(
+        category="discovery",
+        expected_answer=None,
+        expect_no_answer=False,
+        required_sources=["Facility Agreement"],
+    )
+    outcome = AskOutcome(
+        answered=True, answer_text="172.700 USD, 07.04.2023.", cited_titles=("Facility Agreement",)
+    )
+    catalog = DocumentCatalog(
+        title_to_type={"Facility Agreement": "Facility Agreement"}, title_to_project={}
+    )
+    result = score_question(question, resolve_expected(question, {}), catalog, outcome)
+    assert (
+        result.value_check == "skipped"
+        and result.value_check_reason == "no_literal_expected_answer"
+    )
+    assert result.discovery_check == "pass" and result.passed is True
+
+
+# ---- R4: MIXED completeness (T-1) ------------------------------------------------------
+
+
+def _mixed_catalog() -> DocumentCatalog:
+    # `build_document_catalog` puts a workbook's title in `title_to_type` too (every manifest
+    # entry gets one, regardless of kind) — the fixture mirrors that so the "document kind
+    # excludes workbook titles" guard in `mixed_completeness_check` is exercised for real.
+    return DocumentCatalog(
+        title_to_type={
+            "Facility Agreement Amendment 01": "Facility Agreement Amendment",
+            "Covenant Report (workbook)": "Covenant Report",
+        },
+        title_to_project={},
+        file_to_title={"Covenant_Report.xlsx": "Covenant Report (workbook)"},
+    )
+
+
+def test_r4_mixed_completeness_passes_when_both_halves_have_content() -> None:
+    question = _question(
+        category="mixed",
+        required_sources=["Facility Agreement Amendment 01", "Covenant Report (workbook)"],
+    )
+    outcome = AskOutcome(
+        answered=True,
+        answer_text=(
+            "Belgelere göre:\nCovenant eşiği 1,20x'tir [K1].\n\n"
+            "Excel verisine göre:\nGerçekleşen DSCR 1,37x'tir."
+        ),
+        query_type="MIXED_QUERY",
+    )
+    status, reason = mixed_completeness_check(question, outcome, _mixed_catalog())
+    assert status == "pass" and reason is None
+
+
+def test_r4_mixed_completeness_fails_when_one_half_is_silently_empty() -> None:
+    from app.services.answer_prompt import NO_ANSWER_TEXT
+
+    question = _question(
+        category="mixed",
+        required_sources=["Facility Agreement Amendment 01", "Covenant Report (workbook)"],
+    )
+    outcome = AskOutcome(
+        answered=True,
+        answer_text=(
+            f"Belgelere göre:\n{NO_ANSWER_TEXT}\n\n"
+            "Excel verisine göre:\nGerçekleşen DSCR 1,37x'tir."
+        ),
+        query_type="MIXED_QUERY",
+    )
+    status, reason = mixed_completeness_check(question, outcome, _mixed_catalog())
+    assert status == "fail" and "belge yarısı" in (reason or "")
+
+
+def test_r4_mixed_completeness_skipped_outside_mixed_or_without_dual_sources() -> None:
+    question = _question(category="mixed", required_sources=["Facility Agreement Amendment 01"])
+    doc_only = AskOutcome(answered=True, answer_text="x", query_type="MIXED_QUERY")
+    assert mixed_completeness_check(question, doc_only, _mixed_catalog()) == ("skipped", None)
+    not_mixed = AskOutcome(answered=True, answer_text="x", query_type="DOCUMENT_QUERY")
+    dual_sources = _question(
+        category="mixed",
+        required_sources=["Facility Agreement Amendment 01", "Covenant Report (workbook)"],
+    )
+    assert mixed_completeness_check(dual_sources, not_mixed, _mixed_catalog()) == ("skipped", None)
+
+
+def test_r4_mixed_completeness_opt_in_parts_field_overrides_source_heuristic() -> None:
+    """ANK-MIX-003 shape: only one source kind in `required_sources`, so the heuristic alone
+    can't tell both halves are mandatory — the opt-in `parts` field can."""
+    from app.services.answer_prompt import NO_ANSWER_TEXT
+
+    question = _question(
+        category="mixed", required_sources=["Budget vs Actual 2026"], parts=["document", "excel"]
+    )
+    outcome = AskOutcome(
+        answered=True,
+        answer_text=f"Belgelere göre:\n{NO_ANSWER_TEXT}\n\nExcel verisine göre:\n−371.000 TL.",
+        query_type="MIXED_QUERY",
+    )
+    status, _ = mixed_completeness_check(question, outcome, _mixed_catalog())
+    assert status == "fail"
+
+
+def test_r4_ablation_flag_off_always_skips() -> None:
+    question = _question(
+        category="mixed",
+        required_sources=["Facility Agreement Amendment 01", "Covenant Report (workbook)"],
+    )
+    outcome = AskOutcome(answered=True, answer_text="Belgelere göre:\nx", query_type="MIXED_QUERY")
+    status, _ = mixed_completeness_check(
+        question, outcome, _mixed_catalog(), flags=ScorerFlags(r4_mixed_completeness=False)
+    )
+    assert status == "skipped"
+
+
+def test_r4_single_workbook_source_is_not_mistaken_for_dual_kind() -> None:
+    """ANK-MIX-003/GEN-DSC-011-K shape: `required_sources` names ONE workbook and nothing
+    else. Since every manifest entry (workbook or not) gets a `title_to_type` row, a naive
+    "is the name in `catalog.titles`" check would wrongly call this dual-kind and demand a
+    non-existent document half — regression-locks the `workbook_titles` exclusion."""
+    question = _question(category="mixed", required_sources=["Covenant Report (workbook)"])
+    outcome = AskOutcome(
+        answered=True,
+        answer_text="Karatepe RES'in sapması 371.000 TL'dir.",
+        query_type="MIXED_QUERY",
+    )
+    assert mixed_completeness_check(question, outcome, _mixed_catalog()) == ("skipped", None)
+
+
+def test_r4_collapsed_flat_answer_fails_without_mislabeling_the_missing_half() -> None:
+    """ANK-MIX-001's real M1 shape: a genuinely dual-kind question answered as one flat
+    sentence, no "Belgelere göre:" / "Excel verisine göre:" split at all. Splitting on an
+    absent heading would hand the whole flat text to one half and call the other "empty" by
+    accident (backwards: the figure shown IS the Excel number, not a document fact) — the
+    fix fails on the collapse itself, not a specific (possibly wrong) missing half."""
+    question = _question(
+        category="mixed",
+        required_sources=["Facility Agreement Amendment 01", "Covenant Report (workbook)"],
+    )
+    outcome = AskOutcome(
+        answered=True,
+        answer_text="En son çeyreğin gerçekleşen DSCR değeri 1,37x'tir.",
+        query_type="MIXED_QUERY",
+    )
+    status, reason = mixed_completeness_check(question, outcome, _mixed_catalog())
+    assert status == "fail" and "tek cümleye indi" in (reason or "")
+
+
+# ---- R5: clarification relevance (T-2) -------------------------------------------------
+
+
+def test_r5_clarify_relevance_skipped_without_opt_in_clarify_kind() -> None:
+    """No heuristic fallback: most legitimate project clarifications (GEN-AMB-001..004) name
+    no project in their question text either, so this rule only ever fires when
+    `clarify_kind` is explicitly set — confirmed unmeasurable for every v13 question."""
+    question = _question(category="ambiguous", expect_no_answer=True, expect_assist="clarify")
+    outcome = AskOutcome(
+        answered=False,
+        answer_text="x",
+        assist={"kind": "clarify", "question": "Hangi projeyi kastediyorsunuz?"},
+    )
+    assert clarify_relevance_check(question, outcome) == ("skipped", None)
+
+
+def test_r5_clarify_relevance_fails_an_off_topic_project_question() -> None:
+    question = _question(
+        category="ambiguous", expect_no_answer=True, expect_assist="clarify", clarify_kind="other"
+    )
+    outcome = AskOutcome(
+        answered=False,
+        answer_text="x",
+        assist={"kind": "clarify", "question": "Hangi projeyi kastediyorsunuz?"},
+    )
+    status, reason = clarify_relevance_check(question, outcome)
+    assert status == "fail" and "proje ekseni" in (reason or "")
+
+
+def test_r5_clarify_relevance_passes_a_legitimate_project_clarification() -> None:
+    question = _question(
+        category="ambiguous",
+        expect_no_answer=True,
+        expect_assist="disambiguate",
+        clarify_kind="project",
+    )
+    outcome = AskOutcome(
+        answered=False,
+        answer_text="x",
+        assist={"kind": "disambiguate", "question": "Hangi projeyi kastediyorsunuz: X mi, Y mi?"},
+    )
+    assert clarify_relevance_check(question, outcome) == ("pass", None)
+
+
+def test_r5_clarify_relevance_fails_when_project_clarification_expected_but_not_given() -> None:
+    question = _question(
+        category="ambiguous", expect_no_answer=True, expect_assist="clarify", clarify_kind="project"
+    )
+    outcome = AskOutcome(
+        answered=False, answer_text="x", assist={"kind": "clarify", "question": "Hangi tarih?"}
+    )
+    status, _ = clarify_relevance_check(question, outcome)
+    assert status == "fail"
+
+
+def test_r5_clarify_relevance_skipped_when_answered_or_not_a_clarification() -> None:
+    question = _question(category="ambiguous", expect_no_answer=True, clarify_kind="other")
+    answered = AskOutcome(answered=True, answer_text="x", assist=None)
+    assert clarify_relevance_check(question, answered) == ("skipped", None)
+    term_mismatch = AskOutcome(
+        answered=False, answer_text="x", assist={"kind": "term_mismatch", "question": "y"}
+    )
+    assert clarify_relevance_check(question, term_mismatch) == ("skipped", None)
+
+
+# ---- R6: list coverage (opt-in `expected_items`) ---------------------------------------
+
+
+def test_r6_list_coverage_unmeasurable_without_opt_in_field() -> None:
+    question = _question()
+    outcome = AskOutcome(answered=True, answer_text="herhangi bir cevap")
+    assert list_coverage(question, outcome) == (None, None, ())
+
+
+def test_r6_list_coverage_counts_found_and_missing_items() -> None:
+    question = _question(
+        expected_items=[["İmar Kesinleşme"], ["Bağlantı Anlaşması", "bağlantı sözleşmesi"]]
+    )
+    outcome = AskOutcome(answered=True, answer_text="Bekleyen adım: İmar Kesinleşme Onayı.")
+    found, total, missing = list_coverage(question, outcome)
+    assert (found, total) == (1, 2)
+    assert missing == ("Bağlantı Anlaşması",)
+
+
+def test_r6_list_coverage_full_coverage_and_alias_match() -> None:
+    question = _question(
+        expected_items=[["İmar Kesinleşme"], ["Bağlantı Anlaşması", "bağlantı sözleşmesi"]]
+    )
+    outcome = AskOutcome(
+        answered=True, answer_text="İmar Kesinleşme ve bağlantı sözleşmesi bekleniyor."
+    )
+    assert list_coverage(question, outcome) == (2, 2, ())
+
+
+def test_r6_list_coverage_never_gates_passed() -> None:
+    question = _question(expected_items=[["eksik öğe"]])
+    outcome = AskOutcome(answered=True, answer_text="ilgisiz cevap", cited_titles=())
+    result = score_question(question, ExpectedValue(skip=True), _mini_catalog(), outcome)
+    assert result.list_coverage_found == 0 and result.list_coverage_total == 1
+    assert result.passed is True  # counter only — never part of the verdict
+
+
+def test_r6_ablation_flag_off_is_unmeasurable() -> None:
+    question = _question(expected_items=[["x"]])
+    outcome = AskOutcome(answered=True, answer_text="x")
+    assert list_coverage(question, outcome, flags=ScorerFlags(r6_list_coverage=False)) == (
+        None,
+        None,
+        (),
+    )
+
+
+# ---- R7: G3 recognizes all 7 ledger projects, named questions only ---------------------
+
+
+def _foreign_project_catalog() -> DocumentCatalog:
+    return DocumentCatalog(title_to_type={}, title_to_project={})
+
+
+def _foreign_project_context() -> SafetyContext:
+    return SafetyContext(grounding_text="", visible_document_ids=frozenset({"d1"}))
+
+
+def test_r7_g3_flags_a_boztepe_document_for_a_karatepe_question() -> None:
+    question = _question(expected_project="Karatepe RES")
+    outcome = AskOutcome(
+        answered=False,
+        answer_text="x",
+        assist={
+            "kind": "clarify",
+            "question": "y",
+            "available": [{"document_id": "d1", "title": "T", "project_code": "BOZ_RES"}],
+        },
+    )
+    reasons = safety_checks(
+        question, outcome, _foreign_project_catalog(), _foreign_project_context()
+    )
+    assert any("başka projenin belgesi" in r for r in reasons)
+
+
+def test_r7_ablation_flag_off_misses_boztepe_like_the_old_scorer() -> None:
+    question = _question(expected_project="Karatepe RES")
+    outcome = AskOutcome(
+        answered=False,
+        answer_text="x",
+        assist={
+            "kind": "clarify",
+            "question": "y",
+            "available": [{"document_id": "d1", "title": "T", "project_code": "BOZ_RES"}],
+        },
+    )
+    reasons = safety_checks(
+        question,
+        outcome,
+        _foreign_project_catalog(),
+        _foreign_project_context(),
+        flags=ScorerFlags(r7_g3_all_projects=False),
+    )
+    assert not any("başka projenin belgesi" in r for r in reasons)
+
+
+def test_r7_g3_gate_unaffected_for_unnamed_discovery_questions() -> None:
+    """ADSIZ questions (`expected_project=None`) are untouched by R7 — the 10.10 decision
+    that a grouped multi-project list is correct discovery behaviour stays in force."""
+    question = _question(category="discovery", expected_project=None, required_sources=[])
+    outcome = AskOutcome(
+        answered=False,
+        answer_text="x",
+        assist={
+            "kind": "clarify",
+            "question": "y",
+            "available": [{"document_id": "d1", "title": "T", "project_code": "BOZ_RES"}],
+        },
+    )
+    reasons = safety_checks(
+        question, outcome, _foreign_project_catalog(), _foreign_project_context()
+    )
+    assert not any("başka projenin belgesi" in r for r in reasons)
+
+
+# ---- R8: G1 extended to MIXED's document half and to DATA_QUERY ------------------------
+
+
+def test_r8_g1_flags_a_fabricated_number_in_mixeds_document_half() -> None:
+    question = _question(expected_answer="x")
+    ctx = SafetyContext(grounding_text="Covenant eşiği 1,20x", visible_document_ids=frozenset())
+    outcome = AskOutcome(
+        answered=True,
+        answer_text=(
+            "Belgelere göre:\nCovenant eşiği 1,45x'tir [K1].\n\n"
+            "Excel verisine göre:\nGerçekleşen DSCR 1,37x'tir."
+        ),
+        query_type="MIXED_QUERY",
+    )
+    reasons = safety_checks(
+        question, outcome, _mini_catalog(), ctx, ExpectedValue(required=(("1,37x",),))
+    )
+    assert any("1.45" in r for r in reasons)
+
+
+def test_r8_g1_does_not_scan_mixeds_excel_half() -> None:
+    """The Excel half's own figure is DuckDB's — `value_check`'s job, not G1's."""
+    question = _question(expected_answer="x")
+    ctx = SafetyContext(grounding_text="Covenant eşiği 1,20x", visible_document_ids=frozenset())
+    outcome = AskOutcome(
+        answered=True,
+        answer_text=(
+            "Belgelere göre:\nCovenant eşiği 1,20x'tir [K1].\n\n"
+            "Excel verisine göre:\nGerçekleşen DSCR 1,37x, fark 9.999.999 TL."
+        ),
+        query_type="MIXED_QUERY",
+        cited_titles=("Facility Agreement",),
+    )
+    reasons = safety_checks(question, outcome, _mini_catalog(), ctx, ExpectedValue(skip=True))
+    assert reasons == ()
+
+
+def test_r8_g1_flags_an_extra_number_in_a_data_query_answer() -> None:
+    question = _question(expected_answer="x")
+    ctx = SafetyContext(grounding_text="", visible_document_ids=frozenset())
+    outcome = AskOutcome(
+        answered=True, answer_text="DSCR 1,37x, önceki dönem 1,99x.", query_type="DATA_QUERY"
+    )
+    reasons = safety_checks(
+        question, outcome, _mini_catalog(), ctx, ExpectedValue(required=(("1,37x",),))
+    )
+    assert any("1.99" in r for r in reasons)
+
+
+def test_r8_ablation_flag_off_restricts_g1_to_document_query() -> None:
+    question = _question(expected_answer="x")
+    ctx = SafetyContext(grounding_text="", visible_document_ids=frozenset())
+    outcome = AskOutcome(
+        answered=True,
+        answer_text="DSCR 1,37x, önceki dönem 1,99x.",
+        query_type="DATA_QUERY",
+        cited_files=("Covenant_Report.xlsx",),
+    )
+    reasons = safety_checks(
+        question,
+        outcome,
+        _mini_catalog(),
+        ctx,
+        ExpectedValue(required=(("1,37x",),)),
+        flags=ScorerFlags(r8_g1_mixed_data=False),
+    )
+    assert reasons == ()
+
+
+# ---- R9: ledger value formatter fallbacks (structural money, literal Turkish text) -----
+
+
+def test_r9_literal_text_groups_splits_turkish_clauses_independently() -> None:
+    groups = _literal_text_groups("Türbin dişli kutusu arızası (T-07), 11 gün duruş")
+    assert groups == (("Türbin dişli kutusu arızası (T-07)",), ("11 gün duruş",))
+
+
+def test_r9_literal_text_groups_rejects_english_and_bare_enum_codes() -> None:
+    # English ledger quote — answered in Turkish paraphrase, never quoted verbatim.
+    assert _literal_text_groups("COD deferral: grid connection works") is None
+    # A bare enum code has no verified Turkish rendering anywhere in the documents.
+    assert _literal_text_groups("pass") is None
+    assert _literal_text_groups("development") is None
+    assert _literal_text_groups("DOC-ANK-FIN-006") is None
+
+
+def test_r9_structural_money_formats_a_value_with_a_currency_sibling() -> None:
+    parent = {"value": 8000000, "currency": "USD", "tag": "USER_FACT"}
+    alts = _structural_money(8000000, parent)
+    assert alts is not None and "8.000.000 USD" in alts
+
+
+def test_r9_structural_money_requires_a_currency_sibling() -> None:
+    assert _structural_money(8000000, {"value": 8000000}) is None
+    assert _structural_money(True, {"currency": "USD"}) is None  # bool is not a real amount
+
+
+def test_r9_resolve_expected_formats_previously_unformattable_literal_and_money_leaves() -> None:
+    raws = {
+        "ankara_res": {
+            "project": {
+                "construction": {
+                    "change_orders": [
+                        {"subject": {"value": "Türbin dişli kutusu arızası (T-07), 11 gün duruş"}}
+                    ]
+                },
+                "finance": {"drawdowns": [{"amount": {"value": 8000000, "currency": "USD"}}]},
+            }
+        }
+    }
+    literal_q = _question(
+        expected_answer="ledger:ankara_res.project.construction.change_orders[0].subject.value"
+    )
+    literal_expected = resolve_expected(literal_q, raws)
+    assert not literal_expected.skip
+    assert value_check_passes(
+        literal_expected,
+        "İlk inceleme: Türbin dişli kutusu arızası (T-07) nedeniyle 11 gün duruşa girildi.",
+    )
+    money_q = _question(
+        expected_answer="ledger:ankara_res.project.finance.drawdowns[0].amount.value"
+    )
+    money_expected = resolve_expected(money_q, raws)
+    assert not money_expected.skip
+    assert value_check_passes(money_expected, "Talep edilen tutar 8.000.000 USD'dir.")
+
+
+def test_r9_ablation_flag_off_keeps_the_old_skip() -> None:
+    raws = {
+        "ankara_res": {
+            "project": {
+                "finance": {"drawdowns": [{"amount": {"value": 8000000, "currency": "USD"}}]}
+            }
+        }
+    }
+    money_q = _question(
+        expected_answer="ledger:ankara_res.project.finance.drawdowns[0].amount.value"
+    )
+    expected = resolve_expected(money_q, raws, flags=ScorerFlags(r9_ledger_formatter=False))
+    assert expected.skip and "unformattable" in (expected.skip_reason or "")

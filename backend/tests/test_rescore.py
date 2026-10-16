@@ -198,7 +198,7 @@ def test_no_db_rescore_end_to_end(tmp_path: Path) -> None:
     )
     assert code == 0
     payload = json.loads((out / "results.json").read_text(encoding="utf-8"))
-    assert payload["scorer_version"] == "2.0"
+    assert payload["scorer_version"] == "2.1"
     row = payload["questions"][0]
     assert row["passed"] is True and row["value_check"] == "skipped"
     assert row["safety_check"] == "skipped"  # --no-db

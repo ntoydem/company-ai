@@ -19,6 +19,7 @@ visibility come from that DB — never the live one):
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import datetime
 import json
 import random
@@ -37,6 +38,43 @@ RULE_LABELS = {
     "A4": "yasak kaynak belge kimliğiyle (tür eşleşmesi kalktı)",
     "A5": "kaynak beklentisi: yetkili kaynak kümesi",
     "B": "questions.json v13 (IZM-ISO-004 / GEN-HAL-004)",
+    "R1": "V21 — çelişen rakam (kavram-sınırlı)",
+    "R2": "V21 — F-8 biçim hatası artık düşürür",
+    "R4": "V21 — MIXED tamlık (T-1)",
+    "R5": "V21 — netleştirme konusu (T-2)",
+    "R7": "V21 — G3 tüm projeler",
+    "R8": "V21 — G1 MIXED/DATA'ya genişledi",
+    "R9": "V21 — ledger biçimlendirici genişledi",
+}
+
+# İş Emri 2026-10-16V21 — kontrolör #42'nin bağımsız 20 soru karar sütunu, birebir
+# (ftansu/AI-BalBal PR #42, kontrolor/kosular/2026-10-16_M1-bagimsiz-20/README.md; transkript
+# docs/reports/assets/V21_kontrolor_42_tablosu.md). `True` = kontrolör "KY değil"/✅ dedi,
+# `False` = kontrolör KY ya da düz ❌ dedi (ikisi de "kontrolör düşürdü" sayılır — tablonun
+# kendi "puanlayıcı/kontrolör uyuşması" ölçüsüyle birebir). GEN-GEN-003: kontrolörün
+# "bugünkü kurala göre KY" notu var ama ürün sahibi 16.10'da tanımı kabul etti (v14'te
+# beklenti değişecek) — burada kontrolörün YAZDIĞI karar tutuluyor, geriye dönük yorumlanmadı.
+CONTROLLER_42_VERDICT: dict[str, bool] = {
+    "ANK-FIN-013": False,  # KY — çelişen rakam (V21 R1)
+    "ANK-FIN-011": False,  # KY — F-8 biçim (V21 R2)
+    "GEN-CMP-003": False,  # KY — sabit cümle yok
+    "GEN-GEN-003": False,  # KY (bugünkü kurala göre); ürün sahibi 16.10: v14'te değişecek
+    "ANK-ISO-002": True,  # kontrolör: KY değil, test beklentisi eskimiş
+    "GEN-CMP-002": True,
+    "ANK-MIX-003": False,  # KY — T-1 (V21 R4)
+    "ANK-MIX-001": False,  # KY — T-1 (V21 R4)
+    "ANK-FIN-005": False,  # ❌ ama KY değil — "faiz bazı" sözlük eksikliği (ürün davranışı)
+    "ANK-FIN-010": False,  # ❌ ama KY değil — yanıltıcı ama yanlış değil
+    "ANK-FIN-014": False,  # ❌ ama KY değil — router DATA'ya gönderdi, tutarlı ret
+    "GEN-DSC-011-K": False,  # ❌ — puanlayıcı atlama hatası (V21 R3)
+    "GEN-HAL-003": True,
+    "IZM-DEV-007": True,
+    "ANK-EPC-004": True,
+    "IZM-DEV-008": False,  # ❌ — liste kapsamı ölçülmüyor (V21 R6)
+    "ANK-DAT-003": True,
+    "ANK-AUT-003": True,
+    "GEN-TRM-005": True,
+    "GEN-AMB-005": False,  # ❌ — T-2 (V21 R5, opt-in clarify_kind gerektirir)
 }
 
 
@@ -52,6 +90,17 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--controller-sample", type=int, default=20)
     parser.add_argument("--seed", type=int, default=CONTROLLER_SEED)
     parser.add_argument("--no-db", action="store_true", help="dry run: no grounding/visibility")
+    # İş Emri 2026-10-16V21
+    parser.add_argument(
+        "--ablation",
+        action="store_true",
+        help="per-rule standalone effect (9 ScorerFlags, one at a time)",
+    )
+    parser.add_argument(
+        "--controller-42",
+        action="store_true",
+        help="compare v2.0/v2.1 against the kontrolör #42 20-question verdicts (M1 run only)",
+    )
     return parser
 
 
@@ -125,6 +174,14 @@ def _g3_forbidden(reasons: list[str]) -> bool:
     return any("yasak kaynak" in r for r in reasons)
 
 
+def _g3_foreign_project(reasons: list[str]) -> bool:
+    return any("başka projenin belgesi" in r for r in reasons)
+
+
+def _g1_fabricated(reasons: list[str]) -> bool:
+    return any(r.startswith("G1: kaynaklarda olmayan") for r in reasons)
+
+
 def changed_rules(old: dict[str, Any], new: QuestionResult, question_changed: bool) -> list[str]:
     """Which F0 rule(s) explain the difference between the old row and the new result —
     derived from the per-check fields, not guessed."""
@@ -149,6 +206,22 @@ def changed_rules(old: dict[str, Any], new: QuestionResult, question_changed: bo
         rules.append("A5")
     if question_changed:
         rules.append("B")
+    # İş Emri 2026-10-16V21 — the 9 new rules (R3 and R6 never change a verdict by design,
+    # so they're never tagged here; see the V21 report for their standalone findings).
+    if new.value_check == "fail" and "çelişen rakam" in (new.value_check_reason or ""):
+        rules.append("R1")
+    if new.format_check == "fail":
+        rules.append("R2")
+    if new.mixed_completeness_check == "fail":
+        rules.append("R4")
+    if new.clarify_relevance_check == "fail":
+        rules.append("R5")
+    if _g3_foreign_project(new_safety) and not _g3_foreign_project(old_safety):
+        rules.append("R7")
+    if _g1_fabricated(new_safety) and old.get("query_type") in ("MIXED_QUERY", "DATA_QUERY"):
+        rules.append("R8")
+    if old.get("value_check") == "skipped" and new.value_check != "skipped":
+        rules.append("R9")
     return rules
 
 
@@ -164,7 +237,7 @@ def failure_reasons(r: QuestionResult) -> list[str]:
     if r.forbidden_sources_hit:
         reasons.append(f"yasak kaynak {list(r.forbidden_sources_hit)}")
     if r.value_check == "fail":
-        reasons.append("beklenen değer metinde yok")
+        reasons.append(r.value_check_reason or "beklenen değer metinde yok")
     if r.phrase_check == "fail":
         reasons.append(f"ifade: {r.phrase_check_reason}")
     if r.safety_check == "fail":
@@ -173,6 +246,12 @@ def failure_reasons(r: QuestionResult) -> list[str]:
         reasons.append(f"assist: {r.assist_check_reason}")
     if r.discovery_check == "fail":
         reasons.append(f"discovery: {r.discovery_check_reason}")
+    if r.format_check == "fail":
+        reasons.append(f"biçim (V21 R2): {r.format_check_reason}")
+    if r.mixed_completeness_check == "fail":
+        reasons.append(f"MIXED tamlık (V21 R4): {r.mixed_completeness_reason}")
+    if r.clarify_relevance_check == "fail":
+        reasons.append(f"netleştirme konusu (V21 R5): {r.clarify_relevance_reason}")
     return reasons
 
 
@@ -326,6 +405,124 @@ def render_controller(
     return "\n".join(lines) + "\n"
 
 
+# ---------------------------------------------------------------- V21 ablation (per-rule effect)
+
+
+def run_ablation(
+    pairs: list[tuple[dict[str, Any], dict[str, Any]]],
+    questions: dict[str, eval_lib.ls.Question],
+    raws: dict[str, Any],
+    catalog: eval_lib.DocumentCatalog,
+    safety_index: Any | None,
+) -> dict[str, Any]:
+    """V21 — the standalone effect of each of the 9 rules: rescore the whole run once per
+    rule turned off (every other rule stays on, i.e. the v2.1 baseline minus one), diff the
+    pass count against the all-on v2.1 baseline. `safety_index` may be `None` (--no-db)."""
+
+    def score_all(flags: eval_lib.ScorerFlags) -> list[QuestionResult]:
+        results = []
+        for old, audit in pairs:
+            question = questions[old["id"]]
+            outcome = outcome_from(old, audit)
+            expected = eval_lib.resolve_expected(question, raws, flags)
+            sources_expected = eval_lib.authoritative_sources(question, raws, catalog)
+            safety = safety_index.context(question.ask_as_user, outcome) if safety_index else None
+            results.append(
+                eval_lib.score_question(
+                    question, expected, catalog, outcome, safety, sources_expected, flags
+                )
+            )
+        return results
+
+    baseline = score_all(eval_lib.DEFAULT_FLAGS)
+    baseline_pass = sum(1 for r in baseline if r.passed)
+    rules: dict[str, Any] = {}
+    for field in dataclasses.fields(eval_lib.ScorerFlags):
+        off_flags = dataclasses.replace(eval_lib.DEFAULT_FLAGS, **{field.name: False})
+        without_rule = score_all(off_flags)
+        without_pass = sum(1 for r in without_rule if r.passed)
+        changed = [
+            {"id": base.id, "with_rule": base.passed, "without_rule": without.passed}
+            for base, without in zip(baseline, without_rule, strict=True)
+            if base.passed != without.passed
+        ]
+        rules[field.name] = {
+            "v21_pass": baseline_pass,
+            "without_rule_pass": without_pass,
+            "delta": baseline_pass - without_pass,
+            "changed_questions": changed,
+        }
+    return {"total": len(baseline), "v21_pass": baseline_pass, "rules": rules}
+
+
+def render_ablation_markdown(ablation: dict[str, Any], *, label: str) -> str:
+    lines = [
+        f"# V21 ablasyon — madde başına tek başına etki ({label})",
+        "",
+        f"v2.1 (hepsi açık): {ablation['v21_pass']}/{ablation['total']}. Her satır bir kuralı "
+        "TEK BAŞINA kapatıp (diğer 8'i açık kalarak) yeniden puanlar.",
+        "",
+        "| Kural | Kapalıyken geçen | Delta (kuralın etkisi) | Değişen sorular |",
+        "|---|---|---|---|",
+    ]
+    for name, data in ablation["rules"].items():
+        changed = ", ".join(
+            f"{c['id']}({'✅' if c['without_rule'] else '❌'}→{'✅' if c['with_rule'] else '❌'})"
+            for c in data["changed_questions"]
+        )
+        lines.append(
+            f"| {name} | {data['without_rule_pass']}/{ablation['total']} | {data['delta']:+d} | "
+            f"{changed or '—'} |"
+        )
+    return "\n".join(lines) + "\n"
+
+
+# ---------------------------------------------------------------- V21 kontrolör #42 comparison
+
+
+def render_controller_42_comparison(
+    old_report: dict[str, Any], new_report: eval_lib.EvalReport
+) -> str:
+    """V21 — kontrolör #42'nin 20 soruluk bağımsız okuması karşısında v2.0 (M1'in resmi
+    sonucu, `old_report`) ve v2.1 (bu koşu) ne kadar uyuşuyor; önceki uyuşma 13/20 (F0/M1
+    öncesi kontrolör notu)."""
+    old_by_id = {q["id"]: q for q in old_report["questions"]}
+    new_by_id = {r.id: r for r in new_report.results}
+    lines = [
+        "# Kontrolör #42 karşılaştırması — v2.0 / v2.1 / kontrolör",
+        "",
+        "Kaynak: `docs/reports/assets/V21_kontrolor_42_tablosu.md` (ftansu/AI-BalBal PR #42).",
+        "",
+        "| Soru | Kontrolör | v2.0 | v2.1 | v2.0 uyuştu | v2.1 uyuştu |",
+        "|---|---|---|---|---|---|",
+    ]
+    v20_agree = v21_agree = 0
+    for qid, kontrolor_ok in CONTROLLER_42_VERDICT.items():
+        old_q = old_by_id.get(qid)
+        new_r = new_by_id.get(qid)
+        if old_q is None or new_r is None:
+            lines.append(f"| {qid} | — | ? | ? | — | — |")
+            continue
+        v20_ok = bool(old_q["passed"])
+        v21_ok = bool(new_r.passed)
+        v20_match = v20_ok == kontrolor_ok
+        v21_match = v21_ok == kontrolor_ok
+        v20_agree += v20_match
+        v21_agree += v21_match
+        lines.append(
+            f"| {qid} | {'✅' if kontrolor_ok else '❌'} | {'✅' if v20_ok else '❌'} | "
+            f"{'✅' if v21_ok else '❌'} | {'✅' if v20_match else '❌'} | "
+            f"{'✅' if v21_match else '❌'} |"
+        )
+    n = len(CONTROLLER_42_VERDICT)
+    lines += [
+        "",
+        f"**Uyuşma — v2.0: {v20_agree}/{n} (%{100 * v20_agree / n:.0f}) → "
+        f"v2.1: {v21_agree}/{n} (%{100 * v21_agree / n:.0f}).**",
+    ]
+    return "\n".join(lines) + "\n"
+
+
 # ---------------------------------------------------------------- main
 
 
@@ -406,6 +603,20 @@ def main(argv: list[str] | None = None) -> int:
         sample = [row for row in rows if row[1].id in chosen]
         (args.out / f"kontrolor_{len(sample)}.md").write_text(
             render_controller(sample, args.seed), encoding="utf-8"
+        )
+
+    if args.ablation:
+        ablation = run_ablation(pairs, questions, raws, catalog, safety_index)
+        (args.out / "ablation.json").write_text(
+            json.dumps(ablation, indent=2, ensure_ascii=False), encoding="utf-8"
+        )
+        (args.out / "ablation.md").write_text(
+            render_ablation_markdown(ablation, label=str(args.results)), encoding="utf-8"
+        )
+
+    if args.controller_42:
+        (args.out / "kontrolor_42_karsilastirma.md").write_text(
+            render_controller_42_comparison(old_report, report), encoding="utf-8"
         )
 
     print(diff)

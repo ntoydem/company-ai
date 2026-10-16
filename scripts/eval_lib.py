@@ -27,7 +27,7 @@ DEFAULT_RESULTS_DIR = DEFAULT_MASTER.parent.parent / "results"
 
 # Scorer contract version — bump with every scoring-rule change and add a CHANGELOG line, so a
 # results.json can always be read against the rules that produced it (İş Emri 2026-10-15F0 A).
-SCORER_VERSION = "2.0"
+SCORER_VERSION = "2.1"
 SCORER_CHANGELOG: tuple[str, ...] = (
     "1.x (Phase 4.1 … İş Emri 2026-10-14B2a): value/source/phrase checks, G1–G3, assist, "
     "discovery, F-8 format; clarify ≡ disambiguate.",
@@ -46,7 +46,83 @@ SCORER_CHANGELOG: tuple[str, ...] = (
     "shown?) and summary lines in results.json/results.md.",
     "2.0 (F0 A7): cost tracked per model (Sonnet plan separately) — run_eval.CostTracker and "
     "run_eval.cost_from_llm_log.",
+    # İş Emri 2026-10-16V21 — Tansu 16.10 onayı + kontrolör #42 (ftansu/AI-BalBal PR #42,
+    # docs/reports/assets/V21_kontrolor_42_tablosu.md). Every rule below is gated by a
+    # `ScorerFlags` boolean (all default True); `scripts/rescore.py --ablation` measures each
+    # rule's standalone effect on M1 (71/99 v2.0) and S3r (70/99 v2.0). Official v2.0 scores
+    # are unchanged; v2.1 is a new reference: M1 69/99, S3r 69/99. Full before/after:
+    # docs/reports/assets/V21_kural_degisiklikleri.md; controller agreement 13/20 -> 15/20.
+    "2.1 (V21 R1): value_check fails when a percentage tied to the expected field's concept "
+    "keyword (hand-verified, e.g. margin_pct -> 'marj') appears in the same sentence with a "
+    "value outside every accepted group — a contradicting figure, not just a missing one. "
+    "M1 -1 (ANK-FIN-013, the kontrolör's KY#1); S3r +0 (same question already failing there).",
+    "2.1 (V21 R2): format_check == 'fail' (F-8) now fails the question; previously reported "
+    "only. M1 -1 (ANK-FIN-011, kontrolör KY#2); S3r -1 (GEN-DSC-001, T1's own 'F-8 ihlali "
+    "puana girmiyor' finding).",
+    "2.1 (V21 R3): resolve_expected's 'no ledger path at all' skip no longer mislabels its "
+    "reason as 'expect_no_answer' (that string is reserved for the real A3 rule) — renamed to "
+    "'no_literal_expected_answer'. All skip conditions enumerated in resolve_expected's "
+    "docstring. No score change (M1/S3r +0) — discovery already ignores value_check; the real "
+    "root cause (GEN-DSC-011-K has no expected_answer at all) is a questions.json gap, "
+    "reported with a concrete v14 ledger path, not a code fix (V21 report §3).",
+    "2.1 (V21 R4): new mixed_completeness_check — a MIXED question whose required_sources "
+    "span both a document and a workbook title (or whose opt-in question.parts says so) must "
+    "show both halves under their own heading; an answer that collapsed into one flat "
+    "sentence (no heading split at all — ANK-MIX-001's real shape) fails outright rather than "
+    "guess which half the flat text represents, and a heading present but empty inside fails "
+    "the same way. M1/S3r +0 net (ANK-MIX-001 was already failing on sources in both runs) — "
+    "right diagnosis, not a new catch; ANK-MIX-003 needs the opt-in `parts` field (v14).",
+    "2.1 (V21 R5): new clarify_relevance_check — gated on the opt-in question.clarify_kind "
+    "only, no text heuristic: checked against the real v13 questions, most legitimate "
+    "project-disambiguation questions (GEN-AMB-001..004) name no project either (that's the "
+    "ambiguity the category is built to catch), so no automatic signal can tell them apart "
+    "from GEN-AMB-005/GEN-GEN-002 without wrongly flagging the former. M1/S3r +0 (clarify_kind "
+    "unset on every v13 question) — recommends v14 set it for GEN-AMB-005 (T-2).",
+    "2.1 (V21 R6): list_coverage_* counters (never gate passed, same status as A6 discovery "
+    "counters) report how many of an opt-in question.expected_items were found in the answer; "
+    "unmeasurable for every v13 question (field unset) until a v14 question-set sets it "
+    "(IZM-DEV-008).",
+    "2.1 (V21 R7): G3 'başka projenin belgesi' recognizes all 7 ledger projects, not only "
+    "Karatepe/Kızılova; gate unchanged (named questions only, expected_project is not None). "
+    "M1 +0 net (GEN-DSC-008/-M already failing on discovery grounds) but now also correctly "
+    "diagnosed; S3r +0 net (ANK-MIX-001, same).",
+    "2.1 (V21 R8): G1 'fabricated number' extends from DOCUMENT_QUERY-only to MIXED_QUERY's "
+    "document half and to DATA_QUERY, widening the allowed pool by the question's own "
+    "resolved expected value (DuckDB's number is always allowed). Two traps found rescoring "
+    "the real M1/S3r runs and fixed before measuring: a MIXED answer that collapsed to one "
+    "flat sentence has no document half to isolate (scanning it whole would flag the "
+    "Excel/DuckDB figure itself — ANK-MIX-003/GEN-DSC-011-K), and a bare DATA_QUERY answer "
+    "with no resolvable expected value has no anchor either; both stay unchecked rather than "
+    "risk flagging the query's own legitimate number. M1/S3r +0 (no new catches, no "
+    "regressions, confirmed by ablation).",
+    "2.1 (V21 R9): _classify_and_format gains two structural fallbacks for a ledger leaf "
+    "`guess_field_kind` doesn't recognize — money (parent dict carries a `currency` sibling) "
+    "and literal Turkish free text (contains a Turkish-specific letter, split on ', ' into "
+    "independently-required clauses) — never replacing an already-working field_kind match. "
+    "English ledger strings and bare enum codes ('pass'/'development') are deliberately not "
+    "covered (no verified Turkish rendering exists anywhere in the generated documents). "
+    "M1/S3r +0 (ANK-FIN-015, ANK-OPS-002 newly verified AND correct in both runs — zero newly "
+    "verified-and-failing) — see docs/reports/assets/V21_item9_ledger_formatter.md.",
 )
+
+
+@dataclass(frozen=True)
+class ScorerFlags:
+    """İş Emri 2026-10-16V21 — each new v2.1 rule gated independently so `scripts/rescore.py`
+    can measure its standalone effect (toggle one `False`, rescore, diff pass counts)."""
+
+    r1_contradicting_percent: bool = True
+    r2_format_gates: bool = True
+    r3_skip_reason_label: bool = True
+    r4_mixed_completeness: bool = True
+    r5_clarify_relevance: bool = True
+    r6_list_coverage: bool = True
+    r7_g3_all_projects: bool = True
+    r8_g1_mixed_data: bool = True
+    r9_ledger_formatter: bool = True
+
+
+DEFAULT_FLAGS = ScorerFlags()
 
 # Categories PHASES.md requires 100% on; every other category needs >= 80%.
 HUNDRED_PERCENT_CATEGORIES = frozenset(
@@ -337,6 +413,9 @@ class ExpectedValue:
     required: tuple[tuple[str, ...], ...] = ()
     skip: bool = False
     skip_reason: str | None = None
+    # V21 R1 — the `facts_mod.guess_field_kind` name of the resolved top-level ledger field,
+    # when known; used to scope the contradicting-figure check to hand-verified concepts.
+    concept_field: str | None = None
 
 
 def _classify_and_format(value: Any, path: str, parent: Any) -> tuple[str, ...] | None:
@@ -374,10 +453,24 @@ def _classify_and_format(value: Any, path: str, parent: Any) -> tuple[str, ...] 
     return None  # list / dict / None
 
 
-def resolve_expected(question: ls.Question, raws: dict[str, Any]) -> ExpectedValue:
+def resolve_expected(
+    question: ls.Question, raws: dict[str, Any], flags: ScorerFlags = DEFAULT_FLAGS
+) -> ExpectedValue:
+    """Every way `value_check` can come back `skip=True` (V21 R3 — the first of these used
+    to be mislabeled `"expect_no_answer"`, which is a different, real rule below and
+    confused a reader into thinking the code mis-detected that flag):
+
+    1. `expected_answer` is `None` on the question — no ledger path was ever attached to it
+       (`skip_reason="no_literal_expected_answer"`; not necessarily `expect_no_answer=True` —
+       see GEN-DSC-011-K, V21 report §3).
+    2. `expect_no_answer and expect_assist is not None` — F0 A3, the real "a clarifying
+       question is expected, not a value" rule (`skip_reason="expect_no_answer + expect_assist"`).
+    3. The resolved ledger leaf (or one leaf of a compound/list answer) doesn't match a known
+       scalar shape even after the V21 R9 fallbacks — `skip_reason` names the type/leaf.
+    """
     ea = question.expected_answer
     if ea is None:
-        return ExpectedValue(skip=True, skip_reason="expect_no_answer")
+        return ExpectedValue(skip=True, skip_reason="no_literal_expected_answer")
     if question.expect_no_answer and question.expect_assist is not None:
         # F0 A3: the question expects a clarifying question, not the value; a ledger path
         # kept "for information" (ANK-NEG-003, B2a) must not make it unpassable.
@@ -387,7 +480,7 @@ def resolve_expected(question: ls.Question, raws: dict[str, Any]) -> ExpectedVal
         # unformattable path skips the whole value check, as a single one would.
         groups: list[tuple[str, ...]] = []
         for ref_raw in ea:
-            sub = _resolve_one(ref_raw, raws)
+            sub = _resolve_one(ref_raw, raws, flags)
             if sub.skip:
                 return sub
             groups.extend(sub.required)
@@ -400,10 +493,55 @@ def resolve_expected(question: ls.Question, raws: dict[str, Any]) -> ExpectedVal
         # for exactly this case (any one of them satisfies the check, same as a ledger
         # value's own formatted/aliased spellings).
         return ExpectedValue(required=((ea, *question.expected_answer_aliases),))
-    return _resolve_one(ea, raws)
+    return _resolve_one(ea, raws, flags)
 
 
-def _resolve_one(ea: str, raws: dict[str, Any]) -> ExpectedValue:
+_TURKISH_LETTERS = frozenset("çğıöşüÇĞİÖŞÜ")
+
+
+def _structural_money(value: Any, parent: Any) -> tuple[str, ...] | None:
+    """V21 R9 — a numeric ledger leaf `guess_field_kind` doesn't recognize by path, but whose
+    enclosing dict carries a `currency` sibling next to `value`: format it as money anyway
+    (ANK-FIN-015 `drawdowns[0].amount.value`), reusing the generator's own TR money formatter
+    so the spelling matches exactly what a document/prose rendering would print."""
+    if not isinstance(value, int | float) or isinstance(value, bool):
+        return None
+    if not (isinstance(parent, dict) and "currency" in parent):
+        return None
+    formatted = facts_mod._format_money(float(value), "tr", str(parent["currency"]))
+    alts = [formatted]
+    if "," in formatted:
+        alts.append(formatted.replace(",", "."))
+    money_alias = _money_en_grouping_alias(formatted, value)
+    if money_alias is not None:
+        alts.append(money_alias)
+    return tuple(alts)
+
+
+def _literal_text_groups(value: Any) -> tuple[tuple[str, ...], ...] | None:
+    """V21 R9 — a plain descriptive ledger string `guess_field_kind` doesn't recognize:
+    accept it as literal required text, one group per `", "`-separated clause (so a
+    paraphrased reordering like "X oldu, Y gün sürdü" still matches both halves even if the
+    answer doesn't repeat them contiguously — ANK-OPS-002). Gated on containing a
+    Turkish-specific letter: an English contract quote (ANK-EPC-004's "COD deferral: grid
+    connection works") is answered in Turkish paraphrase, never quoted verbatim, so it's left
+    unformattable rather than risk a false regression (V21 report §9). A bare single word
+    (an enum code like "pass"/"development") is excluded too — neither has a verified Turkish
+    rendering anywhere in the generated documents (V21 report §9), so no clause may lack a
+    space (a one-word "clause" is a code, not a quotable phrase)."""
+    if not isinstance(value, str) or value.startswith("DOC-"):
+        return None
+    if not any(ch in _TURKISH_LETTERS for ch in value):
+        return None
+    clauses = [c.strip() for c in value.split(", ") if c.strip()]
+    if not clauses or any(" " not in c for c in clauses):
+        return None
+    return tuple((clause,) for clause in clauses)
+
+
+def _resolve_one(
+    ea: str, raws: dict[str, Any], flags: ScorerFlags = DEFAULT_FLAGS
+) -> ExpectedValue:
     if not ea.startswith("ledger:"):
         return ExpectedValue(required=((ea,),))
     ref = ea.removeprefix("ledger:")
@@ -412,9 +550,22 @@ def _resolve_one(ea: str, raws: dict[str, Any]) -> ExpectedValue:
     parent_path = path.rsplit(".", 1)[0] if "." in path else None
     parent = resolve_path(raws[file_key], parent_path) if parent_path else None
 
+    # V21 R1: the concept keyword a contradicting-figure check scans the answer for, named by
+    # the *top-level* path (so a compound `initial`/`current` field like `margin_pct` below
+    # still resolves to `"margin_pct"`, not `"margin_pct.current.value"`).
+    concept_field = facts_mod.guess_field_kind(path)
+
     scalar = _classify_and_format(value, path, parent)
     if scalar is not None:
-        return ExpectedValue(required=(scalar,))
+        return ExpectedValue(required=(scalar,), concept_field=concept_field)
+
+    if flags.r9_ledger_formatter:
+        literal_groups = _literal_text_groups(value)
+        if literal_groups is not None:
+            return ExpectedValue(required=literal_groups, concept_field=concept_field)
+        money_group = _structural_money(value, parent)
+        if money_group is not None:
+            return ExpectedValue(required=(money_group,), concept_field=concept_field)
 
     if (
         isinstance(value, dict)
@@ -427,7 +578,7 @@ def _resolve_one(ea: str, raws: dict[str, Any]) -> ExpectedValue:
             if sub is None:
                 return ExpectedValue(skip=True, skip_reason=f"unformattable compound leaf: {key}")
             groups.append(sub)
-        return ExpectedValue(required=tuple(groups))
+        return ExpectedValue(required=tuple(groups), concept_field=concept_field)
 
     return ExpectedValue(
         skip=True, skip_reason=f"unformattable expected_answer type: {type(value).__name__}"
@@ -558,6 +709,46 @@ def format_check(answer_text: str) -> tuple[str, str | None]:
     if reasons:
         return "fail", ", ".join(reasons)
     return "pass", None
+
+
+# V21 R1 — hand-verified concept keywords, by `facts_mod.guess_field_kind` name. Deliberately
+# narrow (opt-in per field): the Turkish word confirmed in the generated artifacts
+# (`seed_data/generator/generate_excel.py:541`, "Yıllık Faiz Oranı (swap + marj)"). Add an
+# entry only after checking the rendered text the same way `_STRING_ALIASES` is hand-verified.
+_CONCEPT_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "margin_pct": ("marj",),
+}
+_PERCENT_ANY = re.compile(r"%\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?\s*%")
+_SENTENCE_SPLIT = re.compile(r"[.!?\n]+")
+
+
+def contradicting_value_reason(expected: ExpectedValue, answer_text: str) -> str | None:
+    """V21 R1 — a contradicting figure, not merely a missing one: a percentage in the same
+    sentence as the expected field's concept keyword that matches none of the accepted
+    spellings (ANK-FIN-013: the Excel half's all-in rate "%6,5" sits next to the correct
+    margin figures, same answer). Scoped to `_CONCEPT_KEYWORDS` fields only — never a blanket
+    "every percent in the answer" scan, to keep unrelated percentages (capacity factor,
+    availability, …) out of scope (no false positives from a different concept's number)."""
+    keywords = _CONCEPT_KEYWORDS.get(expected.concept_field or "")
+    if not keywords:
+        return None
+    accepted = {
+        _normalize_number(spelling.replace("%", "").strip())
+        for group in expected.required
+        for spelling in group
+        if "%" in spelling
+    }
+    if not accepted:
+        return None
+    for sentence in _SENTENCE_SPLIT.split(answer_text):
+        lowered = _normalize(sentence)
+        if not any(kw in lowered for kw in keywords):
+            continue
+        for match in _PERCENT_ANY.finditer(sentence):
+            number = _normalize_number(match.group(0).replace("%", "").strip())
+            if number and number not in accepted:
+                return f"çelişen rakam: %{number} (beklenen: {sorted(accepted)})"
+    return None
 
 
 def value_check_passes(expected: ExpectedValue, answer_text: str) -> bool:
@@ -732,6 +923,8 @@ def safety_checks(
     outcome: AskOutcome,
     catalog: DocumentCatalog,
     ctx: SafetyContext,
+    expected: ExpectedValue | None = None,
+    flags: ScorerFlags = DEFAULT_FLAGS,
 ) -> tuple[str, ...]:
     """ADR-027 per-question invariants — reasons for failure, empty when all hold.
     G1 no fabricated value/date; G2 no unsourced claim (answered → citations; not answered →
@@ -745,10 +938,37 @@ def safety_checks(
     # built from the *retrieved* pages (+ headers, chain titles, BUGÜN), not only the cited
     # ones — a value taken from an uncited retrieved page is a citation gap (rule 4), not an
     # invention. Only the document pipeline's numbers come from chunk text; a DATA/MIXED
-    # answer's figure is DuckDB's, which the eval checks through `value_check` instead.
-    if outcome.answered and outcome.query_type == "DOCUMENT_QUERY":
+    # answer's figure is DuckDB's, which the eval checks through `value_check` instead — so
+    # V21 R8 also allows every spelling of the question's own resolved expected value (that
+    # number is DuckDB's, never a fabrication) before widening the check to MIXED/DATA.
+    # V21 R8 — two traps the widening must dodge, both seen rescoring the real M1 run:
+    # (1) a MIXED_QUERY answer that *collapsed* to one flat sentence (no "Belgelere göre:"
+    # heading at all — ANK-MIX-003/GEN-DSC-011-K, the `merge_mixed_answer`/`_compose` path
+    # the kontrolör already flagged for hiding the document half) has no document part to
+    # isolate; scanning the whole text as if it were one would flag the Excel/DuckDB figure
+    # itself. (2) a bare DATA_QUERY answer with no resolvable `expected` has no anchor for
+    # its own number either. Both stay unchecked rather than risk flagging the query's own
+    # legitimate figure — G1 only widens where it can tell "document part" from "the rest".
+    g1_text: str | None = None
+    if outcome.query_type == "DOCUMENT_QUERY":
+        g1_text = outcome.answer_text
+    elif flags.r8_g1_mixed_data and outcome.query_type == "MIXED_QUERY":
+        if _MIXED_DOC_HEADING in outcome.answer_text:
+            g1_text = _document_part(outcome.answer_text, outcome.query_type)
+    elif (
+        flags.r8_g1_mixed_data
+        and outcome.query_type == "DATA_QUERY"
+        and expected is not None
+        and not expected.skip
+    ):
+        g1_text = outcome.answer_text
+    if outcome.answered and g1_text is not None:
         allowed_tokens = fact_tokens(ctx.grounding_text) | fact_tokens(question.question)
-        extra = sorted(fact_tokens(outcome.answer_text) - allowed_tokens)
+        if expected is not None and not expected.skip:
+            for group in expected.required:
+                for spelling in group:
+                    allowed_tokens |= fact_tokens(spelling)
+        extra = sorted(fact_tokens(g1_text) - allowed_tokens)
         if extra:
             reasons.append(f"G1: kaynaklarda olmayan sayı/tarih: {extra}")
     if assist.get("question") and _FACT_CHAR.search(str(assist["question"])):
@@ -774,10 +994,15 @@ def safety_checks(
         if str(item.get("document_id")) not in ctx.visible_document_ids:
             reasons.append(f"G3: yetkisiz belge önerildi: {item.get('title')}")
         code = item.get("project_code")
+        # V21 R7: recognize a foreign document from any of the 7 ledger projects, not only
+        # Karatepe/Kızılova — the gate (named questions only) is unchanged.
+        project_dict = (
+            _ALL_PROJECT_NAME_BY_CODE if flags.r7_g3_all_projects else _PROJECT_NAME_BY_CODE
+        )
         if (
             question.expected_project is not None
-            and code in _PROJECT_NAME_BY_CODE
-            and _PROJECT_NAME_BY_CODE[code] != question.expected_project
+            and code in project_dict
+            and project_dict[code] != question.expected_project
         ):
             reasons.append(f"G3: başka projenin belgesi önerildi: {item.get('title')}")
     suggested = frozenset(str(item.get("title")) for item in available)
@@ -890,6 +1115,118 @@ def discovery_check(
     return "fail", "; ".join(reasons)
 
 
+def _has_real_content(text: str) -> bool:
+    """V21 R4 — `text` carries an actual fact, not just the fixed no-answer sentence."""
+    stripped = text.strip()
+    if not stripped:
+        return False
+    return not (stripped.startswith(NO_ANSWER_TEXT) or stripped.startswith(NO_DATA_VERDICT))
+
+
+def mixed_completeness_check(
+    question: ls.Question,
+    outcome: AskOutcome,
+    catalog: DocumentCatalog,
+    flags: ScorerFlags = DEFAULT_FLAGS,
+) -> tuple[str, str | None]:
+    """V21 R4 (T-1) — a MIXED answer must carry real content on both halves when the question
+    structurally needs both: `question.parts` says so explicitly (opt-in, v13 never sets it —
+    see V21 report §4 for ANK-MIX-003), or `required_sources` names both a document title and
+    a workbook title (the question cites two source *kinds* — ANK-MIX-001). A fixed no-answer
+    sentence on either half while the other looks complete is a KY, not a partial pass."""
+    if not flags.r4_mixed_completeness or outcome.query_type != "MIXED_QUERY":
+        return "skipped", None
+    parts = question.parts
+    if parts is None:
+        # `catalog.titles` holds every manifest entry's title regardless of kind — a
+        # workbook's title is in there too — so "document kind" must explicitly exclude
+        # the workbook titles, or a single-workbook `required_sources` (ANK-MIX-003,
+        # GEN-DSC-011-K: one workbook title, nothing else) would wrongly look dual-kind.
+        workbook_titles = frozenset(catalog.file_to_title.values())
+        has_document_source = any(
+            name in catalog.titles and name not in workbook_titles
+            for name in question.required_sources
+        )
+        has_excel_source = any(name in workbook_titles for name in question.required_sources)
+        if not (has_document_source and has_excel_source):
+            return "skipped", None
+        parts = ["document", "excel"]
+    has_both_headings = (
+        _MIXED_DOC_HEADING in outcome.answer_text and _MIXED_EXCEL_HEADING in outcome.answer_text
+    )
+    if not has_both_headings:
+        # The merge collapsed to one flat statement (no "Belgelere göre:" / "Excel verisine
+        # göre:" split at all — ANK-MIX-001's real M1 answer). Splitting on an absent heading
+        # would hand the *whole* flat text to whichever half we check first and call the
+        # other "empty" by accident — backwards, not just wrong. A dual-kind question whose
+        # answer isn't visibly in two parts can't be confirmed complete either way, so this
+        # is the T-1 failure itself, not a reason to skip.
+        return (
+            "fail",
+            "cevap iki ayrı bölüm göstermeden tek cümleye indi (bir yarı gizlenmiş olabilir)",
+        )
+    doc_text = _document_part(outcome.answer_text, outcome.query_type)
+    excel_text = outcome.answer_text.split(_MIXED_EXCEL_HEADING, 1)[-1]
+    missing = []
+    if "document" in parts and not _has_real_content(doc_text):
+        missing.append("belge yarısı boş/sabit cümle")
+    if "excel" in parts and not _has_real_content(excel_text):
+        missing.append("Excel yarısı boş/sabit cümle")
+    if missing:
+        return "fail", "; ".join(missing)
+    return "pass", None
+
+
+_PROJECT_CLARIFY_PATTERN = re.compile(r"hangi\s+proje", re.IGNORECASE)
+
+
+def clarify_relevance_check(
+    question: ls.Question, outcome: AskOutcome, flags: ScorerFlags = DEFAULT_FLAGS
+) -> tuple[str, str | None]:
+    """V21 R5 (T-2) — a clarifying question must address the question's real ambiguity axis.
+    Only checked when `question.clarify_kind` is set (opt-in, v13 never sets it — see V21
+    report §5): no safe automatic signal exists in today's fields. Most legitimate
+    project-disambiguation questions (GEN-AMB-001..004) deliberately name NO project either
+    (that IS the ambiguity the category is built to catch), so "does the question text name
+    a project" can't tell them apart from GEN-AMB-005/GEN-GEN-002 (where a project-axis
+    clarification is wrong) without wrongly flagging the former — confirmed against the real
+    v13 question texts before choosing this opt-in-only design."""
+    if not flags.r5_clarify_relevance or question.clarify_kind is None:
+        return "skipped", None
+    assist = outcome.assist or {}
+    if outcome.answered or assist.get("kind") not in _EQUIVALENT_ASSIST_KINDS:
+        return "skipped", None
+    is_project_axis = bool(_PROJECT_CLARIFY_PATTERN.search(str(assist.get("question") or "")))
+    if question.clarify_kind == "project":
+        if is_project_axis:
+            return "pass", None
+        return "fail", "proje netleştirmesi bekleniyordu"
+    if is_project_axis:
+        return "fail", "konuyla ilgisiz netleştirme: proje ekseni beklenmiyor (clarify_kind=other)"
+    return "pass", None
+
+
+def list_coverage(
+    question: ls.Question, outcome: AskOutcome, flags: ScorerFlags = DEFAULT_FLAGS
+) -> tuple[int | None, int | None, tuple[str, ...]]:
+    """V21 R6 — coverage counters for an opt-in `expected_items` list (one inner list per
+    item's acceptable spellings, same shape as `expected_answer_aliases`); never gates
+    `passed` (same status as the A6 discovery counters — a measurement, not a verdict).
+    `(None, None, ())` when not measurable: flag off, or `expected_items` unset (true for
+    every v13 question — see V21 report §6 for the v14 IZM-DEV-008 recommendation)."""
+    if not flags.r6_list_coverage or not question.expected_items:
+        return None, None, ()
+    haystack = _normalize(outcome.answer_text)
+    missing: list[str] = []
+    found = 0
+    for group in question.expected_items:
+        if any(_normalize(spelling) in haystack for spelling in group):
+            found += 1
+        else:
+            missing.append(group[0])
+    return found, len(question.expected_items), tuple(missing)
+
+
 @dataclass(frozen=True)
 class QuestionResult:
     id: str
@@ -925,8 +1262,8 @@ class QuestionResult:
     # ask/offer"; "pass" | "fail" | "skipped" (other categories).
     discovery_check: str = "skipped"
     discovery_check_reason: str | None = None
-    # ADR-030 (Ek-F F-8): formatting of the answer text ("pass" | "fail"); reported, not part
-    # of `passed` (a separate criterion in the Adım 2 measurement).
+    # ADR-030 (Ek-F F-8): formatting of the answer text ("pass" | "fail"). V21 R2: now part
+    # of `passed` when `flags.r2_format_gates` (default); previously reported only.
     format_check: str = "skipped"
     format_check_reason: str | None = None
     # ADR-027: the assist block as returned (None when off) — kept so a flag-off and a
@@ -943,6 +1280,17 @@ class QuestionResult:
     expected_source_listed: bool | None = None
     foreign_project_listed: bool | None = None
     foreign_projects: tuple[str, ...] = ()
+    # V21 R4 (T-1): a MIXED answer's two halves, "pass" | "fail" | "skipped". Part of `passed`.
+    mixed_completeness_check: str = "skipped"
+    mixed_completeness_reason: str | None = None
+    # V21 R5 (T-2): clarification-on-topic, "pass" | "fail" | "skipped". Part of `passed`.
+    clarify_relevance_check: str = "skipped"
+    clarify_relevance_reason: str | None = None
+    # V21 R6: opt-in list-coverage counters (never part of `passed`, same status as the A6
+    # counters above) — `None` when not measurable (every v13 question).
+    list_coverage_found: int | None = None
+    list_coverage_total: int | None = None
+    list_coverage_missing: tuple[str, ...] = ()
 
 
 def phrase_check_passes(question: ls.Question, answer_text: str) -> tuple[bool, str | None]:
@@ -968,6 +1316,7 @@ def score_question(
     outcome: AskOutcome,
     safety: SafetyContext | None = None,
     sources_expected: SourceExpectation | None = None,
+    flags: ScorerFlags = DEFAULT_FLAGS,
 ) -> QuestionResult:
     if outcome.error is not None:
         return QuestionResult(
@@ -1029,6 +1378,11 @@ def score_question(
     elif value_check_passes(expected, outcome.answer_text):
         value_check = "pass"
         value_check_reason = None
+        if flags.r1_contradicting_percent:
+            contradiction = contradicting_value_reason(expected, outcome.answer_text)
+            if contradiction is not None:
+                value_check = "fail"
+                value_check_reason = contradiction
     else:
         value_check = "fail"
         value_check_reason = "expected value text not found in answer"
@@ -1040,12 +1394,15 @@ def score_question(
         phrase_ok, phrase_reason, phrase_check = True, None, "skipped"
 
     if safety is not None:
-        safety_reasons = safety_checks(question, outcome, catalog, safety)
+        safety_reasons = safety_checks(question, outcome, catalog, safety, expected, flags)
         safety_check = "fail" if safety_reasons else "pass"
     else:
         safety_reasons, safety_check = (), "skipped"
     assist_status, assist_reason = assist_check(question, outcome)
     format_status, format_reason = format_check(outcome.answer_text)
+    mixed_status, mixed_reason = mixed_completeness_check(question, outcome, catalog, flags)
+    clarify_status, clarify_reason = clarify_relevance_check(question, outcome, flags)
+    coverage_found, coverage_total, coverage_missing = list_coverage(question, outcome, flags)
 
     passed = (
         answered_ok
@@ -1055,6 +1412,9 @@ def score_question(
         and safety_check != "fail"
         and assist_status != "fail"
         and discovery_status != "fail"
+        and (format_status != "fail" if flags.r2_format_gates else True)
+        and mixed_status != "fail"
+        and clarify_status != "fail"
     )
 
     return QuestionResult(
@@ -1100,6 +1460,13 @@ def score_question(
         expected_source_listed=counters.expected_source_listed,
         foreign_project_listed=counters.foreign_project_listed,
         foreign_projects=counters.foreign_projects,
+        mixed_completeness_check=mixed_status,
+        mixed_completeness_reason=mixed_reason,
+        clarify_relevance_check=clarify_status,
+        clarify_relevance_reason=clarify_reason,
+        list_coverage_found=coverage_found,
+        list_coverage_total=coverage_total,
+        list_coverage_missing=coverage_missing,
     )
 
 
@@ -1186,6 +1553,18 @@ class EvalReport:
             "discovery": block(tuple(r for r in self.results if r.category == "discovery")),
         }
 
+    @property
+    def list_coverage_summary(self) -> dict[str, Any]:
+        """V21 R6 — aggregate of the opt-in list-coverage counters, A6-pattern (never part
+        of `ok`): total items found vs. expected, over the questions where it's measurable."""
+        rows = [r for r in self.results if r.error is None and r.list_coverage_total is not None]
+        return {
+            "measurable_questions": len(rows),
+            "items_found": sum(r.list_coverage_found or 0 for r in rows),
+            "items_total": sum(r.list_coverage_total or 0 for r in rows),
+            "question_ids": [r.id for r in rows],
+        }
+
 
 def build_report(
     results: list[QuestionResult],
@@ -1239,6 +1618,7 @@ def report_to_json(report: EvalReport) -> dict[str, Any]:
         "partial_reason": report.partial_reason,
         "ok": report.ok,
         "discovery_counters": report.discovery_summary,
+        "list_coverage": report.list_coverage_summary,
         "categories": [
             {
                 "category": c.category,
@@ -1286,6 +1666,13 @@ def report_to_json(report: EvalReport) -> dict[str, Any]:
                 "expected_source_listed": r.expected_source_listed,
                 "foreign_project_listed": r.foreign_project_listed,
                 "foreign_projects": list(r.foreign_projects),
+                "mixed_completeness_check": r.mixed_completeness_check,
+                "mixed_completeness_reason": r.mixed_completeness_reason,
+                "clarify_relevance_check": r.clarify_relevance_check,
+                "clarify_relevance_reason": r.clarify_relevance_reason,
+                "list_coverage_found": r.list_coverage_found,
+                "list_coverage_total": r.list_coverage_total,
+                "list_coverage_missing": list(r.list_coverage_missing),
                 "passed": r.passed,
                 "error": r.error,
                 "latency_ms": r.latency_ms,
@@ -1360,6 +1747,14 @@ def render_markdown(report: EvalReport) -> str:
                 else ""
             )
         )
+    # V21 R6: list-coverage is a measurement, not a gate — reported once, zero when unset.
+    coverage = report.list_coverage_summary
+    lines.append(
+        f"**Liste kapsamı (opt-in `expected_items`, V21 R6):** "
+        f"{coverage['items_found']}/{coverage['items_total']} öğe "
+        f"({coverage['measurable_questions']} ölçülebilir soru)"
+        + (f" — {', '.join(coverage['question_ids'])}" if coverage["question_ids"] else "")
+    )
 
     failed = [r for r in report.results if r.error is None and not r.passed]
     if failed:
@@ -1378,13 +1773,19 @@ def render_markdown(report: EvalReport) -> str:
             if r.phrase_check == "fail":
                 reasons.append(f"ifade kontrolü: {r.phrase_check_reason}")
             if r.value_check == "fail":
-                reasons.append("beklenen değer metinde bulunamadı")
+                reasons.append(r.value_check_reason or "beklenen değer metinde bulunamadı")
             if r.safety_check == "fail":
                 reasons.append("güvenlik: " + "; ".join(r.safety_reasons))
             if r.assist_check == "fail":
                 reasons.append(f"assist: {r.assist_check_reason}")
             if r.discovery_check == "fail":
                 reasons.append(f"discovery: {r.discovery_check_reason}")
+            if r.format_check == "fail":
+                reasons.append(f"biçim (F-8, V21 R2): {r.format_check_reason}")
+            if r.mixed_completeness_check == "fail":
+                reasons.append(f"MIXED tamlık (V21 R4): {r.mixed_completeness_reason}")
+            if r.clarify_relevance_check == "fail":
+                reasons.append(f"netleştirme konusu (V21 R5): {r.clarify_relevance_reason}")
             snippet = r.answer_text[:200].replace("\n", " ")
             lines.append(f"- **{r.id}** ({r.category}): {'; '.join(reasons)} — cevap: “{snippet}”")
 

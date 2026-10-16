@@ -934,6 +934,20 @@ class Question(_Strict):
     # with `expect_no_answer: true`; scored as "skipped" when the response has no assist
     # block (flag off), so the same question set measures both modes.
     expect_assist: AssistKind | None = None
+    # İş Emri 2026-10-16V21 — all three optional, unset on every v13 question; a future
+    # question-set version (v14) can set them per-question, eval_lib falls back to a
+    # heuristic when they're absent. Not used by validate_ledger/document generation.
+    # Rule 4 (T-1): which output parts a MIXED question's answer must carry non-empty
+    # (e.g. `["document", "excel"]`) when `required_sources`' own document/workbook split
+    # can't say so on its own (ANK-MIX-003).
+    parts: list[str] | None = None
+    # Rule 5 (T-2): the real ambiguity axis a clarifying question must address, when it
+    # isn't derivable from `expect_assist` + the question text alone (GEN-AMB-005).
+    clarify_kind: Literal["project", "other"] | None = None
+    # Rule 6: expected list items for a "which items are pending/missing" question, one
+    # inner list per item = that item's acceptable spellings (same shape as
+    # `expected_answer_aliases`). Coverage is reported, never gates `passed` (IZM-DEV-008).
+    expected_items: list[list[str]] | None = None
 
 
 class QuestionSet(_Strict):
