@@ -7,12 +7,9 @@ told to recalculate and save it in Excel."""
 
 from __future__ import annotations
 
-import logging
-import math
 import re
 import threading
 from dataclasses import dataclass, field
-from datetime import date, datetime, time
 from pathlib import Path
 from typing import Any, Protocol, cast
 from uuid import UUID
@@ -25,16 +22,8 @@ from openpyxl.utils import get_column_letter
 from app.excel.inspect import WorkbookInfo, inspect_file, read_csv_rows
 from app.excel.sql_guard import DEFAULT_ROW_LIMIT, guard_select
 
-log = logging.getLogger(__name__)
-
 DEFAULT_TIMEOUT_S = 10.0
 ROW_COLUMN = "_row"  # Excel row number of each table row — the citation range comes from it
-# ADR-037: the header is the first of the top rows with ≥ 3 non-empty cells, all text; rows
-# above it (title, snapshot date, loan total) go to a `<table>_info` key/value table.
-# Threshold 2 would take Covenant quarter sheets' `Period | Q2_2026` row as a header.
-HEADER_SCAN_ROWS = 10
-HEADER_MIN_TEXT_CELLS = 3
-INFO_SUFFIX = "_info"
 
 
 class ExcelError(Exception):
@@ -155,69 +144,6 @@ def _frame(header: list[Any], rows: list[tuple[int, list[Any]]]) -> pl.DataFrame
         return pl.DataFrame(coerced, strict=False)
 
 
-def _filled(value: Any) -> bool:
-    return value is not None and not (isinstance(value, str) and not value.strip())
-
-
-def header_row(rows: list[tuple[Any, ...]]) -> int:
-    """1-based header row among the sheet's first rows; 1 (the pre-ADR-037 rule) when no
-    row has ≥ `HEADER_MIN_TEXT_CELLS` filled cells that are all text."""
-    for number, row in enumerate(rows[:HEADER_SCAN_ROWS], start=1):
-        cells = [v for v in row if _filled(v)]
-        if len(cells) >= HEADER_MIN_TEXT_CELLS and all(isinstance(v, str) for v in cells):
-            return number
-    return 1
-
-
-Rows = list[tuple[int, tuple[Any, ...]]]  # (Excel row number, cell values)
-
-
-def _typed(value: Any) -> bool:
-    return isinstance(value, int | float | date) and not isinstance(value, bool)
-
-
-def split_footer(body: Rows, width: int) -> tuple[Rows, Rows, bool]:
-    """ADR-037 (Naci 17.10): on a sheet whose header is below row 1, the rows after the
-    first fully blank row under the data are notes ("Kontrol", "Not") — unless one of them
-    looks like data (≥ half of the `width` header columns filled with numbers/dates); then
-    nothing is cut and the third value is True ("kesilmedi, belirsiz")."""
-    started = False
-    for i, (_, row) in enumerate(body):
-        filled = any(_filled(v) for v in row)
-        if filled:
-            started = True
-        elif started:
-            notes = [(n, r) for n, r in body[i + 1 :] if any(_filled(v) for v in r)]
-            if not notes:
-                return body, [], False
-            data_like = math.ceil(width / 2)
-            if any(sum(_typed(v) for v in r) >= data_like for _, r in notes):
-                return body, [], True
-            return body[:i], notes, False
-    return body, [], False
-
-
-def _text(value: Any) -> str | None:
-    if value is None:
-        return None
-    if isinstance(value, datetime) and value.time() == time.min:
-        return value.date().isoformat()
-    if isinstance(value, date):
-        return value.isoformat()
-    return str(value)
-
-
-def _info_frame(rows: Rows) -> pl.DataFrame | None:
-    """Prelude and cut note rows as `key | value` text (a mixed value column would be
-    coerced — a date became a float): first filled cell, then the next one."""
-    pairs: list[tuple[int, list[Any]]] = []
-    for number, row in rows:
-        cells = [v for v in row if _filled(v)]
-        if cells:
-            pairs.append((number, [_text(cells[0]), _text(cells[1]) if len(cells) > 1 else None]))
-    return _frame(["key", "value"], pairs) if pairs else None
-
-
 class CachedValueEngine:
     def __init__(
         self, *, timeout_s: float = DEFAULT_TIMEOUT_S, row_limit: int = DEFAULT_ROW_LIMIT
@@ -248,27 +174,17 @@ class CachedValueEngine:
         for ws in values.worksheets:
             if ws.sheet_state != "visible" or ws.max_row < 2:
                 continue
-            top = list(ws.iter_rows(max_row=HEADER_SCAN_ROWS, values_only=True))
-            first = header_row(top)
-            header = list(top[first - 1])
-            start = first + 1
+            header = [c.value for c in ws[1]]
+            sheet_rows: list[tuple[int, list[Any]]] = []
             # Excel row numbers must survive skipped blank rows (they are the citation).
-            below: Rows = list(enumerate(ws.iter_rows(min_row=start, values_only=True), start))
-            notes: Rows = []
-            if first > 1:
-                below, notes, kept = split_footer(below, sum(_filled(v) for v in header))
-                if kept:
-                    log.info("excel footer not cut", extra={"file": loaded.file, "sheet": ws.title})
-            sheet_rows = [(n, list(row)) for n, row in below if any(v is not None for v in row)]
+            for excel_row, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+                if any(v is not None for v in row):
+                    sheet_rows.append((excel_row, list(row)))
             if not sheet_rows:
                 continue
             name = table_name(loaded.file, ws.title)
             loaded.tables[name] = _frame(header, sheet_rows)
             loaded.sheet_by_table[name] = ws.title
-            prelude = _info_frame(list(enumerate(top[: first - 1], start=1)) + notes)
-            if prelude is not None:
-                loaded.tables[name + INFO_SUFFIX] = prelude
-                loaded.sheet_by_table[name + INFO_SUFFIX] = ws.title
         return loaded
 
     # ---- SQL
