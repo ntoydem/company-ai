@@ -1,0 +1,47 @@
+{
+ "answer": "12. taksitin anapara tutarı 98.000 USD'dir. Kredi, eşit anapara ödemeli, üç aylık ve 24 taksitli bir planla geri ödenmektedir [K23].",
+ "answered": true,
+ "sources": [
+  {
+   "ref": "K23",
+   "document_id": "05e052c5-a7ce-43b7-a1ee-1ec4e87f63c3",
+   "title": "Yeşilova RES Facility Agreement (2023-YS)",
+   "page_number": 4,
+   "document_date": "2023-06-03",
+   "effective_date": "2023-06-03",
+   "version": 1,
+   "status": "executed",
+   "is_current": true,
+   "supersedes_title": null,
+   "superseded_by_title": null,
+   "supersedes_document_id": null,
+   "superseded_by_document_id": null,
+   "is_initial": true,
+   "project_code": "YSV_RES",
+   "project_name": "Yeşilova RES",
+   "project_scope": "project"
+  }
+ ],
+ "retrieved_document_ids": [
+  "05e052c5-a7ce-43b7-a1ee-1ec4e87f63c3",
+  "602f1a79-997d-47ce-84bb-59e218ffe7f0",
+  "69de0e29-26fd-4f05-a36a-bd0ebebabe2d",
+  "9178fe8d-e3c5-4647-9033-5bc748951d94",
+  "1f099256-b6fb-4c81-8968-1ce8362e0ab9",
+  "3e5f1650-6581-49bd-89de-e65741c2ec3a",
+  "c93403f0-6bfa-45d7-ab8e-4bc44df0ff6f",
+  "f6f7e016-ea3c-43aa-bc77-0c3f3e1c45be"
+ ],
+ "model": "claude-haiku-5-5",
+ "tokens_in": 15051,
+ "tokens_out": 586,
+ "notice": "Bu cevap yorum içermez; yalnızca şirket belgelerinde yazanı kaynak göstererek aktarır.",
+ "query_type": "DOCUMENT_QUERY",
+ "excel_sources": [],
+ "audit_log_id": "03c6adfa-b318-4a70-9fb8-bdacd53b721a",
+ "product_level": "P1",
+ "warnings": [],
+ "assist": null,
+ "pending_notice": null,
+ "pending_documents": []
+}

@@ -1,0 +1,29 @@
+a finans http=200 type=MIXED_QUERY answered=True 14.9s OK
+b finans_mudur http=200 type=DOCUMENT_QUERY answered=True 6.1s OK
+g finans http=200 type=MIXED_QUERY answered=True 18.4s OK
+j finans http=200 type=MIXED_QUERY answered=True 14.2s OK
+k finans http=200 type=MIXED_QUERY answered=True 6.8s OK
+l finans http=200 type=MIXED_QUERY answered=True 21.3s OK
+m finans http=200 type=DOCUMENT_QUERY answered=True 8.1s OK
+n finans http=200 type=DOCUMENT_QUERY answered=False 0.1s OK
+o finans http=200 type=DOCUMENT_QUERY answered=True 3.4s OK
+p finans http=500 type=None answered=None 14.0s FAIL: http 500
+q finans http=200 type=MIXED_QUERY answered=True 5.9s OK
+r finans http=200 type=DOCUMENT_QUERY answered=False 3.2s OK
+
+| # | user | http | type | answered | s | sonuç |
+|---|---|---|---|---|---|---|
+| a | finans | 200 | MIXED_QUERY | True | 14.9 | ✅ |
+| b | finans_mudur | 200 | DOCUMENT_QUERY | True | 6.1 | ✅ |
+| g | finans | 200 | MIXED_QUERY | True | 18.4 | ✅ |
+| j | finans | 200 | MIXED_QUERY | True | 14.2 | ✅ |
+| k | finans | 200 | MIXED_QUERY | True | 6.8 | ✅ |
+| l | finans | 200 | MIXED_QUERY | True | 21.3 | ✅ |
+| m | finans | 200 | DOCUMENT_QUERY | True | 8.1 | ✅ |
+| n | finans | 200 | DOCUMENT_QUERY | False | 0.1 | ✅ |
+| o | finans | 200 | DOCUMENT_QUERY | True | 3.4 | ✅ |
+| p | finans | 500 | - | None | 14.0 | ❌ http 500 |
+| q | finans | 200 | MIXED_QUERY | True | 5.9 | ✅ |
+| r | finans | 200 | DOCUMENT_QUERY | False | 3.2 | ✅ |
+
+11/12 geçti

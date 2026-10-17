@@ -1,0 +1,123 @@
+{
+ "version": 1,
+ "description": "İş Emri 2026-10-17P2C Aşama 1 (eval only). Expectations are a first look; analysis in results/p2c/analyze_p2c.py.",
+ "questions": [
+  {
+   "letter": "a",
+   "user": "finans",
+   "question": "Karatepe RES kredisinde fiilen kullandırılan toplam tutar nedir?",
+   "expect": {
+    "answered": true,
+    "value": "13.600.000"
+   }
+  },
+  {
+   "letter": "b",
+   "user": "finans_mudur",
+   "question": "Karatepe RES kredi sözleşmesine göre fiilen kullandırılan toplam kredi tutarı kaç USD?",
+   "expect": {
+    "answered": true,
+    "value": "13.600.000 USD"
+   }
+  },
+  {
+   "letter": "g",
+   "user": "finans",
+   "question": "Karatepe için bankaya hâlâ ne kadar borcumuz var?",
+   "expect": {
+    "answered": true,
+    "value": "11.671.800"
+   }
+  },
+  {
+   "letter": "j",
+   "user": "finans",
+   "question": "Yeşilova RES'in kalan kredi borcu ne kadar?",
+   "expect": {
+    "response_excludes": [
+     "11.671.800"
+    ]
+   }
+  },
+  {
+   "letter": "k",
+   "user": "finans",
+   "question": "Boztepe RES'in güncel DSCR değeri kaç?",
+   "expect": {
+    "response_excludes": [
+     "1,37"
+    ]
+   }
+  },
+  {
+   "letter": "l",
+   "user": "finans",
+   "question": "Karatepe RES'in kalan kredi borcu ne kadar?",
+   "expect": {
+    "contains": [
+     "11.671.800"
+    ]
+   }
+  },
+  {
+   "letter": "m",
+   "user": "finans",
+   "question": "Karatepe RES kredi sözleşmesinin vadesi kaç yıl?",
+   "expect": {
+    "contains": [
+     "13 yıl"
+    ]
+   }
+  },
+  {
+   "letter": "n",
+   "user": "finans",
+   "question": "Kredi sözleşmesinde taksit sayısı kaç?",
+   "expect": {
+    "response_excludes": [
+     "11.671.800"
+    ]
+   }
+  },
+  {
+   "letter": "o",
+   "user": "finans",
+   "question": "Yeşilova kredi ödeme planında 12. taksitin anapara tutarı nedir",
+   "expect": {
+    "response_excludes": [
+     "11.671.800"
+    ]
+   }
+  },
+  {
+   "letter": "p",
+   "user": "finans",
+   "question": "Yeşilova 2027'de hangi kredi ödemelerini yapacak?",
+   "expect": {
+    "response_excludes": [
+     "11.671.800"
+    ]
+   }
+  },
+  {
+   "letter": "q",
+   "user": "finans",
+   "question": "Yeşilova'nın bir sonraki kredi ödemesi ne zaman",
+   "expect": {
+    "contains": [
+     "14.10.2026"
+    ]
+   }
+  },
+  {
+   "letter": "r",
+   "user": "finans",
+   "question": "Boztepe RES ödeme planında 12. taksitin anaparası ne kadar?",
+   "expect": {
+    "response_excludes": [
+     "11.671.800"
+    ]
+   }
+  }
+ ]
+}

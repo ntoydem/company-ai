@@ -1,0 +1,28 @@
+{
+ "answer": "Yeşilova kredi ödeme planında 12. taksitin anapara tutarı 98.000'dir.",
+ "answered": true,
+ "sources": [],
+ "retrieved_document_ids": [
+  "a6c2078b-091b-4d1a-981b-49c4d714af98"
+ ],
+ "model": "claude-haiku-5-5",
+ "tokens_in": 4871,
+ "tokens_out": 234,
+ "notice": "Bu cevap yorum içermez; hesabı DuckDB/Python yapar, yapay zeka yalnızca sonucu aktarır.",
+ "query_type": "DATA_QUERY",
+ "excel_sources": [
+  {
+   "document_id": "a6c2078b-091b-4d1a-981b-49c4d714af98",
+   "file": "Yesilova_Repayment_Schedule_2026-09.xlsx",
+   "sheet": "Schedule",
+   "range": "A5:E28",
+   "label": "Yesilova_Repayment_Schedule_2026-09.xlsx Schedule!A5:E28"
+  }
+ ],
+ "audit_log_id": "6cdce46c-b66b-487a-af67-41f2e9f7cb47",
+ "product_level": "P2",
+ "warnings": [],
+ "assist": null,
+ "pending_notice": null,
+ "pending_documents": []
+}

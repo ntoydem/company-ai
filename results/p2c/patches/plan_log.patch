@@ -1,0 +1,15 @@
+diff --git a/backend/app/services/excel_ask.py b/backend/app/services/excel_ask.py
+index f95a37d..1a71a4c 100644
+--- a/backend/app/services/excel_ask.py
++++ b/backend/app/services/excel_ask.py
+@@ -392,7 +392,9 @@ def answer_data_question(
+         tokens_in += response.tokens_in
+         tokens_out += response.tokens_out
+         plan_model_name = response.model
+-        return _parse_plan(response.text)
++        plan = _parse_plan(response.text)
++        log.info("excel plan", extra={"plan": plan, "retry": feedback is not None})  # P2C measure only
++        return plan
+ 
+     def asked_project(read_from: list[SourceRange], plan: dict[str, Any]) -> ExcelAskResult | None:
+         """ADR-036: before any figure or the answering model — which project?"""

@@ -1,0 +1,28 @@
+{
+ "answer": "Yeşilova'nın bir sonraki kredi ödemesi 14.10.2026 tarihindedir.",
+ "answered": true,
+ "sources": [],
+ "retrieved_document_ids": [
+  "a6c2078b-091b-4d1a-981b-49c4d714af98"
+ ],
+ "model": "claude-haiku-5-5",
+ "tokens_in": 4898,
+ "tokens_out": 289,
+ "notice": "Bu cevap yorum içermez; hesabı DuckDB/Python yapar, yapay zeka yalnızca sonucu aktarır.",
+ "query_type": "DATA_QUERY",
+ "excel_sources": [
+  {
+   "document_id": "a6c2078b-091b-4d1a-981b-49c4d714af98",
+   "file": "Yesilova_Repayment_Schedule_2026-09.xlsx",
+   "sheet": "Schedule",
+   "range": "A5:E28",
+   "label": "Yesilova_Repayment_Schedule_2026-09.xlsx Schedule!A5:E28"
+  }
+ ],
+ "audit_log_id": "69bb0386-2425-488e-9d88-cd3de27b121d",
+ "product_level": "P2",
+ "warnings": [],
+ "assist": null,
+ "pending_notice": null,
+ "pending_documents": []
+}

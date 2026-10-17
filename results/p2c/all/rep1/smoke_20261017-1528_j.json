@@ -1,0 +1,178 @@
+{
+ "answer": "Belgelere göre:\nBu konuda kesin bilgi bulamadım.\nElimde konuyla ilgili şunlar var:\nYeşilova RES: Yeşilova RES Annex F Raporu (2025) (01.10.2026); Taksit #11 Banka Faiz Bildirimi (20.09.2026); Sigorta Zeyilnamesi — Ara Dönem (15.09.2026); Annex F Talep E-postası (14.09.2026); Ödeme Planı — Güncel (01.09.2026); Ödeme Planı — Mart 2026 (15.03.2026); Yeşilova RES Facility Agreement (2023-YS) (03.06.2023)\n… ve 3 belge daha.\nİsterseniz açayım.\nŞu ifadeyi belgelerde bu haliyle bulamadım: «tranş», «yapısı». Ne demek istediğinizi açar mısınız?\n\nExcel verisine göre:\nErişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+ "answered": false,
+ "sources": [],
+ "retrieved_document_ids": [
+  "05e052c5-a7ce-43b7-a1ee-1ec4e87f63c3",
+  "602f1a79-997d-47ce-84bb-59e218ffe7f0",
+  "69de0e29-26fd-4f05-a36a-bd0ebebabe2d",
+  "9178fe8d-e3c5-4647-9033-5bc748951d94",
+  "1f099256-b6fb-4c81-8968-1ce8362e0ab9",
+  "3e5f1650-6581-49bd-89de-e65741c2ec3a",
+  "c93403f0-6bfa-45d7-ab8e-4bc44df0ff6f",
+  "f6f7e016-ea3c-43aa-bc77-0c3f3e1c45be"
+ ],
+ "model": "claude-haiku-5-5",
+ "tokens_in": 14645,
+ "tokens_out": 2206,
+ "notice": "Bu cevap yorum içermez; belge kısmı kaynak göstererek aktarılır, Excel kısmının hesabını DuckDB/Python yapar. İki kısım birleştirilmiş, yorumlanmamıştır.",
+ "query_type": "MIXED_QUERY",
+ "excel_sources": [],
+ "audit_log_id": "efbb8e7a-ac79-45fb-9731-2f141dd271bb",
+ "product_level": "P2",
+ "warnings": [
+  {
+   "kind": "insufficient_data",
+   "message": "Şirket kaynaklarında ilgili belgeler bulundu ancak soruyu güvenilir şekilde cevaplamaya yetmedi.",
+   "action": "request_data"
+  }
+ ],
+ "assist": {
+  "kind": "term_mismatch",
+  "question": "Şu ifadeyi belgelerde bu haliyle bulamadım: «tranş», «yapısı». Ne demek istediğinizi açar mısınız?",
+  "unmatched_terms": [
+   "tranş",
+   "yapısı"
+  ],
+  "candidate_terms": [],
+  "groups": [
+   {
+    "project_code": "YSV_RES",
+    "project_name": "Yeşilova RES",
+    "documents": [
+     {
+      "document_id": "69de0e29-26fd-4f05-a36a-bd0ebebabe2d",
+      "title": "Yeşilova RES Annex F Raporu (2025)",
+      "document_type": "Covenant Report",
+      "document_date": "2026-10-01",
+      "project_code": "YSV_RES",
+      "page_number": 2,
+      "project_scope": "project"
+     },
+     {
+      "document_id": "602f1a79-997d-47ce-84bb-59e218ffe7f0",
+      "title": "Taksit #11 Banka Faiz Bildirimi",
+      "document_type": "Bank Interest Notice",
+      "document_date": "2026-09-20",
+      "project_code": "YSV_RES",
+      "page_number": 2,
+      "project_scope": "project"
+     },
+     {
+      "document_id": "1f099256-b6fb-4c81-8968-1ce8362e0ab9",
+      "title": "Sigorta Zeyilnamesi — Ara Dönem",
+      "document_type": "Insurance Notice",
+      "document_date": "2026-09-15",
+      "project_code": "YSV_RES",
+      "page_number": 2,
+      "project_scope": "project"
+     },
+     {
+      "document_id": "9178fe8d-e3c5-4647-9033-5bc748951d94",
+      "title": "Annex F Talep E-postası",
+      "document_type": "Reporting Request",
+      "document_date": "2026-09-14",
+      "project_code": "YSV_RES",
+      "page_number": 2,
+      "project_scope": "project"
+     },
+     {
+      "document_id": "a6c2078b-091b-4d1a-981b-49c4d714af98",
+      "title": "Ödeme Planı — Güncel",
+      "document_type": "Repayment Schedule",
+      "document_date": "2026-09-01",
+      "project_code": "YSV_RES",
+      "page_number": null,
+      "project_scope": "project"
+     },
+     {
+      "document_id": "c19f6d6b-642a-4d9d-a31e-f09bb922eb55",
+      "title": "Ödeme Planı — Mart 2026",
+      "document_type": "Repayment Schedule",
+      "document_date": "2026-03-15",
+      "project_code": "YSV_RES",
+      "page_number": null,
+      "project_scope": "project"
+     },
+     {
+      "document_id": "05e052c5-a7ce-43b7-a1ee-1ec4e87f63c3",
+      "title": "Yeşilova RES Facility Agreement (2023-YS)",
+      "document_type": "Facility Agreement",
+      "document_date": "2023-06-03",
+      "project_code": "YSV_RES",
+      "page_number": null,
+      "project_scope": "project"
+     }
+    ]
+   }
+  ],
+  "available": [
+   {
+    "document_id": "05e052c5-a7ce-43b7-a1ee-1ec4e87f63c3",
+    "title": "Yeşilova RES Facility Agreement (2023-YS)",
+    "document_type": "Facility Agreement",
+    "document_date": "2023-06-03",
+    "project_code": "YSV_RES",
+    "page_number": null,
+    "project_scope": "project"
+   },
+   {
+    "document_id": "a6c2078b-091b-4d1a-981b-49c4d714af98",
+    "title": "Ödeme Planı — Güncel",
+    "document_type": "Repayment Schedule",
+    "document_date": "2026-09-01",
+    "project_code": "YSV_RES",
+    "page_number": null,
+    "project_scope": "project"
+   },
+   {
+    "document_id": "c19f6d6b-642a-4d9d-a31e-f09bb922eb55",
+    "title": "Ödeme Planı — Mart 2026",
+    "document_type": "Repayment Schedule",
+    "document_date": "2026-03-15",
+    "project_code": "YSV_RES",
+    "page_number": null,
+    "project_scope": "project"
+   },
+   {
+    "document_id": "602f1a79-997d-47ce-84bb-59e218ffe7f0",
+    "title": "Taksit #11 Banka Faiz Bildirimi",
+    "document_type": "Bank Interest Notice",
+    "document_date": "2026-09-20",
+    "project_code": "YSV_RES",
+    "page_number": 2,
+    "project_scope": "project"
+   },
+   {
+    "document_id": "69de0e29-26fd-4f05-a36a-bd0ebebabe2d",
+    "title": "Yeşilova RES Annex F Raporu (2025)",
+    "document_type": "Covenant Report",
+    "document_date": "2026-10-01",
+    "project_code": "YSV_RES",
+    "page_number": 2,
+    "project_scope": "project"
+   },
+   {
+    "document_id": "9178fe8d-e3c5-4647-9033-5bc748951d94",
+    "title": "Annex F Talep E-postası",
+    "document_type": "Reporting Request",
+    "document_date": "2026-09-14",
+    "project_code": "YSV_RES",
+    "page_number": 2,
+    "project_scope": "project"
+   },
+   {
+    "document_id": "1f099256-b6fb-4c81-8968-1ce8362e0ab9",
+    "title": "Sigorta Zeyilnamesi — Ara Dönem",
+    "document_type": "Insurance Notice",
+    "document_date": "2026-09-15",
+    "project_code": "YSV_RES",
+    "page_number": 2,
+    "project_scope": "project"
+   }
+  ],
+  "axis": "project"
+ },
+ "pending_notice": null,
+ "pending_documents": []
+}

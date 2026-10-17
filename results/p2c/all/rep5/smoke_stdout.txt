@@ -1,0 +1,29 @@
+a finans http=200 type=MIXED_QUERY answered=True 12.6s OK
+b finans_mudur http=200 type=MIXED_QUERY answered=True 21.6s OK
+g finans http=200 type=MIXED_QUERY answered=True 25.0s FAIL: value '11.671.800' not in Excel part
+j finans http=200 type=MIXED_QUERY answered=True 10.7s OK
+k finans http=200 type=MIXED_QUERY answered=True 7.6s OK
+l finans http=200 type=MIXED_QUERY answered=True 21.6s OK
+m finans http=200 type=DOCUMENT_QUERY answered=True 8.2s OK
+n finans http=200 type=DOCUMENT_QUERY answered=False 0.1s OK
+o finans http=200 type=DATA_QUERY answered=True 4.1s OK
+p finans http=200 type=MIXED_QUERY answered=True 14.4s OK
+q finans http=200 type=DATA_QUERY answered=True 4.2s OK
+r finans http=200 type=DOCUMENT_QUERY answered=False 6.9s OK
+
+| # | user | http | type | answered | s | sonuç |
+|---|---|---|---|---|---|---|
+| a | finans | 200 | MIXED_QUERY | True | 12.6 | ✅ |
+| b | finans_mudur | 200 | MIXED_QUERY | True | 21.6 | ✅ |
+| g | finans | 200 | MIXED_QUERY | True | 25.0 | ❌ value '11.671.800' not in Excel part |
+| j | finans | 200 | MIXED_QUERY | True | 10.7 | ✅ |
+| k | finans | 200 | MIXED_QUERY | True | 7.6 | ✅ |
+| l | finans | 200 | MIXED_QUERY | True | 21.6 | ✅ |
+| m | finans | 200 | DOCUMENT_QUERY | True | 8.2 | ✅ |
+| n | finans | 200 | DOCUMENT_QUERY | False | 0.1 | ✅ |
+| o | finans | 200 | DATA_QUERY | True | 4.1 | ✅ |
+| p | finans | 200 | MIXED_QUERY | True | 14.4 | ✅ |
+| q | finans | 200 | DATA_QUERY | True | 4.2 | ✅ |
+| r | finans | 200 | DOCUMENT_QUERY | False | 6.9 | ✅ |
+
+11/12 geçti

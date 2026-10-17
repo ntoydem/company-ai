@@ -1,0 +1,148 @@
+[
+ {
+  "letter": "a",
+  "user": "finans",
+  "question": "Karatepe RES kredisinde fiilen kullandırılan toplam tutar nedir?",
+  "http": 200,
+  "query_type": "MIXED_QUERY",
+  "answered": true,
+  "elapsed_s": 16.1,
+  "audit_log_id": "84e1938e-be18-4838-b3bd-09616c7734a4",
+  "failures": [],
+  "passed": true
+ },
+ {
+  "letter": "b",
+  "user": "finans_mudur",
+  "question": "Karatepe RES kredi sözleşmesine göre fiilen kullandırılan toplam kredi tutarı kaç USD?",
+  "http": 200,
+  "query_type": "DOCUMENT_QUERY",
+  "answered": true,
+  "elapsed_s": 6.8,
+  "audit_log_id": "21468c62-e00c-4e31-8166-8dda9484b61b",
+  "failures": [],
+  "passed": true
+ },
+ {
+  "letter": "g",
+  "user": "finans",
+  "question": "Karatepe için bankaya hâlâ ne kadar borcumuz var?",
+  "http": 200,
+  "query_type": "MIXED_QUERY",
+  "answered": true,
+  "elapsed_s": 23.1,
+  "audit_log_id": "8b05a01f-c6fb-4e0c-ace9-f0b664dcd3ea",
+  "failures": [],
+  "passed": true
+ },
+ {
+  "letter": "j",
+  "user": "finans",
+  "question": "Yeşilova RES'in kalan kredi borcu ne kadar?",
+  "http": 200,
+  "query_type": "MIXED_QUERY",
+  "answered": true,
+  "elapsed_s": 13.8,
+  "audit_log_id": "00a5fb32-0ef4-4493-bc30-d3f2a15409bf",
+  "failures": [],
+  "passed": true
+ },
+ {
+  "letter": "k",
+  "user": "finans",
+  "question": "Boztepe RES'in güncel DSCR değeri kaç?",
+  "http": 200,
+  "query_type": "MIXED_QUERY",
+  "answered": true,
+  "elapsed_s": 5.7,
+  "audit_log_id": "7c9ed20b-322d-42e1-91b6-15712cc0e733",
+  "failures": [],
+  "passed": true
+ },
+ {
+  "letter": "l",
+  "user": "finans",
+  "question": "Karatepe RES'in kalan kredi borcu ne kadar?",
+  "http": 200,
+  "query_type": "MIXED_QUERY",
+  "answered": true,
+  "elapsed_s": 26.2,
+  "audit_log_id": "0108e7bd-d5b9-4951-82e6-d3e036bdd372",
+  "failures": [],
+  "passed": true
+ },
+ {
+  "letter": "m",
+  "user": "finans",
+  "question": "Karatepe RES kredi sözleşmesinin vadesi kaç yıl?",
+  "http": 200,
+  "query_type": "DOCUMENT_QUERY",
+  "answered": true,
+  "elapsed_s": 6.6,
+  "audit_log_id": "b471308e-7ca3-4ada-9cb9-1f4d09dee45c",
+  "failures": [],
+  "passed": true
+ },
+ {
+  "letter": "n",
+  "user": "finans",
+  "question": "Kredi sözleşmesinde taksit sayısı kaç?",
+  "http": 200,
+  "query_type": "DOCUMENT_QUERY",
+  "answered": false,
+  "elapsed_s": 0.1,
+  "audit_log_id": "8a4ab115-046a-4251-9c52-7fca1d3f9e12",
+  "failures": [],
+  "passed": true
+ },
+ {
+  "letter": "o",
+  "user": "finans",
+  "question": "Yeşilova kredi ödeme planında 12. taksitin anapara tutarı nedir",
+  "http": 200,
+  "query_type": "DOCUMENT_QUERY",
+  "answered": true,
+  "elapsed_s": 4.5,
+  "audit_log_id": "baeda84e-7fa3-40ed-9fe3-d7e255196080",
+  "failures": [],
+  "passed": true
+ },
+ {
+  "letter": "p",
+  "user": "finans",
+  "question": "Yeşilova 2027'de hangi kredi ödemelerini yapacak?",
+  "http": 200,
+  "query_type": "MIXED_QUERY",
+  "answered": false,
+  "elapsed_s": 11.5,
+  "audit_log_id": "7e67607d-b33a-4889-9dfa-6dc90d56a247",
+  "failures": [],
+  "passed": true
+ },
+ {
+  "letter": "q",
+  "user": "finans",
+  "question": "Yeşilova'nın bir sonraki kredi ödemesi ne zaman",
+  "http": 500,
+  "query_type": null,
+  "answered": null,
+  "elapsed_s": 11.4,
+  "audit_log_id": null,
+  "failures": [
+   "http 500"
+  ],
+  "passed": false
+ },
+ {
+  "letter": "r",
+  "user": "finans",
+  "question": "Boztepe RES ödeme planında 12. taksitin anaparası ne kadar?",
+  "http": 200,
+  "query_type": "DOCUMENT_QUERY",
+  "answered": false,
+  "elapsed_s": 3.3,
+  "audit_log_id": "ef3dc983-7d4c-44f7-8d14-777d4063349f",
+  "failures": [],
+  "passed": true
+ }
+]

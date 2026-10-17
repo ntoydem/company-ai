@@ -1,0 +1,62 @@
+{
+ "answer": "Belgelere göre:\nSözleşmede DSCR covenant'ı için minimum gereklilik 1,20x olarak belirtilmiştir [K6]. Covenant Compliance Report Q3 2026 belgesinde de uygulanabilir minimum borç servis karşılama oranı 1,20x olarak yazılıdır [K11].\n\nExcel verisine göre:\nErişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+ "answered": true,
+ "sources": [
+  {
+   "ref": "K6",
+   "document_id": "a7a81c2c-e8cf-4607-807e-3667ef9ebff2",
+   "title": "Boztepe RES Facility Agreement (2024-BZ)",
+   "page_number": 5,
+   "document_date": "2024-02-20",
+   "effective_date": "2024-02-20",
+   "version": 1,
+   "status": "executed",
+   "is_current": true,
+   "supersedes_title": null,
+   "superseded_by_title": null,
+   "supersedes_document_id": null,
+   "superseded_by_document_id": null,
+   "is_initial": true,
+   "project_code": "BOZ_RES",
+   "project_name": "Boztepe RES",
+   "project_scope": "project"
+  },
+  {
+   "ref": "K11",
+   "document_id": "c5380edf-f456-4dd9-91a1-5798722c7c27",
+   "title": "Boztepe RES — Covenant Compliance Report Q3 2026",
+   "page_number": 3,
+   "document_date": "2026-10-06",
+   "effective_date": null,
+   "version": 1,
+   "status": "active",
+   "is_current": true,
+   "supersedes_title": null,
+   "superseded_by_title": null,
+   "supersedes_document_id": null,
+   "superseded_by_document_id": null,
+   "is_initial": true,
+   "project_code": "BOZ_RES",
+   "project_name": "Boztepe RES",
+   "project_scope": "project"
+  }
+ ],
+ "retrieved_document_ids": [
+  "a7a81c2c-e8cf-4607-807e-3667ef9ebff2",
+  "c5380edf-f456-4dd9-91a1-5798722c7c27",
+  "13a6445e-e6fc-4df6-9945-71cbd6646299",
+  "681f51c3-0de8-49e1-bf94-5fcf08c9fdcf"
+ ],
+ "model": "claude-haiku-5-5",
+ "tokens_in": 11279,
+ "tokens_out": 761,
+ "notice": "Bu cevap yorum içermez; belge kısmı kaynak göstererek aktarılır, Excel kısmının hesabını DuckDB/Python yapar. İki kısım birleştirilmiş, yorumlanmamıştır.",
+ "query_type": "MIXED_QUERY",
+ "excel_sources": [],
+ "audit_log_id": "77b1d0f0-2a53-4e18-b252-46500a3cdb3e",
+ "product_level": "P2",
+ "warnings": [],
+ "assist": null,
+ "pending_notice": null,
+ "pending_documents": []
+}

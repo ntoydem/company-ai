@@ -1,0 +1,137 @@
+{
+ "answer": "Bu konuda kesin bilgi bulamadım.\nÖdeme planını içeren belgenin adı veya belge numarası nedir?",
+ "answered": false,
+ "sources": [],
+ "retrieved_document_ids": [
+  "a7a81c2c-e8cf-4607-807e-3667ef9ebff2",
+  "681f51c3-0de8-49e1-bf94-5fcf08c9fdcf",
+  "13a6445e-e6fc-4df6-9945-71cbd6646299",
+  "c5380edf-f456-4dd9-91a1-5798722c7c27"
+ ],
+ "model": "claude-haiku-5-5",
+ "tokens_in": 10001,
+ "tokens_out": 646,
+ "notice": "Bu cevap yorum içermez; yalnızca şirket belgelerinde yazanı kaynak göstererek aktarır.",
+ "query_type": "DOCUMENT_QUERY",
+ "excel_sources": [],
+ "audit_log_id": "62c9410e-788c-43b9-ab3e-f8b3062e31ed",
+ "product_level": "P1",
+ "warnings": [
+  {
+   "kind": "insufficient_data",
+   "message": "Şirket kaynaklarında ilgili belgeler bulundu ancak soruyu güvenilir şekilde cevaplamaya yetmedi.",
+   "action": "request_data"
+  }
+ ],
+ "assist": {
+  "kind": "term_mismatch",
+  "question": "Ödeme planını içeren belgenin adı veya belge numarası nedir?",
+  "unmatched_terms": [
+   "anaparası"
+  ],
+  "candidate_terms": [],
+  "groups": [
+   {
+    "project_code": "BOZ_RES",
+    "project_name": "Boztepe RES",
+    "documents": [
+     {
+      "document_id": "13a6445e-e6fc-4df6-9945-71cbd6646299",
+      "title": "DSRA Hesap Ekstresi — Ekim 2026",
+      "document_type": "DSRA Account Statement",
+      "document_date": "2026-10-06",
+      "project_code": "BOZ_RES",
+      "page_number": null,
+      "project_scope": "project"
+     },
+     {
+      "document_id": "c5380edf-f456-4dd9-91a1-5798722c7c27",
+      "title": "Boztepe RES — Covenant Compliance Report Q3 2026",
+      "document_type": "Covenant Report",
+      "document_date": "2026-10-06",
+      "project_code": "BOZ_RES",
+      "page_number": null,
+      "project_scope": "project"
+     },
+     {
+      "document_id": "e1ecfcf8-25f0-41d4-9478-4dba323eb1f6",
+      "title": "Anapara Geri Ödeme Planı (84 Taksit)",
+      "document_type": "Repayment Schedule",
+      "document_date": "2026-10-01",
+      "project_code": "BOZ_RES",
+      "page_number": null,
+      "project_scope": "project"
+     },
+     {
+      "document_id": "681f51c3-0de8-49e1-bf94-5fcf08c9fdcf",
+      "title": "Aylık Faiz Bildirimi — Ekim 2026 Taksidi",
+      "document_type": "Bank Interest Notice",
+      "document_date": "2026-09-20",
+      "project_code": "BOZ_RES",
+      "page_number": null,
+      "project_scope": "project"
+     },
+     {
+      "document_id": "a7a81c2c-e8cf-4607-807e-3667ef9ebff2",
+      "title": "Boztepe RES Facility Agreement (2024-BZ)",
+      "document_type": "Facility Agreement",
+      "document_date": "2024-02-20",
+      "project_code": "BOZ_RES",
+      "page_number": null,
+      "project_scope": "project"
+     }
+    ]
+   }
+  ],
+  "available": [
+   {
+    "document_id": "e1ecfcf8-25f0-41d4-9478-4dba323eb1f6",
+    "title": "Anapara Geri Ödeme Planı (84 Taksit)",
+    "document_type": "Repayment Schedule",
+    "document_date": "2026-10-01",
+    "project_code": "BOZ_RES",
+    "page_number": null,
+    "project_scope": "project"
+   },
+   {
+    "document_id": "a7a81c2c-e8cf-4607-807e-3667ef9ebff2",
+    "title": "Boztepe RES Facility Agreement (2024-BZ)",
+    "document_type": "Facility Agreement",
+    "document_date": "2024-02-20",
+    "project_code": "BOZ_RES",
+    "page_number": null,
+    "project_scope": "project"
+   },
+   {
+    "document_id": "c5380edf-f456-4dd9-91a1-5798722c7c27",
+    "title": "Boztepe RES — Covenant Compliance Report Q3 2026",
+    "document_type": "Covenant Report",
+    "document_date": "2026-10-06",
+    "project_code": "BOZ_RES",
+    "page_number": null,
+    "project_scope": "project"
+   },
+   {
+    "document_id": "13a6445e-e6fc-4df6-9945-71cbd6646299",
+    "title": "DSRA Hesap Ekstresi — Ekim 2026",
+    "document_type": "DSRA Account Statement",
+    "document_date": "2026-10-06",
+    "project_code": "BOZ_RES",
+    "page_number": null,
+    "project_scope": "project"
+   },
+   {
+    "document_id": "681f51c3-0de8-49e1-bf94-5fcf08c9fdcf",
+    "title": "Aylık Faiz Bildirimi — Ekim 2026 Taksidi",
+    "document_type": "Bank Interest Notice",
+    "document_date": "2026-09-20",
+    "project_code": "BOZ_RES",
+    "page_number": null,
+    "project_scope": "project"
+   }
+  ],
+  "axis": "project"
+ },
+ "pending_notice": null,
+ "pending_documents": []
+}
