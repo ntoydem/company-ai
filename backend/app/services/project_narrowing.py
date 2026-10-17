@@ -29,9 +29,16 @@ from sqlalchemy.orm import Session
 
 from app.models.document import Document, ProjectScope
 from app.models.project import Project
-from app.repositories.document_chunk_repo import RetrievedChunk
+from app.repositories.document_chunk_repo import RetrievedChunk, document_ids_matching
+from app.repositories.document_repo import search_metadata
 from app.services.assist import is_existence_question, named_project_codes
-from app.services.search_query import QUESTION_STOPWORDS, turkish_fold, turkish_lower
+from app.services.search_glossary import CONCEPT_GLOSSARY, GLOSSARY, expand_terms, metadata_terms
+from app.services.search_query import (
+    QUESTION_STOPWORDS,
+    question_terms,
+    turkish_fold,
+    turkish_lower,
+)
 
 # "<Özel Ad> RES/GES" — the project-naming pattern of this company's library. The name word
 # before the suffix may be any case (ADR-033, İş Emri 2026-10-16T3: "bursa RES"/"Bursa Res"
@@ -221,12 +228,15 @@ def unnamed_project_question(visible: list[str]) -> str:
 
 
 def unnamed_value_clarification(
-    session: Session, allowed: set[UUID], chunks: list[RetrievedChunk]
+    session: Session, allowed: set[UUID], chunks: list[RetrievedChunk], *, question: str
 ) -> str | None:
     """The project question for an unnamed value question — or None when there is no project
-    to ask about: the user sees no project document, or the best-ranked retrieved chunk is a
-    group document (a company question: "Denetim komitesi üyeleri hangi kararla atandı?").
-    Only `allowed` and the already-gated chunks are read (T-5)."""
+    to ask about: the user sees no project document, the best-ranked retrieved chunk is a
+    group document (a company question: "Denetim komitesi üyeleri hangi kararla atandı?"), or
+    the topic is in no project document of the user (ADR-035, S-2). The options are the
+    projects holding the topic (`projects_with_data`); a single one is still asked (S-3), an
+    undetermined topic keeps every visible project (S-1). Only `allowed` and the
+    already-gated chunks are read (T-5)."""
     visible = visible_project_names(session, allowed)
     if not visible:
         return None
@@ -235,4 +245,88 @@ def unnamed_value_clarification(
         scope = session.scalar(select(Document.project_scope).where(Document.id == top.document_id))
         if scope == ProjectScope.group:
             return None
-    return unnamed_project_question(visible)
+    with_data = projects_with_data(session, allowed, question)
+    if with_data is None:
+        return unnamed_project_question(visible)
+    if not with_data:
+        return None
+    return unnamed_project_question(with_data)
+
+
+# İş Emri 2026-10-17P1K (ADR-035, Tansu 16.10 madde 1): the options of the project question
+# are the projects with at least one document — inside `allowed` — whose text (FTS, the
+# retrieval predicate) or catalogue fields (`search_metadata`) carry the question's topic.
+# Decided per document: no top-k, no rank. A term found in more than GENERIC_SHARE of the
+# user's own project documents does not tell projects apart and is ignored; the share is
+# taken from `allowed` only, so hidden documents cannot shape it (T-5).
+GENERIC_SHARE = 0.5
+
+
+def _concept_terms(lowered: list[str]) -> set[str]:
+    """The lowered terms a glossary concept covers (a GLOSSARY / CONCEPT_GLOSSARY key; one-word
+    keys prefix-match, a multi-word key covers its words when the whole key is present) —
+    the topic anchor: "son", "güncel", "kadar" never outweigh "tadil", "sigorta", "DSCR"."""
+    joined = " ".join(lowered)
+    covered: set[str] = set()
+    for key in (*GLOSSARY, *CONCEPT_GLOSSARY):
+        words = key.split()
+        if len(words) > 1 and key not in joined:
+            continue
+        covered.update(term for term in lowered if any(term.startswith(w) for w in words))
+    return covered
+
+
+def _term_evidence(session: Session, allowed: set[UUID], term: str) -> set[UUID]:
+    """Documents in `allowed` whose chunks match the term, the glossary stem it starts with
+    ("vadesi" → "vade": the `turkish` stemmer does not join the two) or the stem's document
+    terms — or whose catalogue fields contain the term or its title-side concept terms."""
+    lowered = turkish_lower(term)
+    stems = [key for key in (*GLOSSARY, *CONCEPT_GLOSSARY) if lowered.startswith(key)]
+    query = " OR ".join(dict.fromkeys([term, *stems, *expand_terms([lowered])]))
+    hits = document_ids_matching(session, allowed_ids=allowed, query=query)
+    for needle in (term, *metadata_terms([lowered])):
+        hits.update(d.id for d in search_metadata(session, allowed, needle, limit=len(allowed)))
+    return hits
+
+
+def projects_with_data(session: Session, allowed: set[UUID], question: str) -> list[str] | None:
+    """Names (ordered like `visible_project_names`) of the active projects holding the topic.
+    `[]`: there was a topic but no project document of the user carries it. None: the topic
+    could not be determined (no term left once the zero-evidence and generic ones are out).
+
+    Topic = the non-generic terms a glossary concept covers; without any, the non-generic
+    terms found in some allowed document. Projects are the UNION over topic terms — an
+    intersection would drop a project whose contract happens not to use one of the words."""
+    if not allowed:
+        return None
+    rows = session.execute(
+        select(Document.id, Project.name)
+        .join(Project, Document.project_id == Project.id)
+        .where(
+            Document.id.in_(list(allowed)),
+            Document.project_scope == ProjectScope.project,
+            Project.is_active.is_(True),
+        )
+        .order_by(Project.name, Document.id)
+    ).all()
+    project_of = {document_id: name for document_id, name in rows}
+    if not project_of:
+        return None
+    terms = question_terms(question)
+    concepts = _concept_terms([turkish_lower(term) for term in terms])
+    anchors: list[set[UUID]] = []
+    others: list[set[UUID]] = []
+    for term in terms:
+        evidence = _term_evidence(session, allowed, term)
+        in_projects = evidence & project_of.keys()
+        if len(in_projects) > GENERIC_SHARE * len(project_of):
+            continue
+        if turkish_lower(term) in concepts:
+            anchors.append(in_projects)
+        elif evidence:
+            others.append(in_projects)
+    topic = anchors or others
+    if not topic:
+        return None
+    selected = {project_of[document_id] for hits in topic for document_id in hits}
+    return [name for name in dict.fromkeys(project_of.values()) if name in selected]

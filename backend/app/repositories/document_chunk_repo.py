@@ -144,6 +144,25 @@ def search_document_hits(
     ]
 
 
+def document_ids_matching(
+    session: Session, *, allowed_ids: Iterable[uuid.UUID], query: str
+) -> set[uuid.UUID]:
+    """Every document among `allowed_ids` with at least one chunk matching `query` — the
+    same FTS predicate as retrieval, at document level (`DISTINCT`, no rank, no LIMIT). Used
+    as topic evidence for the project options of an unnamed question (ADR-035)."""
+    allowed = list(allowed_ids)
+    if not allowed or not query:
+        return set()
+    _, where, _ = _fts_predicate(query)
+    stmt = (
+        select(DocumentChunk.document_id)
+        .where(DocumentChunk.document_id.in_(allowed))
+        .where(where)
+        .distinct()
+    )
+    return set(session.scalars(stmt).all())
+
+
 def search_vector(
     session: Session, *, allowed_ids: Iterable[uuid.UUID], vector: list[float], top_k: int
 ) -> list[RetrievedChunk]:

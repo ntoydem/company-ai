@@ -197,7 +197,7 @@ def project_question_for(session: Session, user: User, request: AskRequest) -> s
         if query
         else []
     )
-    return unnamed_value_clarification(session, allowed, chunks)
+    return unnamed_value_clarification(session, allowed, chunks, question=request.question)
 
 
 def answer_question(

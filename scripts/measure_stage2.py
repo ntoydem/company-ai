@@ -168,7 +168,7 @@ def _route(session: Session, question: str, allowed: set, chunks: list) -> str:
     clarification = getattr(project_narrowing, "unnamed_value_clarification", None)
     if routed.reason != "unnamed_value_question" or clarification is None:
         return routed.reason
-    asks = clarification(session, allowed, chunks) is not None
+    asks = clarification(session, allowed, chunks, question=question) is not None
     return f"{routed.reason}→{'soru' if asks else 'model'}"
 
 
