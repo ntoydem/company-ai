@@ -152,7 +152,12 @@ class Meta(_Strict):
     currency_note: str
 
 
-ConflictKind = Literal["genuine_conflict", "version_difference", "duplicate", "missing_document"]
+# İş Emri 2026-10-17E1 (Tansu 17.10 madde 12): `different_facts` = two differently named
+# facts that both hold (a facility limit vs. the amount drawn; a scheduled vs. a notified
+# amount) — not a contradiction, each is given under its own name and source.
+ConflictKind = Literal[
+    "genuine_conflict", "different_facts", "version_difference", "duplicate", "missing_document"
+]
 
 
 class Fact(_Strict):
@@ -169,9 +174,10 @@ class Fact(_Strict):
     deliberate_conflict: bool = False
     conflict_group: str | None = None
     # Adım 5 İş 4a (10.10.2026, ADIM5_PF_PARTISI_PLAN §4): what *kind* of trap a
-    # `conflict_group` member is — only `genuine_conflict` actually uses `conflict_group`
-    # today (version_difference uses `supersedes`/`version` instead; duplicate/
-    # missing_document need no ledger mechanism at all, per the plan's general rule).
+    # `conflict_group` member is — only `different_facts` actually uses `conflict_group`
+    # today (E1 moved both groups off `genuine_conflict`; version_difference uses
+    # `supersedes`/`version` instead; duplicate/missing_document need no ledger mechanism
+    # at all, per the plan's general rule).
     # The validator requires every member of one `conflict_group` to share one kind.
     conflict_kind: ConflictKind | None = None
 

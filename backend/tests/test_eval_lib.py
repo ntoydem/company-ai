@@ -577,6 +577,43 @@ def test_render_markdown_and_report_to_json_do_not_raise() -> None:
     assert "Router düşüşü" in markdown and "0/1" in markdown
 
 
+def test_verdict_passes_counts_only_passed_fixed_sentence_responses() -> None:
+    """E1 (Tansu 17.10 madde 3): passed + unanswered + fixed verdict is counted; a passed
+    sourced answer and a failed verdict response are not. Measurement only — `ok` unchanged."""
+    no_answer = _question(id="GEN-NEG-001", expect_no_answer=True, expected_project=None)
+    verdict_pass = score_question(
+        no_answer,
+        resolve_expected(no_answer, {}),
+        _catalog(),
+        AskOutcome(answered=False, answer_text=NO_ANSWER_TEXT, cited_titles=()),
+    )
+    answered_pass = score_question(
+        _question(id="ANK-DOC-003"),
+        resolve_expected(_question(), {}),
+        _catalog(),
+        AskOutcome(answered=True, answer_text="cevap", cited_titles=()),
+    )
+    verdict_fail = score_question(
+        _question(id="ANK-DOC-004"),
+        resolve_expected(_question(), {}),
+        _catalog(),
+        AskOutcome(answered=False, answer_text=NO_ANSWER_TEXT, cited_titles=()),
+    )
+    assert verdict_pass.passed and answered_pass.passed and not verdict_fail.passed
+    report = build_report(
+        [verdict_pass, answered_pass, verdict_fail],
+        model="m",
+        date_str="2026-10-17",
+        demo_today="2026-10-06",
+        embeddings_enabled=False,
+    )
+    assert [r.id for r in report.verdict_passes] == ["GEN-NEG-001"]
+    assert report_to_json(report)["verdict_passes"] == ["GEN-NEG-001"]
+    assert "geçen soru (answer_policy: either dahil):** 1/2 geçen — GEN-NEG-001" in render_markdown(
+        report
+    )
+
+
 def test_router_fallback_is_carried_to_results_json_and_counted_in_the_report() -> None:
     """S0-a: `warnings[].kind == "router_fallback"` → `AskOutcome.router_fallback` → counted
     in the markdown and written per question in results.json; scoring is unchanged."""

@@ -70,8 +70,10 @@ project:
     # yazan tutar 14.000.000 USD (contract_amount) iken fiilen kullandırılan/ödeme planındaki
     # toplam 13.600.000 USD'dir (total_debt = sum(drawdowns) = sum(repayment_schedule.principal),
     # validator F11). total_debt artık "kullandırılan/ödenecek" tutarı ifade eder.
-    contract_amount: {value: 14000000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-004, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", conflict_kind: genuine_conflict, note: "Sözleşmede yazan tesis tutarı; fiilen kullandırılan 13.600.000 USD'dir."}
-    total_debt: {value: 13600000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", conflict_kind: genuine_conflict, note: "Fiilen kullandırılan/ödeme planındaki tutar; sözleşme tutarı (contract_amount) 14.000.000 USD'dir."}
+    # İş Emri 2026-10-17E1 (Tansu 17.10 madde 12): çelişki DEĞİL, farklı olgu — tesis tutarı
+    # (limit/taahhüt) ile kullandırılan tutar ikisi de doğrudur; conflict_kind: different_facts.
+    contract_amount: {value: 14000000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-004, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", conflict_kind: different_facts, note: "Sözleşmede yazan tesis tutarı; fiilen kullandırılan 13.600.000 USD'dir."}
+    total_debt: {value: 13600000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007, deliberate_conflict: true, conflict_group: "karatepe-kredi-tutari", conflict_kind: different_facts, note: "Fiilen kullandırılan/ödeme planındaki tutar; sözleşme tutarı (contract_amount) 14.000.000 USD'dir."}
     local_debt: {value: 13600000, currency: USD, tag: USER_FACT, source_doc: DOC-ANK-FIN-007}
     # ÜRÜN SAHİBİ ONAYLI (Tansu, 11.10.2026, NACI_CEVAP_2026-10-11.md §3.2): ECA tarafı
     # KALDIRILDI — 2022-KT yalnız Garanti BBVA'nın tek proje kredisi, hiçbir ECA tranşı

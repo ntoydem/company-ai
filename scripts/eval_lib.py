@@ -1609,6 +1609,23 @@ class EvalReport:
             "question_ids": [r.id for r in rows],
         }
 
+    @property
+    def verdict_passes(self) -> tuple[QuestionResult, ...]:
+        """E1 (Tansu 17.10 madde 3) — passed questions whose response is the fixed not-found
+        verdict (`answer_policy: either` included). A measurement only, never part of `ok`;
+        same verdict test as G2 / R10: opens with it, a MIXED response carries it inside."""
+
+        def is_verdict(r: QuestionResult) -> bool:
+            if r.query_type == "MIXED_QUERY":
+                return NO_ANSWER_TEXT in r.answer_text or NO_DATA_VERDICT in r.answer_text
+            return _starts_with_verdict(r.answer_text)
+
+        return tuple(
+            r
+            for r in self.results
+            if r.error is None and r.passed and not r.answered and is_verdict(r)
+        )
+
 
 def build_report(
     results: list[QuestionResult],
@@ -1663,6 +1680,7 @@ def report_to_json(report: EvalReport) -> dict[str, Any]:
         "ok": report.ok,
         "discovery_counters": report.discovery_summary,
         "list_coverage": report.list_coverage_summary,
+        "verdict_passes": [r.id for r in report.verdict_passes],
         "categories": [
             {
                 "category": c.category,
@@ -1800,6 +1818,13 @@ def render_markdown(report: EvalReport) -> str:
         f"{coverage['items_found']}/{coverage['items_total']} öğe "
         f"({coverage['measurable_questions']} ölçülebilir soru)"
         + (f" — {', '.join(coverage['question_ids'])}" if coverage["question_ids"] else "")
+    )
+    # E1 (Tansu 17.10 madde 3): a measurement, not a gate.
+    verdict_passes = report.verdict_passes
+    lines.append(
+        f"**Sabit 'bulamadım' cümlesiyle geçen soru (answer_policy: either dahil):** "
+        f"{len(verdict_passes)}/{sum(1 for r in evaluated if r.passed)} geçen"
+        + (f" — {', '.join(r.id for r in verdict_passes)}" if verdict_passes else "")
     )
 
     failed = [r for r in report.results if r.error is None and not r.passed]
