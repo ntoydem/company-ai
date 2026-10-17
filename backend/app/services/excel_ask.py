@@ -82,7 +82,9 @@ PLAN_SYSTEM_PROMPT = (
     "(end_date, period end, month) is on or before TODAY — filter it first (e.g. WHERE "
     "end_date <= DATE 'TODAY') and only then ORDER BY ... DESC LIMIT 1. Select a row after "
     "TODAY only when the question explicitly names a future period or date (in 2030, ne "
-    'olacak, projection), and then add "future_ok": true to the JSON.'
+    'olacak, projection), and then add "future_ok": true to the JSON. Use the current version '
+    "of a workbook; use a superseded one only when the question names that older version or "
+    "date."
 )
 
 ANSWER_SYSTEM_PROMPT = (
@@ -174,10 +176,24 @@ def _value_variants(value: Any, unit: str | None, *, ek_f: bool = False) -> set[
 # ---------------------------------------------------------------- catalogue / plan
 
 
+def _workbook_line(document: Document, file: str, files: dict[UUID, str]) -> str:
+    """ADR-037: project and version status are data the code writes; `superseded by` names
+    the newer file only when it is in this (authorized, narrowed) catalogue — T-5."""
+    project = document.project.name if document.project is not None else "group"
+    status = f"status: {document.status}"
+    if document.superseded_by_document_id in files:
+        status += f", superseded by: {files[document.superseded_by_document_id]}"
+    return (
+        f"- file: {file} (title: {document.title}, type: {document.document_type}, "
+        f"project: {project}, {status})"
+    )
+
+
 def _catalogue(workbooks: list[tuple[Document, LoadedWorkbook]]) -> str:
     lines = ["WORKBOOKS:"]
+    files = {document.id: wb.file for document, wb in workbooks}
     for document, wb in workbooks:
-        lines.append(f"- file: {wb.file} (title: {document.title}, type: {document.document_type})")
+        lines.append(_workbook_line(document, wb.file, files))
         for table, sheet in wb.sheet_by_table.items():
             columns = [c for c in wb.tables[table].columns]
             lines.append(f"  table {table} (sheet {sheet!r}): columns {columns}")
@@ -310,10 +326,12 @@ def _sql_value(result: QueryResult, *, ek_f: bool = False) -> tuple[Any, str, st
     model sees it); the table branch stays for `tr_format`'s own tests."""
     if len(result.rows) == 1 and len(result.columns) == 1:
         value = result.rows[0][0]
+        if isinstance(value, datetime | date):
+            # ADR-037: a schedule's due date is a typed cell now (it was text); without Ek-F
+            # a raw datetime failed `float()` and the response model — DD.MM.YYYY either way.
+            return tr_format.format_date(value), "", ""
         if not ek_f:
             return value, "", ""
-        if isinstance(value, datetime | date):
-            return tr_format.format_date(value), "", ""
         return value, tr_format.unit_from_label(result.columns[0]) or "", ""
     header = " | ".join(result.columns)
     if not ek_f:

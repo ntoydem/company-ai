@@ -33,7 +33,9 @@ ROUTER_SYSTEM_PROMPT = (
     "You classify ONE user question for a company knowledge system that holds (a) company "
     "documents — contracts, licences, amendments, reports; text with page-level sources — and "
     "(b) Excel workbooks — financial model, covenant report, budget vs actual, monthly "
-    "production; figures computed by a calculation engine. Reply with ONE JSON object and "
+    "production, loan repayment schedules (ödeme planı: instalment number, due date, "
+    "principal, interest per instalment); figures computed by a calculation engine. Reply "
+    "with ONE JSON object and "
     "nothing else:\n"
     '{"query_type":"DOCUMENT_QUERY"|"DATA_QUERY"|"MIXED_QUERY",'
     '"document_question":<string or null>,"data_question":<string or null>,'
@@ -48,7 +50,11 @@ ROUTER_SYSTEM_PROMPT = (
     "always checked before anything else; there is no general-knowledge fallback.\n"
     "- DATA_QUERY: answered by computing or reading a figure from workbook cells for a period "
     "(realised/actual values, totals, sums, variances, ratios, production, balances from the "
-    "model).\n"
+    "model). A value read from a repayment schedule row — an instalment's (taksit) due date "
+    "(vade), principal (anapara) or interest, the next or a numbered instalment — is "
+    "DATA_QUERY, even when the question says 'ödeme planında'. Only repayment terms written "
+    "in a loan agreement (tenor, agreed number of instalments, grace period) are "
+    "DOCUMENT_QUERY.\n"
     "- MIXED_QUERY: needs BOTH a document statement AND a computed figure; or the question is "
     "ambiguous between a contractual/agreed value and a realised/measured value (e.g. 'current "
     "DSCR?' may mean the covenant threshold in the loan agreement or the realised DSCR in the "
@@ -62,6 +68,8 @@ ROUTER_SYSTEM_PROMPT = (
     '"document_question":null,"data_question":null,"reason":"contract term"}\n'
     'Q: 2026 EBITDA variance hangi projede en yüksek? -> {"query_type":"DATA_QUERY",'
     '"document_question":null,"data_question":null,"reason":"computed figure"}\n'
+    'Q: Ödeme planında 5. taksitin vadesi ne? -> {"query_type":"DATA_QUERY",'
+    '"document_question":null,"data_question":null,"reason":"repayment schedule row"}\n'
     "Q: Karatepe RES finansmanında yerli banka kredisi ne kadar? -> "
     '{"query_type":"DOCUMENT_QUERY","document_question":null,"data_question":null,'
     '"reason":"amount stated in the facility agreement"}\n'

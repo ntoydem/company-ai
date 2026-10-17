@@ -1,0 +1,809 @@
+{
+ "label": "before",
+ "after_code": false,
+ "columns": {
+  "Boztepe_Repayment_Schedule_84_Instalments.xlsx": {
+   "project": "BOZ_RES",
+   "status": "active",
+   "tables": {
+    "boztepe_repayment_schedule_84_instalments__schedule": [
+     "_row:Int64",
+     "boztepe_res_anapara_geri_deme_plan_84_taksit:String",
+     "col_b:String",
+     "col_c:String",
+     "col_d:String",
+     "col_e:String",
+     "col_f:String",
+     "col_g:String"
+    ]
+   },
+   "sheets": {}
+  },
+  "Budget_vs_Actual_2026.xlsx": {
+   "project": "ANK_RES",
+   "status": "active",
+   "tables": {
+    "budget_vs_actual_2026__summary": [
+     "_row:Int64",
+     "quarter:String",
+     "budget_try:Int64",
+     "actual_try:Int64",
+     "variance_try:Int64",
+     "variance:Float64"
+    ]
+   },
+   "sheets": {}
+  },
+  "Covenant_Report.xlsx": {
+   "project": "ANK_RES",
+   "status": "active",
+   "tables": {
+    "covenant_report__summary": [
+     "_row:Int64",
+     "quarter:String",
+     "dscr:Float64",
+     "covenant:Float64",
+     "result:String",
+     "outstanding_after_half_usd:Int64"
+    ],
+    "covenant_report__q4_2023": [
+     "_row:Int64",
+     "covenant_compliance_test_q4_2023:Null",
+     "col_b:String",
+     "col_c:Null",
+     "col_d:String"
+    ],
+    "covenant_report__q1_2024": [
+     "_row:Int64",
+     "covenant_compliance_test_q1_2024:Null",
+     "col_b:String",
+     "col_c:Null",
+     "col_d:String"
+    ],
+    "covenant_report__q2_2024": [
+     "_row:Int64",
+     "covenant_compliance_test_q2_2024:Null",
+     "col_b:String",
+     "col_c:Null",
+     "col_d:String"
+    ],
+    "covenant_report__q3_2024": [
+     "_row:Int64",
+     "covenant_compliance_test_q3_2024:Null",
+     "col_b:String",
+     "col_c:Null",
+     "col_d:String"
+    ],
+    "covenant_report__q4_2024": [
+     "_row:Int64",
+     "covenant_compliance_test_q4_2024:Null",
+     "col_b:String",
+     "col_c:Null",
+     "col_d:String"
+    ],
+    "covenant_report__q1_2025": [
+     "_row:Int64",
+     "covenant_compliance_test_q1_2025:Null",
+     "col_b:String",
+     "col_c:Null",
+     "col_d:String"
+    ],
+    "covenant_report__q2_2025": [
+     "_row:Int64",
+     "covenant_compliance_test_q2_2025:Null",
+     "col_b:String",
+     "col_c:Null",
+     "col_d:String"
+    ],
+    "covenant_report__q3_2025": [
+     "_row:Int64",
+     "covenant_compliance_test_q3_2025:Null",
+     "col_b:String",
+     "col_c:Null",
+     "col_d:String"
+    ],
+    "covenant_report__q4_2025": [
+     "_row:Int64",
+     "covenant_compliance_test_q4_2025:Null",
+     "col_b:String",
+     "col_c:Null",
+     "col_d:String"
+    ],
+    "covenant_report__q1_2026": [
+     "_row:Int64",
+     "covenant_compliance_test_q1_2026:Null",
+     "col_b:String",
+     "col_c:Null",
+     "col_d:String"
+    ],
+    "covenant_report__q2_2026": [
+     "_row:Int64",
+     "covenant_compliance_test_q2_2026:Null",
+     "col_b:String",
+     "col_c:Null",
+     "col_d:String"
+    ]
+   },
+   "sheets": {}
+  },
+  "Financial_Model_2026.xlsx": {
+   "project": "ANK_RES",
+   "status": "active",
+   "tables": {
+    "financial_model_2026__inputs": [
+     "_row:Int64",
+     "project:String",
+     "karatepe_res:String"
+    ],
+    "financial_model_2026__debt": [
+     "_row:Int64",
+     "period:String",
+     "end_date:Datetime(time_unit='us', time_zone=None)",
+     "opening_usd:Int64",
+     "drawdown_usd:Int64",
+     "principal_usd:Int64",
+     "all_in_rate:Float64",
+     "interest_usd:Float64",
+     "closing_usd:Int64"
+    ],
+    "financial_model_2026__dscr": [
+     "_row:Int64",
+     "quarter:String",
+     "quarter_end:Datetime(time_unit='us', time_zone=None)",
+     "half:String",
+     "cfads_usd:Int64",
+     "debt_service_usd:Float64",
+     "dscr:Float64",
+     "covenant:Float64",
+     "result:String"
+    ],
+    "financial_model_2026__cashflow": [
+     "_row:Int64",
+     "quarter:String",
+     "cfads_usd:Int64",
+     "debt_service_usd:Float64",
+     "cash_to_equity_usd:Float64",
+     "cumulative_usd:Float64"
+    ]
+   },
+   "sheets": {}
+  },
+  "Monthly_Production_2026.xlsx": {
+   "project": "ANK_RES",
+   "status": "active",
+   "tables": {
+    "monthly_production_2026__production": [
+     "_row:Int64",
+     "month:String",
+     "mwh:Int64",
+     "availability:Float64",
+     "capacity_factor:Float64"
+    ],
+    "monthly_production_2026__kpi": [
+     "_row:Int64",
+     "year:String",
+     "total_mwh:Int64",
+     "avg_availability:Float64",
+     "avg_capacity_factor:Float64",
+     "months:Int64"
+    ]
+   },
+   "sheets": {}
+  },
+  "Yesilova_Repayment_Schedule_2026-03.xlsx": {
+   "project": "YSV_RES",
+   "status": "superseded",
+   "tables": {
+    "yesilova_repayment_schedule_2026_03__schedule": [
+     "_row:Int64",
+     "deme_plan_ye_ilova_res:String",
+     "col_b:String",
+     "col_c:String",
+     "col_d:String",
+     "col_e:String"
+    ]
+   },
+   "sheets": {}
+  },
+  "Yesilova_Repayment_Schedule_2026-09.xlsx": {
+   "project": "YSV_RES",
+   "status": "active",
+   "tables": {
+    "yesilova_repayment_schedule_2026_09__schedule": [
+     "_row:Int64",
+     "deme_plan_ye_ilova_res:String",
+     "col_b:String",
+     "col_c:String",
+     "col_d:String",
+     "col_e:String"
+    ]
+   },
+   "sheets": {}
+  }
+ },
+ "cells": [
+  {
+   "id": "Y12A",
+   "ek_f": false,
+   "sql": "SELECT col_c FROM yesilova_repayment_schedule_2026_09__schedule WHERE deme_plan_ye_ilova_res = '12'",
+   "answered": true,
+   "value": "'98000'",
+   "value_type": "str",
+   "formatted": "98000",
+   "answer": "Sonuç: 98000 (SQL).",
+   "sources": [
+    "Yesilova_Repayment_Schedule_2026-09.xlsx Schedule!A2:E31"
+   ],
+   "llm_calls": [
+    "plan",
+    "answer"
+   ]
+  },
+  {
+   "id": "Y12A",
+   "ek_f": true,
+   "sql": "SELECT col_c FROM yesilova_repayment_schedule_2026_09__schedule WHERE deme_plan_ye_ilova_res = '12'",
+   "answered": true,
+   "value": "'98000'",
+   "value_type": "str",
+   "formatted": "98000",
+   "answer": "Sonuç: 98000 (SQL).",
+   "sources": [
+    "Yesilova_Repayment_Schedule_2026-09.xlsx Schedule!A2:E31"
+   ],
+   "llm_calls": [
+    "plan",
+    "answer"
+   ]
+  },
+  {
+   "id": "Y11V",
+   "ek_f": false,
+   "sql": "SELECT col_b FROM yesilova_repayment_schedule_2026_09__schedule WHERE deme_plan_ye_ilova_res = '11'",
+   "answered": true,
+   "value": "'2026-10-14 00:00:00'",
+   "value_type": "str",
+   "formatted": "2026-10-14 00:00:00",
+   "answer": "Sonuç: 2026-10-14 00:00:00 (SQL).",
+   "sources": [
+    "Yesilova_Repayment_Schedule_2026-09.xlsx Schedule!A2:E31"
+   ],
+   "llm_calls": [
+    "plan",
+    "answer"
+   ]
+  },
+  {
+   "id": "Y11V",
+   "ek_f": true,
+   "sql": "SELECT col_b FROM yesilova_repayment_schedule_2026_09__schedule WHERE deme_plan_ye_ilova_res = '11'",
+   "answered": true,
+   "value": "'2026-10-14 00:00:00'",
+   "value_type": "str",
+   "formatted": "2026-10-14 00:00:00",
+   "answer": "Sonuç: 2026-10-14 00:00:00 (SQL).",
+   "sources": [
+    "Yesilova_Repayment_Schedule_2026-09.xlsx Schedule!A2:E31"
+   ],
+   "llm_calls": [
+    "plan",
+    "answer"
+   ]
+  },
+  {
+   "id": "Y11F",
+   "ek_f": false,
+   "sql": "SELECT col_d FROM yesilova_repayment_schedule_2026_09__schedule WHERE deme_plan_ye_ilova_res = '11'",
+   "answered": true,
+   "value": "'18240'",
+   "value_type": "str",
+   "formatted": "18240",
+   "answer": "Sonuç: 18240 (SQL).",
+   "sources": [
+    "Yesilova_Repayment_Schedule_2026-09.xlsx Schedule!A2:E31"
+   ],
+   "llm_calls": [
+    "plan",
+    "answer"
+   ]
+  },
+  {
+   "id": "Y11F",
+   "ek_f": true,
+   "sql": "SELECT col_d FROM yesilova_repayment_schedule_2026_09__schedule WHERE deme_plan_ye_ilova_res = '11'",
+   "answered": true,
+   "value": "'18240'",
+   "value_type": "str",
+   "formatted": "18240",
+   "answer": "Sonuç: 18240 (SQL).",
+   "sources": [
+    "Yesilova_Repayment_Schedule_2026-09.xlsx Schedule!A2:E31"
+   ],
+   "llm_calls": [
+    "plan",
+    "answer"
+   ]
+  },
+  {
+   "id": "YNXT",
+   "ek_f": false,
+   "sql": "SELECT col_b FROM yesilova_repayment_schedule_2026_09__schedule WHERE col_b > '2026-10-06' ORDER BY col_b LIMIT 1",
+   "answered": true,
+   "value": "'2026-10-14 00:00:00'",
+   "value_type": "str",
+   "formatted": "2026-10-14 00:00:00",
+   "answer": "Sonuç: 2026-10-14 00:00:00 (SQL).",
+   "sources": [
+    "Yesilova_Repayment_Schedule_2026-09.xlsx Schedule!A2:E31"
+   ],
+   "llm_calls": [
+    "plan",
+    "answer"
+   ]
+  },
+  {
+   "id": "YNXT",
+   "ek_f": true,
+   "sql": "SELECT col_b FROM yesilova_repayment_schedule_2026_09__schedule WHERE col_b > '2026-10-06' ORDER BY col_b LIMIT 1",
+   "answered": true,
+   "value": "'2026-10-14 00:00:00'",
+   "value_type": "str",
+   "formatted": "2026-10-14 00:00:00",
+   "answer": "Sonuç: 2026-10-14 00:00:00 (SQL).",
+   "sources": [
+    "Yesilova_Repayment_Schedule_2026-09.xlsx Schedule!A2:E31"
+   ],
+   "llm_calls": [
+    "plan",
+    "answer"
+   ]
+  },
+  {
+   "id": "B12A",
+   "ek_f": false,
+   "sql": "SELECT col_d FROM boztepe_repayment_schedule_84_instalments__schedule WHERE boztepe_res_anapara_geri_deme_plan_84_taksit = '12'",
+   "answered": true,
+   "value": "'178571.43'",
+   "value_type": "str",
+   "formatted": "178571.43",
+   "answer": "Sonuç: 178571.43 (SQL).",
+   "sources": [
+    "Boztepe_Repayment_Schedule_84_Instalments.xlsx Schedule!A2:G94"
+   ],
+   "llm_calls": [
+    "plan",
+    "answer"
+   ]
+  },
+  {
+   "id": "B12A",
+   "ek_f": true,
+   "sql": "SELECT col_d FROM boztepe_repayment_schedule_84_instalments__schedule WHERE boztepe_res_anapara_geri_deme_plan_84_taksit = '12'",
+   "answered": true,
+   "value": "'178571.43'",
+   "value_type": "str",
+   "formatted": "178571.43",
+   "answer": "Sonuç: 178571.43 (SQL).",
+   "sources": [
+    "Boztepe_Repayment_Schedule_84_Instalments.xlsx Schedule!A2:G94"
+   ],
+   "llm_calls": [
+    "plan",
+    "answer"
+   ]
+  },
+  {
+   "id": "B12V",
+   "ek_f": false,
+   "sql": "SELECT col_b FROM boztepe_repayment_schedule_84_instalments__schedule WHERE boztepe_res_anapara_geri_deme_plan_84_taksit = '12'",
+   "answered": true,
+   "value": "'2028-02-01 00:00:00'",
+   "value_type": "str",
+   "formatted": "2028-02-01 00:00:00",
+   "answer": "Sonuç: 2028-02-01 00:00:00 (SQL).",
+   "sources": [
+    "Boztepe_Repayment_Schedule_84_Instalments.xlsx Schedule!A2:G94"
+   ],
+   "llm_calls": [
+    "plan",
+    "answer"
+   ]
+  },
+  {
+   "id": "B12V",
+   "ek_f": true,
+   "sql": "SELECT col_b FROM boztepe_repayment_schedule_84_instalments__schedule WHERE boztepe_res_anapara_geri_deme_plan_84_taksit = '12'",
+   "answered": true,
+   "value": "'2028-02-01 00:00:00'",
+   "value_type": "str",
+   "formatted": "2028-02-01 00:00:00",
+   "answer": "Sonuç: 2028-02-01 00:00:00 (SQL).",
+   "sources": [
+    "Boztepe_Repayment_Schedule_84_Instalments.xlsx Schedule!A2:G94"
+   ],
+   "llm_calls": [
+    "plan",
+    "answer"
+   ]
+  },
+  {
+   "id": "B12F",
+   "ek_f": false,
+   "sql": "SELECT col_e FROM boztepe_repayment_schedule_84_instalments__schedule WHERE boztepe_res_anapara_geri_deme_plan_84_taksit = '12'",
+   "answered": true,
+   "value": "'73260.71'",
+   "value_type": "str",
+   "formatted": "73260.71",
+   "answer": "Sonuç: 73260.71 (SQL).",
+   "sources": [
+    "Boztepe_Repayment_Schedule_84_Instalments.xlsx Schedule!A2:G94"
+   ],
+   "llm_calls": [
+    "plan",
+    "answer"
+   ]
+  },
+  {
+   "id": "B12F",
+   "ek_f": true,
+   "sql": "SELECT col_e FROM boztepe_repayment_schedule_84_instalments__schedule WHERE boztepe_res_anapara_geri_deme_plan_84_taksit = '12'",
+   "answered": true,
+   "value": "'73260.71'",
+   "value_type": "str",
+   "formatted": "73260.71",
+   "answer": "Sonuç: 73260.71 (SQL).",
+   "sources": [
+    "Boztepe_Repayment_Schedule_84_Instalments.xlsx Schedule!A2:G94"
+   ],
+   "llm_calls": [
+    "plan",
+    "answer"
+   ]
+  }
+ ],
+ "p2a": [
+  {
+   "user": "finans",
+   "id": "Y1",
+   "answered": false,
+   "value": null,
+   "source_projects": [],
+   "project_question": null,
+   "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+   "llm_calls": [
+    "plan"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "finans",
+   "id": "Y2",
+   "answered": false,
+   "value": null,
+   "source_projects": [],
+   "project_question": null,
+   "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+   "llm_calls": [
+    "plan"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "finans",
+   "id": "Y3",
+   "answered": false,
+   "value": null,
+   "source_projects": [],
+   "project_question": null,
+   "answer": "Bu veri sorgusu güvenlik kuralına takıldı.",
+   "llm_calls": [
+    "plan"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "finans",
+   "id": "Y4",
+   "answered": true,
+   "value": "98000",
+   "source_projects": [
+    "YSV_RES"
+   ],
+   "project_question": null,
+   "answer": "Sonuç: 98000 (SQL).",
+   "llm_calls": [
+    "plan",
+    "answer"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "finans",
+   "id": "B1",
+   "answered": false,
+   "value": null,
+   "source_projects": [],
+   "project_question": null,
+   "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+   "llm_calls": [
+    "plan"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "finans",
+   "id": "B2",
+   "answered": false,
+   "value": null,
+   "source_projects": [],
+   "project_question": null,
+   "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+   "llm_calls": [
+    "plan"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "finans",
+   "id": "B3",
+   "answered": false,
+   "value": null,
+   "source_projects": [],
+   "project_question": null,
+   "answer": "Bu veri sorgusu güvenlik kuralına takıldı.",
+   "llm_calls": [
+    "plan"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "finans",
+   "id": "B4",
+   "answered": true,
+   "value": "178571.43",
+   "source_projects": [
+    "BOZ_RES"
+   ],
+   "project_question": null,
+   "answer": "Sonuç: 178571.43 (SQL).",
+   "llm_calls": [
+    "plan",
+    "answer"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "finans",
+   "id": "K1",
+   "answered": true,
+   "value": "11.671.800 USD",
+   "source_projects": [
+    "ANK_RES"
+   ],
+   "project_question": null,
+   "answer": "Sonuç: 11.671.800 USD (outstanding on 2026-10-06 (workbook snapshot)).",
+   "llm_calls": [
+    "plan",
+    "answer"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "finans",
+   "id": "K2",
+   "answered": true,
+   "value": "1,37x",
+   "source_projects": [
+    "ANK_RES"
+   ],
+   "project_question": null,
+   "answer": "Sonuç: 1,37x (DSCR Q2_2026).",
+   "llm_calls": [
+    "plan",
+    "answer"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "finans",
+   "id": "U1",
+   "answered": true,
+   "value": "11.671.800 USD",
+   "source_projects": [
+    "ANK_RES"
+   ],
+   "project_question": null,
+   "answer": "Karatepe RES: Sonuç: 11.671.800 USD (outstanding on 2026-10-06 (workbook snapshot)).",
+   "llm_calls": [
+    "plan",
+    "answer"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "finans",
+   "id": "U2",
+   "answered": false,
+   "value": null,
+   "source_projects": [],
+   "project_question": "Hangi proje için sormak istiyorsunuz (Boztepe RES, Yeşilova RES)?",
+   "answer": "Hangi proje için sormak istiyorsunuz (Boztepe RES, Yeşilova RES)?",
+   "llm_calls": [
+    "plan"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "yonetim",
+   "id": "Y1",
+   "answered": false,
+   "value": null,
+   "source_projects": [],
+   "project_question": null,
+   "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+   "llm_calls": [
+    "plan"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "yonetim",
+   "id": "Y2",
+   "answered": false,
+   "value": null,
+   "source_projects": [],
+   "project_question": null,
+   "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+   "llm_calls": [
+    "plan"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "yonetim",
+   "id": "Y3",
+   "answered": false,
+   "value": null,
+   "source_projects": [],
+   "project_question": null,
+   "answer": "Bu veri sorgusu güvenlik kuralına takıldı.",
+   "llm_calls": [
+    "plan"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "yonetim",
+   "id": "Y4",
+   "answered": true,
+   "value": "98000",
+   "source_projects": [
+    "YSV_RES"
+   ],
+   "project_question": null,
+   "answer": "Sonuç: 98000 (SQL).",
+   "llm_calls": [
+    "plan",
+    "answer"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "yonetim",
+   "id": "B1",
+   "answered": false,
+   "value": null,
+   "source_projects": [],
+   "project_question": null,
+   "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+   "llm_calls": [
+    "plan"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "yonetim",
+   "id": "B2",
+   "answered": false,
+   "value": null,
+   "source_projects": [],
+   "project_question": null,
+   "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+   "llm_calls": [
+    "plan"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "yonetim",
+   "id": "B3",
+   "answered": false,
+   "value": null,
+   "source_projects": [],
+   "project_question": null,
+   "answer": "Bu veri sorgusu güvenlik kuralına takıldı.",
+   "llm_calls": [
+    "plan"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "yonetim",
+   "id": "B4",
+   "answered": true,
+   "value": "178571.43",
+   "source_projects": [
+    "BOZ_RES"
+   ],
+   "project_question": null,
+   "answer": "Sonuç: 178571.43 (SQL).",
+   "llm_calls": [
+    "plan",
+    "answer"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "yonetim",
+   "id": "K1",
+   "answered": true,
+   "value": "11.671.800 USD",
+   "source_projects": [
+    "ANK_RES"
+   ],
+   "project_question": null,
+   "answer": "Sonuç: 11.671.800 USD (outstanding on 2026-10-06 (workbook snapshot)).",
+   "llm_calls": [
+    "plan",
+    "answer"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "yonetim",
+   "id": "K2",
+   "answered": true,
+   "value": "1,37x",
+   "source_projects": [
+    "ANK_RES"
+   ],
+   "project_question": null,
+   "answer": "Sonuç: 1,37x (DSCR Q2_2026).",
+   "llm_calls": [
+    "plan",
+    "answer"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "yonetim",
+   "id": "U1",
+   "answered": true,
+   "value": "11.671.800 USD",
+   "source_projects": [
+    "ANK_RES"
+   ],
+   "project_question": null,
+   "answer": "Karatepe RES: Sonuç: 11.671.800 USD (outstanding on 2026-10-06 (workbook snapshot)).",
+   "llm_calls": [
+    "plan",
+    "answer"
+   ],
+   "foreign_project_value": false
+  },
+  {
+   "user": "yonetim",
+   "id": "U2",
+   "answered": false,
+   "value": null,
+   "source_projects": [],
+   "project_question": "Hangi proje için sormak istiyorsunuz (Boztepe RES, Yeşilova RES)?",
+   "answer": "Hangi proje için sormak istiyorsunuz (Boztepe RES, Yeşilova RES)?",
+   "llm_calls": [
+    "plan"
+   ],
+   "foreign_project_value": false
+  }
+ ],
+ "foreign_total": 0
+}

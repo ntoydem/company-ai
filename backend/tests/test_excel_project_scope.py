@@ -46,8 +46,8 @@ TODAY_DEBT = {"kind": "function", "name": "outstanding_debt", "params": {"as_of"
 DSCR = {"kind": "function", "name": "dscr", "params": {"period": "Q2_2026"}}
 YSV_12 = {
     "kind": "sql",
-    "sql": "SELECT col_c FROM yesilova_repayment_schedule_2026_09__schedule "
-    "WHERE deme_plan_ye_ilova_res = '12'",
+    "sql": "SELECT anapara_usd FROM yesilova_repayment_schedule_2026_09__schedule "
+    "WHERE taksit_no = 12",
     "future_ok": True,
 }
 KARATEPE_DEBT = "11.671.800"
@@ -142,7 +142,7 @@ def test_named_project_reads_its_own_workbook(
 
     body = _excel_ask(client, "Yeşilova RES ödeme planında 12. taksitin anaparası ne kadar?")
 
-    assert body["answered"] is True and body["value"] == "98000"
+    assert body["answered"] is True and body["value"] == 98000
     assert body["excel_files"] == ["Yesilova_Repayment_Schedule_2026-09.xlsx"]
     assert body["answer"] == "12. taksitin anaparası 98000."  # named: no prefix added
 
