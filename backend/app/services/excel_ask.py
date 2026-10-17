@@ -40,6 +40,7 @@ from app.services import tr_format
 from app.services.answer_prompt import NO_ANSWER_TEXT
 from app.services.audit_writer import write_audit_row
 from app.services.authorization import allowed_document_ids
+from app.services.excel_scope import answer_project, project_question, scope_workbooks
 from app.services.llm import LLMClient, LLMRequest
 from app.services.temporal import today as temporal_today
 
@@ -121,6 +122,9 @@ class ExcelAskResult:
     # S0-a: set only when the engine guard ended the call (answered=False); `sources` then
     # lists the ranges that were *tried*, not a source of an answer.
     ambiguous: AmbiguousResult | None = None
+    # ADR-036: no project named and the data is held by several projects (or two projects
+    # named) — `answer` is this one question, no figure was shown to anyone (answered=False).
+    project_question: str | None = None
 
 
 # ---------------------------------------------------------------- formatting
@@ -336,15 +340,21 @@ def answer_data_question(
     engine: CalculationEngine,
     *,
     write_audit: bool = True,
+    original_question: str | None = None,
 ) -> ExcelAskResult:
-    """`write_audit=False` (Phase 4.3): the router owns the call's single audit row."""
+    """`write_audit=False` (Phase 4.3): the router owns the call's single audit row.
+    `original_question` (ADR-036): the user's own wording when `request.question` is the
+    router's sub-question — project names are read from what the user typed."""
     started = time.perf_counter()
-    scope = AuthorizationScope(department=request.department)
-    allowed = allowed_document_ids(user, scope, SqlDocumentIdsProvider(session))
+    allowed = allowed_document_ids(
+        user, AuthorizationScope(department=request.department), SqlDocumentIdsProvider(session)
+    )
     if request.document_ids:
         allowed = allowed & set(request.document_ids)
-    documents = document_repo.list_excel_by_ids(session, allowed)
-    workbooks, needs_recalc = _load_workbooks(documents, engine, settings.documents_dir)
+    # ADR-036: narrowed inside `allowed` — a workbook outside it never reaches the catalogue.
+    scope = scope_workbooks(session, allowed, original_question or request.question)
+    workbooks, needs_recalc = _load_workbooks(scope.documents, engine, settings.documents_dir)
+    catalogue_documents = [document for document, _ in workbooks]
 
     def finish(result: ExcelAskResult, *, error: str | None = None) -> ExcelAskResult:
         if write_audit:
@@ -383,6 +393,27 @@ def answer_data_question(
         tokens_out += response.tokens_out
         plan_model_name = response.model
         return _parse_plan(response.text)
+
+    def asked_project(read_from: list[SourceRange], plan: dict[str, Any]) -> ExcelAskResult | None:
+        """ADR-036: before any figure or the answering model — which project?"""
+        used = [s.document_id for s in read_from if s.document_id is not None]
+        question = project_question(session, scope, used, catalogue_documents)
+        if question is None:
+            return None
+        log.info("excel project question", extra={"plan": plan, "question": question})
+        return ExcelAskResult(
+            question,
+            False,
+            None,
+            None,
+            None,
+            plan_kind=_kind(plan),
+            plan=plan,
+            model=plan_model_name,
+            tokens_in=tokens_in,
+            tokens_out=tokens_out,
+            project_question=question,
+        )
 
     def execute(plan: dict[str, Any]) -> tuple[CalcResult | None, QueryResult | None]:
         if plan["kind"] == "function":
@@ -442,6 +473,9 @@ def answer_data_question(
                 )
             tried += [s for s in query.sources if s not in tried]
             if attempt == PLAN_MAX_ATTEMPTS:
+                asked = asked_project(tried, plan)
+                if asked is not None:
+                    return finish(asked)
                 return finish(
                     ExcelAskResult(
                         NO_ANSWER_TEXT,
@@ -541,6 +575,11 @@ def answer_data_question(
             )
         )
 
+    read_from = [calc.source] if calc is not None else list(query.sources if query else [])
+    asked = asked_project(read_from, plan)
+    if asked is not None:
+        return finish(asked)
+
     if calc is not None:
         value, unit, detail = calc.value, calc.unit, calc.detail
         sources = [_card(calc.source)]
@@ -574,6 +613,12 @@ def answer_data_question(
     ):
         log.warning("excel answer dropped engine value, using template", extra={"answer": answer})
         answer = f"Sonuç: {formatted} ({detail})."
+    # ADR-036 (Tansu 17.10 madde 9): an unnamed question answered from one project's
+    # workbook says which project — by code, next to the source card.
+    read_ids = [s.document_id for s in read_from if s.document_id is not None]
+    project = answer_project(session, scope, read_ids, catalogue_documents)
+    if project is not None and project not in answer:
+        answer = f"{project}: {answer}"
     return finish(
         ExcelAskResult(
             answer=answer,

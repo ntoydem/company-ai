@@ -51,7 +51,12 @@ from app.schemas.excel import ExcelAskRequest, ExcelSourceCard
 from app.services import pending_documents, tr_format
 from app.services.answer_prompt import NO_DATA_VERDICT
 from app.services.ask import answer_question, project_question_for
-from app.services.assist import Assist, excel_choice_question, is_existence_question
+from app.services.assist import (
+    Assist,
+    build_unnamed_project_assist,
+    excel_choice_question,
+    is_existence_question,
+)
 from app.services.audit_writer import write_audit_row
 from app.services.excel_ask import answer_data_question, excel_document_ids
 from app.services.llm import LLMClient, LLMError
@@ -214,6 +219,8 @@ def _run(
             settings,
             engine,
             write_audit=False,
+            # ADR-036: the same rule for workbooks — the user's own wording names the project.
+            original_question=request.question,
         )
 
     if (
@@ -221,6 +228,7 @@ def _run(
         and data is not None
         and not data.answered
         and data.ambiguous is None
+        and data.project_question is None
     ):
         # A DATA miss (no visible workbook, plan `none`, unknown period …) falls through
         # to the document pipeline with the original question: a question the router
@@ -237,7 +245,11 @@ def _run(
 
     excel_assist: Assist | None = None
     data_answer = data.answer if data is not None else ""
-    if (
+    if data is not None and data.project_question is not None:
+        # ADR-036: the Excel half asks which project (no figure; flag-independent, as the
+        # document path's N1 question). Not a miss — no document fall-through.
+        excel_assist = build_unnamed_project_assist(data.project_question)
+    elif (
         settings.ek_f_enabled
         and data is not None
         and not data.answered
@@ -250,7 +262,18 @@ def _run(
         data_answer = f"{NO_DATA_VERDICT}\n{choice}"
         excel_assist = Assist(kind="clarify", question=choice)
 
-    if doc is not None and data is not None:
+    if (
+        doc is not None
+        and data is not None
+        and data.project_question is not None
+        and not doc.answered
+        and doc.assist is not None
+        and doc.assist.kind == "disambiguate"
+    ):
+        # ADR-036: MIXED with both halves asking which project → one question, the
+        # document half's (its options also cover the projects holding documents).
+        answer, answered = doc.answer, False
+    elif doc is not None and data is not None:
         answer = merge_mixed_answer(
             doc.answer,
             data_answer,
@@ -295,7 +318,8 @@ def _run(
             # S0-a: an ambiguous Excel result found data but no single value → the same
             # "found, but not enough" label as a document the model could not use.
             found = (doc is not None and bool(doc.retrieved_document_ids)) or (
-                data is not None and data.ambiguous is not None
+                data is not None
+                and (data.ambiguous is not None or data.project_question is not None)
             )
             no_answer = [insufficient_data_warning() if found else missing_data_warning()]
     else:

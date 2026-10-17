@@ -1,0 +1,460 @@
+[
+ {
+  "label": "after",
+  "user": "finans",
+  "id": "Y1",
+  "question": "Yeşilova RES'in kalan kredi borcu ne kadar?",
+  "plan": "outstanding_debt",
+  "answered": false,
+  "value": null,
+  "source_projects": [],
+  "files": [],
+  "project_question": null,
+  "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+  "llm_calls": [
+   "plan"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "finans",
+  "id": "Y2",
+  "question": "Yeşilova RES'in güncel DSCR değeri kaç?",
+  "plan": "dscr",
+  "answered": false,
+  "value": null,
+  "source_projects": [],
+  "files": [],
+  "project_question": null,
+  "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+  "llm_calls": [
+   "plan"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "finans",
+  "id": "Y3",
+  "question": "Yeşilova RES'in kalan kredi borcu ne kadar?",
+  "plan": "sql",
+  "answered": false,
+  "value": null,
+  "source_projects": [],
+  "files": [],
+  "project_question": null,
+  "answer": "Bu veri sorgusu güvenlik kuralına takıldı.",
+  "llm_calls": [
+   "plan"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "finans",
+  "id": "Y4",
+  "question": "Yeşilova RES ödeme planında 12. taksitin anaparası ne kadar?",
+  "plan": "sql",
+  "answered": true,
+  "value": "98000",
+  "source_projects": [
+   "YSV_RES"
+  ],
+  "files": [
+   "Yesilova_Repayment_Schedule_2026-09.xlsx"
+  ],
+  "project_question": null,
+  "answer": "Sonuç: 98000 (SQL).",
+  "llm_calls": [
+   "plan",
+   "answer"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "finans",
+  "id": "B1",
+  "question": "Boztepe RES'in kalan kredi borcu ne kadar?",
+  "plan": "outstanding_debt",
+  "answered": false,
+  "value": null,
+  "source_projects": [],
+  "files": [],
+  "project_question": null,
+  "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+  "llm_calls": [
+   "plan"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "finans",
+  "id": "B2",
+  "question": "Boztepe RES'in güncel DSCR değeri kaç?",
+  "plan": "dscr",
+  "answered": false,
+  "value": null,
+  "source_projects": [],
+  "files": [],
+  "project_question": null,
+  "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+  "llm_calls": [
+   "plan"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "finans",
+  "id": "B3",
+  "question": "Boztepe RES'in kalan kredi borcu ne kadar?",
+  "plan": "sql",
+  "answered": false,
+  "value": null,
+  "source_projects": [],
+  "files": [],
+  "project_question": null,
+  "answer": "Bu veri sorgusu güvenlik kuralına takıldı.",
+  "llm_calls": [
+   "plan"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "finans",
+  "id": "B4",
+  "question": "Boztepe RES ödeme planında 12. taksitin anaparası ne kadar?",
+  "plan": "sql",
+  "answered": true,
+  "value": "178571.43",
+  "source_projects": [
+   "BOZ_RES"
+  ],
+  "files": [
+   "Boztepe_Repayment_Schedule_84_Instalments.xlsx"
+  ],
+  "project_question": null,
+  "answer": "Sonuç: 178571.43 (SQL).",
+  "llm_calls": [
+   "plan",
+   "answer"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "finans",
+  "id": "K1",
+  "question": "Karatepe RES'in kalan kredi borcu ne kadar?",
+  "plan": "outstanding_debt",
+  "answered": true,
+  "value": "11.671.800 USD",
+  "source_projects": [
+   "ANK_RES"
+  ],
+  "files": [
+   "Financial_Model_2026.xlsx"
+  ],
+  "project_question": null,
+  "answer": "Sonuç: 11.671.800 USD (outstanding on 2026-10-06 (workbook snapshot)).",
+  "llm_calls": [
+   "plan",
+   "answer"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "finans",
+  "id": "K2",
+  "question": "Karatepe RES'in güncel DSCR değeri kaç?",
+  "plan": "dscr",
+  "answered": true,
+  "value": "1,37x",
+  "source_projects": [
+   "ANK_RES"
+  ],
+  "files": [
+   "Covenant_Report.xlsx"
+  ],
+  "project_question": null,
+  "answer": "Sonuç: 1,37x (DSCR Q2_2026).",
+  "llm_calls": [
+   "plan",
+   "answer"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "finans",
+  "id": "U1",
+  "question": "Kalan kredi borcu ne kadar?",
+  "plan": "outstanding_debt",
+  "answered": true,
+  "value": "11.671.800 USD",
+  "source_projects": [
+   "ANK_RES"
+  ],
+  "files": [
+   "Financial_Model_2026.xlsx"
+  ],
+  "project_question": null,
+  "answer": "Karatepe RES: Sonuç: 11.671.800 USD (outstanding on 2026-10-06 (workbook snapshot)).",
+  "llm_calls": [
+   "plan",
+   "answer"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "finans",
+  "id": "U2",
+  "question": "Ödeme planında 12. taksitin anaparası ne kadar?",
+  "plan": "sql",
+  "answered": false,
+  "value": null,
+  "source_projects": [],
+  "files": [],
+  "project_question": "Hangi proje için sormak istiyorsunuz (Boztepe RES, Yeşilova RES)?",
+  "answer": "Hangi proje için sormak istiyorsunuz (Boztepe RES, Yeşilova RES)?",
+  "llm_calls": [
+   "plan"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "yonetim",
+  "id": "Y1",
+  "question": "Yeşilova RES'in kalan kredi borcu ne kadar?",
+  "plan": "outstanding_debt",
+  "answered": false,
+  "value": null,
+  "source_projects": [],
+  "files": [],
+  "project_question": null,
+  "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+  "llm_calls": [
+   "plan"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "yonetim",
+  "id": "Y2",
+  "question": "Yeşilova RES'in güncel DSCR değeri kaç?",
+  "plan": "dscr",
+  "answered": false,
+  "value": null,
+  "source_projects": [],
+  "files": [],
+  "project_question": null,
+  "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+  "llm_calls": [
+   "plan"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "yonetim",
+  "id": "Y3",
+  "question": "Yeşilova RES'in kalan kredi borcu ne kadar?",
+  "plan": "sql",
+  "answered": false,
+  "value": null,
+  "source_projects": [],
+  "files": [],
+  "project_question": null,
+  "answer": "Bu veri sorgusu güvenlik kuralına takıldı.",
+  "llm_calls": [
+   "plan"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "yonetim",
+  "id": "Y4",
+  "question": "Yeşilova RES ödeme planında 12. taksitin anaparası ne kadar?",
+  "plan": "sql",
+  "answered": true,
+  "value": "98000",
+  "source_projects": [
+   "YSV_RES"
+  ],
+  "files": [
+   "Yesilova_Repayment_Schedule_2026-09.xlsx"
+  ],
+  "project_question": null,
+  "answer": "Sonuç: 98000 (SQL).",
+  "llm_calls": [
+   "plan",
+   "answer"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "yonetim",
+  "id": "B1",
+  "question": "Boztepe RES'in kalan kredi borcu ne kadar?",
+  "plan": "outstanding_debt",
+  "answered": false,
+  "value": null,
+  "source_projects": [],
+  "files": [],
+  "project_question": null,
+  "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+  "llm_calls": [
+   "plan"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "yonetim",
+  "id": "B2",
+  "question": "Boztepe RES'in güncel DSCR değeri kaç?",
+  "plan": "dscr",
+  "answered": false,
+  "value": null,
+  "source_projects": [],
+  "files": [],
+  "project_question": null,
+  "answer": "Erişebildiğiniz Excel dosyalarında bu soruyu cevaplayacak veri bulamadım.",
+  "llm_calls": [
+   "plan"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "yonetim",
+  "id": "B3",
+  "question": "Boztepe RES'in kalan kredi borcu ne kadar?",
+  "plan": "sql",
+  "answered": false,
+  "value": null,
+  "source_projects": [],
+  "files": [],
+  "project_question": null,
+  "answer": "Bu veri sorgusu güvenlik kuralına takıldı.",
+  "llm_calls": [
+   "plan"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "yonetim",
+  "id": "B4",
+  "question": "Boztepe RES ödeme planında 12. taksitin anaparası ne kadar?",
+  "plan": "sql",
+  "answered": true,
+  "value": "178571.43",
+  "source_projects": [
+   "BOZ_RES"
+  ],
+  "files": [
+   "Boztepe_Repayment_Schedule_84_Instalments.xlsx"
+  ],
+  "project_question": null,
+  "answer": "Sonuç: 178571.43 (SQL).",
+  "llm_calls": [
+   "plan",
+   "answer"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "yonetim",
+  "id": "K1",
+  "question": "Karatepe RES'in kalan kredi borcu ne kadar?",
+  "plan": "outstanding_debt",
+  "answered": true,
+  "value": "11.671.800 USD",
+  "source_projects": [
+   "ANK_RES"
+  ],
+  "files": [
+   "Financial_Model_2026.xlsx"
+  ],
+  "project_question": null,
+  "answer": "Sonuç: 11.671.800 USD (outstanding on 2026-10-06 (workbook snapshot)).",
+  "llm_calls": [
+   "plan",
+   "answer"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "yonetim",
+  "id": "K2",
+  "question": "Karatepe RES'in güncel DSCR değeri kaç?",
+  "plan": "dscr",
+  "answered": true,
+  "value": "1,37x",
+  "source_projects": [
+   "ANK_RES"
+  ],
+  "files": [
+   "Covenant_Report.xlsx"
+  ],
+  "project_question": null,
+  "answer": "Sonuç: 1,37x (DSCR Q2_2026).",
+  "llm_calls": [
+   "plan",
+   "answer"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "yonetim",
+  "id": "U1",
+  "question": "Kalan kredi borcu ne kadar?",
+  "plan": "outstanding_debt",
+  "answered": true,
+  "value": "11.671.800 USD",
+  "source_projects": [
+   "ANK_RES"
+  ],
+  "files": [
+   "Financial_Model_2026.xlsx"
+  ],
+  "project_question": null,
+  "answer": "Karatepe RES: Sonuç: 11.671.800 USD (outstanding on 2026-10-06 (workbook snapshot)).",
+  "llm_calls": [
+   "plan",
+   "answer"
+  ],
+  "foreign_project_value": false
+ },
+ {
+  "label": "after",
+  "user": "yonetim",
+  "id": "U2",
+  "question": "Ödeme planında 12. taksitin anaparası ne kadar?",
+  "plan": "sql",
+  "answered": false,
+  "value": null,
+  "source_projects": [],
+  "files": [],
+  "project_question": "Hangi proje için sormak istiyorsunuz (Boztepe RES, Yeşilova RES)?",
+  "answer": "Hangi proje için sormak istiyorsunuz (Boztepe RES, Yeşilova RES)?",
+  "llm_calls": [
+   "plan"
+  ],
+  "foreign_project_value": false
+ }
+]
