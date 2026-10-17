@@ -1,0 +1,67 @@
+db company_ai_eval read_only on
+GEN-DSC-003    enerji   match=True route=unnamed_value_question pwd=['Karatepe RES']
+   today:    Hangi proje için sormak istiyorsunuz (Karatepe RES, Kızılova RES)?
+   new:      Hangi proje için sormak istiyorsunuz (Karatepe RES)?
+   expected: Hangi proje için sormak istiyorsunuz (Karatepe RES)?
+   phrases: required=['Karatepe'] missing=[] forbidden_hit=[]
+GEN-DSC-004    enerji   match=True route=unnamed_value_question pwd=['Karatepe RES', 'Kızılova RES']
+   today:    Hangi proje için sormak istiyorsunuz (Karatepe RES, Kızılova RES)?
+   new:      Hangi proje için sormak istiyorsunuz (Karatepe RES, Kızılova RES)?
+   expected: Hangi proje için sormak istiyorsunuz (Karatepe RES, Kızılova RES)?
+   phrases: required=['Karatepe', 'Kızılova'] missing=[] forbidden_hit=[]
+ANK-MIX-001    finans   match=True route=unnamed_value_question pwd=['Boztepe RES', 'Karatepe RES', 'Yeşilova RES']
+   today:    Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+   new:      Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Yeşilova RES)?
+   expected: Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Yeşilova RES)?
+   phrases: required=['Boztepe', 'Karatepe', 'Yeşilova'] missing=[] forbidden_hit=[]
+GEN-AMB-002    finans   match=True route=unnamed_value_question pwd=['Boztepe RES', 'Karatepe RES', 'Yeşilova RES']
+   today:    Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+   new:      Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Yeşilova RES)?
+   expected: Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Yeşilova RES)?
+ANK-NEG-003    finans   match=True route=unnamed_value_question pwd=['Boztepe RES', 'Karatepe RES', 'Kızılova RES', 'Yeşilova RES']
+   today:    Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+   new:      Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+   expected: Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+GEN-AMB-001    yonetim  match=True route=unnamed_value_question pwd=['Boztepe RES', 'Karatepe RES', 'Kızılova RES', 'Yeşilova RES']
+   today:    Hangi proje için sormak istiyorsunuz (Akyar GES, Boztepe RES, Demirci RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+   new:      Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+   expected: Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+GEN-AMB-003    yonetim  match=True route=unnamed_value_question pwd=['Karatepe RES']
+   today:    Hangi proje için sormak istiyorsunuz (Akyar GES, Boztepe RES, Demirci RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+   new:      Hangi proje için sormak istiyorsunuz (Karatepe RES)?
+   expected: Hangi proje için sormak istiyorsunuz (Karatepe RES)?
+GEN-AMB-003-F  finans   match=True route=unnamed_value_question pwd=['Karatepe RES']
+   today:    Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+   new:      Hangi proje için sormak istiyorsunuz (Karatepe RES)?
+   expected: Hangi proje için sormak istiyorsunuz (Karatepe RES)?
+GEN-AMB-004    enerji   match=True route=unnamed_value_question pwd=['Karatepe RES', 'Kızılova RES']
+   today:    Hangi proje için sormak istiyorsunuz (Karatepe RES, Kızılova RES)?
+   new:      Hangi proje için sormak istiyorsunuz (Karatepe RES, Kızılova RES)?
+   expected: Hangi proje için sormak istiyorsunuz (Karatepe RES, Kızılova RES)?
+ANK-NEG-004    enerji   match=True route=unnamed_value_question pwd=['Karatepe RES', 'Kızılova RES']
+   today:    Hangi proje için sormak istiyorsunuz (Karatepe RES, Kızılova RES)?
+   new:      Hangi proje için sormak istiyorsunuz (Karatepe RES, Kızılova RES)?
+   expected: Hangi proje için sormak istiyorsunuz (Karatepe RES, Kızılova RES)?
+GEN-AMB-006    hukuk    match=True route=unnamed_value_question pwd=None
+   today:    Hangi proje için sormak istiyorsunuz (Karatepe RES, Kızılova RES)?
+   new:      Hangi proje için sormak istiyorsunuz (Karatepe RES, Kızılova RES)?
+   expected: Hangi proje için sormak istiyorsunuz (Karatepe RES, Kızılova RES)?
+GEN-GEN-002    yonetim  match=True route=unnamed_value_question pwd=['Karatepe RES', 'Kızılova RES']
+   today:    Hangi proje için sormak istiyorsunuz (Akyar GES, Boztepe RES, Demirci RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+   new:      Hangi proje için sormak istiyorsunuz (Karatepe RES, Kızılova RES)?
+   expected: Hangi proje için sormak istiyorsunuz (Karatepe RES, Kızılova RES)?
+GEN-GEN-003    yonetim  match=True route=unnamed_value_question pwd=['Boztepe RES', 'Karatepe RES', 'Kızılova RES', 'Yeşilova RES']
+   today:    Hangi proje için sormak istiyorsunuz (Akyar GES, Boztepe RES, Demirci RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+   new:      Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+   expected: Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+GEN-DSC-011    yonetim  match=True route=unnamed_value_question pwd=['Boztepe RES', 'Karatepe RES', 'Kızılova RES', 'Yeşilova RES']
+   today:    Hangi proje için sormak istiyorsunuz (Akyar GES, Boztepe RES, Demirci RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+   new:      Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+   expected: Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+GEN-DSC-011-K  yonetim  match=True route=unnamed_value_question pwd=['Boztepe RES', 'Karatepe RES', 'Kızılova RES', 'Yeşilova RES']
+   today:    Hangi proje için sormak istiyorsunuz (Akyar GES, Boztepe RES, Demirci RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+   new:      Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+   expected: Hangi proje için sormak istiyorsunuz (Boztepe RES, Karatepe RES, Kızılova RES, Yeşilova RES)?
+project_question_for ms: p50=21.7 p95=46.2 n=300
+projects_with_data   ms: p50=15.5 p95=29.9 n=300
+matches: 15/15
